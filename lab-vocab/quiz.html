@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>クイズ</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+</head>
+<body>
+
+    <div id="quiz-screen" class="screen">
+        <div class="progress-bar-container"><div class="progress-bar" id="timer-bar"></div></div>
+        
+        <div class="screen-header">
+            <div class="quiz-status" id="quiz-progress">- / -</div>
+        </div>
+
+        <div class="quiz-header-container" style="justify-content:center; margin-top:10px;">
+            <div class="quiz-level-badge" id="quiz-level-display">Lv.0</div>
+        </div>
+
+        <div class="word-card">
+            <div class="word-row">
+                <button class="icon-btn" id="mask-toggle-btn" onclick="app.toggleMask()">👁️</button>
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <div class="question-text" id="q-text">Loading...</div>
+                    <div id="pos-badge" class="pos-badge" style="background:#eee;color:#888;margin-top:5px;">Pos</div>
+                </div>
+                <button class="icon-btn" id="speaker-btn" onclick="app.replaySpeak()">🔊</button>
+            </div>
+            <div class="question-sub" id="q-sub"></div>
+        </div>
+        <div id="feedback-overlay"><div class="feedback-icon" id="fb-icon"></div><div class="feedback-msg" id="fb-msg"></div></div>
+        <div class="choices-container" id="choices-area"></div>
+        
+        <button class="btn-home" style="margin-top:20px;" onclick="app.confirmHome()">中断してホームへ</button>
+    </div>
+
+<script src="./app.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => app.init());</script>
+</body>
+</html>

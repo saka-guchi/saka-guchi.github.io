@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>一覧</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+</head>
+<body>
+
+    <div id="list-screen" class="screen">
+        <div class="screen-header">
+            <div class="screen-title">単語一覧</div>
+            <button class="btn-home-mini" onclick="window.location.href='index.html'">Home</button>
+        </div>
+        <div class="word-list-container" id="list-content"></div>
+    </div>
+
+<script src="./app.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => app.init());</script>
+</body>
+</html>

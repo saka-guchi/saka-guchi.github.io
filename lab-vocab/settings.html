@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>設定</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+</head>
+<body>
+
+    <div id="settings-screen" class="screen" style="background:var(--primary); padding-top:30px;">
+        <div class="home-card" style="margin:0 auto;">
+            <div class="setting-title" style="text-align:center; font-size:1.2rem; border:none;">Settings</div>
+            <div class="setting-section">
+                <div class="setting-title">データ管理</div>
+                <button class="btn btn-sub" style="background:#E53935; margin-bottom:15px;" onclick="app.resetStats()">🗑️ 学習記録初期化</button>
+            </div>
+            <button class="btn-home" onclick="window.location.href='index.html'">ホームへ戻る</button>
+        </div>
+    </div>
+
+<script src="./app.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => app.init());</script>
+</body>
+</html>
