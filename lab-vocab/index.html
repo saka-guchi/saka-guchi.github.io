@@ -23,59 +23,49 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .hidden { display: none !important; }
-        .screen { flex: 1; display: flex; flex-direction: column; padding: 20px; height: 100%; position: relative; overflow-y: auto; }
         
-        /* UI Components */
+        /* Flex Screen for Scrolling */
+        .screen { flex: 1; display: flex; flex-direction: column; padding: 20px; height: 100%; position: relative; overflow-y: auto; }
+        /* Result Screen: Use Flex column to allow list to scroll */
+        #result-screen { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+        
+        /* Icons & Buttons */
         .icon-sm { width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 4px; }
-        .btn { background: var(--accent); color: var(--white); border: none; border-radius: 50px; padding: 14px 20px; font-size: 1.0rem; font-weight: bold; cursor: pointer; width: 100%; margin: 10px auto; display: block; box-shadow: 0 3px 6px rgba(93, 64, 55, 0.3); transition: transform 0.1s; position: relative; z-index: 50; display:flex; align-items:center; justify-content:center; }
+        .btn { background: var(--accent); color: var(--white); border: none; border-radius: 50px; padding: 12px 20px; font-size: 1.0rem; font-weight: bold; cursor: pointer; width: 100%; margin: 10px auto; display: block; box-shadow: 0 3px 6px rgba(93, 64, 55, 0.3); transition: transform 0.1s; position: relative; z-index: 50; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
         .btn:active { transform: scale(0.98); background: #3E2723; }
-        .btn-sub { background: #8D6E63; font-size: 0.85rem; padding: 12px 15px; margin-top: 8px; color: white; border: none; border-radius: 50px; width: 100%; cursor: pointer; position: relative; z-index: 50; display:flex; align-items:center; justify-content:center; }
+        .btn-sub { background: #8D6E63; font-size: 0.85rem; padding: 10px 15px; margin-top: 8px; color: white; border: none; border-radius: 50px; width: 100%; cursor: pointer; position: relative; z-index: 50; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
         .btn-back { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.95); border: 1px solid #ccc; border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; color: #555; cursor: pointer; z-index: 100; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; width: 100%; }
-        .btn-retry { background: var(--blue); color: white; flex: 1; }
-
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; width: 100%; flex-shrink: 0; }
+        
         /* Home */
         #home-screen { justify-content: flex-start; align-items: center; background: var(--primary); color: var(--accent); padding-top: 30px; }
-        .app-header { text-align: center; margin-bottom: 15px; width: 100%; }
-        .app-logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; margin: 0; line-height: 1.2; color: #5D4037; text-shadow: 1px 1px 0 rgba(255,255,255,0.4); }
+        .app-header { text-align: center; margin-bottom: 10px; width: 100%; flex-shrink: 0; }
+        .app-logo { font-size: 1.8rem; font-weight: 900; margin: 0; line-height: 1.2; color: #5D4037; text-shadow: 1px 1px 0 rgba(255,255,255,0.4); }
         .app-version { font-size: 0.75rem; font-weight: normal; opacity: 0.8; margin-top: 4px; color: #5D4037; }
-        .home-card { background: white; color: var(--text); width: 95%; max-width: 400px; padding: 20px; border-radius: 24px; box-shadow: 0 10px 25px rgba(62,39,35,0.15); text-align: center; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; z-index: 10; position: relative; }
+        .home-card { background: white; color: var(--text); width: 95%; max-width: 400px; padding: 15px; border-radius: 24px; box-shadow: 0 10px 25px rgba(62,39,35,0.15); text-align: center; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; z-index: 10; position: relative; }
         
-        /* Lottie & Bubble */
-        .lottie-wrapper { width: 180px; height: 180px; margin: 0 auto; position: relative; }
+        /* Lottie & Hearts */
+        .lottie-wrapper { width: 160px; height: 160px; margin: 0 auto; position: relative; flex-shrink: 0; }
         #lottie-dog, #lottie-dog-result { width: 100% !important; height: 100% !important; display: block; cursor: pointer; }
         .dog-bubble { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #fff; border: 2px solid var(--accent); color: var(--accent); padding: 8px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; white-space: nowrap; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; box-shadow: 0 3px 8px rgba(0,0,0,0.1); z-index: 20; }
         .dog-bubble.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-        .dog-bubble::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: var(--accent) transparent transparent transparent; }
-
-        .status-badge { display: inline-block; background: #F5F5F5; padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; color: #5D4037; font-weight: bold; border: 1px solid #E0E0E0; transition: background 0.2s; width: 100%; text-align: center; }
-        .status-badge.clickable { cursor: pointer; color: var(--blue); border-color: var(--blue); background: #E3F2FD; }
         
+        .heart-meter { display: flex; justify-content: center; gap: 4px; margin-bottom: 5px; flex-shrink: 0; }
+        .heart-icon { width: 16px; height: 16px; fill: #ddd; transition: fill 0.5s ease; }
+        .heart-icon.active { fill: #E91E63; } /* Pink */
+
         /* Chart */
-        .chart-wrapper { width: 100%; height: 130px; margin: 5px 0; display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 5px; border-bottom: 2px dashed #E0E0E0; }
+        .chart-wrapper { width: 100%; height: 120px; margin: 5px 0; display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 5px; border-bottom: 2px dashed #E0E0E0; }
         .chart-bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; margin: 0 1px; }
         .chart-bar { width: 90%; border-radius: 4px 4px 0 0; transition: height 1.0s cubic-bezier(0.2, 0.8, 0.2, 1); min-height: 4px; position: relative; }
-        .chart-label { font-size: 0.6rem; color: #5D4037; margin-top: 4px; font-weight: bold; writing-mode: horizontal-tb; white-space: nowrap; text-align:center; line-height:1.2; }
-        .chart-info { display: flex; flex-direction: column; align-items: center; margin-bottom: 2px; }
+        .chart-label { font-size: 0.6rem; color: #5D4037; margin-top: 4px; font-weight: bold; text-align: center; line-height: 1.2; } 
         .chart-count { font-size: 0.7rem; font-weight: bold; color: #5D4037; line-height: 1; margin-bottom: 2px; }
         .chart-diff { font-size: 0.65rem; font-weight: bold; border-radius: 4px; padding: 0 3px; margin-bottom: 2px; opacity: 0; transform: translateY(5px); transition: all 0.5s ease 0.8s; }
         .chart-diff.show { opacity: 1; transform: translateY(0); }
         .diff-plus { color: var(--blue); background: #E3F2FD; } .diff-minus { color: var(--wrong); background: #FFEBEE; }
         .bar-0 { background: var(--lv0); } .bar-1 { background: var(--wrong); } .bar-2 { background: #FF9800; } .bar-3 { background: #FDD835; } .bar-4 { background: var(--correct); } .bar-5 { background: #29B6F6; }
 
-        /* Settings, Forms, Lists */
-        .setting-section { text-align: left; background: #FAF9F6; padding: 10px; border-radius: 12px; border: 1px solid #EEEEEE; margin-top: 5px; }
-        .setting-title { font-size: 0.85rem; font-weight: bold; color: #8D6E63; margin-bottom: 8px; border-bottom: 1px dashed #ccc; padding-bottom: 4px; }
-        .radio-group { display: flex; gap: 10px; font-size: 0.9rem; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
-        .radio-group label { cursor: pointer; display: flex; align-items: center; gap: 4px; }
-        .toggle-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; }
-        .form-group { margin-bottom: 12px; text-align: left; }
-        .form-label { display: block; font-size: 0.8rem; font-weight: bold; color: #5D4037; margin-bottom: 4px; }
-        .form-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
-
-        #list-screen { background: #F5F5F5; padding: 0; }
-        .list-header-area { background: white; padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; display: flex; justify-content: center; align-items: center; height: 60px; }
-        .list-title { font-weight: bold; color: var(--accent); font-size: 1.1rem; }
+        /* List Screen */
         .word-list-container { padding: 10px; overflow-y: auto; height: 100%; }
         .word-list-item { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid #E0E0E0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .wl-header { display: flex; justify-content: space-between; align-items: center; }
@@ -91,58 +81,37 @@
 
         /* Quiz & Result */
         #quiz-screen { padding-top: 0; }
-        .progress-bar-container { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: #E0E0E0; z-index: 999; }
-        .progress-bar { height: 100%; background: var(--wrong); width: 100%; transform-origin: left; }
-        
         .quiz-header-container { display: flex; justify-content: space-between; align-items: center; margin-top: 50px; margin-bottom: 15px; padding: 0 10px; }
-        .quiz-status { font-size: 1.0rem; font-weight: bold; color: #8D6E63; }
-        .quiz-level-badge { background: #333; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; }
-        .quiz-mode-text { font-size: 0.75rem; margin-left: 5px; opacity: 0.9; font-weight: normal; }
-        
+        .quiz-level-badge { padding: 4px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; color: #3E2723; border: 1px solid rgba(0,0,0,0.1); text-align: center; line-height: 1.2; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .word-card { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
         .question-text { font-size: 2.4rem; font-weight: bold; text-align: center; line-height: 1.2; margin: 0 5px; color: var(--text); cursor: pointer; transition: font-size 0.3s; }
         .question-text.long { font-size: 1.4rem; text-align: left; line-height: 1.5; margin: 0 15px; }
         .question-text.masked { color: transparent; text-shadow: 0 0 24px rgba(93, 64, 55, 0.5); }
         .question-sub { font-size: 1.0rem; color: #8D6E63; min-height: 1.4rem; font-weight: 500; }
-        
-        .icon-btn { background: #fff; border: 2px solid #EFEBE9; border-radius: 50%; width: 52px; height: 52px; cursor: pointer; display: flex; justify-content: center; align-items: center; color: #5D4037; transition: all 0.2s; flex-shrink: 0; box-shadow: 0 2px 5px rgba(93, 64, 55, 0.1); z-index: 50; }
         .choices-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 35%; min-height: 180px; margin-bottom: 10px; width: 100%; }
         .choice-btn { background: white; border: 2px solid #E0E0E0; border-radius: 16px; font-size: 1.1rem; font-weight: bold; color: var(--text); display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); padding: 4px; position: relative; z-index: 20; }
         .choice-btn.correct { background: var(--correct); color: white; border-color: var(--correct); }
         .choice-btn.wrong { background: var(--wrong); color: white; border-color: var(--wrong); }
-        .choice-btn.disabled { pointer-events: none; opacity: 0.7; }
-        #feedback-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 900; background: rgba(255,255,255,0.6); backdrop-filter: blur(2px); }
-        .feedback-icon { font-size: 9rem; font-weight: bold; text-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-        .feedback-msg { font-size: 1.8rem; font-weight: bold; margin-top: 10px; color: var(--accent); text-shadow: 0 2px 4px rgba(255,255,255,0.8); }
         
-        .result-list { flex: 1; overflow-y: auto; width: 100%; border-top: 1px solid #E0E0E0; margin-bottom: 15px; background: white; border-radius: 16px; padding: 5px; }
-        .result-item { padding: 12px; border-bottom: 1px solid #F5F5F5; display: flex; align-items: flex-start; gap: 8px; }
-        .result-audio-btn { width: 32px; height: 32px; border-radius: 50%; background: #E3F2FD; border: 1px solid #BBDEFB; color: var(--blue); display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; margin-top: 4px; }
-        .result-content { flex: 1; }
-        .result-main { font-weight: bold; font-size: 1.1rem; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
-        .result-sub { font-size: 0.8rem; color: #8D6E63; margin-bottom: 4px;}
-        .result-example-box { background: #FAF9F6; border: 1px solid #E0E0E0; border-radius: 8px; padding: 8px; margin-top: 6px; font-size: 0.85rem; color: #5D4037; }
-        .ex-en { font-style: italic; color: #3E2723; margin-bottom: 2px; line-height: 1.3; }
-        .highlight-word { font-weight: bold; color: var(--highlight-color); text-decoration: underline; background: rgba(255, 165, 0, 0.1); }
-        .ex-ja { color: #8D6E63; font-size: 0.75rem; }
-        .mark-x { color: var(--wrong); font-weight: bold; font-size: 1.2rem; }
-        .mark-o { color: var(--correct); font-weight: bold; font-size: 1.2rem; }
-        
-        .dog-result-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 10px; position: relative; width: 100%; min-height: 200px; }
-        .speech-bubble { position: relative; background: var(--accent); color: #fff; border-radius: 30px; padding: 10px 20px; font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10; }
+        /* Result Screen Scroll Fix */
+        .dog-result-container { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 5px; position: relative; width: 100%; min-height: 180px; }
+        .speech-bubble { position: relative; background: var(--accent); color: #fff; border-radius: 30px; padding: 8px 16px; font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10; }
         .speech-bubble::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: var(--accent) transparent transparent transparent; }
-        #lottie-dog-result { width: 150px; height: 150px; margin-top: 5px; }
+        #lottie-dog-result { width: 140px; height: 140px; margin-top: 5px; }
 
-        .conflict-list { flex: 1; overflow-y: auto; width: 100%; border: 1px solid #ddd; border-radius: 8px; background: white; padding: 10px; margin-bottom: 10px; }
-        .conflict-item { border-bottom: 1px solid #eee; padding: 10px 0; }
-        .conflict-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .conflict-label { font-size: 0.7rem; font-weight: bold; color: #999; width: 40px; }
-        .conflict-val { font-size: 0.9rem; color: #333; flex: 1; }
-        .conflict-val.new { color: var(--blue); font-weight: bold; }
+        .result-list { flex: 1; overflow-y: auto; width: 100%; border-top: 1px solid #E0E0E0; margin-bottom: 10px; background: white; border-radius: 16px; padding: 5px; min-height: 0; /* Crucial for flex scroll */ }
+        .result-item { padding: 12px; border-bottom: 1px solid #F5F5F5; display: flex; align-items: flex-start; gap: 8px; }
+        
+        /* Priming List Fix */
+        .priming-list { flex: 1; overflow-y: auto; border: 1px solid #E0E0E0; border-radius: 16px; background: white; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); }
+        .priming-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border-bottom: 1px solid #F0F0F0; }
+        .priming-en { font-weight: bold; font-size: 1.0rem; color: var(--accent); }
+        .priming-ja { color: #6D4C41; font-size: 0.85rem; }
 
-        #debug-container { margin-top:20px; width:95%; max-width:400px; display:block; z-index:100; position:relative; }
-        #debug-area { width:100%; height:120px; background:#222; color:#0f0; font-family:monospace; font-size:10px; border-radius:6px; padding:6px; resize:vertical; border:1px solid #555; }
-        .copy-btn { background:#8D6E63; color:white; border:none; border-radius:4px; padding:4px 12px; font-size:0.75rem; cursor:pointer; }
+        /* Others */
+        .setting-section { text-align: left; background: #FAF9F6; padding: 10px; border-radius: 12px; border: 1px solid #EEEEEE; margin-top: 5px; }
+        .setting-title { font-size: 0.85rem; font-weight: bold; color: #8D6E63; margin-bottom: 8px; border-bottom: 1px dashed #ccc; padding-bottom: 4px; }
+        #debug-container { display:none; } /* Hide debug by default in production-like feel */
     </style>
 </head>
 <body>
@@ -151,14 +120,27 @@
     <div id="home-screen" class="screen">
         <div class="app-header">
             <h1 class="app-logo">🐕 ラブラドール学習帳</h1>
-            <div class="app-version">v41 - 2026.01.01</div>
+            <div class="app-version">v42 - 2026.01.01</div>
         </div>
         
         <div class="home-card">
-            <!-- Lottie Animation -->
+            <!-- Lottie & Heart Meter -->
             <div class="lottie-wrapper">
                 <div class="dog-bubble" id="dog-bubble">...</div>
                 <div id="lottie-dog"></div>
+            </div>
+            <div class="heart-meter" id="home-hearts">
+                <!-- 10 Hearts -->
+                <svg class="heart-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg class="heart-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg class="heart-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg class="heart-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg class="heart-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg class="heart-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg class="heart-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg class="heart-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg class="heart-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg class="heart-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             </div>
 
             <div style="width:100%;">
@@ -188,10 +170,7 @@
             </div>
 
             <button id="start-btn" class="btn" onclick="window.app.prepareSession()">学習スタート！</button>
-            <button class="btn btn-sub" onclick="window.app.showSettings()">
-                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                詳細設定 (データ管理)
-            </button>
+            <button class="btn btn-sub" onclick="window.app.showSettings()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> 詳細設定 (データ管理)</button>
         </div>
         
         <div id="debug-container">
@@ -211,10 +190,7 @@
                 <div class="setting-title">データ管理</div>
                 <button class="btn btn-sub" style="background:#E53935; margin-bottom:15px;" onclick="window.app.resetStats()">🗑️ 学習記録初期化 (Stats Only)</button>
                 <div class="setting-title">データ入出力</div>
-                <button class="btn btn-sub" onclick="window.app.exportCSV()">
-                    <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    CSVエクスポート
-                </button>
+                <button class="btn btn-sub" onclick="window.app.exportCSV()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> CSVエクスポート</button>
                 <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
                     <div style="font-size:0.85rem; font-weight:bold; color:#5D4037; margin-bottom:5px;">データ追加 (インポート)</div>
                     <label style="display:block; margin-bottom:5px; cursor:pointer;"><input type="radio" name="import-mode" value="csv" checked> 📂 CSVファイルから</label>
@@ -223,10 +199,7 @@
                     <input type="file" id="csv-input" accept=".csv" style="display: none;" onchange="window.app.handleFileSelect(this)">
                 </div>
             </div>
-            <button class="btn btn-sub" style="background:#fff; color:#555; border:1px solid #ccc;" onclick="window.app.goHome()">
-                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                ホームへ戻る
-            </button>
+            <button class="btn btn-sub" style="background:#fff; color:#555; border:1px solid #ccc;" onclick="window.app.goHome()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> ホームへ戻る</button>
         </div>
     </div>
 
@@ -264,10 +237,7 @@
     <!-- LIST SCREEN -->
     <div id="list-screen" class="screen hidden">
         <div class="list-header-area">
-            <button class="btn-back" style="position:static; margin-right:auto;" onclick="window.app.goHome()">
-                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                Home
-            </button>
+            <button class="btn-back" style="position:static; margin-right:auto;" onclick="window.app.goHome()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Home</button>
             <span class="list-title" id="list-title">単語一覧</span>
             <div style="width:70px;"></div>
         </div>
@@ -276,10 +246,7 @@
 
     <!-- PRIMING SCREEN -->
     <div id="priming-screen" class="screen hidden">
-        <button class="btn-back" onclick="window.app.goHome()">
-            <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            Home
-        </button>
+        <button class="btn-back" onclick="window.app.goHome()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Home</button>
         <div class="priming-header">
             <h2 style="margin:0; color:var(--accent);">Pre-Learning</h2>
             <p style="margin:5px 0; font-size:0.9rem; color:#8D6E63;">このセットを記憶しましょう 🐾</p>
@@ -291,14 +258,10 @@
     <!-- QUIZ SCREEN -->
     <div id="quiz-screen" class="screen hidden">
         <div class="progress-bar-container"><div class="progress-bar" id="timer-bar"></div></div>
-        <button class="btn-back" onclick="window.app.confirmHome()">
-            <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            中断
-        </button>
+        <button class="btn-back" onclick="window.app.confirmHome()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> 中断</button>
         <div class="quiz-header-container">
             <div class="quiz-status" id="quiz-progress">1 / 10</div>
-            <!-- Updated Badge Logic -->
-            <div class="quiz-level-badge" id="quiz-level-display">Lv.0<br>未学習<span class="quiz-mode-text">Standard</span></div>
+            <div class="quiz-level-badge" id="quiz-level-display">Lv.0</div>
         </div>
         <div class="word-card">
             <div class="word-row">
@@ -334,14 +297,8 @@
         </div>
         <div class="result-list" id="result-list"></div>
         <div class="btn-group">
-            <button class="btn btn-retry" onclick="window.app.retrySession()">
-                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                もう一度
-            </button>
-            <button class="btn" style="flex:1;" onclick="window.app.goHome()">
-                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                ホーム
-            </button>
+            <button class="btn btn-retry" onclick="window.app.retrySession()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> もう一度</button>
+            <button class="btn" style="flex:1;" onclick="window.app.goHome()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> ホーム</button>
         </div>
     </div>
 
@@ -373,10 +330,11 @@ class App {
     
     init() {
         setTimeout(() => {
-            this.log("App v41 Init...");
+            this.log("App v42 Init...");
             try {
                 this.loadData();
                 this.initLottie();
+                this.updateHearts(); // Init Hearts
                 this.log("App Ready.");
             } catch (e) {
                 this.log("Init Err: " + e.message);
@@ -385,24 +343,12 @@ class App {
         }, 100);
     }
     
-    // --- LOTTIE & AFFINITY ---
     initLottie() {
         if(LOTTIE_B64 && typeof lottie !== 'undefined') {
             try {
                 const jsonStr = new TextDecoder().decode(Uint8Array.from(atob(LOTTIE_B64), c => c.charCodeAt(0)));
                 const animData = JSON.parse(jsonStr);
                 const container = document.getElementById('lottie-dog');
-                
-                // --- DEBUG: Check container size ---
-                if(container) {
-                    this.log(`Lottie Container Size: ${container.clientWidth}x${container.clientHeight}`);
-                    if(container.clientWidth === 0) {
-                        this.log("Warning: Lottie container has 0 width. CSS check required.");
-                    }
-                } else {
-                    this.log("Error: Lottie container #lottie-dog not found.");
-                }
-                
                 if(!this.homeLottie && container) {
                     this.homeLottie = lottie.loadAnimation({
                         container: container,
@@ -411,17 +357,9 @@ class App {
                         autoplay: true,
                         animationData: animData
                     });
-                    
-                    // Add event listener for load
-                    this.homeLottie.addEventListener('DOMLoaded', () => {
-                        this.log("Lottie DOMLoaded event fired.");
-                    });
-                    
-                    document.getElementById('lottie-dog').onclick = () => this.petDog();
+                    container.onclick = () => this.petDog();
                 }
             } catch(e) { this.log("Lottie Err: " + e.message); }
-        } else {
-            this.log("Lottie skip: No data or lib.");
         }
     }
     
@@ -431,6 +369,17 @@ class App {
         const maxLevel = this.words.length * 5;
         return Math.floor((totalLevel / maxLevel) * 100);
     }
+    
+    updateHearts() {
+        const aff = this.calculateAffinity();
+        // 0-100% mapped to 10 hearts
+        const activeCount = Math.floor(aff / 10);
+        const hearts = document.querySelectorAll('.heart-icon');
+        hearts.forEach((h, i) => {
+            if (i < activeCount) h.classList.add('active');
+            else h.classList.remove('active');
+        });
+    }
 
     petDog() {
         const aff = this.calculateAffinity();
@@ -439,7 +388,6 @@ class App {
         else if (aff < 30) msgs = ["ワン！", "調子はどう？", "勉強してる？"];
         else if (aff < 60) msgs = ["遊ぼう！", "君はいいやつだワン", "頑張ろうワン！"];
         else msgs = ["大好き！", "君は天才だワン！", "ずっと一緒だワン！", "忠誠を誓うワン！"];
-        
         const msg = msgs[Math.floor(Math.random() * msgs.length)];
         this.showDogBubble(msg);
     }
@@ -523,7 +471,7 @@ class App {
     saveData() {
         try {
             localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(this.words));
-        } catch(e) { this.log("Save Err: " + e.message); }
+        } catch(e) { this.log("Save Error: " + e.message); }
     }
 
     resetStats() {
@@ -537,7 +485,6 @@ class App {
     }
 
     showSettings() { this.showScreen('settings-screen'); }
-    
     exportCSV() {
         if(this.words.length === 0) return alert("データなし");
         let csvContent = "番号,単語,訳,品詞,例文,訳文,レベル\n";
@@ -696,6 +643,7 @@ class App {
     updateHomeUI() {
         document.getElementById('total-words-count').innerText = this.words.length;
         this.renderChart('home-chart', this.getLevelDistribution());
+        this.updateHearts(); // Update Hearts on UI refresh
     }
 
     getLevelDistribution() {
@@ -733,8 +681,7 @@ class App {
                     if(bar) bar.style.height = `${Math.max(4, heightPct)}%`;
                 }, 50);
             }
-            // MODIFIED: Multiline Label Lv.X <br> Meaning
-            div.innerHTML = `<div class="chart-info"><div class="chart-count">${count}</div>${diffHtml}</div><div class="chart-bar bar-${i}" style="${barStyle}"></div><div class="chart-label">Lv.${i}<br>${labels[i]}</div>`;
+            div.innerHTML = `<div class="chart-info"><div class="chart-count">${count}</div>${diffHtml}</div><div class="chart-bar bar-${i}" style="${barStyle}"></div><div class="chart-label">${labels[i]}</div>`;
             container.appendChild(div);
             if(prevDist && diff !== 0) setTimeout(() => { const badge = div.querySelector('.chart-diff'); if(badge) badge.classList.add('show'); }, 100);
         });
@@ -867,15 +814,14 @@ class App {
         this.currentType = type;
         const qText = document.getElementById('q-text');
         const badge = document.getElementById('quiz-level-display');
-        const modeMap = {'standard':'Standard', 'masked':'Masked', 'reverse':'Recall', 'fill-in':'Fill-In'};
         
         const LABELS = ["未学習", "翌日", "3日後", "1週後", "2週後", "完了"];
         const COLORS = ["var(--lv0)", "var(--lv1)", "var(--lv2)", "var(--lv3)", "var(--lv4)", "var(--lv5)"];
         const labelText = LABELS[level] || "Lv." + level;
         const colorVar = COLORS[level] || "#EEEEEE";
         
-        // MODIFIED: Badge Layout
-        badge.innerHTML = `Lv.${level}<br>${labelText}<span class="quiz-mode-text">(${modeMap[type]})</span>`;
+        // MODIFIED: Badge Content (No Standard Text)
+        badge.innerHTML = `Lv.${level}<br>${labelText}`;
         badge.style.background = colorVar;
         badge.style.color = "#3E2723"; 
 
@@ -887,6 +833,7 @@ class App {
         const area = document.getElementById('choices-area');
         area.innerHTML = '';
         
+        // Mask Logic Fix: Ensure reset
         this.setMask(false);
         qText.classList.remove('long');
         
@@ -1045,6 +992,7 @@ class App {
         });
     }
 
+    // --- UTILS ---
     speak(txt) { speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(txt); u.lang='en-US'; speechSynthesis.speak(u); }
     replaySpeak() { if(this.currentWord) this.speak(this.currentWord.en); }
     retrySession() { if(this.lastSessionSettings) this.prepareSession(this.lastSessionSettings); else this.goHome(); }
