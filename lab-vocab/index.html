@@ -23,67 +23,85 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .hidden { display: none !important; }
-        .screen { flex: 1; display: flex; flex-direction: column; padding: 20px; height: 100%; position: relative; overflow-y: auto; }
-        #result-screen { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+        
+        .screen { flex: 1; display: flex; flex-direction: column; padding: 20px; height: 100%; position: relative; overflow-y: auto; background: var(--bg); }
+        #result-screen { overflow: hidden; } 
         
         /* Icons */
         .icon-sm { width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 4px; }
         .icon-svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; }
         
+        /* Buttons */
+        .btn { background: var(--accent); color: var(--white); border: none; border-radius: 50px; padding: 12px 20px; font-size: 1.0rem; font-weight: bold; cursor: pointer; width: 100%; margin: 10px auto; display: block; box-shadow: 0 3px 6px rgba(93, 64, 55, 0.3); transition: transform 0.1s; position: relative; z-index: 50; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
+        .btn:active { transform: scale(0.98); background: #3E2723; }
+        .btn-sub { background: #8D6E63; font-size: 0.85rem; padding: 10px 15px; margin-top: 8px; color: white; border: none; border-radius: 50px; width: 100%; cursor: pointer; position: relative; z-index: 50; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
+        
+        .btn-home { background: #fff; color: #555; border: 1px solid #ccc; border-radius: 50px; padding: 10px 15px; font-size: 0.85rem; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 8px; flex-shrink: 0; z-index: 50; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .btn-home:active { background: #f0f0f0; }
+        
+        .btn-back { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.95); border: 1px solid #ccc; border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; color: #555; cursor: pointer; z-index: 100; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; width: 100%; flex-shrink: 0; }
+        .btn-retry { background: var(--blue); color: white; flex: 1; margin: 10px auto; }
+
         /* Header */
         .screen-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 5px 10px; border-bottom: 1px dashed #ddd; flex-shrink: 0; width: 100%; }
-        .screen-title { font-size: 1.2rem; font-weight: bold; color: var(--accent); text-align: left; }
-        .btn-home-mini { background: #fff; border: 1px solid #ccc; border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .screen-title { font-size: 1.2rem; font-weight: bold; color: var(--accent); text-align: left; margin: 0; }
+        .btn-home-mini { background: #fff; border: 1px solid #ccc; border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: #555; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05); white-space: nowrap; }
 
         /* Home */
         #home-screen { justify-content: flex-start; align-items: center; background: var(--primary); color: var(--accent); padding-top: 30px; }
-        .app-header { text-align: center; margin-bottom: 15px; width: 100%; flex-shrink: 0; }
+        .app-header { text-align: center; margin-bottom: 10px; width: 100%; flex-shrink: 0; }
         .app-logo { font-size: 1.8rem; font-weight: 900; margin: 0; line-height: 1.2; color: #5D4037; text-shadow: 1px 1px 0 rgba(255,255,255,0.4); }
         .app-version { font-size: 0.75rem; font-weight: normal; opacity: 0.8; margin-top: 4px; color: #5D4037; }
-        .home-card { background: white; color: var(--text); width: 95%; max-width: 400px; padding: 20px; border-radius: 24px; box-shadow: 0 10px 25px rgba(62,39,35,0.15); text-align: center; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; z-index: 10; position: relative; }
+        .home-card { background: white; color: var(--text); width: 95%; max-width: 400px; padding: 15px; border-radius: 24px; box-shadow: 0 10px 25px rgba(62,39,35,0.15); text-align: center; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; z-index: 10; position: relative; }
         
+        /* Lottie & Hearts */
         .lottie-wrapper { width: 160px; height: 160px; margin: 0 auto; position: relative; flex-shrink: 0; }
         #lottie-dog, #lottie-dog-result { width: 100% !important; height: 100% !important; display: block; cursor: pointer; }
-        .dog-bubble { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #fff; border: 2px solid var(--accent); color: var(--accent); padding: 8px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; white-space: nowrap; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 20; box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
+        .dog-bubble { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #fff; border: 2px solid var(--accent); color: var(--accent); padding: 8px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; white-space: nowrap; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; box-shadow: 0 3px 8px rgba(0,0,0,0.1); z-index: 20; }
         .dog-bubble.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-        
         .heart-meter { display: flex; justify-content: center; gap: 4px; margin-bottom: 5px; flex-shrink: 0; }
         .heart-icon { width: 18px; height: 18px; fill: #E0E0E0; transition: fill 0.5s ease; }
         .heart-icon.active { fill: #E91E63; }
         
-        .status-badge { display: inline-block; background: #F5F5F5; padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; color: #5D4037; font-weight: bold; border: 1px solid #E0E0E0; transition: background 0.2s; width: 100%; text-align: center; }
-        .status-badge.clickable { cursor: pointer; color: var(--blue); border-color: var(--blue); background: #E3F2FD; }
-
-        /* Buttons */
-        .btn { background: var(--accent); color: var(--white); border: none; border-radius: 50px; padding: 14px 20px; font-size: 1.0rem; font-weight: bold; cursor: pointer; width: 100%; margin: 10px auto; display: block; box-shadow: 0 3px 6px rgba(93, 64, 55, 0.3); transition: transform 0.1s; position: relative; z-index: 50; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
-        .btn:active { transform: scale(0.98); background: #3E2723; }
-        .btn-sub { background: #8D6E63; font-size: 0.85rem; padding: 12px 15px; margin-top: 8px; color: white; border: none; border-radius: 50px; width: 100%; cursor: pointer; position: relative; z-index: 50; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
-        .btn-retry { background: var(--blue); color: white; flex: 1; margin: 5px auto; }
+        .status-badge { display: inline-block; background: #F5F5F5; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; color: #5D4037; font-weight: bold; border: 1px solid #E0E0E0; transition: background 0.2s; width: 100%; text-align: center; position: relative; z-index: 20; cursor: default; }
+        .status-badge.clickable { cursor: pointer; color: var(--blue); border-color: var(--blue); background: #E3F2FD; pointer-events: auto; }
+        .status-badge.clickable:active { background: #BBDEFB; }
 
         /* Chart */
-        .chart-wrapper { width: 100%; height: 130px; margin: 5px 0; display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 5px; border-bottom: 2px dashed #E0E0E0; }
+        .chart-wrapper { width: 100%; height: 120px; margin: 5px 0; display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 5px; border-bottom: 2px dashed #E0E0E0; }
         .chart-bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; margin: 0 1px; }
-        .chart-bar { width: 90%; border-radius: 4px 4px 0 0; transition: height 1.0s cubic-bezier(0.2, 0.8, 0.2, 1); min-height: 4px; position: relative; }
+        .chart-bar { width: 90%; border-radius: 4px 4px 0 0; transition: height 1.0s; min-height: 4px; }
         .chart-label { font-size: 0.6rem; color: #5D4037; margin-top: 4px; font-weight: bold; text-align: center; line-height: 1.2; }
         .chart-count { font-size: 0.7rem; font-weight: bold; color: #5D4037; line-height: 1; margin-bottom: 2px; }
-        .bar-0 { background: var(--lv0); } .bar-1 { background: var(--wrong); } .bar-2 { background: #FF9800; } .bar-3 { background: #FDD835; } .bar-4 { background: var(--correct); } .bar-5 { background: #29B6F6; }
         .chart-diff { font-size: 0.65rem; font-weight: bold; border-radius: 4px; padding: 0 3px; margin-bottom: 2px; opacity: 0; transform: translateY(5px); transition: all 0.5s ease 0.8s; }
         .chart-diff.show { opacity: 1; transform: translateY(0); }
         .diff-plus { color: var(--blue); background: #E3F2FD; } .diff-minus { color: var(--wrong); background: #FFEBEE; }
+        .bar-0 { background: var(--lv0); } .bar-1 { background: var(--wrong); } .bar-2 { background: #FF9800; } .bar-3 { background: #FDD835; } .bar-4 { background: var(--correct); } .bar-5 { background: #29B6F6; }
 
-        /* Priming & List */
-        .priming-list { flex: 1; overflow-y: auto; border: 1px solid #E0E0E0; border-radius: 16px; background: white; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); }
-        .priming-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border-bottom: 1px solid #F0F0F0; }
-        .priming-main { display: flex; align-items: center; gap: 8px; }
-        .priming-sub { display: flex; align-items: center; gap: 10px; }
-        .priming-en { font-weight: bold; font-size: 1.05rem; color: var(--accent); }
-        .priming-ja { color: #6D4C41; font-size: 0.9rem; }
-        
-        .pos-badge { font-size: 0.7rem; background: #999; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; display: inline-block; }
-        .icon-btn-flat { background: transparent; border: none; padding: 5px; cursor: pointer; color: var(--blue); display: flex; align-items: center; }
-        .icon-btn-flat:active { opacity: 0.7; }
-        
-        /* Quiz */
+        /* Settings, Forms */
+        .setting-section { text-align: left; background: #FAF9F6; padding: 10px; border-radius: 12px; border: 1px solid #EEEEEE; margin-top: 5px; }
+        .setting-title { font-size: 0.85rem; font-weight: bold; color: #8D6E63; margin-bottom: 8px; border-bottom: 1px dashed #ccc; padding-bottom: 4px; }
+        .radio-group { display: flex; gap: 10px; font-size: 0.9rem; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+        .toggle-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; }
+        .form-group { margin-bottom: 12px; text-align: left; }
+        .form-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
+
+        /* List Screen */
+        .word-list-container { padding: 10px; overflow-y: auto; height: 100%; }
+        .word-list-item { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid #E0E0E0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .wl-header { display: flex; justify-content: space-between; align-items: center; }
+        .wl-word { font-weight: bold; font-size: 1.1rem; color: var(--text); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+        .wl-id { font-size: 0.75rem; color: #999; min-width: 25px; }
+        .wl-pos-badge { font-size: 0.7rem; background: #EEE; color: #666; padding: 2px 6px; border-radius: 4px; border: 1px solid #E0E0E0; font-weight: normal; }
+        .wl-meaning { font-size: 0.95rem; color: #5D4037; font-weight: bold; margin-left: 0; margin-top: 5px; }
+        .wl-level-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; font-weight: bold; color: #555; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
+        .wl-ex-box { background: #FAF9F6; padding: 8px; border-radius: 8px; font-size: 0.85rem; margin-top: 6px; border: 1px solid #F0F0F0; }
+        .wl-ex-en { font-style: italic; color: #3E2723; margin-bottom: 2px; line-height: 1.3; }
+        .wl-ex-ja { color: #8D6E63; font-size: 0.75rem; }
+        .highlight { color: var(--highlight-text); font-weight: bold; background: var(--highlight-bg); padding: 0 2px; border-radius: 2px; }
+
+        /* Quiz & Result */
         #quiz-screen { padding-top: 20px; }
         .progress-bar-container { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: #E0E0E0; z-index: 999; }
         .progress-bar { height: 100%; background: var(--wrong); width: 100%; transform-origin: left; }
@@ -91,26 +109,26 @@
         .quiz-header-container { display: flex; justify-content: center; margin: 10px 0 20px; }
         .quiz-level-badge { padding: 4px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; color: #3E2723; border: 1px solid rgba(0,0,0,0.1); text-align: center; line-height: 1.2; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .quiz-mode-text { font-size: 0.65rem; font-weight: normal; opacity: 0.8; display:block; }
-        .quiz-status { font-weight: bold; color: #8D6E63; font-size: 0.9rem; margin-right: 10px; } /* In header */
+        .quiz-status { font-weight: bold; color: #8D6E63; font-size: 0.9rem; }
 
-        .word-card { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; position: relative; }
+        .word-card { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; position: relative; z-index: 10; }
         .word-row { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-bottom: 20px; }
+        .question-text { font-size: 2.4rem; font-weight: bold; text-align: center; line-height: 1.2; margin: 0 5px; color: var(--text); cursor: pointer; transition: font-size 0.3s; }
+        .question-text.long { font-size: 1.4rem; text-align: left; line-height: 1.5; margin: 0 15px; }
+        .question-text.masked { color: transparent; text-shadow: 0 0 24px rgba(93, 64, 55, 0.5); }
+        .question-sub { font-size: 1.0rem; color: #8D6E63; min-height: 1.4rem; font-weight: 500; margin-top:5px; }
         
         .icon-btn { background: #fff; border: 2px solid #EFEBE9; border-radius: 50%; width: 52px; height: 52px; cursor: pointer; display: flex; justify-content: center; align-items: center; color: #5D4037; transition: all 0.2s; flex-shrink: 0; box-shadow: 0 2px 5px rgba(93, 64, 55, 0.1); z-index: 50; }
         .icon-btn:active { transform: scale(0.95); background: #D7CCC8; }
         
-        .question-text { font-size: 2.4rem; font-weight: bold; text-align: center; line-height: 1.2; margin: 0 5px; color: var(--text); cursor: pointer; transition: font-size 0.3s; }
-        .question-text.long { font-size: 1.4rem; text-align: left; line-height: 1.5; margin: 0 15px; }
-        .question-text.masked { color: transparent; text-shadow: 0 0 24px rgba(93, 64, 55, 0.5); }
-        
         .choices-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 35%; min-height: 180px; margin-bottom: 10px; width: 100%; z-index: 20; position: relative; }
         .choice-btn { background: white; border: 2px solid #E0E0E0; border-radius: 16px; font-size: 1.1rem; font-weight: bold; color: var(--text); display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); padding: 4px; position: relative; z-index: 20; }
-        .choice-btn:active { transform: scale(0.98); }
         .choice-btn.correct { background: var(--correct); color: white; border-color: var(--correct); }
         .choice-btn.wrong { background: var(--wrong); color: white; border-color: var(--wrong); }
-        
+        .choice-btn.disabled { pointer-events: none; opacity: 0.7; }
         #feedback-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 2000; background: rgba(255,255,255,0.6); backdrop-filter: blur(2px); }
         .feedback-icon { font-size: 9rem; font-weight: bold; text-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        .feedback-msg { font-size: 1.8rem; font-weight: bold; margin-top: 10px; color: var(--accent); text-shadow: 0 2px 4px rgba(255,255,255,0.8); }
         
         /* Result */
         .dog-result-container { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 5px; position: relative; width: 100%; min-height: 180px; }
@@ -118,16 +136,19 @@
         .result-item { padding: 12px; border-bottom: 1px solid #F5F5F5; display: flex; align-items: flex-start; gap: 8px; }
         .result-main { font-weight: bold; font-size: 1.1rem; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
         .result-sub { font-size: 0.8rem; color: #8D6E63; margin-bottom: 4px;}
-        .result-example-box { background: #FAF9F6; border: 1px solid #E0E0E0; border-radius: 8px; padding: 8px; margin-top: 6px; font-size: 0.85rem; color: #5D4037; }
-        .highlight-word { font-weight: bold; color: #E65100; text-decoration: underline; background: rgba(255, 165, 0, 0.1); }
-        .mark-x { color: var(--wrong); font-weight: bold; font-size: 1.2rem; }
-        .mark-o { color: var(--correct); font-weight: bold; font-size: 1.2rem; }
-
-        /* Settings */
-        .setting-section { text-align: left; background: #FAF9F6; padding: 10px; border-radius: 12px; border: 1px solid #EEEEEE; margin-top: 5px; }
-        .radio-group { display: flex; gap: 10px; font-size: 0.9rem; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
-        .form-group { margin-bottom: 12px; text-align: left; }
-        .form-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
+        
+        /* Priming List (Revised) */
+        .priming-list { flex: 1; overflow-y: auto; border: 1px solid #E0E0E0; border-radius: 16px; background: white; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); }
+        .priming-item { display: flex; flex-direction: column; padding: 14px; border-bottom: 1px solid #F0F0F0; gap: 4px; }
+        .priming-row-1 { display: flex; align-items: center; gap: 8px; }
+        .priming-pos-badge { font-size: 0.7rem; background: #999; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .priming-en { font-weight: bold; font-size: 1.1rem; color: var(--accent); }
+        .priming-row-2 { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .priming-ja { color: #6D4C41; font-size: 0.95rem; }
+        
+        .icon-btn-flat { background: transparent; border: none; padding: 5px; cursor: pointer; color: var(--blue); margin-left: auto; }
+        
+        /* Debug */
         #debug-container { display:none; }
     </style>
 </head>
@@ -323,7 +344,7 @@
     <div id="home-screen" class="screen">
         <div class="app-header">
             <h1 class="app-logo">🐕 ラブラドール学習帳</h1>
-            <div class="app-version">v44 - 2026.01.01</div>
+            <div class="app-version">v49 - 2026.01.01</div>
         </div>
         
         <div class="home-card">
@@ -342,7 +363,6 @@
                 <div class="status-badge clickable" onclick="window.app.showWordList()">全単語リスト: <span id="total-words-count">0</span> &raquo;</div>
             </div>
 
-            <!-- Settings -->
             <div class="setting-section">
                 <div class="setting-title" style="font-weight:bold; color:#8D6E63; margin-bottom:5px;">学習設定</div>
                 <div class="radio-group">
@@ -360,10 +380,7 @@
             </div>
 
             <button id="start-btn" class="btn" onclick="window.app.prepareSession()">学習スタート！</button>
-            <button class="btn btn-sub" onclick="window.app.showSettings()">
-                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                詳細設定 (データ管理)
-            </button>
+            <button class="btn btn-sub" onclick="window.app.showSettings()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> 詳細設定 (データ管理)</button>
         </div>
     </div>
 
@@ -371,13 +388,10 @@
     <div id="priming-screen" class="screen hidden">
         <div class="screen-header">
             <div class="screen-title">事前学習</div>
-            <button class="btn-home-mini" onclick="window.app.goHome()">
-                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                Home
-            </button>
         </div>
         <div class="priming-list" id="priming-list"></div>
-        <button class="btn" onclick="window.app.startQuiz()">テスト開始</button>
+        <button class="btn" style="margin-top:10px;" onclick="window.app.startQuiz()">テスト開始</button>
+        <button class="btn-home" onclick="window.app.goHome()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> ホームへ戻る</button>
     </div>
 
     <!-- QUIZ SCREEN -->
@@ -386,10 +400,6 @@
         
         <div class="screen-header">
             <div class="quiz-status" id="quiz-progress">1 / 10</div>
-            <button class="btn-home-mini" onclick="window.app.confirmHome()">
-                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                中断
-            </button>
         </div>
 
         <div class="quiz-header-container" style="justify-content:center; margin-top:10px;">
@@ -398,33 +408,26 @@
 
         <div class="word-card">
             <div class="word-row">
-                <!-- Hardcoded SVGs for reliability -->
-                <button class="icon-btn" id="mask-toggle-btn" onclick="window.app.toggleMask()">
-                    <svg id="icon-eye-off" viewBox="0 0 24 24" class="icon-svg"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-                    <svg id="icon-eye-on" viewBox="0 0 24 24" class="icon-svg" style="display:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                </button>
+                <button class="icon-btn" id="mask-toggle-btn" onclick="window.app.toggleMask()"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg></button>
                 <div style="display:flex; align-items:center;">
                     <span id="pos-badge" class="pos-badge" style="display:none;"></span>
                     <div class="question-text masked" id="q-text" onclick="window.app.toggleMask()">Word</div>
                 </div>
-                <button class="icon-btn" id="speaker-btn" onclick="window.app.replaySpeak()">
-                    <svg viewBox="0 0 24 24" class="icon-svg"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg>
-                </button>
+                <button class="icon-btn" id="speaker-btn" onclick="window.app.replaySpeak()"><svg viewBox="0 0 24 24" class="icon-svg"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg></button>
             </div>
             <div class="question-sub" id="q-sub"></div>
         </div>
         <div id="feedback-overlay"><div class="feedback-icon" id="fb-icon"></div><div class="feedback-msg" id="fb-msg"></div></div>
         <div class="choices-container" id="choices-area"></div>
+        
+        <button class="btn-home" style="margin-top:20px;" onclick="window.app.confirmHome()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> 中断してホームへ</button>
     </div>
 
     <!-- RESULT SCREEN -->
     <div id="result-screen" class="screen hidden">
         <div class="screen-header">
             <div class="screen-title">回答結果</div>
-            <button class="btn-home-mini" onclick="window.app.goHome()">
-                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                Home
-            </button>
+            <button class="btn-home-mini" onclick="window.app.goHome()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Home</button>
         </div>
 
         <div class="dog-result-container">
@@ -435,13 +438,11 @@
 
         <div class="result-list" id="result-list"></div>
         
-        <button class="btn btn-retry" onclick="window.app.retrySession()">
-            <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-            もう一度
-        </button>
+        <button class="btn btn-retry" onclick="window.app.retrySession()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> もう一度</button>
+        <button class="btn-home" onclick="window.app.goHome()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> ホームへ戻る</button>
     </div>
 
-    <!-- SETTINGS SCREEN (Same as before) -->
+    <!-- SETTINGS & OTHERS ... (Same as before) -->
     <div id="settings-screen" class="screen hidden" style="background:var(--primary); padding-top:30px;">
         <div class="home-card" style="margin:0 auto;">
             <div class="setting-title" style="text-align:center; font-size:1.2rem; border:none;">Settings</div>
@@ -449,10 +450,7 @@
                 <div class="setting-title">データ管理</div>
                 <button class="btn btn-sub" style="background:#E53935; margin-bottom:15px;" onclick="window.app.resetStats()">🗑️ 学習記録初期化 (Stats Only)</button>
                 <div class="setting-title">データ入出力</div>
-                <button class="btn btn-sub" onclick="window.app.exportCSV()">
-                    <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    CSVエクスポート
-                </button>
+                <button class="btn btn-sub" onclick="window.app.exportCSV()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> CSVエクスポート</button>
                 <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
                     <div style="font-size:0.85rem; font-weight:bold; color:#5D4037; margin-bottom:5px;">データ追加 (インポート)</div>
                     <label style="display:block; margin-bottom:5px; cursor:pointer;"><input type="radio" name="import-mode" value="csv" checked> 📂 CSVファイルから</label>
@@ -461,14 +459,10 @@
                     <input type="file" id="csv-input" accept=".csv" style="display: none;" onchange="window.app.handleFileSelect(this)">
                 </div>
             </div>
-            <button class="btn btn-sub" style="background:#fff; color:#555; border:1px solid #ccc;" onclick="window.app.goHome()">
-                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                ホームへ戻る
-            </button>
+            <button class="btn-home" onclick="window.app.goHome()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> ホームへ戻る</button>
         </div>
     </div>
-    
-    <!-- CONFLICT & MANUAL ADD (Same as before) -->
+
     <div id="manual-add-screen" class="screen hidden">
         <button class="btn-back" onclick="window.app.showSettings()">戻る</button>
         <div class="home-card" style="margin:40px auto 0;">
@@ -497,13 +491,9 @@
         </div>
     </div>
 
-    <!-- LIST SCREEN -->
     <div id="list-screen" class="screen hidden">
         <div class="list-header-area">
-            <button class="btn-back" style="position:static; margin-right:auto;" onclick="window.app.goHome()">
-                <svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                Home
-            </button>
+            <button class="btn-back" style="position:static; margin-right:auto;" onclick="window.app.goHome()"><svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Home</button>
             <span class="list-title" id="list-title">単語一覧</span>
             <div style="width:70px;"></div>
         </div>
@@ -629,15 +619,13 @@ class App {
             const div = document.createElement('div');
             div.className = 'priming-item';
             div.innerHTML = `
-                <div class="priming-main">
-                    <span class="pos-badge">${w.pos}</span>
-                    <div class="priming-en">${w.en}</div>
+                <div class="priming-row-1">
+                    <span class="priming-pos-badge">${w.pos}</span>
+                    <span class="priming-en">${w.en}</span>
                 </div>
-                <div class="priming-sub">
-                    <div class="priming-ja">${w.ja}</div>
-                    <button class="icon-btn-flat" onclick="window.app.speak('${w.en.replace(/'/g,"\\\\'")}')">
-                        <svg viewBox="0 0 24 24" class="icon-svg"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg>
-                    </button>
+                <div class="priming-row-2">
+                    <span class="priming-ja">${w.ja}</span>
+                    <button class="audio-btn-flat" onclick="window.app.speak('${w.en.replace(/'/g,"\\\\'")}')"><svg viewBox="0 0 24 24" class="icon-svg"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg></button>
                 </div>`;
             list.appendChild(div);
         });
@@ -671,7 +659,7 @@ class App {
         badge.style.background = colors[lv];
         
         document.getElementById('pos-badge').innerText = q.pos;
-        document.getElementById('pos-badge').style.display = (type==='standard')?'inline-block':'none';
+        document.getElementById('pos-badge').style.display = (type==='standard' && q.pos) ? 'inline-block' : 'none';
         document.getElementById('speaker-btn').style.display = (type==='reverse')?'none':'flex';
         document.getElementById('quiz-progress').innerText = `${this.idx+1} / ${this.quizQueue.length}`;
         
@@ -792,9 +780,7 @@ class App {
             const div = document.createElement('div');
             div.className = 'result-item';
             div.innerHTML = `
-                <button class="result-audio-btn" onclick="window.app.speak('${r.word.en.replace(/'/g,"\\\\'")}')">
-                    <svg viewBox="0 0 24 24" class="icon-svg"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg>
-                </button>
+                <button class="result-audio-btn" onclick="window.app.speak('${r.word.en.replace(/'/g,"\\\\'")}')">🔊</button>
                 <div class="result-content">
                     <div class="result-main"><span>${r.word.en}</span><span class="${r.correct?'mark-o':'mark-x'}">${r.correct?'◯':'✕'}</span></div>
                     <div class="result-sub">Lv.${r.word.stats.level}</div>
