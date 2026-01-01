@@ -207,7 +207,7 @@ class App {
     
     renderQ(q, type, lv) {
         // ... (Logic from v48) ...
-        const labels = ["未学習","翌日","3日後","1週後","2週後","1ヶ月後"];
+        const labels = ["未学習","翌日","3日後","1週後","2週後","完了"];
         const colors = ["var(--lv0)","var(--lv1)","var(--lv2)","var(--lv3)","var(--lv4)","var(--lv5)"];
         
         document.getElementById('quiz-level-display').innerHTML = `Lv.${lv}<br>${labels[lv]}`;
@@ -380,18 +380,6 @@ class App {
         const distBefore = [...distAfter];
         this.results.forEach(r => {
             if(r.oldLevel !== undefined && r.newLevel !== undefined) {
-                 // Revert the move
-                 // Note: Logic in answer()
-                 // if correct: old -> new (could be same if 5)
-                 // if wrong: old -> 0
-
-                 // If the result says it moved from oldLevel to newLevel:
-                 // "Before" state had +1 at oldLevel and -1 at newLevel relative to "After" state?
-                 // No. "After" state has the word at newLevel.
-                 // So "Before" state should have the word at oldLevel.
-                 // So: distBefore[newLevel]--; distBefore[oldLevel]++;
-
-                 // However, we only care about the count distribution.
                  if(r.newLevel !== r.oldLevel) {
                      distBefore[r.newLevel]--;
                      distBefore[r.oldLevel]++;
@@ -470,7 +458,7 @@ class App {
         if(!c) return;
         c.innerHTML = '';
         const max = Math.max(...dist)||1;
-        const labels = ["未学習","翌日","3日後","1週後","2週後","1ヶ月後"];
+        const labels = ["未学習","翌日","3日後","1週後","2週後","完了"];
         dist.forEach((v,i) => {
              const h = (v/max)*80;
              c.innerHTML += `<div class="chart-bar-group"><div class="chart-info"><div class="chart-count">${v}</div></div><div class="chart-bar bar-${i}" style="height:${Math.max(4,h)}%"></div><div class="chart-label">Lv.${i}<br>${labels[i]}</div></div>`;
