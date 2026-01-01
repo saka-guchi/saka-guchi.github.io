@@ -12,12 +12,12 @@
     <div id="result-screen" class="screen">
         <div class="screen-header">
             <div class="screen-title">回答結果</div>
+            <button class="btn-home-mini" onclick="window.location.href='index.html'">Home</button>
         </div>
 
-        <div class="dog-result-container">
-            <div class="dog-bubble" id="result-bubble">よく頑張ったワン！</div>
-            <div class="lottie-wrapper"><div id="lottie-dog-result"></div></div>
-            <div class="heart-meter" id="result-hearts"></div>
+        <div style="background:white; padding:10px; border-radius:16px; margin-bottom:10px;">
+            <div style="font-size:0.8rem; color:#8D6E63; margin-bottom:4px; font-weight:bold; text-align:center;">記憶定着期間の変動</div>
+            <div id="result-chart" class="chart-wrapper" style="border:none;"></div>
         </div>
 
         <div class="result-list" id="result-list"></div>
