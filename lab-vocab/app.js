@@ -1,6 +1,8 @@
 
-const STORAGE_KEY = 'lab_data_v30';
-const CSV_PATH = './words.csv';
+const DATASETS = {
+    ngsl: { label: 'NGSL単語帳', path: './words/ngsl.csv', storageKey: 'lab_data_v30' },
+    ielts: { label: 'IELTS基礎1000', path: './words/ielts3500-basic1000.csv', storageKey: 'lab_data_ielts' }
+};
 const LOTTIE_PATH = './dog.json';
 
 // --- Icons (SVG Strings) ---
@@ -18,7 +20,13 @@ class App {
         this.results = [];
         this.homeLottie = null;
         this.resultLottie = null;
+        this.debugAffinity = null;
+        this.answering = false;
+        this.currentDatasetKey = localStorage.getItem('lab_dataset_key') || 'ngsl';
+        if(!DATASETS[this.currentDatasetKey]) this.currentDatasetKey = 'ngsl';
     }
+
+    get currentConfig() { return DATASETS[this.currentDatasetKey]; }
 
     // --- Core Logic ---
     async init() {
@@ -35,12 +43,13 @@ class App {
     }
 
     async loadData() {
-        const local = localStorage.getItem(STORAGE_KEY);
+        const config = this.currentConfig;
+        const local = localStorage.getItem(config.storageKey);
         if(local) {
             this.words = JSON.parse(local);
         } else {
             try {
-                const res = await fetch(CSV_PATH);
+                const res = await fetch(config.path);
                 if(res.ok) {
                     const text = await res.text();
                     this.parseCSV(text, true);
@@ -49,14 +58,17 @@ class App {
         }
     }
 
-    saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.words)); }
+    saveData() { localStorage.setItem(this.currentConfig.storageKey, JSON.stringify(this.words)); }
 
     parseCSV(text, isInit=false) {
         const lines = text.split(/\r\n|\n/);
         const newItems = [];
         let start = 0;
-        if(lines[0].includes("単語") || lines[0].includes("word")) start = 1;
-        if(lines.length>1 && lines[0].includes("0,1,2")) start = 2;
+        // Detect format:
+        // New: Line 0=Title, 1=Indexes, 2=Headers -> Start at 3
+        if(lines.length > 2 && lines[1].includes("0,1,2")) start = 3;
+        else if(lines[0].includes("単語") || lines[0].includes("word")) start = 1;
+        else if(lines.length>1 && lines[0].includes("0,1,2")) start = 2;
 
         for(let i=start; i<lines.length; i++) {
             const line = lines[i].trim();
@@ -94,12 +106,45 @@ class App {
         this.renderHearts('home-hearts');
         this.updateHearts('home-hearts');
         this.initLottie('lottie-dog', true);
+
+        // Chart click handler
+        const chartTitle = document.getElementById('home-chart-title');
+        if(chartTitle) {
+            chartTitle.onclick = () => {
+                 alert("【レベル別出題形式】\nLv.0-1: Standard (英→日)\nLv.2: Masked (英単語マスク)\nLv.3: Reverse (日→英)\nLv.4+: Fill-in (穴埋め)");
+            };
+        }
+    }
+
+    debugHeart(diff) {
+        let current = this.debugAffinity;
+        if(current === null) {
+             // Initial estimate
+             const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
+             const aff = Math.floor((total/(this.words.length*5))*100);
+             current = Math.floor(aff/10);
+        }
+        this.debugAffinity = Math.max(0, Math.min(10, current + diff));
+        this.updateHearts('home-hearts');
+        this.petDog();
     }
     
-    startSession() {
-        const mode = document.querySelector('input[name="mode"]:checked').value;
-        const limit = parseInt(document.querySelector('input[name="limit"]:checked').value);
-        const priming = document.getElementById('use-priming').checked;
+    startSession(config = null) {
+        let mode, limit, priming;
+
+        if (config) {
+            mode = config.mode;
+            limit = config.limit;
+            priming = config.priming;
+        } else {
+            mode = document.querySelector('input[name="mode"]:checked').value;
+            limit = parseInt(document.querySelector('input[name="limit"]:checked').value);
+            priming = document.getElementById('use-priming').checked;
+
+            // Save config for retry
+            sessionStorage.setItem('lab_session_config', JSON.stringify({ mode, limit, priming }));
+        }
+
         const now = Date.now();
         
         let q = [];
@@ -127,8 +172,14 @@ class App {
             const div = document.createElement('div');
             div.className = 'priming-item';
             div.innerHTML = `
-                <div class="priming-row-1"><span class="priming-pos-badge">${w.pos}</span><div class="priming-en">${w.en}</div></div>
-                <div class="priming-row-2"><span class="priming-ja">${w.ja}</span><button class="audio-btn-flat" onclick="app.speak('${w.en.replace(/'/g,"\\'")}')">${ICONS.speaker}</button></div>
+                <div class="priming-row-1"><div class="priming-en">${w.en}</div></div>
+                <div class="priming-row-2">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="priming-pos-badge">${w.pos}</span>
+                        <span class="priming-ja">${w.ja}</span>
+                    </div>
+                    <button class="audio-btn-flat" onclick="app.speak('${w.en.replace(/'/g,"\\'")}')">${ICONS.speaker}</button>
+                </div>
             `;
             list.appendChild(div);
         });
@@ -249,6 +300,14 @@ class App {
     }
     
     answer(isCorrect, btn) {
+        if(this.answering) return; // Prevent double click
+        this.answering = true;
+
+        // Immediate Style Feedback
+        if(btn) {
+            btn.classList.add(isCorrect ? 'correct' : 'wrong');
+        }
+
         if(this.timer) clearTimeout(this.timer);
         const q = this.curr;
         
@@ -256,6 +315,8 @@ class App {
         const masterIdx = this.words.findIndex(w=>w.id===q.id);
         if(masterIdx > -1) {
             const w = this.words[masterIdx];
+            const oldLevel = w.stats.level;
+
             if(isCorrect) {
                 let m = (Date.now()-this.startTime<2000) ? 2.5 : 1.5;
                 if(this.maskRevealed) m *= 0.5;
@@ -268,8 +329,8 @@ class App {
             }
             this.saveData(); // Persist immediately
             
-            // Push result with updated state
-            this.results.push({word: w, correct: isCorrect, diff: isCorrect?1:0});
+            // Push result with updated state and oldLevel
+            this.results.push({word: w, correct: isCorrect, diff: isCorrect?1:0, oldLevel: oldLevel, newLevel: w.stats.level});
         }
         
         // UI Feedback
@@ -282,6 +343,7 @@ class App {
         setTimeout(()=>{
             ov.style.opacity = 0;
             this.idx++;
+            this.answering = false;
             // Save Session
             sessionStorage.setItem('lab_session', JSON.stringify({queue:this.quizQueue, idx:this.idx, results:this.results}));
             this.nextQ();
@@ -295,17 +357,18 @@ class App {
         
         this.results = session.results;
         
-        this.initLottie('lottie-dog-result', false);
-        this.renderHearts('result-hearts');
-        this.updateHearts('result-hearts');
-        
-        // Dog Bubble
-        const rate = this.results.filter(r=>r.correct).length / this.results.length;
-        document.getElementById('result-bubble').innerText = rate>=0.8?"すごいワン！":"お疲れ様ワン！";
+        // Render Chart
+        this.renderResultChart('result-chart');
         
         const list = document.getElementById('result-list');
+        const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
         this.results.forEach(r => {
-             const hl = r.word.ex ? r.word.ex.replace(new RegExp(`\\b${r.word.en}\\b`,'gi'), '<span class="highlight">$&</span>') : "";
+             let hl = "";
+             if(r.word.ex && r.word.en) {
+                 try { hl = r.word.ex.replace(new RegExp(`\\b${escapeRegExp(r.word.en)}\\b`,'gi'), '<span class="highlight">$&</span>'); }
+                 catch(e){ hl = r.word.ex; }
+             }
              const div = document.createElement('div');
              div.className = 'result-item';
              div.innerHTML = `
@@ -319,29 +382,103 @@ class App {
         });
     }
 
+    renderResultChart(id) {
+        // Calculate After
+        const distAfter = this.getLevelDistribution(); // Current state
+
+        // Calculate Before
+        const distBefore = [...distAfter];
+        this.results.forEach(r => {
+            if(r.oldLevel !== undefined && r.newLevel !== undefined) {
+                 if(r.newLevel !== r.oldLevel) {
+                     distBefore[r.newLevel]--;
+                     distBefore[r.oldLevel]++;
+                 }
+            }
+        });
+
+        // Render with Diffs
+        const c = document.getElementById(id);
+        if(!c) return;
+        c.innerHTML = '';
+        const max = Math.max(...distAfter, ...distBefore) || 1;
+        const labels = ["未学習","翌日","3日後","1週後","2週後","1ヶ月後"];
+
+        distAfter.forEach((v,i) => {
+             const h = (v/max)*80;
+             const diffVal = v - distBefore[i];
+             let diffHtml = '';
+             if(diffVal > 0) diffHtml = `<div class="chart-diff diff-plus show">+${diffVal}</div>`;
+             if(diffVal < 0) diffHtml = `<div class="chart-diff diff-minus show">${diffVal}</div>`;
+
+             c.innerHTML += `<div class="chart-bar-group">
+                 <div class="chart-info">
+                    ${diffHtml}
+                    <div class="chart-count">${v}</div>
+                 </div>
+                 <div class="chart-bar bar-${i}" style="height:${Math.max(4,h)}%"></div>
+                 <div class="chart-label">Lv.${i}<br>${labels[i]}</div>
+             </div>`;
+        });
+    }
+
     // --- List Screen ---
     initList() {
-        document.getElementById('list-title').innerText = `単語一覧 (${this.words.length}語)`;
         const list = document.getElementById('list-content');
-        // Fragment for perf
+        if(!list) return;
+
+        const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
         const frag = document.createDocumentFragment();
         this.words.forEach(w => {
              const div = document.createElement('div');
              div.className = 'word-list-item';
-             // Highlight logic...
-             const hl = w.ex ? w.ex.replace(new RegExp(`\\b${w.en}\\b`,'gi'), '<span class="highlight">$&</span>') : "";
+             let hl = "";
+             if(w.ex && w.en) {
+                 try {
+                    hl = w.ex.replace(new RegExp(`\\b${escapeRegExp(w.en)}\\b`,'gi'), '<span class="highlight">$&</span>');
+                 } catch(e) { hl = w.ex; }
+             }
+             const posText = w.pos ? `[${w.pos}]` : "";
+
              div.innerHTML = `
-                <div class="wl-header"><div class="wl-word"><span class="wl-id">${w.id}.</span> ${w.en} <span class="wl-pos-badge">${w.pos}</span></div><span class="wl-level-badge" style="background:var(--lv${w.stats.level})">Lv.${w.stats.level}</span></div>
-                <div class="wl-meaning">${w.ja}</div>
+                <div class="wl-header"><div class="wl-word"><span class="wl-id">${w.id}.</span> ${w.en}</div><span class="wl-level-badge" style="background:var(--lv${w.stats.level})">Lv.${w.stats.level}</span></div>
+                <div class="wl-meaning"><span style="font-size:0.75rem; color:#888; margin-right:4px;">${posText}</span>${w.ja}</div>
                 <div class="wl-ex-box"><div class="wl-ex-en">${hl}</div><div class="wl-ex-ja">${w.exJa}</div></div>`;
              frag.appendChild(div);
         });
+        list.innerHTML = "";
         list.appendChild(frag);
     }
     
     // --- Settings ---
     initSettings() {
-        // Bind handlers
+        const sel = document.getElementById('dataset-select');
+        if(sel) {
+            sel.innerHTML = '';
+            for(const [k, v] of Object.entries(DATASETS)) {
+                const opt = document.createElement('option');
+                opt.value = k;
+                opt.textContent = v.label;
+                if(k === this.currentDatasetKey) opt.selected = true;
+                sel.appendChild(opt);
+            }
+        }
+    }
+
+    changeDataset(val) {
+        if(DATASETS[val]) {
+            this.currentDatasetKey = val;
+            localStorage.setItem('lab_dataset_key', val);
+            window.location.reload();
+        }
+    }
+
+    resetStats() {
+        if(confirm('現在の単語帳の学習記録をリセットしますか？\\n（この操作は取り消せません）')) {
+            localStorage.removeItem(this.currentConfig.storageKey);
+            window.location.reload();
+        }
     }
     
     // --- Shared Utils ---
@@ -373,9 +510,14 @@ class App {
     
     updateHearts(id) {
         if(!this.words.length) return;
-        const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
-        const aff = Math.floor((total/(this.words.length*5))*100);
-        const active = Math.floor(aff/10);
+        let active;
+        if(this.debugAffinity !== null) {
+            active = this.debugAffinity;
+        } else {
+            const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
+            const aff = Math.floor((total/(this.words.length*5))*100);
+            active = Math.floor(aff/10);
+        }
         const hearts = document.getElementById(id).querySelectorAll('.heart-icon');
         hearts.forEach((h,i) => { if(i<active) h.classList.add('active'); else h.classList.remove('active'); });
     }
@@ -392,12 +534,44 @@ class App {
     
     petDog() {
         const b = document.getElementById('dog-bubble');
-        b.innerText = "ワン！"; b.classList.add('show');
+
+        // Calculate affinity for messages
+        let aff = 0;
+        if (this.debugAffinity !== null) {
+            aff = this.debugAffinity;
+        } else if (this.words.length > 0) {
+            const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
+            const score = Math.floor((total/(this.words.length*5))*100);
+            aff = Math.floor(score/10);
+        }
+
+        const msgs = ["ワン！"];
+        if(aff >= 3) msgs.push("遊ぼう！", "くんくん...");
+        if(aff >= 6) msgs.push("大好きだワン！", "楽しいね！", "撫でて〜");
+        if(aff >= 9) msgs.push("ずっと一緒だよ！", "君は最高のパートナー！", "幸せだワン！");
+
+        b.innerText = msgs[Math.floor(Math.random()*msgs.length)];
+        b.classList.add('show');
         setTimeout(()=>b.classList.remove('show'), 2000);
     }
     
     speak(txt) { speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(txt); u.lang='en-US'; speechSynthesis.speak(u); }
     replaySpeak() { if(this.curr) this.speak(this.curr.en); }
+
+    confirmHome() {
+        if(confirm('学習を中断してホームに戻りますか？')) {
+            window.location.href='index.html';
+        }
+    }
+
+    retrySession() {
+        const config = JSON.parse(sessionStorage.getItem('lab_session_config'));
+        if (config) {
+            this.startSession(config);
+        } else {
+            window.location.href='index.html';
+        }
+    }
 }
 
 const app = new App();
