@@ -29,7 +29,7 @@ Pythonによる単一HTML生成方式を廃止し、GitHub Pagesでの運用に�
 | `css/style.css` | 全画面共通のスタイル定義。 |
 | `js/app.js` | 全画面共通のロジック（データ管理、SRS計算、Lottie制御）。 |
 | `words.csv` | 学習データソース（初回起動時に非同期読み込み）。 |
-| `Dog.json` | Lottieアニメーションデータ。 |
+| `dog.json` | Lottieアニメーションデータ。 |
 
 ---
 
