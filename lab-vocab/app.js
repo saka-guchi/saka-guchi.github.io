@@ -207,7 +207,7 @@ class App {
     
     renderQ(q, type, lv) {
         // ... (Logic from v48) ...
-        const labels = ["未学習","翌日","3日後","1週後","2週後","完了"];
+        const labels = ["未学習","翌日","3日後","1週後","2週後","1ヶ月後"];
         const colors = ["var(--lv0)","var(--lv1)","var(--lv2)","var(--lv3)","var(--lv4)","var(--lv5)"];
         
         document.getElementById('quiz-level-display').innerHTML = `Lv.${lv}<br>${labels[lv]}`;
@@ -458,7 +458,7 @@ class App {
         if(!c) return;
         c.innerHTML = '';
         const max = Math.max(...dist)||1;
-        const labels = ["未学習","翌日","3日後","1週後","2週後","完了"];
+        const labels = ["未学習","翌日","3日後","1週後","2週後","1ヶ月後"];
         dist.forEach((v,i) => {
              const h = (v/max)*80;
              c.innerHTML += `<div class="chart-bar-group"><div class="chart-info"><div class="chart-count">${v}</div></div><div class="chart-bar bar-${i}" style="height:${Math.max(4,h)}%"></div><div class="chart-label">Lv.${i}<br>${labels[i]}</div></div>`;
