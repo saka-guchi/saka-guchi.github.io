@@ -13,7 +13,7 @@ body { font-family: "Helvetica Neue", Arial, sans-serif; background: var(--bg); 
 
 /* Layout */
 .screen { flex: 1; display: flex; flex-direction: column; padding: 20px; height: 100%; position: relative; overflow-y: auto; background: var(--bg); }
-#home-screen { background-color: var(--primary);
+#home-screen { background-color: var(--primary); }
 .screen-no-scroll { overflow: hidden; }
 
 .home-message { background: rgba(255,255,255,0.9); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; color: var(--accent); font-weight: bold; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
