@@ -1,66 +1,62 @@
-# Labrador Vocab Specification
+# ラブラドール学習帳 (Labrador Vocab) 総合仕様書
 
-**Version:** 51.0
-**Target:** Web / PWA
-**Architecture:** Multi-Page Application (MPA) with Static Hosting
+**Version:** 50.0
+**Date:** 2026-01-01
+**Target Platform:** Web / PWA (iOS, Android Support)
+**Architecture:** Multi-Page Application (MPA) / Static Hosting (GitHub Pages)
 
-## 1. File Structure
-- `index.html`: Home screen (Entry point).
-- `quiz.html`: Quiz screen.
-- `priming.html`: Priming (Pre-learning) screen.
-- `result.html`: Result screen.
-- `list.html`: Word list screen.
-- `settings.html`: Settings screen.
-- `style.css`: Common styles.
-- `app.js`: Common logic (Data loading, SRS, Session).
-- `words.csv`: Learning data source (Fetched on first load).
-- `Dog.json`: Lottie animation data.
+---
 
-## 2. Data Management
-- **Master Data**: `localStorage` (key: `lab_data_v30`)
-- **Initial Load**: Fetch `words.csv` and initialize `localStorage` if empty.
-- **Persistence**: All progress is saved to `localStorage`.
-- **Session**: `sessionStorage` is used to pass quiz queue and results between pages.
+## 1. プロダクト概要
 
-## 3. UI/UX Specifications
+### 1.1 コンセプト
+「ラブラドール学習帳」は、NGSL等の英単語リストを効率的に記憶し、自分だけの単語帳として育成できるWebアプリケーションである。
+ラブラドール・レトリーバーとの触れ合いや、学習者の習熟度（レベル）に応じたアダプティブな出題形式により、学習意欲の維持・向上を図る。
 
-### 3.1 Common Design
-- **Header**: Screen title (Left) + Home button (Right, Icon only).
-- **Footer**: Common "Back to Home" button (`.btn-home`) at the bottom of every screen.
-- **Theme Color**: #F4D03F (Primary), #5D4037 (Text), #FAF9F6 (Background).
+### 1.2 アーキテクチャ変更 (v50)
+Pythonによる単一HTML生成方式を廃止し、GitHub Pagesでの運用に適した**静的ファイル構成（MPA）**へ移行した。
+画面ごとにHTMLファイルを分割し、共通のCSS/JSで制御する。
 
-### 3.2 Home Screen (`index.html`)
-- **Visual**: Lottie animation (`Dog.json`) + Affinity Heart Meter (10 hearts).
-- **Chart**: "Memorizable Duration" (記憶できる期間) distribution.
-  - Title moved to below the chart.
-  - Lv.5 label changed to "1 Month Later" (1ヶ月後).
-- **Settings**: Mode (Review/New), Question Count (10/20/30), Priming (On/Off).
-- **Footer**: Version info displayed below settings buttons.
+### 1.3 ファイル構成
+| ファイル名 | 役割 |
+| :--- | :--- |
+| `index.html` | ホーム画面（エントリーポイント）。 |
+| `priming.html` | 事前学習画面。 |
+| `quiz.html` | クイズ出題画面。 |
+| `result.html` | 回答結果画面。 |
+| `list.html` | 単語一覧画面。 |
+| `settings.html` | 詳細設定画面。 |
+| `css/style.css` | 全画面共通のスタイル定義。 |
+| `js/app.js` | 全画面共通のロジック（データ管理、SRS計算、Lottie制御）。 |
+| `words.csv` | 学習データソース（初回起動時に非同期読み込み）。 |
+| `dog.json` | Lottieアニメーションデータ。 |
 
-### 3.3 Quiz Screen (`quiz.html`)
-- **Header**: Progress bar (Top), Question Count (Left), Level Badge (Right).
-- **Card Layout**: English word (Top) + POS Badge (Bottom/Small). Vertical layout.
-- **Icons**: Eye (Mask), Speaker (Audio). Hardcoded SVGs.
-- **Footer**: "Interrupt & Home" button.
+---
 
-### 3.4 Result Screen (`result.html`)
-- **Layout**:
-  - Top (Fixed): Dog Animation + Speech Bubble + Heart Meter.
-  - Middle (Scrollable): Result List.
-  - Bottom (Fixed): "Retry" button + "Home" button.
+## 2. データ管理仕様
 
-## 4. Logic Specifications
+### 2.1 データフロー
+1.  **初期化 (Initial Load)**:
+    - アプリ初回アクセス時、`words.csv` を `fetch()` で取得・パースする。
+    - パースしたデータを `localStorage` に「マスターデータ」として保存する。
+2.  **永続化 (Persistence)**:
+    - 学習記録の更新、単語の追加・編集は `localStorage` (`lab_data_v30`) に対して行う。
+    - 2回目以降の起動は `localStorage` を参照する。
+3.  **画面間連携 (Session)**:
+    - クイズの出題キューや途中経過、回答結果は `sessionStorage` (`lab_session`) を介して次の画面へ引き渡す。
 
-### 4.1 Adaptive Quiz
-- **Lv.0-1 (Standard)**: English -> Japanese (No Mask).
-- **Lv.2 (Masked)**: Masked English -> Japanese.
-- **Lv.3 (Reverse)**: Japanese -> English.
-- **Lv.4+ (Fill-in)**: Fill-in-the-blank sentence.
-
-### 4.2 SRS Algorithm
-- Correct: Level Up (Max 5), Interval Extension.
-- Incorrect: Level Reset (0), Interval Reset (1 day).
-
-### 4.3 Affinity System
-- Calculated based on total level of all words.
-- Visualized by 10 hearts and dog's reaction.
+### 2.2 データモデル (Word Object)
+```javascript
+{
+  "id": number,           // 一意のID (連番 or タイムスタンプ)
+  "en": string,           // 英単語
+  "ja": string,           // 日本語訳
+  "pos": string,          // 品詞
+  "ex": string,           // 例文
+  "exJa": string,         // 例文訳
+  "stats": {              // 学習記録
+    "level": number,      // 0(未)〜5(完)
+    "nextReview": number, // 次回学習可能日時 (UNIX ms)
+    "interval": number    // 復習間隔 (日)
+  }
+}
