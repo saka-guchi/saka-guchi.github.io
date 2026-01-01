@@ -1,6 +1,8 @@
 
-const STORAGE_KEY = 'lab_data_v30';
-const CSV_PATH = './words.csv';
+const DATASETS = {
+    ngsl: { label: 'NGSL単語帳', path: './words/ngsl.csv', storageKey: 'lab_data_v30' },
+    ielts: { label: 'IELTS基礎1000', path: './words/ielts3500-basic1000.csv', storageKey: 'lab_data_ielts' }
+};
 const LOTTIE_PATH = './dog.json';
 
 // --- Icons (SVG Strings) ---
@@ -20,7 +22,11 @@ class App {
         this.resultLottie = null;
         this.debugAffinity = null;
         this.answering = false;
+        this.currentDatasetKey = localStorage.getItem('lab_dataset_key') || 'ngsl';
+        if(!DATASETS[this.currentDatasetKey]) this.currentDatasetKey = 'ngsl';
     }
+
+    get currentConfig() { return DATASETS[this.currentDatasetKey]; }
 
     // --- Core Logic ---
     async init() {
@@ -37,12 +43,13 @@ class App {
     }
 
     async loadData() {
-        const local = localStorage.getItem(STORAGE_KEY);
+        const config = this.currentConfig;
+        const local = localStorage.getItem(config.storageKey);
         if(local) {
             this.words = JSON.parse(local);
         } else {
             try {
-                const res = await fetch(CSV_PATH);
+                const res = await fetch(config.path);
                 if(res.ok) {
                     const text = await res.text();
                     this.parseCSV(text, true);
@@ -51,14 +58,17 @@ class App {
         }
     }
 
-    saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.words)); }
+    saveData() { localStorage.setItem(this.currentConfig.storageKey, JSON.stringify(this.words)); }
 
     parseCSV(text, isInit=false) {
         const lines = text.split(/\r\n|\n/);
         const newItems = [];
         let start = 0;
-        if(lines[0].includes("単語") || lines[0].includes("word")) start = 1;
-        if(lines.length>1 && lines[0].includes("0,1,2")) start = 2;
+        // Detect format:
+        // New: Line 0=Title, 1=Indexes, 2=Headers -> Start at 3
+        if(lines.length > 2 && lines[1].includes("0,1,2")) start = 3;
+        else if(lines[0].includes("単語") || lines[0].includes("word")) start = 1;
+        else if(lines.length>1 && lines[0].includes("0,1,2")) start = 2;
 
         for(let i=start; i<lines.length; i++) {
             const line = lines[i].trim();
@@ -443,7 +453,32 @@ class App {
     
     // --- Settings ---
     initSettings() {
-        // Bind handlers
+        const sel = document.getElementById('dataset-select');
+        if(sel) {
+            sel.innerHTML = '';
+            for(const [k, v] of Object.entries(DATASETS)) {
+                const opt = document.createElement('option');
+                opt.value = k;
+                opt.textContent = v.label;
+                if(k === this.currentDatasetKey) opt.selected = true;
+                sel.appendChild(opt);
+            }
+        }
+    }
+
+    changeDataset(val) {
+        if(DATASETS[val]) {
+            this.currentDatasetKey = val;
+            localStorage.setItem('lab_dataset_key', val);
+            window.location.reload();
+        }
+    }
+
+    resetStats() {
+        if(confirm('現在の単語帳の学習記録をリセットしますか？\\n（この操作は取り消せません）')) {
+            localStorage.removeItem(this.currentConfig.storageKey);
+            window.location.reload();
+        }
     }
     
     // --- Shared Utils ---
