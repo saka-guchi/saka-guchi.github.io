@@ -119,10 +119,22 @@ class App {
         this.petDog();
     }
     
-    startSession() {
-        const mode = document.querySelector('input[name="mode"]:checked').value;
-        const limit = parseInt(document.querySelector('input[name="limit"]:checked').value);
-        const priming = document.getElementById('use-priming').checked;
+    startSession(config = null) {
+        let mode, limit, priming;
+
+        if (config) {
+            mode = config.mode;
+            limit = config.limit;
+            priming = config.priming;
+        } else {
+            mode = document.querySelector('input[name="mode"]:checked').value;
+            limit = parseInt(document.querySelector('input[name="limit"]:checked').value);
+            priming = document.getElementById('use-priming').checked;
+
+            // Save config for retry
+            sessionStorage.setItem('lab_session_config', JSON.stringify({ mode, limit, priming }));
+        }
+
         const now = Date.now();
         
         let q = [];
@@ -150,8 +162,14 @@ class App {
             const div = document.createElement('div');
             div.className = 'priming-item';
             div.innerHTML = `
-                <div class="priming-row-1"><span class="priming-pos-badge">${w.pos}</span><div class="priming-en">${w.en}</div></div>
-                <div class="priming-row-2"><span class="priming-ja">${w.ja}</span><button class="audio-btn-flat" onclick="app.speak('${w.en.replace(/'/g,"\\'")}')">${ICONS.speaker}</button></div>
+                <div class="priming-row-1"><div class="priming-en">${w.en}</div></div>
+                <div class="priming-row-2">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="priming-pos-badge">${w.pos}</span>
+                        <span class="priming-ja">${w.ja}</span>
+                    </div>
+                    <button class="audio-btn-flat" onclick="app.speak('${w.en.replace(/'/g,"\\'")}')">${ICONS.speaker}</button>
+                </div>
             `;
             list.appendChild(div);
         });
@@ -275,6 +293,11 @@ class App {
         if(this.answering) return; // Prevent double click
         this.answering = true;
 
+        // Immediate Style Feedback
+        if(btn) {
+            btn.classList.add(isCorrect ? 'correct' : 'wrong');
+        }
+
         if(this.timer) clearTimeout(this.timer);
         const q = this.curr;
         
@@ -357,18 +380,6 @@ class App {
         const distBefore = [...distAfter];
         this.results.forEach(r => {
             if(r.oldLevel !== undefined && r.newLevel !== undefined) {
-                 // Revert the move
-                 // Note: Logic in answer()
-                 // if correct: old -> new (could be same if 5)
-                 // if wrong: old -> 0
-
-                 // If the result says it moved from oldLevel to newLevel:
-                 // "Before" state had +1 at oldLevel and -1 at newLevel relative to "After" state?
-                 // No. "After" state has the word at newLevel.
-                 // So "Before" state should have the word at oldLevel.
-                 // So: distBefore[newLevel]--; distBefore[oldLevel]++;
-
-                 // However, we only care about the count distribution.
                  if(r.newLevel !== r.oldLevel) {
                      distBefore[r.newLevel]--;
                      distBefore[r.oldLevel]++;
@@ -418,11 +429,11 @@ class App {
                     hl = w.ex.replace(new RegExp(`\\b${escapeRegExp(w.en)}\\b`,'gi'), '<span class="highlight">$&</span>');
                  } catch(e) { hl = w.ex; }
              }
-             const posText = w.pos ? w.pos : "";
+             const posText = w.pos ? `[${w.pos}]` : "";
 
              div.innerHTML = `
-                <div class="wl-header"><div class="wl-word"><span class="wl-id">${w.id}.</span> ${w.en} <span class="wl-pos-badge">${posText}</span></div><span class="wl-level-badge" style="background:var(--lv${w.stats.level})">Lv.${w.stats.level}</span></div>
-                <div class="wl-meaning">${w.ja}</div>
+                <div class="wl-header"><div class="wl-word"><span class="wl-id">${w.id}.</span> ${w.en}</div><span class="wl-level-badge" style="background:var(--lv${w.stats.level})">Lv.${w.stats.level}</span></div>
+                <div class="wl-meaning"><span style="font-size:0.75rem; color:#888; margin-right:4px;">${posText}</span>${w.ja}</div>
                 <div class="wl-ex-box"><div class="wl-ex-en">${hl}</div><div class="wl-ex-ja">${w.exJa}</div></div>`;
              frag.appendChild(div);
         });
@@ -488,7 +499,24 @@ class App {
     
     petDog() {
         const b = document.getElementById('dog-bubble');
-        b.innerText = "ワン！"; b.classList.add('show');
+
+        // Calculate affinity for messages
+        let aff = 0;
+        if (this.debugAffinity !== null) {
+            aff = this.debugAffinity;
+        } else if (this.words.length > 0) {
+            const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
+            const score = Math.floor((total/(this.words.length*5))*100);
+            aff = Math.floor(score/10);
+        }
+
+        const msgs = ["ワン！"];
+        if(aff >= 3) msgs.push("遊ぼう！", "くんくん...");
+        if(aff >= 6) msgs.push("大好きだワン！", "楽しいね！", "撫でて〜");
+        if(aff >= 9) msgs.push("ずっと一緒だよ！", "君は最高のパートナー！", "幸せだワン！");
+
+        b.innerText = msgs[Math.floor(Math.random()*msgs.length)];
+        b.classList.add('show');
         setTimeout(()=>b.classList.remove('show'), 2000);
     }
     
@@ -502,7 +530,12 @@ class App {
     }
 
     retrySession() {
-        window.location.href='index.html';
+        const config = JSON.parse(sessionStorage.getItem('lab_session_config'));
+        if (config) {
+            this.startSession(config);
+        } else {
+            window.location.href='index.html';
+        }
     }
 }
 
