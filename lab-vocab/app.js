@@ -18,6 +18,8 @@ class App {
         this.results = [];
         this.homeLottie = null;
         this.resultLottie = null;
+        this.debugAffinity = null;
+        this.answering = false;
     }
 
     // --- Core Logic ---
@@ -94,6 +96,27 @@ class App {
         this.renderHearts('home-hearts');
         this.updateHearts('home-hearts');
         this.initLottie('lottie-dog', true);
+
+        // Chart click handler
+        const chartTitle = document.getElementById('home-chart-title');
+        if(chartTitle) {
+            chartTitle.onclick = () => {
+                 alert("【レベル別出題形式】\nLv.0-1: Standard (英→日)\nLv.2: Masked (英単語マスク)\nLv.3: Reverse (日→英)\nLv.4+: Fill-in (穴埋め)");
+            };
+        }
+    }
+
+    debugHeart(diff) {
+        let current = this.debugAffinity;
+        if(current === null) {
+             // Initial estimate
+             const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
+             const aff = Math.floor((total/(this.words.length*5))*100);
+             current = Math.floor(aff/10);
+        }
+        this.debugAffinity = Math.max(0, Math.min(10, current + diff));
+        this.updateHearts('home-hearts');
+        this.petDog();
     }
     
     startSession() {
@@ -166,7 +189,7 @@ class App {
     
     renderQ(q, type, lv) {
         // ... (Logic from v48) ...
-        const labels = ["未学習","翌日","3日後","1週後","2週後","完了"];
+        const labels = ["未学習","翌日","3日後","1週後","2週後","1ヶ月後"];
         const colors = ["var(--lv0)","var(--lv1)","var(--lv2)","var(--lv3)","var(--lv4)","var(--lv5)"];
         
         document.getElementById('quiz-level-display').innerHTML = `Lv.${lv}<br>${labels[lv]}`;
@@ -249,6 +272,9 @@ class App {
     }
     
     answer(isCorrect, btn) {
+        if(this.answering) return; // Prevent double click
+        this.answering = true;
+
         if(this.timer) clearTimeout(this.timer);
         const q = this.curr;
         
@@ -256,6 +282,8 @@ class App {
         const masterIdx = this.words.findIndex(w=>w.id===q.id);
         if(masterIdx > -1) {
             const w = this.words[masterIdx];
+            const oldLevel = w.stats.level;
+
             if(isCorrect) {
                 let m = (Date.now()-this.startTime<2000) ? 2.5 : 1.5;
                 if(this.maskRevealed) m *= 0.5;
@@ -268,8 +296,8 @@ class App {
             }
             this.saveData(); // Persist immediately
             
-            // Push result with updated state
-            this.results.push({word: w, correct: isCorrect, diff: isCorrect?1:0});
+            // Push result with updated state and oldLevel
+            this.results.push({word: w, correct: isCorrect, diff: isCorrect?1:0, oldLevel: oldLevel, newLevel: w.stats.level});
         }
         
         // UI Feedback
@@ -282,6 +310,7 @@ class App {
         setTimeout(()=>{
             ov.style.opacity = 0;
             this.idx++;
+            this.answering = false;
             // Save Session
             sessionStorage.setItem('lab_session', JSON.stringify({queue:this.quizQueue, idx:this.idx, results:this.results}));
             this.nextQ();
@@ -295,17 +324,18 @@ class App {
         
         this.results = session.results;
         
-        this.initLottie('lottie-dog-result', false);
-        this.renderHearts('result-hearts');
-        this.updateHearts('result-hearts');
-        
-        // Dog Bubble
-        const rate = this.results.filter(r=>r.correct).length / this.results.length;
-        document.getElementById('result-bubble').innerText = rate>=0.8?"すごいワン！":"お疲れ様ワン！";
+        // Render Chart
+        this.renderResultChart('result-chart');
         
         const list = document.getElementById('result-list');
+        const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
         this.results.forEach(r => {
-             const hl = r.word.ex ? r.word.ex.replace(new RegExp(`\\b${r.word.en}\\b`,'gi'), '<span class="highlight">$&</span>') : "";
+             let hl = "";
+             if(r.word.ex && r.word.en) {
+                 try { hl = r.word.ex.replace(new RegExp(`\\b${escapeRegExp(r.word.en)}\\b`,'gi'), '<span class="highlight">$&</span>'); }
+                 catch(e){ hl = r.word.ex; }
+             }
              const div = document.createElement('div');
              div.className = 'result-item';
              div.innerHTML = `
@@ -319,23 +349,84 @@ class App {
         });
     }
 
+    renderResultChart(id) {
+        // Calculate After
+        const distAfter = this.getLevelDistribution(); // Current state
+
+        // Calculate Before
+        const distBefore = [...distAfter];
+        this.results.forEach(r => {
+            if(r.oldLevel !== undefined && r.newLevel !== undefined) {
+                 // Revert the move
+                 // Note: Logic in answer()
+                 // if correct: old -> new (could be same if 5)
+                 // if wrong: old -> 0
+
+                 // If the result says it moved from oldLevel to newLevel:
+                 // "Before" state had +1 at oldLevel and -1 at newLevel relative to "After" state?
+                 // No. "After" state has the word at newLevel.
+                 // So "Before" state should have the word at oldLevel.
+                 // So: distBefore[newLevel]--; distBefore[oldLevel]++;
+
+                 // However, we only care about the count distribution.
+                 if(r.newLevel !== r.oldLevel) {
+                     distBefore[r.newLevel]--;
+                     distBefore[r.oldLevel]++;
+                 }
+            }
+        });
+
+        // Render with Diffs
+        const c = document.getElementById(id);
+        if(!c) return;
+        c.innerHTML = '';
+        const max = Math.max(...distAfter, ...distBefore) || 1;
+        const labels = ["未学習","翌日","3日後","1週後","2週後","1ヶ月後"];
+
+        distAfter.forEach((v,i) => {
+             const h = (v/max)*80;
+             const diffVal = v - distBefore[i];
+             let diffHtml = '';
+             if(diffVal > 0) diffHtml = `<div class="chart-diff diff-plus show">+${diffVal}</div>`;
+             if(diffVal < 0) diffHtml = `<div class="chart-diff diff-minus show">${diffVal}</div>`;
+
+             c.innerHTML += `<div class="chart-bar-group">
+                 <div class="chart-info">
+                    ${diffHtml}
+                    <div class="chart-count">${v}</div>
+                 </div>
+                 <div class="chart-bar bar-${i}" style="height:${Math.max(4,h)}%"></div>
+                 <div class="chart-label">Lv.${i}<br>${labels[i]}</div>
+             </div>`;
+        });
+    }
+
     // --- List Screen ---
     initList() {
-        document.getElementById('list-title').innerText = `単語一覧 (${this.words.length}語)`;
         const list = document.getElementById('list-content');
-        // Fragment for perf
+        if(!list) return;
+
+        const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
         const frag = document.createDocumentFragment();
         this.words.forEach(w => {
              const div = document.createElement('div');
              div.className = 'word-list-item';
-             // Highlight logic...
-             const hl = w.ex ? w.ex.replace(new RegExp(`\\b${w.en}\\b`,'gi'), '<span class="highlight">$&</span>') : "";
+             let hl = "";
+             if(w.ex && w.en) {
+                 try {
+                    hl = w.ex.replace(new RegExp(`\\b${escapeRegExp(w.en)}\\b`,'gi'), '<span class="highlight">$&</span>');
+                 } catch(e) { hl = w.ex; }
+             }
+             const posText = w.pos ? w.pos : "";
+
              div.innerHTML = `
-                <div class="wl-header"><div class="wl-word"><span class="wl-id">${w.id}.</span> ${w.en} <span class="wl-pos-badge">${w.pos}</span></div><span class="wl-level-badge" style="background:var(--lv${w.stats.level})">Lv.${w.stats.level}</span></div>
+                <div class="wl-header"><div class="wl-word"><span class="wl-id">${w.id}.</span> ${w.en} <span class="wl-pos-badge">${posText}</span></div><span class="wl-level-badge" style="background:var(--lv${w.stats.level})">Lv.${w.stats.level}</span></div>
                 <div class="wl-meaning">${w.ja}</div>
                 <div class="wl-ex-box"><div class="wl-ex-en">${hl}</div><div class="wl-ex-ja">${w.exJa}</div></div>`;
              frag.appendChild(div);
         });
+        list.innerHTML = "";
         list.appendChild(frag);
     }
     
@@ -356,7 +447,7 @@ class App {
         if(!c) return;
         c.innerHTML = '';
         const max = Math.max(...dist)||1;
-        const labels = ["未学習","翌日","3日後","1週後","2週後","完了"];
+        const labels = ["未学習","翌日","3日後","1週後","2週後","1ヶ月後"];
         dist.forEach((v,i) => {
              const h = (v/max)*80;
              c.innerHTML += `<div class="chart-bar-group"><div class="chart-info"><div class="chart-count">${v}</div></div><div class="chart-bar bar-${i}" style="height:${Math.max(4,h)}%"></div><div class="chart-label">Lv.${i}<br>${labels[i]}</div></div>`;
@@ -373,9 +464,14 @@ class App {
     
     updateHearts(id) {
         if(!this.words.length) return;
-        const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
-        const aff = Math.floor((total/(this.words.length*5))*100);
-        const active = Math.floor(aff/10);
+        let active;
+        if(this.debugAffinity !== null) {
+            active = this.debugAffinity;
+        } else {
+            const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
+            const aff = Math.floor((total/(this.words.length*5))*100);
+            active = Math.floor(aff/10);
+        }
         const hearts = document.getElementById(id).querySelectorAll('.heart-icon');
         hearts.forEach((h,i) => { if(i<active) h.classList.add('active'); else h.classList.remove('active'); });
     }
@@ -398,6 +494,16 @@ class App {
     
     speak(txt) { speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(txt); u.lang='en-US'; speechSynthesis.speak(u); }
     replaySpeak() { if(this.curr) this.speak(this.curr.en); }
+
+    confirmHome() {
+        if(confirm('学習を中断してホームに戻りますか？')) {
+            window.location.href='index.html';
+        }
+    }
+
+    retrySession() {
+        window.location.href='index.html';
+    }
 }
 
 const app = new App();
