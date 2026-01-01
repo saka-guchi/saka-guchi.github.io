@@ -1,7 +1,7 @@
 
 const STORAGE_KEY = 'lab_data_v30';
 const CSV_PATH = './words.csv';
-const LOTTIE_PATH = './Dog.json';
+const LOTTIE_PATH = './dog.json';
 
 // --- Icons (SVG Strings) ---
 const ICONS = {
