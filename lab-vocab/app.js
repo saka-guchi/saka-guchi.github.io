@@ -17,7 +17,6 @@ class App {
         this.results = [];
         this.homeLottie = null;
         this.resultLottie = null;
-        this.debugAffinity = null;
         this.answering = false;
         // Dataset key will be validated after loading datasets
         this.currentDatasetKey = localStorage.getItem('lab_dataset_key');
@@ -160,7 +159,7 @@ class App {
                 pos: c[3] ? c[3].split('/')[0] : "", // Handle potential splits like "接続詞/代名詞"
                 ex: c[4] || "",
                 exJa: c[5] || "",
-                stats: { level: 0, nextReview: 0, interval: 1 }
+                stats: { level: 0, nextReview: 0, interval: 0.5 }
             });
         }
         if(isInit) {
@@ -177,29 +176,52 @@ class App {
         this.renderHearts('home-hearts');
         this.updateHearts('home-hearts');
         this.initLottie('lottie-dog', true);
+        this.startRandomMessages();
 
         // Chart click handler
         const chartTitle = document.getElementById('home-chart-title');
         if(chartTitle) {
-            chartTitle.onclick = () => {
-                 alert("【レベル別出題形式】\nLv.0-1: Standard (英→日)\nLv.2: Masked (英単語マスク)\nLv.3: Reverse (日→英)\nLv.4+: Fill-in (穴埋め)");
-            };
+            chartTitle.onclick = () => this.showLevelHelp();
         }
     }
 
-    debugHeart(diff) {
-        let current = this.debugAffinity;
-        if(current === null) {
-             // Initial estimate
-             const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
-             const aff = Math.floor((total/(this.words.length*5))*100);
-             current = Math.floor(aff/10);
-        }
-        this.debugAffinity = Math.max(0, Math.min(10, current + diff));
-        this.updateHearts('home-hearts');
-        this.petDog();
+    startRandomMessages() {
+        const delay = Math.floor(Math.random() * 10000) + 5000; // 5-15s
+        setTimeout(() => {
+            const bubble = document.getElementById('dog-bubble');
+            if(bubble && window.getComputedStyle(bubble).display !== 'none') {
+                this.petDog();
+                this.startRandomMessages();
+            }
+        }, delay);
     }
-    
+
+    showLevelHelp() {
+        const existing = document.getElementById('custom-modal-overlay');
+        if(existing) existing.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'custom-modal-overlay';
+        overlay.className = 'modal-overlay';
+
+        overlay.innerHTML = `
+            <div class="modal-box">
+                <div class="modal-header">レベル別出題形式</div>
+                <div class="modal-content">
+                    <div class="modal-row"><span class="modal-badge lv0">Lv.0-1</span> <span class="modal-desc">英→日</span></div>
+                    <div class="modal-row"><span class="modal-badge lv2">Lv.2</span> <span class="modal-desc">英→日 (英単語非表示)</span></div>
+                    <div class="modal-row"><span class="modal-badge lv3">Lv.3</span> <span class="modal-desc">日→英</span></div>
+                    <div class="modal-row"><span class="modal-badge lv4">Lv.4+</span> <span class="modal-desc">例文穴埋め</span></div>
+                </div>
+                <button class="modal-close-btn" onclick="document.getElementById('custom-modal-overlay').remove()">閉じる</button>
+            </div>
+        `;
+        overlay.onclick = (e) => {
+            if(e.target === overlay) overlay.remove();
+        };
+        document.body.appendChild(overlay);
+    }
+
     startSession(config = null) {
         let mode, limit, priming;
 
@@ -288,7 +310,7 @@ class App {
     
     renderQ(q, type, lv) {
         // ... (Logic from v48) ...
-        const labels = ["未学習","翌日","3日後","1週後","2週後","1ヶ月後"];
+        const labels = ["未学習","数時間","1日","3日","1週","1ヶ月"];
         const colors = ["var(--lv0)","var(--lv1)","var(--lv2)","var(--lv3)","var(--lv4)","var(--lv5)"];
         
         document.getElementById('quiz-level-display').innerHTML = `Lv.${lv}<br>${labels[lv]}`;
@@ -391,11 +413,11 @@ class App {
             if(isCorrect) {
                 let m = (Date.now()-this.startTime<2000) ? 2.5 : 1.5;
                 if(this.maskRevealed) m *= 0.5;
-                w.stats.interval = Math.max(1, w.stats.interval*m);
+                w.stats.interval = Math.max(0.5, w.stats.interval*m);
                 w.stats.level = Math.min(5, w.stats.level+1);
                 w.stats.nextReview = Date.now() + w.stats.interval*86400000;
             } else {
-                w.stats.interval = 1; w.stats.level = 0;
+                w.stats.interval = 0.5; w.stats.level = 0;
                 w.stats.nextReview = Date.now();
             }
             this.saveData(); // Persist immediately
@@ -473,7 +495,7 @@ class App {
         if(!c) return;
         c.innerHTML = '';
         const max = Math.max(...distAfter, ...distBefore) || 1;
-        const labels = ["未学習","翌日","3日後","1週後","2週後","1ヶ月後"];
+        const labels = ["未学習","数時間","1日","3日","1週","1ヶ月"];
 
         distAfter.forEach((v,i) => {
              const h = (v/max)*80;
@@ -564,7 +586,7 @@ class App {
         if(!c) return;
         c.innerHTML = '';
         const max = Math.max(...dist)||1;
-        const labels = ["未学習","翌日","3日後","1週後","2週後","1ヶ月後"];
+        const labels = ["未学習","数時間","1日","3日","1週","1ヶ月"];
         dist.forEach((v,i) => {
              const h = (v/max)*80;
              c.innerHTML += `<div class="chart-bar-group"><div class="chart-info"><div class="chart-count">${v}</div></div><div class="chart-bar bar-${i}" style="height:${Math.max(4,h)}%"></div><div class="chart-label">Lv.${i}<br>${labels[i]}</div></div>`;
@@ -581,14 +603,9 @@ class App {
     
     updateHearts(id) {
         if(!this.words.length) return;
-        let active;
-        if(this.debugAffinity !== null) {
-            active = this.debugAffinity;
-        } else {
-            const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
-            const aff = Math.floor((total/(this.words.length*5))*100);
-            active = Math.floor(aff/10);
-        }
+        const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
+        const aff = Math.floor((total/(this.words.length*5))*100);
+        const active = Math.floor(aff/10);
         const hearts = document.getElementById(id).querySelectorAll('.heart-icon');
         hearts.forEach((h,i) => { if(i<active) h.classList.add('active'); else h.classList.remove('active'); });
     }
@@ -605,12 +622,11 @@ class App {
     
     petDog() {
         const b = document.getElementById('dog-bubble');
+        if(!b) return;
 
         // Calculate affinity for messages
         let aff = 0;
-        if (this.debugAffinity !== null) {
-            aff = this.debugAffinity;
-        } else if (this.words.length > 0) {
+        if (this.words.length > 0) {
             const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
             const score = Math.floor((total/(this.words.length*5))*100);
             aff = Math.floor(score/10);
