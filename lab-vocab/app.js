@@ -146,14 +146,15 @@ class App {
             // Expected format based on headers: 番号,単語,訳,品詞,例文,訳文
             // c[0]: No, c[1]: Word, c[2]: Meaning, c[3]: POS, c[4]: Example, c[5]: Translation
             
-            // Use existing ID logic or parse from CSV?
-            // Original code used `Date.now() + i` for IDs. Let's stick to generating IDs to avoid conflicts or issues with CSV ids.
-            // But if we want to update existing words, maybe stable ID is better?
-            // For now, keep original logic for ID generation to ensure uniqueness per session load if local storage is cleared.
-            // Actually, `Date.now() + i` ensures uniqueness.
+            // ID Generation: Prioritize valid number in c[0], otherwise use index (1-based)
+            let id = i;
+            const csvId = parseInt(c[0]);
+            if (!isNaN(csvId) && csvId > 0) {
+                id = csvId;
+            }
             
             newItems.push({
-                id: Date.now() + i,
+                id: id,
                 en: c[1] || "",
                 ja: c[2] || "",
                 pos: c[3] ? c[3].split('/')[0] : "", // Handle potential splits like "接続詞/代名詞"
@@ -211,7 +212,7 @@ class App {
                     <div class="modal-row"><span class="modal-badge lv0">Lv.0-1</span> <span class="modal-desc">英→日</span></div>
                     <div class="modal-row"><span class="modal-badge lv2">Lv.2</span> <span class="modal-desc">英→日 (英単語非表示)</span></div>
                     <div class="modal-row"><span class="modal-badge lv3">Lv.3</span> <span class="modal-desc">日→英</span></div>
-                    <div class="modal-row"><span class="modal-badge lv4">Lv.4+</span> <span class="modal-desc">例文穴埋め</span></div>
+                    <div class="modal-row"><span class="modal-badge lv4">Lv.4-5</span> <span class="modal-desc">例文穴埋め</span></div>
                 </div>
                 <button class="modal-close-btn" onclick="document.getElementById('custom-modal-overlay').remove()">閉じる</button>
             </div>
@@ -310,7 +311,7 @@ class App {
     
     renderQ(q, type, lv) {
         // ... (Logic from v48) ...
-        const labels = ["未学習","数時間","1日","3日","1週","1ヶ月"];
+        const labels = ["未学習","1日","3日","1週","2週","1ヶ月"];
         const colors = ["var(--lv0)","var(--lv1)","var(--lv2)","var(--lv3)","var(--lv4)","var(--lv5)"];
         
         document.getElementById('quiz-level-display').innerHTML = `Lv.${lv}<br>${labels[lv]}`;
@@ -410,11 +411,13 @@ class App {
             const w = this.words[masterIdx];
             const oldLevel = w.stats.level;
 
+            // Updated SRS Logic (Fixed Intervals)
+            // Lv.0(Unlearned), Lv.1(1d), Lv.2(3d), Lv.3(1w), Lv.4(2w), Lv.5(1m)
+            const INTERVALS = [0, 1, 3, 7, 14, 30];
+
             if(isCorrect) {
-                let m = (Date.now()-this.startTime<2000) ? 2.5 : 1.5;
-                if(this.maskRevealed) m *= 0.5;
-                w.stats.interval = Math.max(0.5, w.stats.interval*m);
                 w.stats.level = Math.min(5, w.stats.level+1);
+                w.stats.interval = INTERVALS[w.stats.level];
                 w.stats.nextReview = Date.now() + w.stats.interval*86400000;
             } else {
                 w.stats.interval = 0.5; w.stats.level = 0;
@@ -495,7 +498,7 @@ class App {
         if(!c) return;
         c.innerHTML = '';
         const max = Math.max(...distAfter, ...distBefore) || 1;
-        const labels = ["未学習","数時間","1日","3日","1週","1ヶ月"];
+        const labels = ["未学習","1日","3日","1週","2週","1ヶ月"];
 
         distAfter.forEach((v,i) => {
              const h = (v/max)*80;
@@ -586,7 +589,7 @@ class App {
         if(!c) return;
         c.innerHTML = '';
         const max = Math.max(...dist)||1;
-        const labels = ["未学習","数時間","1日","3日","1週","1ヶ月"];
+        const labels = ["未学習","1日","3日","1週","2週","1ヶ月"];
         dist.forEach((v,i) => {
              const h = (v/max)*80;
              c.innerHTML += `<div class="chart-bar-group"><div class="chart-info"><div class="chart-count">${v}</div></div><div class="chart-bar bar-${i}" style="height:${Math.max(4,h)}%"></div><div class="chart-label">Lv.${i}<br>${labels[i]}</div></div>`;
