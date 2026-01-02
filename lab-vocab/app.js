@@ -1,8 +1,5 @@
 
-const DATASETS = {
-    ngsl: { label: 'NGSL単語帳', path: './words/ngsl.csv', storageKey: 'lab_data_v30' },
-    ielts: { label: 'IELTS基礎1000', path: './words/ielts3500-basic1000.csv', storageKey: 'lab_data_ielts' }
-};
+let DATASETS = {}; // Dynamically loaded
 const LOTTIE_PATH = './dog.json';
 
 // --- Icons (SVG Strings) ---
@@ -22,15 +19,28 @@ class App {
         this.resultLottie = null;
         this.debugAffinity = null;
         this.answering = false;
-        this.currentDatasetKey = localStorage.getItem('lab_dataset_key') || 'ngsl';
-        if(!DATASETS[this.currentDatasetKey]) this.currentDatasetKey = 'ngsl';
+        // Dataset key will be validated after loading datasets
+        this.currentDatasetKey = localStorage.getItem('lab_dataset_key');
     }
 
     get currentConfig() { return DATASETS[this.currentDatasetKey]; }
 
     // --- Core Logic ---
     async init() {
-        await this.loadData();
+        await this.loadDatasets();
+        if (!this.currentConfig) {
+            // Fallback if saved key is invalid or null
+            this.currentDatasetKey = Object.keys(DATASETS)[0];
+            if (this.currentDatasetKey) {
+                localStorage.setItem('lab_dataset_key', this.currentDatasetKey);
+            }
+        }
+
+        if (this.currentConfig) {
+            await this.loadData();
+        } else {
+            console.error("No valid dataset configuration found.");
+        }
         
         // Dispatch init based on current page
         const path = window.location.pathname;
@@ -42,8 +52,45 @@ class App {
         else if(path.includes('settings.html')) this.initSettings();
     }
 
+    async loadDatasets() {
+        try {
+            const res = await fetch('./words/lists.csv');
+            if (res.ok) {
+                const text = await res.text();
+                const rows = this.parseRawCSV(text);
+
+                DATASETS = {};
+                // Skip header (i=1)
+                for(let i=1; i<rows.length; i++) {
+                    const row = rows[i];
+                    if(row.length < 2) continue;
+
+                    const filename = row[0];
+                    const desc = row[1];
+                    // Derive key from filename (e.g., 'ngsl.csv' -> 'ngsl')
+                    const key = filename.replace('.csv', '');
+
+                    // Maintain backward compatibility for storage keys where possible
+                    let storageKey = 'lab_data_' + key;
+                    if (key === 'ngsl') storageKey = 'lab_data_v30';
+                    if (filename === 'ielts3500-basic1000.csv') storageKey = 'lab_data_ielts';
+
+                    DATASETS[key] = {
+                        label: desc,
+                        path: './words/' + filename,
+                        storageKey: storageKey
+                    };
+                }
+            } else {
+                console.error("Failed to load lists.csv");
+            }
+        } catch(e) { console.error("Load Datasets Error", e); }
+    }
+
     async loadData() {
         const config = this.currentConfig;
+        if (!config) return;
+
         const local = localStorage.getItem(config.storageKey);
         if(local) {
             this.words = JSON.parse(local);
@@ -54,41 +101,65 @@ class App {
                     const text = await res.text();
                     this.parseCSV(text, true);
                 }
-            } catch(e) { console.error("Load Error", e); }
+            } catch(e) { console.error("Load Data Error", e); }
         }
     }
 
-    saveData() { localStorage.setItem(this.currentConfig.storageKey, JSON.stringify(this.words)); }
+    saveData() {
+        if (this.currentConfig) {
+            localStorage.setItem(this.currentConfig.storageKey, JSON.stringify(this.words));
+        }
+    }
+
+    // A robust CSV parser that handles quoted fields and commas inside them
+    parseRawCSV(text) {
+        const arr = [];
+        let quote = false;  // 'true' means we're inside a quoted field
+        let col = 0;    // current column index
+        let row = 0;    // current row index
+
+        for (let c = 0; c < text.length; c++) {
+            let cc = text[c], nc = text[c+1];        // current character, next character
+            arr[row] = arr[row] || [];             // create a new row if necessary
+            arr[row][col] = arr[row][col] || '';   // create a new column (start with empty string) if necessary
+
+            if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }  // escape double quotes
+            if (cc == '"') { quote = !quote; continue; }
+            if (cc == ',' && !quote) { ++col; continue; }
+            if (cc == '\r' && nc == '\n' && !quote) { ++row; col = 0; ++c; continue; }
+            if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+            if (cc == '\r' && !quote) { ++row; col = 0; continue; }
+
+            arr[row][col] += cc;
+        }
+        return arr;
+    }
 
     parseCSV(text, isInit=false) {
-        const lines = text.split(/\r\n|\n/);
+        const rows = this.parseRawCSV(text);
         const newItems = [];
-        let start = 0;
-        // Detect format:
-        // New: Line 0=Title, 1=Indexes, 2=Headers -> Start at 3
-        if(lines.length > 2 && lines[1].includes("0,1,2")) start = 3;
-        else if(lines[0].includes("単語") || lines[0].includes("word")) start = 1;
-        else if(lines.length>1 && lines[0].includes("0,1,2")) start = 2;
 
-        for(let i=start; i<lines.length; i++) {
-            const line = lines[i].trim();
-            if(!line) continue;
-            // Simple split (Production should use regex CSV parser)
-            const c = line.split(','); 
-            if(c.length < 2) continue;
+        // Assume row 0 is header, start from 1
+        for(let i=1; i<rows.length; i++) {
+            const c = rows[i];
+            if(c.length < 2) continue; // Skip empty/invalid rows
+
+            // Expected format based on headers: 番号,単語,訳,品詞,例文,訳文
+            // c[0]: No, c[1]: Word, c[2]: Meaning, c[3]: POS, c[4]: Example, c[5]: Translation
             
-            // Assume format: id, en, ja, pos, ex, exJa
-            // Fallback: If id is not number, shift
-            let en=c[1], ja=c[2], pos=c[3]||"", ex=c[4]||"", exJa=c[5]||"";
-            if(isNaN(parseInt(c[0]))) { en=c[0]; ja=c[1]; pos=c[2]||""; ex=c[3]||""; exJa=c[4]||""; }
+            // Use existing ID logic or parse from CSV?
+            // Original code used `Date.now() + i` for IDs. Let's stick to generating IDs to avoid conflicts or issues with CSV ids.
+            // But if we want to update existing words, maybe stable ID is better?
+            // For now, keep original logic for ID generation to ensure uniqueness per session load if local storage is cleared.
+            // Actually, `Date.now() + i` ensures uniqueness.
             
             newItems.push({
                 id: Date.now() + i,
-                en: en.replace(/"/g,''),
-                ja: ja.replace(/"/g,''),
-                pos: pos.split('/')[0].replace(/"/g,''),
-                ex: ex.replace(/"/g,''),
-                exJa: exJa.replace(/"/g,''),
+                en: c[1] || "",
+                ja: c[2] || "",
+                pos: c[3] ? c[3].split('/')[0] : "", // Handle potential splits like "接続詞/代名詞"
+                ex: c[4] || "",
+                exJa: c[5] || "",
                 stats: { level: 0, nextReview: 0, interval: 1 }
             });
         }
