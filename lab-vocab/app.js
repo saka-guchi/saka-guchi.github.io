@@ -470,8 +470,17 @@ class App {
              div.innerHTML = `
                 <button class="result-audio-btn" onclick="app.speak('${r.word.en.replace(/'/g,"\\'")}')">${ICONS.speaker}</button>
                 <div class="result-content">
-                    <div class="result-main"><span>${r.word.en}</span> <span class="${r.correct?'mark-o':'mark-x'}">${r.correct?'◯':'✕'}</span></div>
-                    <div class="result-sub">Lv.${r.word.stats.level}</div>
+                    <div class="result-main" style="display:block;">
+                        <div class="result-word-row" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="result-word">${r.word.en}</span>
+                            <span class="${r.correct?'mark-o':'mark-x'}">${r.correct?'◯':'✕'}</span>
+                        </div>
+                        <div class="result-detail-row" style="margin-top:4px;">
+                            <span style="font-size:0.75rem; color:#888; margin-right:4px;">[${r.word.pos||'?'}]</span>
+                            <span style="font-size:0.9rem; color:#5D4037;">${r.word.ja}</span>
+                        </div>
+                    </div>
+                    <div class="result-sub">Lv.${r.oldLevel} -> Lv.${r.newLevel}</div>
                     <div class="result-example-box"><div class="ex-en">${hl}</div><div class="ex-ja">${r.word.exJa}</div></div>
                 </div>`;
              list.appendChild(div);
