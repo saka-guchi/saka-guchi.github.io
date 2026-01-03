@@ -1,0 +1,17 @@
+{
+  "name": "ラブラドール学習帳",
+  "short_name": "ラブラドール",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F4D03F",
+  "theme_color": "#F4D03F",
+  "orientation": "portrait",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
