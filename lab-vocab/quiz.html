@@ -31,13 +31,19 @@
                 <div style="display:flex; flex-direction:column; align-items:center;">
                     <div class="question-text" id="q-text">Loading...</div>
                     <div id="pos-badge" class="pos-badge" style="background:#eee;color:#888;margin-top:5px;">Pos</div>
+                    <div id="inline-feedback" class="inline-feedback"></div>
                 </div>
                 <button class="icon-btn" id="speaker-btn" onclick="app.replaySpeak()">🔊</button>
             </div>
             <div class="question-sub" id="q-sub"></div>
         </div>
-        <div id="feedback-overlay"><div class="feedback-icon" id="fb-icon"></div><div class="feedback-msg" id="fb-msg"></div></div>
-        <div class="choices-container" id="choices-area"></div>
+
+        <div style="width:100%; position:relative;">
+             <button id="skip-btn" class="skip-btn" onclick="app.answer(false, null)">
+                <span class="icon-sm" style="width:14px; height:14px;"><svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg></span>スキップ
+             </button>
+             <div class="choices-container" id="choices-area"></div>
+        </div>
         
         <button class="btn-home" style="margin-top:20px;" onclick="app.confirmHome()">中断してホームへ</button>
     </div>
