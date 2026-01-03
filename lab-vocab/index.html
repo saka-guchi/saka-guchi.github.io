@@ -38,15 +38,44 @@
 
             <div class="setting-section">
                 <div class="setting-title">学習設定</div>
-                <div class="radio-group">
-                    <label><input type="radio" name="mode" value="review" checked> 本日の復習</label>
-                    <label><input type="radio" name="mode" value="new"> 新規・ランダム</label>
+                <div style="margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
+                    <span style="font-size:0.9rem; color:#5D4037;">出題方法:</span>
+                    <select id="method-select" class="setting-select" style="max-width:200px;">
+                        <option value="auto" selected>おまかせ (推奨)</option>
+                        <option value="standard">英→日</option>
+                        <option value="masked">英→日 (非表示)</option>
+                        <option value="reverse">日→英</option>
+                        <option value="fill-in">例文穴埋め</option>
+                    </select>
                 </div>
-                <div class="radio-group">
-                    <label><input type="radio" name="limit" value="10" checked> 10問</label>
-                    <label><input type="radio" name="limit" value="20"> 20問</label>
+                <div style="margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
+                    <span style="font-size:0.9rem; color:#5D4037;">問題:</span>
+                    <select id="problem-select" class="setting-select">
+                        <option value="auto" selected>おまかせ (推奨)</option>
+                        <option value="unlearned">未学習中心</option>
+                    </select>
                 </div>
-                <div style="margin-top:6px; display:flex; align-items:center; justify-content:space-between;">
+                <div style="margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
+                    <span style="font-size:0.9rem; color:#5D4037;">問題数:</span>
+                    <select id="limit-select" class="setting-select" style="max-width:100px;">
+                        <option value="10" selected>10問</option>
+                        <option value="20">20問</option>
+                        <option value="30">30問</option>
+                        <option value="40">40問</option>
+                        <option value="50">50問</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
+                    <span style="font-size:0.9rem; color:#5D4037;">制限時間:</span>
+                    <select id="timer-select" class="setting-select" style="max-width:100px;">
+                        <option value="5">5秒</option>
+                        <option value="10" selected>10秒</option>
+                        <option value="15">15秒</option>
+                        <option value="20">20秒</option>
+                        <option value="25">25秒</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
                     <span style="font-size:0.9rem; color:#5D4037;">対象レベル:</span>
                     <select id="level-select" class="setting-select">
                         <option value="auto" selected>自動 (推奨)</option>

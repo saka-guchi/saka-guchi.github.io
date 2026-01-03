@@ -224,56 +224,80 @@ class App {
     }
 
     startSession(config = null) {
-        let mode, limit, priming, levelSelect;
+        let method, problem, limit, timer, priming, levelSelect;
 
         if (config) {
-            mode = config.mode;
-            limit = config.limit;
+            // Support legacy config structure just in case, though structure changed
+            method = config.method || 'auto';
+            problem = config.problem || 'auto';
+            limit = config.limit || 10;
+            timer = config.timer || 10;
             priming = config.priming;
             levelSelect = config.levelSelect || 'auto';
+            // Legacy mapping
+            if(config.mode) problem = (config.mode === 'new') ? 'auto' : 'auto';
         } else {
-            mode = document.querySelector('input[name="mode"]:checked').value;
-            limit = parseInt(document.querySelector('input[name="limit"]:checked').value);
+            method = document.getElementById('method-select').value;
+            problem = document.getElementById('problem-select').value;
+            limit = parseInt(document.getElementById('limit-select').value);
+            timer = parseInt(document.getElementById('timer-select').value);
             priming = document.getElementById('use-priming').checked;
             levelSelect = document.getElementById('level-select').value;
 
             // Save config for retry
-            sessionStorage.setItem('lab_session_config', JSON.stringify({ mode, limit, priming, levelSelect }));
+            sessionStorage.setItem('lab_session_config', JSON.stringify({ method, problem, limit, timer, priming, levelSelect }));
         }
 
         const now = Date.now();
         let forceLevel = null;
-        
         let q = [];
 
-        // Logic for Specific Level
+        // 1. Filter by Level (if specified)
         if(levelSelect !== 'auto') {
             const targetLevel = parseInt(levelSelect);
-
-            // Try to find words at this level
             q = this.words.filter(w => w.stats.level === targetLevel);
-
-            if (q.length === 0) {
-                // Fallback: Use standard logic but force quiz mode
-                if(mode==='review') q = this.words.filter(w=>w.stats.nextReview<=now);
-                if(q.length===0) q = this.words.filter(w=>w.stats.level===0);
-            }
-
-            // Set forceLevel regardless of whether we found words or fell back
             forceLevel = targetLevel;
-        } else {
-            // Auto Mode
-            if(mode==='review') q = this.words.filter(w=>w.stats.nextReview<=now);
-            if(q.length===0) q = this.words.filter(w=>w.stats.level===0);
         }
 
+        // 2. Filter by Problem setting
+        if (q.length === 0) {
+            // If specific level yielded no results or was 'auto', try Problem logic
+            if (problem === 'unlearned') {
+                q = this.words.filter(w => w.stats.level === 0);
+            }
+
+            // Fallback (or 'auto'): Review > Unlearned > Random mix
+            if (q.length === 0) {
+                // Prioritize Review
+                let reviews = this.words.filter(w => w.stats.nextReview <= now && w.stats.level > 0);
+                let unlearned = this.words.filter(w => w.stats.level === 0);
+
+                // Simple Mix: Review first, then unlearned
+                q = [...reviews, ...unlearned];
+            }
+        }
+
+        // 3. Final Fallback (Random if empty? usually q has something unless empty DB)
+        if (q.length === 0) {
+            q = [...this.words];
+        }
+
+        // Shuffle and Limit
         q.sort(()=>0.5-Math.random());
         q = q.slice(0, limit);
         
         if(!q.length) return alert("学習対象がありません");
         
         // Save Session
-        sessionStorage.setItem('lab_session', JSON.stringify({queue: q, idx: 0, results: [], forceLevel: forceLevel}));
+        // forceLevel is passed to enforce quiz type if needed (though Method overrides it now)
+        sessionStorage.setItem('lab_session', JSON.stringify({
+            queue: q,
+            idx: 0,
+            results: [],
+            forceLevel: forceLevel,
+            method: method,
+            timer: timer
+        }));
         
         if(priming) window.location.href = 'priming.html';
         else window.location.href = 'quiz.html';
@@ -310,6 +334,8 @@ class App {
         this.idx = session.idx;
         this.results = session.results;
         this.forceLevel = session.forceLevel; // Load forceLevel
+        this.sessionMethod = session.method || 'auto';
+        this.sessionTimer = session.timer || 10;
         
         this.nextQ();
     }
@@ -317,7 +343,7 @@ class App {
     nextQ() {
         if(this.idx >= this.quizQueue.length) {
             // Finish
-            sessionStorage.setItem('lab_session', JSON.stringify({queue:this.quizQueue, idx:this.idx, results:this.results, forceLevel:this.forceLevel}));
+            sessionStorage.setItem('lab_session', JSON.stringify({queue:this.quizQueue, idx:this.idx, results:this.results, forceLevel:this.forceLevel, method:this.sessionMethod, timer:this.sessionTimer}));
             return window.location.href = 'result.html';
         }
         
@@ -326,16 +352,24 @@ class App {
         this.maskRevealed = false;
         
         let type = 'standard';
-        // Use forceLevel if present, otherwise actual level
-        const effectiveLv = (this.forceLevel !== null && this.forceLevel !== undefined) ? this.forceLevel : q.stats.level;
 
-        if(effectiveLv>=4) type='fill-in'; else if(effectiveLv>=3) type='reverse'; else if(effectiveLv===2) type='masked';
+        // METHOD LOGIC
+        if (this.sessionMethod && this.sessionMethod !== 'auto') {
+            type = this.sessionMethod;
+        } else {
+            // Use forceLevel if present, otherwise actual level
+            const effectiveLv = (this.forceLevel !== null && this.forceLevel !== undefined) ? this.forceLevel : q.stats.level;
+            if(effectiveLv>=4) type='fill-in'; else if(effectiveLv>=3) type='reverse'; else if(effectiveLv===2) type='masked';
+        }
+
         this.currType = type;
         
+        // Effective Level (for display mainly, and fallback logic)
+        const effectiveLv = (this.forceLevel !== null && this.forceLevel !== undefined) ? this.forceLevel : q.stats.level;
         this.renderQ(q, type, effectiveLv);
 
-        // Audio Fix: attempt to play audio after a slight delay
-        if (type !== 'reverse') {
+        // Audio Logic
+        if (type !== 'reverse' && type !== 'fill-in') {
            setTimeout(() => this.speak(q.en), 300);
         }
     }
@@ -354,11 +388,21 @@ class App {
         const posBadge = document.getElementById('pos-badge');
         const spkBtn = document.getElementById('speaker-btn');
         const eyeBtn = document.getElementById('mask-toggle-btn');
+        const feedbackEl = document.getElementById('inline-feedback');
         
+        // Reset styles
         qText.classList.remove('long', 'masked');
+        feedbackEl.className = 'inline-feedback';
+        feedbackEl.innerText = '';
+
+        // Icon Visibility Control
+        const showIcons = (type !== 'reverse' && type !== 'fill-in');
+
         posBadge.style.display = (type==='standard' && q.pos) ? 'inline-block' : 'none';
         posBadge.innerText = q.pos;
-        spkBtn.style.display = (type==='reverse') ? 'none' : 'flex';
+
+        spkBtn.style.display = showIcons ? 'flex' : 'none';
+        eyeBtn.style.display = showIcons ? 'flex' : 'none';
         
         // Setup Eye Icon (Default Off)
         eyeBtn.innerHTML = ICONS.eye_off;
@@ -375,7 +419,7 @@ class App {
              qText.classList.add('long');
         } else {
             qText.innerText = q.en;
-            this.speak(q.en);
+            // standard mode speaks automatically in nextQ
         }
         
         // Choices
@@ -420,25 +464,40 @@ class App {
     
     startTimer() {
         const bar = document.getElementById('timer-bar');
+        const duration = (this.sessionTimer || 10) * 1000;
+
         bar.style.transition = 'none'; bar.style.width = '100%';
-        setTimeout(()=>{ bar.style.transition='width 10s linear'; bar.style.width='0%'; }, 10);
+        // Force reflow
+        bar.offsetHeight;
+
+        setTimeout(()=>{
+            bar.style.transition = `width ${duration/1000}s linear`;
+            bar.style.width = '0%';
+        }, 10);
+
         this.startTime = Date.now();
-        this.timer = setTimeout(()=>this.answer(false,null), 10000);
+        this.timer = setTimeout(()=>this.answer(false,null), duration);
     }
     
     answer(isCorrect, btn) {
         if(this.answering) return; // Prevent double click
         this.answering = true;
 
+        const timeTaken = Date.now() - this.startTime;
+        const limit = (this.sessionTimer || 10) * 1000;
+        let isExcellent = isCorrect && (timeTaken <= limit / 2);
+
         // Immediate Style Feedback
         if(btn) {
             btn.classList.add(isCorrect ? 'correct' : 'wrong');
+        } else if (!isCorrect) {
+             // Skip or Time out -> No button selected, maybe highlight skip button?
         }
 
         // If wrong answer, show the correct one
         if(!isCorrect) {
             const correctBtn = document.querySelector('.choice-btn[data-is-correct="true"]');
-            if(correctBtn) correctBtn.classList.add('correct');
+            if(correctBtn) correctBtn.classList.add('correct-highlight');
         }
 
         if(this.timer) clearTimeout(this.timer);
@@ -446,43 +505,63 @@ class App {
         
         // Update Stats in Master Data
         const masterIdx = this.words.findIndex(w=>w.id===q.id);
+        let newLevel = q.stats.level;
+        const oldLevel = q.stats.level;
+
         if(masterIdx > -1) {
             const w = this.words[masterIdx];
-            const oldLevel = w.stats.level;
 
             // Updated SRS Logic (Fixed Intervals)
             // Lv.0(Unlearned), Lv.1(1d), Lv.2(3d), Lv.3(1w), Lv.4(2w), Lv.5(1m)
             const INTERVALS = [0, 1, 3, 7, 14, 30];
 
             if(isCorrect) {
-                w.stats.level = Math.min(5, w.stats.level+1);
+                // Excellent: +3 levels, Standard: +1 level
+                const increment = isExcellent ? 3 : 1;
+                w.stats.level = Math.min(5, w.stats.level + increment);
                 w.stats.interval = INTERVALS[w.stats.level];
                 w.stats.nextReview = Date.now() + w.stats.interval*86400000;
             } else {
                 w.stats.interval = 0.5; w.stats.level = 0;
                 w.stats.nextReview = Date.now();
             }
+            newLevel = w.stats.level;
             this.saveData(); // Persist immediately
             
             // Push result with updated state and oldLevel
             this.results.push({word: w, correct: isCorrect, diff: isCorrect?1:0, oldLevel: oldLevel, newLevel: w.stats.level});
         }
         
-        // UI Feedback
-        const ov = document.getElementById('feedback-overlay');
-        document.getElementById('fb-icon').innerText = isCorrect?'◯':'✕';
-        document.getElementById('fb-icon').style.color = isCorrect?'var(--correct)':'var(--wrong)';
-        document.getElementById('fb-msg').innerText = isCorrect?'Excellent!':'Oops!';
-        ov.style.opacity = 1;
+        // Update Daily Count
+        this.incrementDailyCount();
+
+        // UI Feedback (Inline)
+        const fb = document.getElementById('inline-feedback');
+        if(isCorrect) {
+            fb.innerText = isExcellent ? "Excellent!" : "Good";
+            fb.classList.add(isExcellent ? 'excellent' : 'good');
+        } else {
+            // No text for wrong answer in spec, just color change.
+        }
         
         setTimeout(()=>{
-            ov.style.opacity = 0;
             this.idx++;
             this.answering = false;
             // Save Session
-            sessionStorage.setItem('lab_session', JSON.stringify({queue:this.quizQueue, idx:this.idx, results:this.results}));
+            sessionStorage.setItem('lab_session', JSON.stringify({queue:this.quizQueue, idx:this.idx, results:this.results, forceLevel:this.forceLevel, method:this.sessionMethod, timer:this.sessionTimer}));
             this.nextQ();
         }, 1000);
+    }
+
+    incrementDailyCount() {
+        const today = new Date().toLocaleDateString('ja-JP'); // YYYY/MM/DD
+        let stored = JSON.parse(localStorage.getItem('lab_today_count')) || {date: today, count: 0};
+
+        if (stored.date !== today) {
+            stored = { date: today, count: 0 };
+        }
+        stored.count++;
+        localStorage.setItem('lab_today_count', JSON.stringify(stored));
     }
 
     // --- Result Screen ---
@@ -500,6 +579,15 @@ class App {
              scoreEl.innerText = `(${score} / ${total})`;
         }
         
+        // Render Daily Count
+        const countEl = document.getElementById('today-count');
+        if (countEl) {
+            const today = new Date().toLocaleDateString('ja-JP');
+            let stored = JSON.parse(localStorage.getItem('lab_today_count')) || {date: today, count: 0};
+            if(stored.date !== today) stored = {date: today, count: 0}; // Reset if different day
+            countEl.innerText = stored.count;
+        }
+
         // Render Chart
         this.renderResultChart('result-chart');
         
@@ -627,9 +715,15 @@ class App {
     }
 
     resetStats() {
-        if(confirm('現在の単語帳の学習記録をリセットしますか？\\n（この操作は取り消せません）')) {
+        if(confirm('現在の単語帳の学習記録をリセットしますか？\n（この操作は取り消せません）')) {
             localStorage.removeItem(this.currentConfig.storageKey);
             window.location.reload();
+        }
+    }
+
+    updateApp() {
+        if(confirm('アプリを更新（リロード）しますか？')) {
+            window.location.reload(true);
         }
     }
     
@@ -710,13 +804,48 @@ class App {
         }
     }
 
-    retrySession() {
+    nextSession() {
         const config = JSON.parse(sessionStorage.getItem('lab_session_config'));
         if (config) {
             this.startSession(config);
         } else {
             window.location.href='index.html';
         }
+    }
+
+    reviewSameSession() {
+        const session = JSON.parse(sessionStorage.getItem('lab_session'));
+        if (!session) return window.location.href='index.html';
+
+        // Extract IDs from previous session
+        const ids = session.queue.map(w => w.id);
+
+        // Re-fetch current state of these words from master list
+        // This ensures we use updated levels/stats
+        const q = this.words.filter(w => ids.includes(w.id));
+
+        // Preserve original order or shuffle?
+        // "Review Same Problems" usually implies same set, maybe shuffled.
+        q.sort(()=>0.5-Math.random());
+
+        if(!q.length) return alert("エラー: 単語が見つかりません");
+
+        // Keep same settings (Timer, Method, etc)
+        const method = session.method;
+        const timer = session.timer;
+        const forceLevel = session.forceLevel;
+
+        // Start New Session
+        sessionStorage.setItem('lab_session', JSON.stringify({
+            queue: q,
+            idx: 0,
+            results: [],
+            forceLevel: forceLevel,
+            method: method,
+            timer: timer
+        }));
+
+        window.location.href = 'quiz.html';
     }
 }
 
