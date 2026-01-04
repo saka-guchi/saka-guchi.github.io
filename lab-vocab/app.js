@@ -184,6 +184,10 @@ class App {
         if(chartTitle) {
             chartTitle.onclick = () => this.showLevelHelp();
         }
+
+        // Restore settings and attach listeners
+        this.loadHomeSettings();
+        this.bindHomeSettingsEvents();
     }
 
     startRandomMessages() {
@@ -242,7 +246,7 @@ class App {
             limit = parseInt(document.getElementById('limit-select').value);
             timer = parseInt(document.getElementById('timer-select').value);
             priming = document.getElementById('use-priming').checked;
-            levelSelect = document.getElementById('level-select').value;
+            levelSelect = 'auto'; // Force auto since UI is removed
 
             // Save config for retry
             sessionStorage.setItem('lab_session_config', JSON.stringify({ method, problem, limit, timer, priming, levelSelect }));
@@ -522,8 +526,10 @@ class App {
                 w.stats.interval = INTERVALS[w.stats.level];
                 w.stats.nextReview = Date.now() + w.stats.interval*86400000;
             } else {
-                w.stats.interval = 0.5; w.stats.level = 0;
-                w.stats.nextReview = Date.now();
+                // Incorrect: Level -1 (min 0)
+                w.stats.level = Math.max(0, w.stats.level - 1);
+                w.stats.interval = INTERVALS[w.stats.level];
+                w.stats.nextReview = Date.now() + w.stats.interval*86400000;
             }
             newLevel = w.stats.level;
             this.saveData(); // Persist immediately
@@ -846,6 +852,42 @@ class App {
         }));
 
         window.location.href = 'quiz.html';
+    }
+
+    loadHomeSettings() {
+        try {
+            const settings = JSON.parse(localStorage.getItem('lab_home_settings'));
+            if(settings) {
+                if(settings.method) document.getElementById('method-select').value = settings.method;
+                if(settings.problem) document.getElementById('problem-select').value = settings.problem;
+                if(settings.limit) document.getElementById('limit-select').value = settings.limit;
+                if(settings.timer) document.getElementById('timer-select').value = settings.timer;
+                if(settings.priming !== undefined) document.getElementById('use-priming').checked = settings.priming;
+            }
+        } catch(e) { console.error("Failed to load settings", e); }
+    }
+
+    saveHomeSettings() {
+        try {
+            const settings = {
+                method: document.getElementById('method-select').value,
+                problem: document.getElementById('problem-select').value,
+                limit: document.getElementById('limit-select').value,
+                timer: document.getElementById('timer-select').value,
+                priming: document.getElementById('use-priming').checked
+            };
+            localStorage.setItem('lab_home_settings', JSON.stringify(settings));
+        } catch(e) { console.error("Failed to save settings", e); }
+    }
+
+    bindHomeSettingsEvents() {
+        const ids = ['method-select', 'problem-select', 'limit-select', 'timer-select', 'use-priming'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('change', () => this.saveHomeSettings());
+            }
+        });
     }
 }
 
