@@ -40,15 +40,15 @@ class App {
         } else {
             console.error("No valid dataset configuration found.");
         }
-        
+
         // Dispatch init based on current page
         const path = window.location.pathname;
-        if(path.includes('index.html') || path.endsWith('/')) this.initHome();
-        else if(path.includes('priming.html')) this.initPriming();
-        else if(path.includes('quiz.html')) this.initQuiz();
-        else if(path.includes('result.html')) this.initResult();
-        else if(path.includes('list.html')) this.initList();
-        else if(path.includes('settings.html')) this.initSettings();
+        if (path.includes('index.html') || path.endsWith('/')) this.initHome();
+        else if (path.includes('priming.html')) this.initPriming();
+        else if (path.includes('quiz.html')) this.initQuiz();
+        else if (path.includes('result.html')) this.initResult();
+        else if (path.includes('list.html')) this.initList();
+        else if (path.includes('settings.html')) this.initSettings();
     }
 
     async loadDatasets() {
@@ -60,19 +60,19 @@ class App {
 
                 DATASETS = {};
                 // Skip header (i=1)
-                for(let i=1; i<rows.length; i++) {
+                for (let i = 1; i < rows.length; i++) {
                     const row = rows[i];
-                    if(row.length < 2) continue;
+                    if (row.length < 2) continue;
 
                     const filename = row[0];
                     const desc = row[1];
-                    // Derive key from filename (e.g., 'ngsl.csv' -> 'ngsl')
+                    // Derive key from filename (e.g., 'NGSL.csv' -> 'NGSL')
                     const key = filename.replace('.csv', '');
 
                     // Maintain backward compatibility for storage keys where possible
-                    let storageKey = 'lab_data_' + key;
-                    if (key === 'ngsl') storageKey = 'lab_data_v30';
-                    if (filename === 'ielts3500-basic1000.csv') storageKey = 'lab_data_ielts';
+                    let storageKey = 'lab_data_' + key.toLowerCase();
+                    if (key === 'NGSL') storageKey = 'lab_data_v30';
+                    if (filename === 'IELTS3500.csv') storageKey = 'lab_data_ielts';
 
                     DATASETS[key] = {
                         label: desc,
@@ -83,7 +83,7 @@ class App {
             } else {
                 console.error("Failed to load lists.csv");
             }
-        } catch(e) { console.error("Load Datasets Error", e); }
+        } catch (e) { console.error("Load Datasets Error", e); }
     }
 
     async loadData() {
@@ -91,16 +91,16 @@ class App {
         if (!config) return;
 
         const local = localStorage.getItem(config.storageKey);
-        if(local) {
+        if (local) {
             this.words = JSON.parse(local);
         } else {
             try {
                 const res = await fetch(config.path);
-                if(res.ok) {
+                if (res.ok) {
                     const text = await res.text();
                     this.parseCSV(text, true);
                 }
-            } catch(e) { console.error("Load Data Error", e); }
+            } catch (e) { console.error("Load Data Error", e); }
         }
     }
 
@@ -118,7 +118,7 @@ class App {
         let row = 0;    // current row index
 
         for (let c = 0; c < text.length; c++) {
-            let cc = text[c], nc = text[c+1];        // current character, next character
+            let cc = text[c], nc = text[c + 1];        // current character, next character
             arr[row] = arr[row] || [];             // create a new row if necessary
             arr[row][col] = arr[row][col] || '';   // create a new column (start with empty string) if necessary
 
@@ -134,36 +134,41 @@ class App {
         return arr;
     }
 
-    parseCSV(text, isInit=false) {
+    parseCSV(text, isInit = false) {
         const rows = this.parseRawCSV(text);
         const newItems = [];
 
         // Assume row 0 is header, start from 1
-        for(let i=1; i<rows.length; i++) {
+        for (let i = 1; i < rows.length; i++) {
             const c = rows[i];
-            if(c.length < 2) continue; // Skip empty/invalid rows
+            if (c.length < 6) continue; // Skip empty/invalid rows (need at least 6 required columns)
 
-            // Expected format based on headers: 番号,単語,訳,品詞,例文,訳文
-            // c[0]: No, c[1]: Word, c[2]: Meaning, c[3]: POS, c[4]: Example, c[5]: Translation
-            
+            // Expected format based on headers: ID,単語,品詞,意味,例文,訳文,発音記号,類義語,反意語,SVL
+            // c[0]: ID, c[1]: Word, c[2]: POS, c[3]: Meaning, c[4]: Example, c[5]: Translation
+            // c[6]: Pronunciation (optional), c[7]: Synonyms (optional), c[8]: Antonyms (optional), c[9]: SVL (optional)
+
             // ID Generation: Prioritize valid number in c[0], otherwise use index (1-based)
             let id = i;
             const csvId = parseInt(c[0]);
             if (!isNaN(csvId) && csvId > 0) {
                 id = csvId;
             }
-            
+
             newItems.push({
                 id: id,
                 en: c[1] || "",
-                ja: c[2] || "",
-                pos: c[3] ? c[3].split('/')[0] : "", // Handle potential splits like "接続詞/代名詞"
+                pos: c[2] ? c[2].split('/')[0] : "", // Handle potential splits like "接続詞/代名詞"
+                ja: c[3] || "",
                 ex: c[4] || "",
                 exJa: c[5] || "",
-                stats: { level: 0, nextReview: 0, interval: 0.5 }
+                pronunciation: c[6] || "",
+                synonyms: c[7] || "",
+                antonyms: c[8] || "",
+                svl: c[9] || "",
+                stats: { level: 0, nextReview: 0 }
             });
         }
-        if(isInit) {
+        if (isInit) {
             this.words = newItems;
             this.saveData();
         }
@@ -181,7 +186,7 @@ class App {
 
         // Chart click handler
         const chartTitle = document.getElementById('home-chart-title');
-        if(chartTitle) {
+        if (chartTitle) {
             chartTitle.onclick = () => this.showLevelHelp();
         }
 
@@ -194,7 +199,7 @@ class App {
         const delay = Math.floor(Math.random() * 10000) + 5000; // 5-15s
         setTimeout(() => {
             const bubble = document.getElementById('dog-bubble');
-            if(bubble && window.getComputedStyle(bubble).display !== 'none') {
+            if (bubble && window.getComputedStyle(bubble).display !== 'none') {
                 this.petDog();
                 this.startRandomMessages();
             }
@@ -203,7 +208,7 @@ class App {
 
     showLevelHelp() {
         const existing = document.getElementById('custom-modal-overlay');
-        if(existing) existing.remove();
+        if (existing) existing.remove();
 
         const overlay = document.createElement('div');
         overlay.id = 'custom-modal-overlay';
@@ -222,7 +227,7 @@ class App {
             </div>
         `;
         overlay.onclick = (e) => {
-            if(e.target === overlay) overlay.remove();
+            if (e.target === overlay) overlay.remove();
         };
         document.body.appendChild(overlay);
     }
@@ -239,7 +244,7 @@ class App {
             priming = config.priming;
             levelSelect = config.levelSelect || 'auto';
             // Legacy mapping
-            if(config.mode) problem = (config.mode === 'new') ? 'auto' : 'auto';
+            if (config.mode) problem = (config.mode === 'new') ? 'auto' : 'auto';
         } else {
             method = document.getElementById('method-select').value;
             problem = document.getElementById('problem-select').value;
@@ -257,7 +262,7 @@ class App {
         let q = [];
 
         // 1. Filter by Level (if specified)
-        if(levelSelect !== 'auto') {
+        if (levelSelect !== 'auto') {
             const targetLevel = parseInt(levelSelect);
             q = this.words.filter(w => w.stats.level === targetLevel);
             forceLevel = targetLevel;
@@ -287,11 +292,11 @@ class App {
         }
 
         // Shuffle and Limit
-        q.sort(()=>0.5-Math.random());
+        q.sort(() => 0.5 - Math.random());
         q = q.slice(0, limit);
-        
-        if(!q.length) return alert("学習対象がありません");
-        
+
+        if (!q.length) return alert("学習対象がありません");
+
         // Save Session
         // forceLevel is passed to enforce quiz type if needed (though Method overrides it now)
         sessionStorage.setItem('lab_session', JSON.stringify({
@@ -302,16 +307,16 @@ class App {
             method: method,
             timer: timer
         }));
-        
-        if(priming) window.location.href = 'priming.html';
+
+        if (priming) window.location.href = 'priming.html';
         else window.location.href = 'quiz.html';
     }
 
     // --- Priming Screen ---
     initPriming() {
         const session = JSON.parse(sessionStorage.getItem('lab_session'));
-        if(!session) return window.location.href='index.html';
-        
+        if (!session) return window.location.href = 'index.html';
+
         const list = document.getElementById('priming-list');
         session.queue.forEach(w => {
             const div = document.createElement('div');
@@ -323,7 +328,7 @@ class App {
                         <span class="priming-pos-badge">${w.pos}</span>
                         <span class="priming-ja">${w.ja}</span>
                     </div>
-                    <button class="audio-btn-flat" onclick="app.speak('${w.en.replace(/'/g,"\\'")}')">${ICONS.speaker}</button>
+                    <button class="audio-btn-mini" onclick="app.speak('${w.en.replace(/'/g, "\\'")}')">${ICONS.speaker}</button>
                 </div>
             `;
             list.appendChild(div);
@@ -333,28 +338,28 @@ class App {
     // --- Quiz Screen ---
     initQuiz() {
         const session = JSON.parse(sessionStorage.getItem('lab_session'));
-        if(!session) return window.location.href='index.html';
+        if (!session) return window.location.href = 'index.html';
         this.quizQueue = session.queue;
         this.idx = session.idx;
         this.results = session.results;
         this.forceLevel = session.forceLevel; // Load forceLevel
         this.sessionMethod = session.method || 'auto';
         this.sessionTimer = session.timer || 10;
-        
+
         this.nextQ();
     }
-    
+
     nextQ() {
-        if(this.idx >= this.quizQueue.length) {
+        if (this.idx >= this.quizQueue.length) {
             // Finish
-            sessionStorage.setItem('lab_session', JSON.stringify({queue:this.quizQueue, idx:this.idx, results:this.results, forceLevel:this.forceLevel, method:this.sessionMethod, timer:this.sessionTimer}));
+            sessionStorage.setItem('lab_session', JSON.stringify({ queue: this.quizQueue, idx: this.idx, results: this.results, forceLevel: this.forceLevel, method: this.sessionMethod, timer: this.sessionTimer }));
             return window.location.href = 'result.html';
         }
-        
+
         const q = this.quizQueue[this.idx];
         this.curr = q;
         this.maskRevealed = false;
-        
+
         let type = 'standard';
 
         // METHOD LOGIC
@@ -363,37 +368,37 @@ class App {
         } else {
             // Use forceLevel if present, otherwise actual level
             const effectiveLv = (this.forceLevel !== null && this.forceLevel !== undefined) ? this.forceLevel : q.stats.level;
-            if(effectiveLv>=4) type='fill-in'; else if(effectiveLv>=3) type='reverse'; else if(effectiveLv===2) type='masked';
+            if (effectiveLv >= 4) type = 'fill-in'; else if (effectiveLv >= 3) type = 'reverse'; else if (effectiveLv === 2) type = 'masked';
         }
 
         this.currType = type;
-        
+
         // Effective Level (for display mainly, and fallback logic)
         const effectiveLv = (this.forceLevel !== null && this.forceLevel !== undefined) ? this.forceLevel : q.stats.level;
         this.renderQ(q, type, effectiveLv);
 
         // Audio Logic
         if (type !== 'reverse' && type !== 'fill-in') {
-           setTimeout(() => this.speak(q.en), 300);
+            setTimeout(() => this.speak(q.en), 300);
         }
     }
-    
+
     renderQ(q, type, lv) {
         // ... (Logic from v48) ...
-        const labels = ["未学習","1日","3日","1週","2週","1ヶ月"];
-        const colors = ["var(--lv0)","var(--lv1)","var(--lv2)","var(--lv3)","var(--lv4)","var(--lv5)"];
-        
-        document.getElementById('quiz-level-display').innerHTML = `Lv.${lv}<br>${labels[lv]}`;
+        const labels = ["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた", "覚えた"];
+        const colors = ["var(--lv0)", "var(--lv1)", "var(--lv2)", "var(--lv3)", "var(--lv4)", "var(--lv5)"];
+
+        document.getElementById('quiz-level-display').innerHTML = labels[lv];
         document.getElementById('quiz-level-display').style.background = colors[lv];
-        
-        document.getElementById('quiz-progress').innerText = `${this.idx+1} / ${this.quizQueue.length}`;
-        
+
+        document.getElementById('quiz-progress').innerText = `${this.idx + 1} / ${this.quizQueue.length}`;
+
         const qText = document.getElementById('q-text');
         const posBadge = document.getElementById('pos-badge');
         const spkBtn = document.getElementById('speaker-btn');
         const eyeBtn = document.getElementById('mask-toggle-btn');
         const feedbackEl = document.getElementById('inline-feedback');
-        
+
         // Reset styles
         qText.classList.remove('long', 'masked');
         feedbackEl.className = 'inline-feedback';
@@ -402,61 +407,61 @@ class App {
         // Icon Visibility Control
         const showIcons = (type !== 'reverse' && type !== 'fill-in');
 
-        posBadge.style.display = (type==='standard' && q.pos) ? 'inline-block' : 'none';
+        posBadge.style.display = (type === 'standard' && q.pos) ? 'inline-block' : 'none';
         posBadge.innerText = q.pos;
 
         spkBtn.style.display = showIcons ? 'flex' : 'none';
         eyeBtn.style.display = showIcons ? 'flex' : 'none';
-        
+
         // Setup Eye Icon (Default Off)
         eyeBtn.innerHTML = ICONS.eye_off;
-        
-        if(type==='masked') {
+
+        if (type === 'masked') {
             qText.innerText = q.en;
             qText.classList.add('masked');
             this.speak(q.en);
-        } else if(type==='reverse') {
+        } else if (type === 'reverse') {
             qText.innerText = q.ja;
-        } else if(type==='fill-in' && q.ex) {
-             const safe = q.en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-             qText.innerHTML = q.ex.replace(new RegExp(`\\b${safe}\\b`, 'gi'), '_______');
-             qText.classList.add('long');
+        } else if (type === 'fill-in' && q.ex) {
+            const safe = q.en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            qText.innerHTML = q.ex.replace(new RegExp(`\\b${safe}\\b`, 'gi'), '_______');
+            qText.classList.add('long');
         } else {
             qText.innerText = q.en;
             // standard mode speaks automatically in nextQ
         }
-        
+
         // Choices
         const area = document.getElementById('choices-area');
         area.innerHTML = '';
-        let isRev = (type==='reverse');
-        let pool = isRev ? this.words.map(w=>w.en) : this.words.map(w=>w.ja);
-        if(type==='fill-in') pool = this.words.map(w=>w.en);
+        let isRev = (type === 'reverse');
+        let pool = isRev ? this.words.map(w => w.en) : this.words.map(w => w.ja);
+        if (type === 'fill-in') pool = this.words.map(w => w.en);
         let correct = isRev ? q.en : q.ja;
-        if(type==='fill-in') correct = q.en;
-        
+        if (type === 'fill-in') correct = q.en;
+
         let wrongs = [];
-        while(wrongs.length < 3) {
-            const r = pool[Math.floor(Math.random()*pool.length)];
-            if(r!==correct && !wrongs.includes(r)) wrongs.push(r);
+        while (wrongs.length < 3) {
+            const r = pool[Math.floor(Math.random() * pool.length)];
+            if (r !== correct && !wrongs.includes(r)) wrongs.push(r);
         }
-        const choices = [...wrongs, correct].sort(()=>0.5-Math.random());
+        const choices = [...wrongs, correct].sort(() => 0.5 - Math.random());
         choices.forEach(t => {
             const b = document.createElement('div');
-            b.className='choice-btn'; b.innerText=t;
+            b.className = 'choice-btn'; b.innerText = t;
             // Store correct status in data attribute for easy finding later
             b.dataset.isCorrect = (t === correct);
-            b.onclick = (e) => this.answer(t===correct, b);
+            b.onclick = (e) => this.answer(t === correct, b);
             area.appendChild(b);
         });
-        
+
         this.startTimer();
     }
-    
+
     toggleMask() {
         const el = document.getElementById('q-text');
         const btn = document.getElementById('mask-toggle-btn');
-        if(el.classList.contains('masked')) {
+        if (el.classList.contains('masked')) {
             el.classList.remove('masked');
             btn.innerHTML = ICONS.eye_on;
             this.maskRevealed = true;
@@ -465,7 +470,7 @@ class App {
             btn.innerHTML = ICONS.eye_off;
         }
     }
-    
+
     startTimer() {
         const bar = document.getElementById('timer-bar');
         const duration = (this.sessionTimer || 10) * 1000;
@@ -474,94 +479,103 @@ class App {
         // Force reflow
         bar.offsetHeight;
 
-        setTimeout(()=>{
-            bar.style.transition = `width ${duration/1000}s linear`;
+        setTimeout(() => {
+            bar.style.transition = `width ${duration / 1000}s linear`;
             bar.style.width = '0%';
         }, 10);
 
         this.startTime = Date.now();
-        this.timer = setTimeout(()=>this.answer(false,null), duration);
+        this.timer = setTimeout(() => this.answer(false, null), duration);
     }
-    
+
     answer(isCorrect, btn) {
-        if(this.answering) return; // Prevent double click
+        if (this.answering) return; // Prevent double click
         this.answering = true;
 
         const timeTaken = Date.now() - this.startTime;
         const limit = (this.sessionTimer || 10) * 1000;
-        let isExcellent = isCorrect && (timeTaken <= limit / 2);
+        let isExcellent = isCorrect && (timeTaken <= limit / 4);
+        let isGreat = isCorrect && !isExcellent && (timeTaken <= limit / 2);
 
         // Immediate Style Feedback
-        if(btn) {
+        if (btn) {
             btn.classList.add(isCorrect ? 'correct' : 'wrong');
         } else if (!isCorrect) {
-             // Skip or Time out -> No button selected, maybe highlight skip button?
+            // Skip or Time out
         }
 
         // If wrong answer, show the correct one
-        if(!isCorrect) {
+        if (!isCorrect) {
             const correctBtn = document.querySelector('.choice-btn[data-is-correct="true"]');
-            if(correctBtn) correctBtn.classList.add('correct-highlight');
+            if (correctBtn) correctBtn.classList.add('correct-highlight');
         }
 
-        if(this.timer) clearTimeout(this.timer);
+        if (this.timer) clearTimeout(this.timer);
         const q = this.curr;
-        
+
         // Update Stats in Master Data
-        const masterIdx = this.words.findIndex(w=>w.id===q.id);
+        const masterIdx = this.words.findIndex(w => w.id === q.id);
         let newLevel = q.stats.level;
         const oldLevel = q.stats.level;
 
-        if(masterIdx > -1) {
+        if (masterIdx > -1) {
             const w = this.words[masterIdx];
 
             // Updated SRS Logic (Fixed Intervals)
             // Lv.0(Unlearned), Lv.1(1d), Lv.2(3d), Lv.3(1w), Lv.4(2w), Lv.5(1m)
             const INTERVALS = [0, 1, 3, 7, 14, 30];
 
-            if(isCorrect) {
-                // Excellent: +3 levels, Standard: +1 level
-                const increment = isExcellent ? 3 : 1;
+            if (isCorrect) {
+                // Excellent: +3, Great: +2, Good: +1
+                const increment = isExcellent ? 3 : (isGreat ? 2 : 1);
                 w.stats.level = Math.min(5, w.stats.level + increment);
-                w.stats.interval = INTERVALS[w.stats.level];
-                w.stats.nextReview = Date.now() + w.stats.interval*86400000;
+                w.stats.nextReview = Date.now() + INTERVALS[w.stats.level] * 86400000;
             } else {
                 // Incorrect: Level -1 (min 0)
                 w.stats.level = Math.max(0, w.stats.level - 1);
-                w.stats.interval = INTERVALS[w.stats.level];
-                w.stats.nextReview = Date.now() + w.stats.interval*86400000;
+                w.stats.nextReview = Date.now() + INTERVALS[w.stats.level] * 86400000;
             }
             newLevel = w.stats.level;
             this.saveData(); // Persist immediately
-            
+
+            let quality = isCorrect ? (isExcellent ? 'excellent' : (isGreat ? 'great' : 'good')) : 'bad';
+
             // Push result with updated state and oldLevel
-            this.results.push({word: w, correct: isCorrect, diff: isCorrect?1:0, oldLevel: oldLevel, newLevel: w.stats.level});
+            this.results.push({ word: w, correct: isCorrect, diff: isCorrect ? 1 : 0, oldLevel: oldLevel, newLevel: w.stats.level, quality: quality });
         }
-        
+
         // Update Daily Count
         this.incrementDailyCount();
 
         // UI Feedback (Inline)
         const fb = document.getElementById('inline-feedback');
-        if(isCorrect) {
-            fb.innerText = isExcellent ? "Excellent!" : "Good";
-            fb.classList.add(isExcellent ? 'excellent' : 'good');
+        if (isCorrect) {
+            if (isExcellent) {
+                fb.innerHTML = "Excellent!";
+                fb.className = 'inline-feedback excellent';
+            } else if (isGreat) {
+                fb.innerHTML = "Great!";
+                fb.className = 'inline-feedback great';
+            } else {
+                fb.innerHTML = "Good";
+                fb.className = 'inline-feedback good';
+            }
         } else {
-            // No text for wrong answer in spec, just color change.
+            // No text for wrong answer
         }
-        
-        setTimeout(()=>{
+
+        setTimeout(() => {
             this.idx++;
             this.answering = false;
             // Save Session
-            sessionStorage.setItem('lab_session', JSON.stringify({queue:this.quizQueue, idx:this.idx, results:this.results, forceLevel:this.forceLevel, method:this.sessionMethod, timer:this.sessionTimer}));
+            sessionStorage.setItem('lab_session', JSON.stringify({ queue: this.quizQueue, idx: this.idx, results: this.results, forceLevel: this.forceLevel, method: this.sessionMethod, timer: this.sessionTimer }));
             this.nextQ();
         }, 1000);
     }
 
     incrementDailyCount() {
         const today = new Date().toLocaleDateString('ja-JP'); // YYYY/MM/DD
-        let stored = JSON.parse(localStorage.getItem('lab_today_count')) || {date: today, count: 0};
+        let stored = JSON.parse(localStorage.getItem('lab_today_count')) || { date: today, count: 0 };
 
         if (stored.date !== today) {
             stored = { date: today, count: 0 };
@@ -573,58 +587,67 @@ class App {
     // --- Result Screen ---
     initResult() {
         const session = JSON.parse(sessionStorage.getItem('lab_session'));
-        if(!session) return window.location.href='index.html';
-        
+        if (!session) return window.location.href = 'index.html';
+
         this.results = session.results;
 
-        // Render Score in Header
-        const scoreEl = document.getElementById('result-score');
-        if(scoreEl) {
-             const score = this.results.filter(r=>r.correct).length;
-             const total = this.results.length;
-             scoreEl.innerText = `(${score} / ${total})`;
-        }
-        
         // Render Daily Count
         const countEl = document.getElementById('today-count');
         if (countEl) {
             const today = new Date().toLocaleDateString('ja-JP');
-            let stored = JSON.parse(localStorage.getItem('lab_today_count')) || {date: today, count: 0};
-            if(stored.date !== today) stored = {date: today, count: 0}; // Reset if different day
+            let stored = JSON.parse(localStorage.getItem('lab_today_count')) || { date: today, count: 0 };
+            if (stored.date !== today) stored = { date: today, count: 0 }; // Reset if different day
             countEl.innerText = stored.count;
         }
 
         // Render Chart
         this.renderResultChart('result-chart');
-        
+
         const list = document.getElementById('result-list');
         const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
         this.results.forEach(r => {
-             let hl = "";
-             if(r.word.ex && r.word.en) {
-                 try { hl = r.word.ex.replace(new RegExp(`\\b${escapeRegExp(r.word.en)}\\b`,'gi'), '<span class="highlight">$&</span>'); }
-                 catch(e){ hl = r.word.ex; }
-             }
-             const div = document.createElement('div');
-             div.className = 'result-item';
-             div.innerHTML = `
-                <button class="result-audio-btn" onclick="app.speak('${r.word.en.replace(/'/g,"\\'")}')">${ICONS.speaker}</button>
-                <div class="result-content">
-                    <div class="result-main" style="display:block;">
-                        <div class="result-word-row" style="display:flex; justify-content:space-between; align-items:center;">
-                            <span class="result-word">${r.word.en}</span>
-                            <span class="${r.correct?'mark-o':'mark-x'}">${r.correct?'◯':'✕'}</span>
+            let hl = "";
+            if (r.word.ex && r.word.en) {
+                try { hl = r.word.ex.replace(new RegExp(`\\b${escapeRegExp(r.word.en)}\\b`, 'gi'), '<span class="highlight">$&</span>'); }
+                catch (e) { hl = r.word.ex; }
+            }
+            // Determine quality label if missing (backward compat)
+            let qLabel = r.quality;
+            if (!qLabel) qLabel = r.correct ? 'good' : 'bad';
+
+            // Map label to display text
+            const qMap = { bad: 'Bad', good: 'Good', great: 'Great', excellent: 'Excellent' };
+            const qText = qMap[qLabel] || 'Bad';
+
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            div.innerHTML = `
+                <div class="result-row-flex">
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:4px; min-width:60px; flex-shrink:0;">
+                         <div class="res-quality ${qLabel}">${qText}</div>
+                         <div class="res-progress">
+                            ${["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた", "覚えた"][r.oldLevel]}<br>↓<br>${["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた", "覚えた"][r.newLevel]}
+                         </div>
+                    </div>
+                    <div class="res-main-info">
+                        <div class="res-word-row">
+                            <span class="res-word">${r.word.en}</span>
+                            <span class="wl-pronunciation" style="font-size:0.8rem;">/${r.word.pronunciation || ''}/</span>
+                            <span class="wl-svl-badge" style="margin-left:4px;">SVL ${r.word.svl || '?'}</span>
+                            <button class="audio-btn-mini" style="margin-left:auto;" onclick="app.speak('${r.word.en.replace(/'/g, "\\'")}')">${ICONS.speaker}</button>
                         </div>
-                        <div class="result-detail-row" style="margin-top:4px;">
-                            <span style="font-size:0.75rem; color:#888; margin-right:4px;">[${r.word.pos||'?'}]</span>
-                            <span style="font-size:0.9rem; color:#5D4037;">${r.word.ja}</span>
+                        <div class="res-meaning-row" style="margin-top:2px;">
+                             <span class="priming-pos-badge" style="margin-right:4px;">${r.word.pos || '?'}</span>
+                             <span class="res-meaning">${r.word.ja}</span>
                         </div>
                     </div>
-                    <div class="result-sub">Lv.${r.oldLevel} -> Lv.${r.newLevel}</div>
-                    <div class="result-example-box"><div class="ex-en">${hl}</div><div class="ex-ja">${r.word.exJa}</div></div>
+                </div>
+                <div class="wl-ex-box">
+                    <div class="wl-ex-en">${hl}</div>
+                    <div class="wl-ex-ja">${r.word.exJa}</div>
                 </div>`;
-             list.appendChild(div);
+            list.appendChild(div);
         });
     }
 
@@ -635,35 +658,35 @@ class App {
         // Calculate Before
         const distBefore = [...distAfter];
         this.results.forEach(r => {
-            if(r.oldLevel !== undefined && r.newLevel !== undefined) {
-                 if(r.newLevel !== r.oldLevel) {
-                     distBefore[r.newLevel]--;
-                     distBefore[r.oldLevel]++;
-                 }
+            if (r.oldLevel !== undefined && r.newLevel !== undefined) {
+                if (r.newLevel !== r.oldLevel) {
+                    distBefore[r.newLevel]--;
+                    distBefore[r.oldLevel]++;
+                }
             }
         });
 
         // Render with Diffs
         const c = document.getElementById(id);
-        if(!c) return;
+        if (!c) return;
         c.innerHTML = '';
         const max = Math.max(...distAfter, ...distBefore) || 1;
-        const labels = ["未学習","1日","3日","1週","2週","1ヶ月"];
+        const labels = ["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた", "覚えた"];
 
-        distAfter.forEach((v,i) => {
-             const h = (v/max)*80;
-             const diffVal = v - distBefore[i];
-             let diffHtml = '';
-             if(diffVal > 0) diffHtml = `<div class="chart-diff diff-plus show">+${diffVal}</div>`;
-             if(diffVal < 0) diffHtml = `<div class="chart-diff diff-minus show">${diffVal}</div>`;
+        distAfter.forEach((v, i) => {
+            const h = (v / max) * 80;
+            const diffVal = v - distBefore[i];
+            let diffHtml = '';
+            if (diffVal > 0) diffHtml = `<div class="chart-diff diff-plus show">+${diffVal}</div>`;
+            if (diffVal < 0) diffHtml = `<div class="chart-diff diff-minus show">${diffVal}</div>`;
 
-             c.innerHTML += `<div class="chart-bar-group">
+            c.innerHTML += `<div class="chart-bar-group">
                  <div class="chart-info">
                     ${diffHtml}
                     <div class="chart-count">${v}</div>
                  </div>
-                 <div class="chart-bar bar-${i}" style="height:${Math.max(4,h)}%"></div>
-                 <div class="chart-label">Lv.${i}<br>${labels[i]}</div>
+                 <div class="chart-bar bar-${i}" style="height:${Math.max(4, h)}%"></div>
+                 <div class="chart-label">${labels[i]}</div>
              </div>`;
         });
     }
@@ -671,49 +694,58 @@ class App {
     // --- List Screen ---
     initList() {
         const list = document.getElementById('list-content');
-        if(!list) return;
+        if (!list) return;
 
         const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
         const frag = document.createDocumentFragment();
         this.words.forEach(w => {
-             const div = document.createElement('div');
-             div.className = 'word-list-item';
-             let hl = "";
-             if(w.ex && w.en) {
-                 try {
-                    hl = w.ex.replace(new RegExp(`\\b${escapeRegExp(w.en)}\\b`,'gi'), '<span class="highlight">$&</span>');
-                 } catch(e) { hl = w.ex; }
-             }
-             const posText = w.pos ? `[${w.pos}]` : "";
+            const div = document.createElement('div');
+            div.className = 'word-list-item';
+            let hl = "";
+            if (w.ex && w.en) {
+                try {
+                    hl = w.ex.replace(new RegExp(`\\b${escapeRegExp(w.en)}\\b`, 'gi'), '<span class="highlight">$&</span>');
+                } catch (e) { hl = w.ex; }
+            }
+            const posText = w.pos ? `[${w.pos}]` : "";
 
-             div.innerHTML = `
-                <div class="wl-header"><div class="wl-word"><span class="wl-id">${w.id}.</span> ${w.en}</div><span class="wl-level-badge" style="background:var(--lv${w.stats.level})">Lv.${w.stats.level}</span></div>
-                <div class="wl-meaning"><span style="font-size:0.75rem; color:#888; margin-right:4px;">${posText}</span>${w.ja}</div>
+            const svlHtml = w.svl ? `<span class="wl-svl-badge">SVL${w.svl}</span>` : "";
+            const pronHtml = w.pronunciation ? `<span class="wl-pronunciation">/${w.pronunciation}/</span>` : "";
+            const relHtml = (w.synonyms || w.antonyms) ?
+                `<div class="wl-row-rel">` +
+                (w.synonyms ? `<span class="wl-rel-label">類義</span>${w.synonyms} ` : "") +
+                (w.antonyms ? `<span class="wl-rel-label">反意</span>${w.antonyms}` : "") +
+                `</div>` : "";
+
+            div.innerHTML = `
+                <div class="wl-header"><div class="wl-word"><span class="wl-id">${w.id}.</span> ${w.en}${pronHtml}</div><div style="display:flex;align-items:center;">${svlHtml}<span class="wl-level-badge" style="background:var(--lv${w.stats.level})">${["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた", "覚えた"][w.stats.level]}</span></div></div>
+                <div class="wl-meaning"><span class="priming-pos-badge" style="margin-right:4px;">${w.pos || "?"}</span>${w.ja}</div>
+                ${relHtml}
                 <div class="wl-ex-box"><div class="wl-ex-en">${hl}</div><div class="wl-ex-ja">${w.exJa}</div></div>`;
-             frag.appendChild(div);
+            frag.appendChild(div);
         });
         list.innerHTML = "";
         list.appendChild(frag);
     }
-    
+
     // --- Settings ---
     initSettings() {
         const sel = document.getElementById('dataset-select');
-        if(sel) {
+        if (sel) {
             sel.innerHTML = '';
-            for(const [k, v] of Object.entries(DATASETS)) {
+            for (const [k, v] of Object.entries(DATASETS)) {
                 const opt = document.createElement('option');
                 opt.value = k;
                 opt.textContent = v.label;
-                if(k === this.currentDatasetKey) opt.selected = true;
+                if (k === this.currentDatasetKey) opt.selected = true;
                 sel.appendChild(opt);
             }
         }
     }
 
     changeDataset(val) {
-        if(DATASETS[val]) {
+        if (DATASETS[val]) {
             this.currentDatasetKey = val;
             localStorage.setItem('lab_dataset_key', val);
             window.location.reload();
@@ -721,92 +753,133 @@ class App {
     }
 
     resetStats() {
-        if(confirm('現在の単語帳の学習記録をリセットしますか？\n（この操作は取り消せません）')) {
+        if (confirm('現在の単語帳の学習記録をリセットしますか？\n（この操作は取り消せません）')) {
             localStorage.removeItem(this.currentConfig.storageKey);
             window.location.reload();
         }
     }
 
     updateApp() {
-        if(confirm('アプリを更新（リロード）しますか？')) {
+        if (confirm('アプリを更新（リロード）しますか？')) {
             window.location.reload(true);
         }
     }
-    
+
     // --- Shared Utils ---
     getLevelDistribution() {
-        const d = [0,0,0,0,0,0];
+        const d = [0, 0, 0, 0, 0, 0];
         this.words.forEach(w => d[Math.min(5, w.stats.level)]++);
         return d;
     }
-    
+
     renderChart(id, dist) {
         const c = document.getElementById(id);
-        if(!c) return;
+        if (!c) return;
         c.innerHTML = '';
-        const max = Math.max(...dist)||1;
-        const labels = ["未学習","1日","3日","1週","2週","1ヶ月"];
-        dist.forEach((v,i) => {
-             const h = (v/max)*80;
-             c.innerHTML += `<div class="chart-bar-group"><div class="chart-info"><div class="chart-count">${v}</div></div><div class="chart-bar bar-${i}" style="height:${Math.max(4,h)}%"></div><div class="chart-label">Lv.${i}<br>${labels[i]}</div></div>`;
+
+        // Remove class that enforces flex/height for bar chart functionality if present
+        c.classList.remove('chart-wrapper');
+        // Add container class for centering
+        c.className = 'chart-container';
+
+        const total = dist.reduce((a, b) => a + b, 0);
+        const colors = ["var(--lv0)", "var(--lv1)", "var(--lv2)", "var(--lv3)", "var(--lv4)", "var(--lv5)"];
+        const labels = ["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた", "覚えた"];
+
+        let gradients = [];
+        let currentDeg = 0;
+
+        if (total > 0) {
+            dist.forEach((v, i) => {
+                if (v === 0) return;
+                const deg = (v / total) * 360;
+                gradients.push(`${colors[i]} ${currentDeg}deg ${currentDeg + deg}deg`);
+                currentDeg += deg;
+            });
+        } else {
+            gradients.push("#eee 0deg 360deg");
+        }
+
+        const bg = gradients.join(', ');
+
+        // Generate Legend HTML
+        let legendHtml = '';
+        const handledLabels = new Set();
+        // Simply iterate all levels to show full breakdown
+        dist.forEach((v, i) => {
+            // Show label even if count is 0
+            legendHtml += `<div class="legend-item"><div class="legend-color" style="background:${colors[i]}"></div>${labels[i]}: ${v}</div>`;
         });
+
+        // Use a simpler approach for legend if empty (all zero)
+        if (total === 0) legendHtml = '<div style="font-size:0.8rem; color:#999;">データなし</div>';
+
+        c.innerHTML = `
+            <div class="donut-chart" style="background: conic-gradient(${bg});">
+                <div class="donut-hole">
+                    <div class="donut-total-label">Total</div>
+                    <div class="donut-total-val">${total}</div>
+                </div>
+            </div>
+            <div class="chart-legend">${legendHtml}</div>
+        `;
     }
 
     renderHearts(id) {
         const c = document.getElementById(id);
-        if(!c) return;
+        if (!c) return;
         c.innerHTML = '';
         const path = '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>';
-        for(let i=0; i<10; i++) c.innerHTML += `<svg class="heart-icon" viewBox="0 0 24 24">${path}</svg>`;
+        for (let i = 0; i < 10; i++) c.innerHTML += `<svg class="heart-icon" viewBox="0 0 24 24">${path}</svg>`;
     }
-    
+
     updateHearts(id) {
-        if(!this.words.length) return;
-        const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
-        const aff = Math.floor((total/(this.words.length*5))*100);
-        const active = Math.floor(aff/10);
+        if (!this.words.length) return;
+        const total = this.words.reduce((s, w) => s + (w.stats.level || 0), 0);
+        const aff = Math.floor((total / (this.words.length * 5)) * 100);
+        const active = Math.floor(aff / 10);
         const hearts = document.getElementById(id).querySelectorAll('.heart-icon');
-        hearts.forEach((h,i) => { if(i<active) h.classList.add('active'); else h.classList.remove('active'); });
+        hearts.forEach((h, i) => { if (i < active) h.classList.add('active'); else h.classList.remove('active'); });
     }
 
     initLottie(id, interactive) {
-        if(window.lottie) {
+        if (window.lottie) {
             const c = document.getElementById(id);
-            if(c) {
-                const anim = lottie.loadAnimation({ container:c, renderer:'svg', loop:true, autoplay:true, path: LOTTIE_PATH });
-                if(interactive) c.onclick = () => this.petDog();
+            if (c) {
+                const anim = lottie.loadAnimation({ container: c, renderer: 'svg', loop: true, autoplay: true, path: LOTTIE_PATH });
+                if (interactive) c.onclick = () => this.petDog();
             }
         }
     }
-    
+
     petDog() {
         const b = document.getElementById('dog-bubble');
-        if(!b) return;
+        if (!b) return;
 
         // Calculate affinity for messages
         let aff = 0;
         if (this.words.length > 0) {
-            const total = this.words.reduce((s,w)=>s+(w.stats.level||0),0);
-            const score = Math.floor((total/(this.words.length*5))*100);
-            aff = Math.floor(score/10);
+            const total = this.words.reduce((s, w) => s + (w.stats.level || 0), 0);
+            const score = Math.floor((total / (this.words.length * 5)) * 100);
+            aff = Math.floor(score / 10);
         }
 
         const msgs = ["ワン！"];
-        if(aff >= 3) msgs.push("遊ぼう！", "くんくん...");
-        if(aff >= 6) msgs.push("大好きだワン！", "楽しいね！", "撫でて〜");
-        if(aff >= 9) msgs.push("ずっと一緒だよ！", "君は最高のパートナー！", "幸せだワン！");
+        if (aff >= 3) msgs.push("遊ぼう！", "くんくん...");
+        if (aff >= 6) msgs.push("大好きだワン！", "楽しいね！", "撫でて〜");
+        if (aff >= 9) msgs.push("ずっと一緒だよ！", "君は最高のパートナー！", "幸せだワン！");
 
-        b.innerText = msgs[Math.floor(Math.random()*msgs.length)];
+        b.innerText = msgs[Math.floor(Math.random() * msgs.length)];
         b.classList.add('show');
-        setTimeout(()=>b.classList.remove('show'), 2000);
+        setTimeout(() => b.classList.remove('show'), 2000);
     }
-    
-    speak(txt) { speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(txt); u.lang='en-US'; speechSynthesis.speak(u); }
-    replaySpeak() { if(this.curr) this.speak(this.curr.en); }
+
+    speak(txt) { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(txt); u.lang = 'en-US'; speechSynthesis.speak(u); }
+    replaySpeak() { if (this.curr) this.speak(this.curr.en); }
 
     confirmHome() {
-        if(confirm('学習を中断してホームに戻りますか？')) {
-            window.location.href='index.html';
+        if (confirm('学習を中断してホームに戻りますか？')) {
+            window.location.href = 'index.html';
         }
     }
 
@@ -815,13 +888,13 @@ class App {
         if (config) {
             this.startSession(config);
         } else {
-            window.location.href='index.html';
+            window.location.href = 'index.html';
         }
     }
 
     reviewSameSession() {
         const session = JSON.parse(sessionStorage.getItem('lab_session'));
-        if (!session) return window.location.href='index.html';
+        if (!session) return window.location.href = 'index.html';
 
         // Extract IDs from previous session
         const ids = session.queue.map(w => w.id);
@@ -832,9 +905,9 @@ class App {
 
         // Preserve original order or shuffle?
         // "Review Same Problems" usually implies same set, maybe shuffled.
-        q.sort(()=>0.5-Math.random());
+        q.sort(() => 0.5 - Math.random());
 
-        if(!q.length) return alert("エラー: 単語が見つかりません");
+        if (!q.length) return alert("エラー: 単語が見つかりません");
 
         // Keep same settings (Timer, Method, etc)
         const method = session.method;
@@ -857,14 +930,14 @@ class App {
     loadHomeSettings() {
         try {
             const settings = JSON.parse(localStorage.getItem('lab_home_settings'));
-            if(settings) {
-                if(settings.method) document.getElementById('method-select').value = settings.method;
-                if(settings.problem) document.getElementById('problem-select').value = settings.problem;
-                if(settings.limit) document.getElementById('limit-select').value = settings.limit;
-                if(settings.timer) document.getElementById('timer-select').value = settings.timer;
-                if(settings.priming !== undefined) document.getElementById('use-priming').checked = settings.priming;
+            if (settings) {
+                if (settings.method) document.getElementById('method-select').value = settings.method;
+                if (settings.problem) document.getElementById('problem-select').value = settings.problem;
+                if (settings.limit) document.getElementById('limit-select').value = settings.limit;
+                if (settings.timer) document.getElementById('timer-select').value = settings.timer;
+                if (settings.priming !== undefined) document.getElementById('use-priming').checked = settings.priming;
             }
-        } catch(e) { console.error("Failed to load settings", e); }
+        } catch (e) { console.error("Failed to load settings", e); }
     }
 
     saveHomeSettings() {
@@ -877,18 +950,19 @@ class App {
                 priming: document.getElementById('use-priming').checked
             };
             localStorage.setItem('lab_home_settings', JSON.stringify(settings));
-        } catch(e) { console.error("Failed to save settings", e); }
+        } catch (e) { console.error("Failed to save settings", e); }
     }
 
     bindHomeSettingsEvents() {
         const ids = ['method-select', 'problem-select', 'limit-select', 'timer-select', 'use-priming'];
         ids.forEach(id => {
             const el = document.getElementById(id);
-            if(el) {
+            if (el) {
                 el.addEventListener('change', () => this.saveHomeSettings());
             }
         });
     }
+
 }
 
 const app = new App();

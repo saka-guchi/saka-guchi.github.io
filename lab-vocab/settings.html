@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -12,11 +13,15 @@
     <meta name="theme-color" content="#F4D03F">
     <link rel="apple-touch-icon" href="./icon.svg">
 </head>
+
 <body>
 
     <div id="settings-screen" class="screen" style="background:var(--primary); padding-top:30px;">
+        <div class="app-header">
+            <h1 class="app-logo">ラブラドール学習帳</h1>
+        </div>
         <div class="home-card" style="margin:0 auto;">
-            <div class="setting-title" style="text-align:center; font-size:1.2rem; border:none;">詳細設定</div>
+            <div style="font-size:1.1rem; font-weight:bold; margin-bottom:15px; color:#5D4037;">詳細設定</div>
             <div class="setting-section">
                 <div class="setting-title">単語帳選択</div>
                 <div class="form-group">
@@ -26,26 +31,29 @@
             </div>
             <div class="setting-section">
                 <div class="setting-title">データ管理</div>
-                <button class="btn btn-sub" style="background:#E53935; margin-bottom:15px;" onclick="app.resetStats()">🗑️ 学習記録初期化</button>
+                <button class="btn btn-sub" style="background:#E53935; margin-bottom:15px;"
+                    onclick="app.resetStats()">🗑️ 学習記録初期化</button>
             </div>
 
             <div class="setting-section">
                 <div class="setting-title">アプリケーション</div>
-                <button class="btn btn-sub" style="background:#29B6F6;" onclick="app.updateApp()">🔄 アプリを更新 (キャッシュクリア)</button>
+                <button class="btn btn-sub" style="background:#29B6F6;" onclick="app.updateApp()">🔄 アプリを更新
+                    (キャッシュクリア)</button>
             </div>
 
             <button class="btn-home" onclick="window.location.href='index.html'">ホームへ戻る</button>
         </div>
     </div>
 
-<script src="./app.js"></script>
-<script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('SW registered!', reg))
-            .catch(err => console.log('SW failed', err));
-    }
-</script>
-<script>document.addEventListener('DOMContentLoaded', () => app.init());</script>
+    <script src="./app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW registered!', reg))
+                .catch(err => console.log('SW failed', err));
+        }
+    </script>
+    <script>document.addEventListener('DOMContentLoaded', () => app.init());</script>
 </body>
+
 </html>
