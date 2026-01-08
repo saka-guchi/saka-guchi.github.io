@@ -1,6 +1,6 @@
 
 let DATASETS = {}; // Dynamically loaded
-const LOTTIE_PATH = './dog.json';
+const LOTTIE_PATH = './assets/dog.json';
 
 // --- Icons (SVG Strings) ---
 const ICONS = {

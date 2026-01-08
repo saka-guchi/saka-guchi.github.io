@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -10,13 +11,17 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#F4D03F">
-    <link rel="apple-touch-icon" href="./icon.svg">
+    <link rel="apple-touch-icon" href="./assets/icon.svg">
+    <link rel="icon" type="image/svg+xml" href="./assets/icon.svg">
 </head>
+
 <body>
 
     <div id="quiz-screen" class="screen">
-        <div class="progress-bar-container"><div class="progress-bar" id="timer-bar"></div></div>
-        
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="timer-bar"></div>
+        </div>
+
         <div class="screen-header">
             <div class="quiz-status" id="quiz-progress">- / -</div>
         </div>
@@ -39,23 +44,27 @@
         </div>
 
         <div style="width:100%; position:relative;">
-             <button id="skip-btn" class="skip-btn" onclick="app.answer(false, null)">
-                <span class="icon-sm" style="width:14px; height:14px;"><svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg></span>スキップ
-             </button>
-             <div class="choices-container" id="choices-area"></div>
+            <button id="skip-btn" class="skip-btn" onclick="app.answer(false, null)">
+                <span class="icon-sm" style="width:14px; height:14px;"><svg viewBox="0 0 24 24">
+                        <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                        <line x1="19" y1="5" x2="19" y2="19"></line>
+                    </svg></span>スキップ
+            </button>
+            <div class="choices-container" id="choices-area"></div>
         </div>
-        
+
         <button class="btn-home" style="margin-top:20px;" onclick="app.confirmHome()">中断してホームへ</button>
     </div>
 
-<script src="./app.js"></script>
-<script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('SW registered!', reg))
-            .catch(err => console.log('SW failed', err));
-    }
-</script>
-<script>document.addEventListener('DOMContentLoaded', () => app.init());</script>
+    <script src="./app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW registered!', reg))
+                .catch(err => console.log('SW failed', err));
+        }
+    </script>
+    <script>document.addEventListener('DOMContentLoaded', () => app.init());</script>
 </body>
+
 </html>

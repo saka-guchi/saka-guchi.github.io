@@ -10,8 +10,8 @@ const ASSETS = [
     './style.css',
     './app.js',
     './lottie.min.js',
-    './dog.json',
-    './icon.svg',
+    './assets/dog.json',
+    './assets/icon.svg',
     './words/lists.csv',
     './words/ngsl.csv',
     './words/ielts3500-basic1000.csv'
