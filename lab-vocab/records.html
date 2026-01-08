@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>結果</title>
+    <title>学習記録</title>
     <link rel="stylesheet" href="./style.css">
     <script src="./lottie.min.js"></script>
     <link rel="manifest" href="./manifest.json">
@@ -17,26 +17,29 @@
 
 <body>
 
-    <div id="result-screen" class="screen">
+    <div id="records-screen" class="screen">
         <div class="screen-header">
-            <div class="screen-title">回答結果</div>
-            <div style="font-size:0.85rem; font-weight:bold; color:#5D4037;">本日累計: <span id="today-count">0</span>問
-            </div>
+            <div class="screen-title">学習記録</div>
         </div>
-
-        <div style="background:white; padding:10px; border-radius:16px; margin-bottom:10px;">
-            <div id="result-points-info"
-                style="text-align:center; padding-bottom:10px; border-bottom:1px dashed #eee; margin-bottom:10px; display:none;">
+        <div class="word-list-container" id="list-content" style="padding:15px; padding-bottom: 80px;">
+            <div id="records-chart-legend" class="chart-legend"></div>
+            <div id="records-chart" class="records-chart-container" style="display:none;"></div>
+            <table class="record-table">
+                <thead>
+                    <tr>
+                        <th>学習日</th>
+                        <th>解答数</th>
+                        <th>正解</th>
+                        <th>ポイント</th>
+                    </tr>
+                </thead>
+                <tbody id="records-tbody">
+                    <!-- JSで挿入 -->
+                </tbody>
+            </table>
+            <div id="no-records-msg" style="text-align:center; padding:20px; color:#888; display:none;">
+                まだ記録がありません。
             </div>
-            <div id="result-chart" class="chart-wrapper" style="border:none;"></div>
-        </div>
-
-        <div class="result-list" id="result-list"></div>
-
-        <div class="btn-group">
-            <button class="btn" style="margin:0; background:white; color:#5D4037; border:2px solid #5D4037;"
-                onclick="app.reviewSameSession()">同じ問題を復習</button>
-            <button class="btn" style="margin:0;" onclick="app.nextSession()">次の問題に進む</button>
         </div>
         <button class="btn-home" onclick="window.location.href='index.html'">ホームへ戻る</button>
     </div>

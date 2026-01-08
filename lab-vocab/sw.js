@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lab-vocab-v1.1';
+const CACHE_NAME = 'lab-vocab-v1.6';
 const ASSETS = [
     './',
     './index.html',
@@ -6,6 +6,7 @@ const ASSETS = [
     './priming.html',
     './quiz.html',
     './result.html',
+    './records.html',
     './settings.html',
     './style.css',
     './app.js',
@@ -13,8 +14,8 @@ const ASSETS = [
     './assets/dog.json',
     './assets/icon.svg',
     './words/lists.csv',
-    './words/ngsl.csv',
-    './words/ielts3500-basic1000.csv'
+    './words/NGSL.csv',
+    './words/IELTS3500.csv'
 ];
 
 self.addEventListener('install', event => {

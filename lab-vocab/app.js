@@ -50,6 +50,7 @@ class App {
         else if (path.includes('quiz.html')) this.initQuiz();
         else if (path.includes('result.html')) this.initResult();
         else if (path.includes('list.html')) this.initList();
+        else if (path.includes('records.html')) this.initRecords();
         else if (path.includes('settings.html')) this.initSettings();
     }
 
@@ -95,6 +96,10 @@ class App {
         const local = localStorage.getItem(config.storageKey);
         if (local) {
             this.words = JSON.parse(local);
+            // Migration: Cap level at 4 (Remove Lv5)
+            this.words.forEach(w => {
+                if (w.stats && w.stats.level > 4) w.stats.level = 4;
+            });
         } else {
             try {
                 const res = await fetch(config.path);
@@ -190,6 +195,13 @@ class App {
         const chartTitle = document.getElementById('home-chart-title');
         if (chartTitle) {
             chartTitle.onclick = () => this.showLevelHelp();
+        }
+
+        // Affinity Progress
+        const hearts = document.getElementById('home-hearts');
+        if (hearts) {
+            hearts.style.cursor = 'pointer';
+            hearts.onclick = () => this.showAffinityProgress();
         }
 
         // Restore settings and attach listeners
@@ -310,7 +322,8 @@ class App {
             results: [],
             forceLevel: forceLevel,
             method: method,
-            timer: timer
+            timer: timer,
+            saved: false
         }));
 
         if (priming) window.location.href = 'priming.html';
@@ -390,8 +403,8 @@ class App {
 
     renderQ(q, type, lv) {
         // ... (Logic from v48) ...
-        const labels = ["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた", "覚えた"];
-        const colors = ["var(--lv0)", "var(--lv1)", "var(--lv2)", "var(--lv3)", "var(--lv4)", "var(--lv5)"];
+        const labels = ["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた"];
+        const colors = ["var(--lv0)", "var(--lv1)", "var(--lv2)", "var(--lv3)", "var(--lv4)"];
 
         document.getElementById('quiz-level-display').innerHTML = labels[lv];
         document.getElementById('quiz-level-display').style.background = colors[lv];
@@ -538,13 +551,13 @@ class App {
             const w = this.words[masterIdx];
 
             // Updated SRS Logic (Fixed Intervals)
-            // Lv.0(Unlearned), Lv.1(1d), Lv.2(3d), Lv.3(1w), Lv.4(2w), Lv.5(1m)
-            const INTERVALS = [0, 1, 3, 7, 14, 30];
+            // Lv.0(Unlearned), Lv.1(1d), Lv.2(3d), Lv.3(1w), Lv.4(2w)
+            const INTERVALS = [0, 1, 3, 7, 14];
 
             if (isCorrect) {
                 // Excellent: +3, Great: +2, Good: +1
                 const increment = isExcellent ? 3 : (isGreat ? 2 : 1);
-                w.stats.level = Math.min(5, w.stats.level + increment);
+                w.stats.level = Math.min(4, w.stats.level + increment);
                 w.stats.nextReview = Date.now() + INTERVALS[w.stats.level] * 86400000;
             } else {
                 // Incorrect: Level -1 (min 0)
@@ -631,6 +644,55 @@ class App {
 
         this.results = session.results;
 
+        // Calculate & Render Points Info
+        const infoEl = document.getElementById('result-points-info');
+        if (infoEl) {
+            // 1. Gained points (sum of level increase)
+            let gained = 0;
+            let correctCount = 0;
+            this.results.forEach(r => {
+                if (r.correct) correctCount++;
+                if (r.oldLevel !== undefined && r.newLevel !== undefined) {
+                    const diff = r.newLevel - r.oldLevel;
+                    if (diff > 0) gained += diff;
+                }
+            });
+
+            // 2. Next Heart Progress
+            let progressHtml = '';
+            if (this.words.length > 0) {
+                const total = this.words.reduce((s, w) => s + (w.stats.level || 0), 0);
+                const maxScore = this.words.length * 4;
+                const currentPct = (total / maxScore) * 100;
+                const currentAff = Math.floor(currentPct / 10);
+
+                if (currentAff < 10) {
+                    const nextPct = (currentAff + 1) * 10;
+                    const targetPoints = Math.ceil((nextPct / 100) * maxScore);
+                    const diff = targetPoints - total;
+                    progressHtml = `<span style="font-size:0.85rem; color:#888;">次のハートまであと <strong>${diff}</strong> ポイント</span>`;
+                } else {
+                    progressHtml = `<span style="font-size:0.85rem; color:var(--accent);">親密度MAX 達成中！</span>`;
+                }
+            }
+
+            const totalQ = this.results.length;
+            let mainMsg = '';
+            if (gained > 0) {
+                mainMsg = `+${gained} ポイントゲット！`;
+            } else {
+                mainMsg = `${correctCount}/${totalQ}問 正解！ Keep it up!`;
+            }
+
+            infoEl.innerHTML = `
+                <div style="font-size:1.1rem; color:#5D4037; font-weight:bold; margin-bottom:2px;">
+                    ${mainMsg}
+                </div>
+                ${progressHtml}
+            `;
+            infoEl.style.display = 'block';
+        }
+
         // Render Daily Count
         const countEl = document.getElementById('today-count');
         if (countEl) {
@@ -638,6 +700,55 @@ class App {
             let stored = JSON.parse(localStorage.getItem('lab_today_count')) || { date: today, count: 0 };
             if (stored.date !== today) stored = { date: today, count: 0 }; // Reset if different day
             countEl.innerText = stored.count;
+        }
+
+
+
+        // Save History
+        if (!session.saved) {
+            let g = 0, c = 0;
+            const bd = [0, 0, 0, 0, 0];
+            this.results.forEach(r => {
+                if (r.correct) c++;
+                if (r.oldLevel !== undefined && r.newLevel !== undefined && r.newLevel > r.oldLevel) g += (r.newLevel - r.oldLevel);
+
+                const lvl = (r.newLevel !== undefined) ? r.newLevel : r.oldLevel;
+                if (lvl !== undefined && lvl >= 0 && lvl <= 4) bd[lvl]++;
+            });
+
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            const hist = JSON.parse(localStorage.getItem('lab_history')) || [];
+
+            // Try to merge if same day
+            const todayKey = dateStr.substring(0, 10);
+            let merged = false;
+
+            if (hist.length > 0) {
+                const latest = hist[0];
+                if (latest.date && latest.date.substring(0, 10) === todayKey) {
+                    latest.date = dateStr; // Update timestamp
+                    latest.count += this.results.length;
+                    latest.correct += c;
+                    latest.points += g;
+                    latest.totalPoints = this.getTotalPoints();
+
+                    if (!latest.breakdown) latest.breakdown = [0, 0, 0, 0, 0];
+                    bd.forEach((val, i) => latest.breakdown[i] += val);
+
+                    merged = true;
+                }
+            }
+
+            if (!merged) {
+                hist.unshift({ date: dateStr, count: this.results.length, correct: c, points: g, breakdown: bd, totalPoints: this.getTotalPoints() });
+            }
+            if (hist.length > 50) hist.pop();
+            localStorage.setItem('lab_history', JSON.stringify(hist));
+
+            session.saved = true;
+            sessionStorage.setItem('lab_session', JSON.stringify(session));
         }
 
         // Render Chart
@@ -711,7 +822,7 @@ class App {
         if (!c) return;
         c.innerHTML = '';
         const max = Math.max(...distAfter, ...distBefore) || 1;
-        const labels = ["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた", "覚えた"];
+        const labels = ["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた"];
 
         distAfter.forEach((v, i) => {
             const h = (v / max) * 80;
@@ -769,6 +880,118 @@ class App {
         list.appendChild(frag);
     }
 
+    // --- Records Screen ---
+    initRecords() {
+        const tbody = document.getElementById('records-tbody');
+        if (!tbody) return;
+
+        const hist = JSON.parse(localStorage.getItem('lab_history')) || [];
+        const noMsg = document.getElementById('no-records-msg');
+        const chartEl = document.getElementById('records-chart');
+        const legendEl = document.getElementById('records-chart-legend');
+
+        if (hist.length === 0) {
+            if (noMsg) noMsg.style.display = 'block';
+            if (legendEl) legendEl.style.display = 'none';
+            if (chartEl) chartEl.style.display = 'none';
+            return;
+        }
+
+        // Render Legend
+        if (legendEl) {
+            const colors = ["var(--lv0)", "var(--lv1)", "var(--lv2)", "var(--lv3)", "var(--lv4)"];
+            const labels = ["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた"];
+            let lHtml = '';
+            labels.forEach((l, i) => {
+                lHtml += `<div class="legend-item"><div class="legend-color" style="background:${colors[i]}"></div>${l}</div>`;
+            });
+            legendEl.innerHTML = lHtml;
+        }
+
+        // Render Chart
+        if (chartEl) {
+            chartEl.style.display = '';
+            chartEl.className = 'chart-wrapper';
+            const recent = hist.slice(0, 20).reverse();
+            const rawMax = Math.max(1, ...recent.map(r => r.count || 0));
+            const maxCount = Math.ceil(rawMax / 10) * 10;
+
+            // Y-Axis Labels
+            let yHtml = '';
+            for (let v = 0; v <= maxCount; v += 10) {
+                if (v > 0) {
+                    const bPct = (v / maxCount) * 100;
+                    yHtml += `<div class="chart-y-label" style="bottom:${bPct}%; transform:translateY(50%);">${v}</div>`;
+                }
+            }
+
+            // Grid Lines
+            let gridHtml = '';
+            for (let v = 10; v <= maxCount; v += 10) {
+                const bPct = (v / maxCount) * 100;
+                gridHtml += `<div class="chart-grid-line" style="bottom:${bPct}%;"></div>`;
+            }
+
+            // Bars
+            let barsHtml = '';
+            recent.forEach(r => {
+                const d = r.date ? r.date.substring(5, 10) : '-';
+                let stackHtml = '';
+
+                if (r.breakdown) {
+                    r.breakdown.forEach((c, i) => {
+                        if (c > 0) {
+                            stackHtml += `<div class="stack-segment" style="flex:${c}; background:var(--lv${i});" title="Lv${i}: ${c}"></div>`;
+                        }
+                    });
+                }
+
+                if (!stackHtml) {
+                    stackHtml = `<div class="stack-segment" style="flex:1; background:#ccc;" title="詳細なし"></div>`;
+                }
+
+                const hPct = ((r.count || 0) / maxCount) * 100;
+
+                barsHtml += `
+                    <div class="chart-column-group">
+                        <div class="chart-bar-stack" style="height:${hPct}%;">
+                            ${stackHtml}
+                        </div>
+                        <div class="chart-date-label">${d}</div>
+                    </div>
+                `;
+            });
+
+            chartEl.innerHTML = `
+                <div class="chart-y-axis">
+                    ${yHtml}
+                </div>
+                <div class="chart-scroll-area">
+                    ${gridHtml}
+                    ${barsHtml}
+                    <div style="min-width:10px;"></div>
+                </div>
+            `;
+        }
+
+        const frag = document.createDocumentFragment();
+        hist.forEach(r => {
+            if (!r || !r.date) return;
+            const tr = document.createElement('tr');
+            // YYYY/MM/DD (0-10)
+            const dateShort = r.date.substring(0, 10);
+
+            tr.innerHTML = `
+                <td>${dateShort}</td>
+                <td>${r.count}</td>
+                <td style="color:${r.correct === r.count ? 'var(--primary-dark)' : 'inherit'}; font-weight:${r.correct === r.count ? 'bold' : 'normal'}">${r.correct}</td>
+                <td style="color:var(--primary-dark); font-weight:${r.points > 0 ? 'bold' : 'normal'}">${(r.points > 0 ? '+' + r.points : '-') + (r.totalPoints !== undefined ? ` <span style="font-size:0.8em; color:#666">(${r.totalPoints})</span>` : '')}</td>
+            `;
+            frag.appendChild(tr);
+        });
+        tbody.appendChild(frag);
+    }
+
     // --- Settings ---
     initSettings() {
         const sel = document.getElementById('dataset-select');
@@ -795,6 +1018,7 @@ class App {
     resetStats() {
         if (confirm('現在の単語帳の学習記録をリセットしますか？\n（この操作は取り消せません）')) {
             localStorage.removeItem(this.currentConfig.storageKey);
+            localStorage.removeItem('lab_history');
             window.location.reload();
         }
     }
@@ -829,9 +1053,13 @@ class App {
     }
 
     // --- Shared Utils ---
+    getTotalPoints() {
+        return this.words.reduce((sum, w) => sum + (w.stats.level || 0), 0);
+    }
+
     getLevelDistribution() {
-        const d = [0, 0, 0, 0, 0, 0];
-        this.words.forEach(w => d[Math.min(5, w.stats.level)]++);
+        const d = [0, 0, 0, 0, 0];
+        this.words.forEach(w => d[Math.min(4, w.stats.level)]++);
         return d;
     }
 
@@ -846,8 +1074,8 @@ class App {
         c.className = 'chart-container';
 
         const total = dist.reduce((a, b) => a + b, 0);
-        const colors = ["var(--lv0)", "var(--lv1)", "var(--lv2)", "var(--lv3)", "var(--lv4)", "var(--lv5)"];
-        const labels = ["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた", "覚えた"];
+        const colors = ["var(--lv0)", "var(--lv1)", "var(--lv2)", "var(--lv3)", "var(--lv4)"];
+        const labels = ["未学習", "苦手", "うろ覚え", "ほぼ覚えた", "覚えた"];
 
         let gradients = [];
         let currentDeg = 0;
@@ -899,7 +1127,7 @@ class App {
     updateHearts(id) {
         if (!this.words.length) return;
         const total = this.words.reduce((s, w) => s + (w.stats.level || 0), 0);
-        const aff = Math.floor((total / (this.words.length * 5)) * 100);
+        const aff = Math.floor((total / (this.words.length * 4)) * 100);
         const active = Math.floor(aff / 10);
         const hearts = document.getElementById(id).querySelectorAll('.heart-icon');
         hearts.forEach((h, i) => { if (i < active) h.classList.add('active'); else h.classList.remove('active'); });
@@ -923,18 +1151,47 @@ class App {
         let aff = 0;
         if (this.words.length > 0) {
             const total = this.words.reduce((s, w) => s + (w.stats.level || 0), 0);
-            const score = Math.floor((total / (this.words.length * 5)) * 100);
+            const score = Math.floor((total / (this.words.length * 4)) * 100);
             aff = Math.floor(score / 10);
         }
 
-        const msgs = ["ワン！"];
-        if (aff >= 3) msgs.push("遊ぼう！", "くんくん...");
+        let msgs = ["ワン！", "ご主人様？", "しっぽフリフリ"];
+        if (aff >= 3) msgs.push("遊ぼう！", "くんくん...", "ボール投げて！");
         if (aff >= 6) msgs.push("大好きだワン！", "楽しいね！", "撫でて〜");
         if (aff >= 9) msgs.push("ずっと一緒だよ！", "君は最高のパートナー！", "幸せだワン！");
 
         b.innerText = msgs[Math.floor(Math.random() * msgs.length)];
         b.classList.add('show');
-        setTimeout(() => b.classList.remove('show'), 2000);
+        setTimeout(() => b.classList.remove('show'), 3000);
+    }
+
+    showAffinityProgress() {
+        const b = document.getElementById('dog-bubble');
+        if (!b || !this.words.length) return;
+
+        const total = this.words.reduce((s, w) => s + (w.stats.level || 0), 0);
+        const maxScore = this.words.length * 4;
+        const currentPct = (total / maxScore) * 100;
+        const currentAff = Math.floor(currentPct / 10);
+
+        if (currentAff >= 10) {
+            b.innerText = "親密度MAXだワン！ありがとう！";
+        } else {
+            // Next level logic
+            // Need (currentAff + 1) * 10 percent
+            // (Target / maxScore) * 100 = (currentAff + 1) * 10
+            // Target = ((currentAff + 1) * 10 / 100) * maxScore
+            // Diff = Target - totalPoints
+
+            const nextPct = (currentAff + 1) * 10;
+            const targetPoints = Math.ceil((nextPct / 100) * maxScore);
+            const diff = targetPoints - total;
+
+            b.innerText = `❤ x ${currentAff + 1} まで\nあと ${diff} ポイント！`;
+        }
+
+        b.classList.add('show');
+        setTimeout(() => b.classList.remove('show'), 4000);
     }
 
     // --- Audio System (SE) ---

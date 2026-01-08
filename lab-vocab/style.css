@@ -15,8 +15,8 @@
     --lv1: #FFCDD2;
     --lv2: #FFE0B2;
     --lv3: #FFF9C4;
-    --lv4: #C8E6C9;
-    --lv5: #B3E5FC;
+    --lv4: #B3E5FC;
+    /* Old Lv5 color */
 }
 
 * {
@@ -451,11 +451,7 @@ body {
 }
 
 .bar-4 {
-    background: var(--correct);
-}
-
-.bar-5 {
-    background: #29B6F6;
+    background: var(--blue);
 }
 
 /* Settings */
@@ -1453,4 +1449,187 @@ body {
         transform: scale(1.05);
         opacity: 0.9;
     }
+}
+
+/* Records Table */
+.record-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.record-table th,
+.record-table td {
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    color: var(--text);
+}
+
+.record-table th {
+    background-color: var(--lv0);
+    font-weight: bold;
+    color: var(--accent);
+    white-space: nowrap;
+}
+
+.record-table td {
+    background: #fff;
+}
+
+.record-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Sub Button */
+.btn-sub {
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    background: transparent;
+    border-radius: 50px;
+    cursor: pointer;
+    margin: 10px auto;
+    /* Overwrite .btn margin */
+    transition: all 0.2s ease;
+}
+
+.btn-sub:active {
+    transform: scale(0.96);
+    background: rgba(93, 64, 55, 0.05);
+}
+
+/* Chart Wrapper */
+.chart-wrapper {
+    display: flex;
+    height: 220px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+}
+
+/* Y-Axis Fixed */
+.chart-y-axis {
+    width: 30px;
+    height: 100%;
+    /* Use padding-bottom matches chart scroll area if needed, 
+       but labels are absolute or relative? */
+    position: relative;
+    border-right: 1px solid #eee;
+    background: #fff;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.chart-y-label {
+    position: absolute;
+    right: 4px;
+    font-size: 0.65rem;
+    color: #999;
+    transform: translateY(50%);
+    /* Center vertically on bottom line of grid? No, bottom is 0 */
+}
+
+/* Scrollable Chart Area */
+.chart-scroll-area {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    height: 100%;
+    padding-bottom: 30px;
+    /* Space for date labels */
+    padding-left: 10px;
+
+    /* Hide scrollbar for cleaner look if requested, but user said "remove scrollbar appears" 
+       likely meant unwanted vertical or ugly horizontal. 
+       Let's keep horizontal scroll but make it thin or standard. */
+}
+
+/* Grid Lines */
+.chart-grid-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px dashed #eee;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Bars container inside scroll area - reused classes */
+.chart-column-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 20px;
+    margin: 0 8px;
+    position: relative;
+    height: 100%;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    z-index: 5;
+}
+
+.chart-bar-stack {
+    display: flex;
+    flex-direction: column-reverse;
+    width: 16px;
+    /* slightly thinner */
+    /* slightly thinner */
+}
+
+.chart-bar-stack>div:first-child {
+    border-radius: 0 0 4px 4px;
+}
+
+.chart-bar-stack>div:last-child {
+    border-radius: 4px 4px 0 0;
+}
+
+.chart-bar-stack>div:only-child {
+    border-radius: 4px;
+}
+
+.stack-segment {
+    width: 100%;
+}
+
+.chart-date-label {
+    font-size: 0.65rem;
+    color: #888;
+    position: absolute;
+    bottom: -28px;
+    white-space: nowrap;
+    transform: rotate(-45deg);
+    transform-origin: top center;
+    width: 100%;
+    text-align: center;
+}
+
+/* Legend */
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.75rem;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    padding: 0 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
 }
