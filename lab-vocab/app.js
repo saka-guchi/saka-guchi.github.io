@@ -404,6 +404,13 @@ class App {
         feedbackEl.className = 'inline-feedback';
         feedbackEl.innerText = '';
 
+        // Reset feedback icon
+        const feedbackIcon = document.getElementById('feedback-icon');
+        if (feedbackIcon) {
+            feedbackIcon.classList.remove('show');
+            feedbackIcon.style.display = 'none';
+        }
+
         // Icon Visibility Control
         const showIcons = (type !== 'reverse' && type !== 'fill-in');
 
@@ -549,16 +556,32 @@ class App {
 
         // UI Feedback (Inline)
         const fb = document.getElementById('inline-feedback');
+        const feedbackIcon = document.getElementById('feedback-icon');
         if (isCorrect) {
             if (isExcellent) {
                 fb.innerHTML = "Excellent!";
                 fb.className = 'inline-feedback excellent';
+                if (feedbackIcon) {
+                    feedbackIcon.src = './assets/flower-circle.svg';
+                    feedbackIcon.style.display = 'block';
+                    setTimeout(() => feedbackIcon.classList.add('show'), 10);
+                }
             } else if (isGreat) {
                 fb.innerHTML = "Great!";
                 fb.className = 'inline-feedback great';
+                if (feedbackIcon) {
+                    feedbackIcon.src = './assets/double_circle.svg';
+                    feedbackIcon.style.display = 'block';
+                    setTimeout(() => feedbackIcon.classList.add('show'), 10);
+                }
             } else {
                 fb.innerHTML = "Good";
                 fb.className = 'inline-feedback good';
+                if (feedbackIcon) {
+                    feedbackIcon.src = './assets/circle.svg';
+                    feedbackIcon.style.display = 'block';
+                    setTimeout(() => feedbackIcon.classList.add('show'), 10);
+                }
             }
         } else {
             // No text for wrong answer
