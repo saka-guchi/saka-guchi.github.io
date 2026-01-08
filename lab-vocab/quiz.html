@@ -17,7 +17,16 @@
 
 <body>
 
-    <div id="quiz-screen" class="screen">
+    <!-- iOS PWA向け: タップで音声APIをアンロックしてから開始 -->
+    <div id="start-overlay" class="start-overlay">
+        <div class="start-overlay-content">
+            <div class="start-overlay-icon">🎧</div>
+            <div class="start-overlay-text">タップして開始</div>
+            <div class="start-overlay-note">※音声が流れます</div>
+        </div>
+    </div>
+
+    <div id="quiz-screen" class="screen" style="display:none;">
         <div class="progress-bar-container">
             <div class="progress-bar" id="timer-bar"></div>
         </div>
@@ -65,7 +74,18 @@
                 .catch(err => console.log('SW failed', err));
         }
     </script>
-    <script>document.addEventListener('DOMContentLoaded', () => app.init());</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const overlay = document.getElementById('start-overlay');
+            overlay.addEventListener('click', () => {
+                // iOSでSpeechSynthesisをアンロック（ユーザーアクション中に実行）
+                app.unlockSpeech();
+                overlay.style.display = 'none';
+                document.getElementById('quiz-screen').style.display = 'flex';
+                app.init();
+            }, { once: true });
+        });
+    </script>
 </body>
 
 </html>

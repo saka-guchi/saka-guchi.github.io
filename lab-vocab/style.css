@@ -1401,3 +1401,56 @@ body {
     margin: 0 5px;
     white-space: nowrap;
 }
+
+/* Start Overlay (iOS PWA向け: 音声再生のためのユーザーインタラクション取得) */
+.start-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    cursor: pointer;
+}
+
+.start-overlay-content {
+    text-align: center;
+    animation: pulse 2s infinite;
+}
+
+.start-overlay-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.start-overlay-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent);
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.start-overlay-note {
+    font-size: 0.9rem;
+    color: var(--accent);
+    opacity: 0.8;
+    margin-top: 10px;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}

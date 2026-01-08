@@ -18,6 +18,7 @@ class App {
         this.homeLottie = null;
         this.resultLottie = null;
         this.answering = false;
+        this.speechUnlocked = false; // iOS PWA向け: SpeechSynthesis APIアンロック状態
         // Dataset key will be validated after loading datasets
         this.currentDatasetKey = localStorage.getItem('lab_dataset_key');
     }
@@ -233,6 +234,9 @@ class App {
     }
 
     startSession(config = null) {
+        // iOS PWAでSpeechSynthesisをアンロック（ユーザーアクション中に実行）
+        this.unlockSpeech();
+
         let method, problem, limit, timer, priming, levelSelect;
 
         if (config) {
@@ -426,7 +430,7 @@ class App {
         if (type === 'masked') {
             qText.innerText = q.en;
             qText.classList.add('masked');
-            this.speak(q.en);
+            // 音声再生はnextQ()で一元管理するためここでは呼ばない
         } else if (type === 'reverse') {
             qText.innerText = q.ja;
         } else if (type === 'fill-in' && q.ex) {
@@ -555,6 +559,14 @@ class App {
         this.incrementDailyCount();
 
         // UI Feedback (Inline)
+        // マスクが適用されていれば解除する
+        const qText = document.getElementById('q-text');
+        if (qText && qText.classList.contains('masked')) {
+            qText.classList.remove('masked');
+            const maskBtn = document.getElementById('mask-toggle-btn');
+            if (maskBtn) maskBtn.innerHTML = ICONS.eye_on;
+        }
+
         const fb = document.getElementById('inline-feedback');
         const feedbackIcon = document.getElementById('feedback-icon');
         if (isCorrect) {
@@ -918,6 +930,23 @@ class App {
         b.innerText = msgs[Math.floor(Math.random() * msgs.length)];
         b.classList.add('show');
         setTimeout(() => b.classList.remove('show'), 2000);
+    }
+
+    // iOS PWA向け: ユーザーアクション時にサイレント発話でAPIをアンロックする
+    unlockSpeech() {
+        if (this.speechUnlocked) return;
+        try {
+            speechSynthesis.cancel(); // 既存の発話をキャンセル
+            const u = new SpeechSynthesisUtterance('');
+            u.volume = 0;
+            u.onend = () => {
+                speechSynthesis.cancel(); // 終了後にもキャンセルして確実にクリア
+            };
+            speechSynthesis.speak(u);
+            this.speechUnlocked = true;
+        } catch (e) {
+            console.warn('Speech unlock failed:', e);
+        }
     }
 
     speak(txt) { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(txt); u.lang = 'en-US'; speechSynthesis.speak(u); }
