@@ -782,9 +782,32 @@ class App {
         }
     }
 
-    updateApp() {
-        if (confirm('アプリを更新（リロード）しますか？')) {
-            window.location.reload(true);
+    async updateApp() {
+        if (!confirm('アプリを更新しますか？\n（キャッシュをクリアして最新版を取得します）')) return;
+
+        try {
+            // Service Worker のキャッシュを削除
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                await Promise.all(keys.map(key => caches.delete(key)));
+                console.log('Cache cleared:', keys);
+            }
+
+            // Service Worker を更新
+            if ('serviceWorker' in navigator) {
+                const registration = await navigator.serviceWorker.getRegistration();
+                if (registration) {
+                    await registration.update();
+                    console.log('Service Worker updated');
+                }
+            }
+
+            alert('キャッシュをクリアしました。\nページをリロードします。');
+            window.location.reload();
+        } catch (e) {
+            console.error('Update failed:', e);
+            alert('更新に失敗しました。手動でページをリロードしてください。');
+            window.location.reload();
         }
     }
 
