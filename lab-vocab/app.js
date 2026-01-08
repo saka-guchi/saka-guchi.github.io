@@ -19,6 +19,7 @@ class App {
         this.resultLottie = null;
         this.answering = false;
         this.speechUnlocked = false; // iOS PWA向け: SpeechSynthesis APIアンロック状態
+        this.audioCtx = null;        // Web Audio API Context
         // Dataset key will be validated after loading datasets
         this.currentDatasetKey = localStorage.getItem('lab_dataset_key');
     }
@@ -219,10 +220,10 @@ class App {
             <div class="modal-box">
                 <div class="modal-header">レベル別出題形式</div>
                 <div class="modal-content">
-                    <div class="modal-row"><span class="modal-badge lv0">Lv.0-1</span> <span class="modal-desc">英→日</span></div>
-                    <div class="modal-row"><span class="modal-badge lv2">Lv.2</span> <span class="modal-desc">英→日 (英単語非表示)</span></div>
-                    <div class="modal-row"><span class="modal-badge lv3">Lv.3</span> <span class="modal-desc">日→英</span></div>
-                    <div class="modal-row"><span class="modal-badge lv4">Lv.4-5</span> <span class="modal-desc">例文穴埋め</span></div>
+                    <div class="modal-row"><span class="modal-badge lv0" style="min-width:100px;">未学習・苦手</span> <span class="modal-desc">英→日</span></div>
+                    <div class="modal-row"><span class="modal-badge lv2" style="min-width:100px;">うろ覚え</span> <span class="modal-desc">英→日 (非表示)</span></div>
+                    <div class="modal-row"><span class="modal-badge lv3" style="min-width:100px;">ほぼ覚えた</span> <span class="modal-desc">日→英</span></div>
+                    <div class="modal-row"><span class="modal-badge lv4" style="min-width:100px;">覚えた</span> <span class="modal-desc">例文穴埋め</span></div>
                 </div>
                 <button class="modal-close-btn" onclick="document.getElementById('custom-modal-overlay').remove()">閉じる</button>
             </div>
@@ -507,6 +508,10 @@ class App {
         const limit = (this.sessionTimer || 10) * 1000;
         let isExcellent = isCorrect && (timeTaken <= limit / 4);
         let isGreat = isCorrect && !isExcellent && (timeTaken <= limit / 2);
+
+        // Sound Effect
+        if (isCorrect) this.playCorrectSE();
+        else this.playWrongSE();
 
         // Immediate Style Feedback
         if (btn) {
@@ -932,8 +937,79 @@ class App {
         setTimeout(() => b.classList.remove('show'), 2000);
     }
 
+    // --- Audio System (SE) ---
+    initAudio() {
+        if (!this.audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                this.audioCtx = new AudioContext();
+            }
+        }
+    }
+
+    playCorrectSE() {
+        if (!this.audioCtx) return;
+        const ctx = this.audioCtx;
+        const now = ctx.currentTime;
+
+        // C Major Arpeggio: C5, E5, G5, C6
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+
+        notes.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const startTime = now + i * 0.05;
+
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.1, startTime + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(startTime);
+            osc.stop(startTime + 0.4);
+        });
+    }
+
+    playWrongSE() {
+        if (!this.audioCtx) return;
+        const ctx = this.audioCtx;
+        const now = ctx.currentTime;
+
+        // Dissonant Cluster with Slide Down
+        const freqs = [150, 215]; // Approx G2 and C#3 (Tritone)
+
+        freqs.forEach(f => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(f, now);
+            osc.frequency.linearRampToValueAtTime(f * 0.6, now + 0.4); // Pitch Slide Down
+
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.4);
+        });
+    }
+
     // iOS PWA向け: ユーザーアクション時にサイレント発話でAPIをアンロックする
     unlockSpeech() {
+        // AudioContext Unlock
+        this.initAudio();
+        if (this.audioCtx && this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+
         if (this.speechUnlocked) return;
         try {
             speechSynthesis.cancel(); // 既存の発話をキャンセル
