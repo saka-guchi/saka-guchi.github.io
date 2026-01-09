@@ -57,7 +57,8 @@ class App {
 
     async loadDatasets() {
         try {
-            const res = await fetch('./words/lists.csv');
+            // Add timestamp to prevent caching of lists.csv
+            const res = await fetch('./words/lists.csv?t=' + Date.now());
             if (res.ok) {
                 const text = await res.text();
                 const rows = this.parseRawCSV(text);
@@ -95,18 +96,34 @@ class App {
         if (!config) return;
 
         const local = localStorage.getItem(config.storageKey);
+        let loadedFromLocal = false;
+
         if (local) {
-            this.words = JSON.parse(local);
-            // Migration: Cap level at 4 (Remove Lv5)
-            this.words.forEach(w => {
-                if (w.stats && w.stats.level > 4) w.stats.level = 4;
-            });
-        } else {
             try {
-                const res = await fetch(config.path);
+                const parsed = JSON.parse(local);
+                // Only use local data if it's a non-empty array
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    this.words = parsed;
+                    loadedFromLocal = true;
+                    // Migration: Cap level at 4 (Remove Lv5)
+                    this.words.forEach(w => {
+                        if (w.stats && w.stats.level > 4) w.stats.level = 4;
+                    });
+                }
+            } catch (e) {
+                console.error("Local Storage Parse Error", e);
+            }
+        }
+
+        if (!loadedFromLocal) {
+            try {
+                // Add timestamp to prevent caching of data files
+                const res = await fetch(config.path + '?t=' + Date.now());
                 if (res.ok) {
                     const text = await res.text();
                     this.parseCSV(text, true);
+                } else {
+                    console.error("Failed to fetch data file:", config.path);
                 }
             } catch (e) { console.error("Load Data Error", e); }
         }
@@ -177,8 +194,13 @@ class App {
             });
         }
         if (isInit) {
-            this.words = newItems;
-            this.saveData();
+            // Only update and save if we actually parsed some words
+            if (newItems.length > 0) {
+                this.words = newItems;
+                this.saveData();
+            } else {
+                console.warn("Parsed CSV resulted in 0 items. Skipping save.", newItems);
+            }
         }
         return newItems;
     }
