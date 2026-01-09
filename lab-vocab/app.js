@@ -582,6 +582,12 @@ class App {
         // Update Daily Count
         this.incrementDailyCount();
 
+        // Update Affinity Points (New System)
+        if (isCorrect) {
+            const bonus = (isExcellent || isGreat) ? 0.5 : 0;
+            this.addAffinityPoints(1 + bonus);
+        }
+
         // UI Feedback (Inline)
         // マスクが適用されていれば解除する
         const qText = document.getElementById('q-text');
@@ -664,22 +670,17 @@ class App {
                 }
             });
 
-            // 2. Next Heart Progress
+            // 2. Next Heart Progress (New Affinity System)
             let progressHtml = '';
-            if (this.words.length > 0) {
-                const total = this.words.reduce((s, w) => s + (w.stats.level || 0), 0);
-                const maxScore = this.words.length * 4;
-                const currentPct = (total / maxScore) * 100;
-                const currentAff = Math.floor(currentPct / 10);
+            const points = this.getAffinityPoints();
+            const currentAff = Math.floor(points / 10);
 
-                if (currentAff < 10) {
-                    const nextPct = (currentAff + 1) * 10;
-                    const targetPoints = Math.ceil((nextPct / 100) * maxScore);
-                    const diff = targetPoints - total;
-                    progressHtml = `<span style="font-size:0.85rem; color:#888;">次のハートまであと <strong>${diff}</strong> ポイント</span>`;
-                } else {
-                    progressHtml = `<span style="font-size:0.85rem; color:var(--accent);">親密度MAX 達成中！</span>`;
-                }
+            if (currentAff < 10) {
+                const nextTarget = (currentAff + 1) * 10;
+                const diff = nextTarget - points;
+                progressHtml = `<span style="font-size:0.85rem; color:#888;">次のハートまであと <strong>${Math.ceil(diff)}</strong> ポイント</span>`;
+            } else {
+                progressHtml = `<span style="font-size:0.85rem; color:var(--accent);">親密度MAX 達成中！</span>`;
             }
 
             const totalQ = this.results.length;
@@ -1142,12 +1143,64 @@ class App {
     }
 
     updateHearts(id) {
-        if (!this.words.length) return;
-        const total = this.words.reduce((s, w) => s + (w.stats.level || 0), 0);
-        const aff = Math.floor((total / (this.words.length * 4)) * 100);
-        const active = Math.floor(aff / 10);
-        const hearts = document.getElementById(id).querySelectorAll('.heart-icon');
-        hearts.forEach((h, i) => { if (i < active) h.classList.add('active'); else h.classList.remove('active'); });
+        // Apply decay first
+        this.applyAffinityDecay();
+
+        const points = this.getAffinityPoints();
+        const active = Math.min(10, Math.floor(points / 10)); // 10 points = 1 heart
+        const hearts = document.getElementById(id)?.querySelectorAll('.heart-icon');
+        if (hearts) {
+            hearts.forEach((h, i) => {
+                if (i < active) h.classList.add('active');
+                else h.classList.remove('active');
+            });
+        }
+    }
+
+    // --- Affinity Point System ---
+    getAffinityPoints() {
+        return parseInt(localStorage.getItem('lab_affinity') || '0');
+    }
+
+    setAffinityPoints(val) {
+        const clamped = Math.max(0, Math.min(100, val)); // 0-100
+        localStorage.setItem('lab_affinity', clamped.toString());
+    }
+
+    addAffinityPoints(amount) {
+        const current = this.getAffinityPoints();
+        this.setAffinityPoints(current + amount);
+        // Update last study date
+        localStorage.setItem('lab_last_study', new Date().toLocaleDateString('ja-JP'));
+    }
+
+    applyAffinityDecay() {
+        const lastStudy = localStorage.getItem('lab_last_study');
+        if (!lastStudy) {
+            // First time, set today
+            localStorage.setItem('lab_last_study', new Date().toLocaleDateString('ja-JP'));
+            return;
+        }
+
+        const today = new Date().toLocaleDateString('ja-JP');
+        if (lastStudy === today) return; // Studied today, no decay
+
+        // Calculate days since last study
+        const parseDate = (str) => {
+            const [y, m, d] = str.split('/').map(Number);
+            return new Date(y, m - 1, d);
+        };
+        const lastDate = parseDate(lastStudy);
+        const todayDate = parseDate(today);
+        const diffDays = Math.floor((todayDate - lastDate) / 86400000);
+
+        if (diffDays > 0) {
+            const decay = diffDays * 20; // -20 points per day
+            const current = this.getAffinityPoints();
+            this.setAffinityPoints(current - decay);
+            // Update last study to today (decay applied)
+            localStorage.setItem('lab_last_study', today);
+        }
     }
 
     initLottie(id, interactive) {
@@ -1164,18 +1217,25 @@ class App {
         const b = document.getElementById('dog-bubble');
         if (!b) return;
 
-        // Calculate affinity for messages
-        let aff = 0;
-        if (this.words.length > 0) {
-            const total = this.words.reduce((s, w) => s + (w.stats.level || 0), 0);
-            const score = Math.floor((total / (this.words.length * 4)) * 100);
-            aff = Math.floor(score / 10);
-        }
+        // Calculate affinity for messages (new point system)
+        const points = this.getAffinityPoints();
+        const aff = Math.min(10, Math.floor(points / 10)); // 0-10
 
-        let msgs = ["ワン！", "ご主人様？", "しっぽフリフリ"];
-        if (aff >= 3) msgs.push("遊ぼう！", "くんくん...", "ボール投げて！");
-        if (aff >= 6) msgs.push("大好きだワン！", "楽しいね！", "撫でて〜");
-        if (aff >= 9) msgs.push("ずっと一緒だよ！", "君は最高のパートナー！", "幸せだワン！");
+        const msgMap = {
+            0: ["...ワン", "お腹すいたワン...", "遊んでほしいな..."],
+            1: ["ワン！", "誰かいる？", "ちょっと元気出てきた"],
+            2: ["ご主人様？", "しっぽフリフリ", "撫でてくれる？"],
+            3: ["遊ぼう！", "くんくん...", "ボール投げて！"],
+            4: ["楽しいワン！", "もっと遊ぼう！", "わくわく！"],
+            5: ["嬉しいワン！", "一緒にいると楽しい！", "おやつちょうだい！"],
+            6: ["大好きだワン！", "撫でて〜", "もふもふ"],
+            7: ["楽しいね！", "毎日会いたいワン！", "ずっと一緒がいい！"],
+            8: ["君といると幸せ！", "信頼してるワン！", "最高の友達！"],
+            9: ["ずっと一緒だよ！", "君は最高のパートナー！", "愛してるワン！"],
+            10: ["幸せだワン！", "運命の出会いだった！", "永遠にそばにいるワン！"]
+        };
+
+        const msgs = msgMap[aff] || msgMap[0];
 
         b.innerText = msgs[Math.floor(Math.random() * msgs.length)];
         b.classList.add('show');
@@ -1184,27 +1244,17 @@ class App {
 
     showAffinityProgress() {
         const b = document.getElementById('dog-bubble');
-        if (!b || !this.words.length) return;
+        if (!b) return;
 
-        const total = this.words.reduce((s, w) => s + (w.stats.level || 0), 0);
-        const maxScore = this.words.length * 4;
-        const currentPct = (total / maxScore) * 100;
-        const currentAff = Math.floor(currentPct / 10);
+        const points = this.getAffinityPoints();
+        const currentAff = Math.floor(points / 10);
 
         if (currentAff >= 10) {
             b.innerText = "親密度MAXだワン！ありがとう！";
         } else {
-            // Next level logic
-            // Need (currentAff + 1) * 10 percent
-            // (Target / maxScore) * 100 = (currentAff + 1) * 10
-            // Target = ((currentAff + 1) * 10 / 100) * maxScore
-            // Diff = Target - totalPoints
-
-            const nextPct = (currentAff + 1) * 10;
-            const targetPoints = Math.ceil((nextPct / 100) * maxScore);
-            const diff = targetPoints - total;
-
-            b.innerText = `❤ x ${currentAff + 1} まで\nあと ${diff} ポイント！`;
+            const nextTarget = (currentAff + 1) * 10;
+            const diff = nextTarget - points;
+            b.innerText = `❤ x ${currentAff + 1} まで\nあと ${Math.ceil(diff)} ポイント！`;
         }
 
         b.classList.add('show');

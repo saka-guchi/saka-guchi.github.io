@@ -1506,7 +1506,6 @@ body {
 .chart-wrapper {
     display: flex;
     height: 220px;
-    margin-bottom: 30px;
     border-bottom: 1px solid #ddd;
     position: relative;
 }
