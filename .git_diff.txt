@@ -1,0 +1,31 @@
+diff --git a/lab-vocab/words/IELTS3500.csv b/lab-vocab/words/IELTS3500.csv
+index e907e95..f6dc68a 100644
+--- a/lab-vocab/words/IELTS3500.csv
++++ b/lab-vocab/words/IELTS3500.csv
+@@ -819,6 +819,26 @@
+ "818","emergence","名詞","出現、発生; 創発","The TV show saw the emergence of several talented actors.","そのテレビ番組では新たな才能ある俳優たちの出現を目撃した。","/imə́:rdʒəns/","appearance","disappearance","7"
+ "819","upright","形容詞","直立した、真っすぐな; 垂直の","When a flight is landing, seats should be in an upright position.","飛行機が着陸する際には、座席は真っすぐ立った位置にないといけない。","/ʌ́pràit/","vertical","horizontal","4"
+ "820","destructive","形容詞","破壊的な","The destructive power of the atomic bomb concerned all nations.","核爆弾の破壊力は、あらゆる国が懸念した。","/distrʌ́ktiv/","","constructive","5"
++"821","utterly","副詞","完全に、全く、すっかり","At the end of the marathon, the runners were utterly exhausted.","マラソンの終わりには、ランナーたちは完全に疲れ切っていた。","/ʌ́təli/","completely, totally","","5"
++"822","capitalism","名詞","資本主義","A negative effect of capitalism is that it exploits workers.","資本主義の弊害は、労働者の搾取である。","/kǽpətəlìzm/","","communism","5"
++"823","planet","名詞","惑星；地球、世界","Earth is the third planet from the sun.","地球は太陽から3番目の惑星である。","/plǽnit/","globe","","2"
++"824","circulation","名詞","血流、血行；循環、流れ","His feet were always cold due to his poor circulation.","血行が悪いせいで彼の足はいつも冷たかった。","/sə̀ːkjuléišən/","","","6"
++"825","opportunity","名詞","機会、好機、チャンス；地位向上の機会","He was thankful for the opportunities the new job granted him.","新しい仕事がもたらしてくれた機会に彼は感謝した。","/ɔ̀pətjúːnəti/","chance, occasion","","3"
++"826","seduce","動詞","～を誘惑する、惑わす、引き寄せる","She accused him of trying to seduce her daughter.","彼女は自分の娘を誘惑しようとしたことで彼を責めた。","/sidjúːs/","allure, lure, tempt","","9"
++"827","utility","名詞","公共事業、公共料金；有用性、実用性","The area's utilities were heavily damaged by the earthquake.","その地区の公共設備は地震で甚大な被害を受けた。","/juːtíləti/","service, usefulness","","6"
++"828","harsh","形容詞","（言動などが）厳しい、容赦ない；（気候などが）過酷な","The examiner's feedback was unusually harsh and criticised some very minor mistakes.","審査官のフィードバックは例になく辛辣（しんらつ）で、ささいな間違いをあげつらうものだった。","/hɑːš/","brutal, severe, rough","","4"
++"829","subtract","動","～を引く、～を取り去る","Instead of adding the amount, he needed to subtract it.","彼はその値を足すのではなく、引く必要があった。","/səbtrǽkt/","","",""
++"830","reliable","形容詞","信頼できる、頼りになる、当てにできる","He was a reliable employee, and his boss often asked for his help.","彼は信頼できる従業員で、上司からよく助けを求められた。","/riláiəbl/","dependable, accurate","unreliable","6"
++"831","apparent","形容詞","明らかな、明白な；見かけの、うわべの","It was quickly apparent that they hadn't listened to the instructions.","彼らが指示を聞いていなかったことはすぐに明らかになった。","/əpǽrənt/","evident, clear, obvious, manifest","","4"
++"832","closure","名詞","閉鎖、閉店、封鎖；閉じるもの","There have been school closures because so many children have the flu.","あまりにたくさんの子どもたちがインフルエンザにかかっているので、学校は閉鎖されている。","/klóužə/","stoppage, termination","","8"
++"833","urbanisation","名詞","都市化、市街化","The nature and wildlife of the countryside was being destroyed by urbanisation.","田園地方の自然や野生生物は都市化によって破壊され続けていた。","/ə̀ːbənàizéišən/","citification","",""
++"834","functional","形容詞","機能的な、実用的な；機能上の、職務上の","The design for the new racing car was functional, but the aesthetic was poor.","新しいレーシングカーのデザインは実用的ではあったが、美的感覚を欠いていた。","/fʌ́ŋkšənl/","serviceable, usable","","7"
++"835","fundamental","形容詞","基本の、基本的な；根本的な","They had a fundamental disagreement that couldn't be solved, and they parted ways.","彼らの間には解決不可能なほど基本的な意見の食い違いがあり、袂（たもと）を分かつこととなった。","/fʌ̀ndəméntl/","basic, essential, elemental","","4"
++"836","witness","名詞","目撃者；証人","There were several witnesses to the crime.","その犯罪には複数の目撃者がいた。","/wítnis/","","","3"
++"837","elevation","名詞","高度、高さ、海抜","The small village is on the hill at an elevation of 1,000 metres above sea level.","その小さな村は海抜1000メートルの高度にある高台に位置する。","/èləvéišən/","height, altitude","",""
++"838","captivate","動詞","～を魅了する、うっとりさせる、とりこにする","The children were captivated by the old lady's stories.","子どもたちは老女の話に夢中になった。","/kǽptəvèit/","allure, charm, fascinate, enchant","","9"
++"839","expect","動詞","～を予期する、予想する","He didn't expect to get a good score because he hadn't studied much.","彼はそれほど勉強しなかったから良い点を取るとは予想していなかった。","/ikspékt/","anticipate","","2"
++"840","melt","動詞","溶ける、溶解する；液体になる","As spring arrived, the snow started to melt.","春が来て雪が解け始めた。","/mélt/","","","2"
+ "841","native","形容詞","出生地の、故郷の; 土着の、固有の; 生まれつきの","He wasn't a native speaker of English but he was still very proficient.","彼は母語としての英語話者ではなかったが、それでも非常に堪能であった。","/néitiv/","born, indigenous, local","","2"
+ "842","isolated","形容詞","(建物・場所などが)孤立した、隔離された、遠く離れた","The tribe was on an isolated island and had never had contact with the outside world.","その民族は孤島におり、外界と一切接触を持ったことがなかった。","/áisəlèitid/","secluded, remote","","5"
+ "843","identical","形容詞","(あらゆる点で)そっくりの、一致した、同じ","The brothers weren't twins but were almost identical.","その兄弟は双子ではなかったが、ほぼ完全にそっくりだった。","/aidéntikəl/","equal, indistinguishable, same","","7"
