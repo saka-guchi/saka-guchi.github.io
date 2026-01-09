@@ -28,6 +28,7 @@ class App {
 
     // --- Core Logic ---
     async init() {
+        this.initAudio();
         await this.loadDatasets();
         if (!this.currentConfig) {
             // Fallback if saved key is invalid or null
@@ -522,9 +523,14 @@ class App {
         let isExcellent = isCorrect && (timeTaken <= limit / 4);
         let isGreat = isCorrect && !isExcellent && (timeTaken <= limit / 2);
 
-        // Sound Effect
-        if (isCorrect) this.playCorrectSE();
-        else this.playWrongSE();
+        // Sound Effect -> TTS Feedback
+        if (isCorrect) {
+            if (isExcellent) this.speakFeedback("Excellent!");
+            else if (isGreat) this.speakFeedback("Great!");
+            else this.speakFeedback("Good!");
+        } else {
+            this.speakFeedback("Uh-oh...");
+        }
 
         // Immediate Style Feedback
         if (btn) {
@@ -1005,6 +1011,17 @@ class App {
                 sel.appendChild(opt);
             }
         }
+
+        // Voice Settings Init
+        this.populateVoiceSelects();
+        // Retry population when voices load (async)
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            const prev = speechSynthesis.onvoiceschanged;
+            speechSynthesis.onvoiceschanged = () => {
+                if (prev) prev();
+                this.populateVoiceSelects();
+            };
+        }
     }
 
     changeDataset(val) {
@@ -1194,78 +1211,129 @@ class App {
         setTimeout(() => b.classList.remove('show'), 4000);
     }
 
-    // --- Audio System (SE) ---
+    // --- Audio System (TTS Feedback) ---
     initAudio() {
-        if (!this.audioCtx) {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (AudioContext) {
-                this.audioCtx = new AudioContext();
+        // Init voices
+        const load = () => {
+            const all = speechSynthesis.getVoices();
+            // Filter English voices
+            const en = all.filter(v => v.lang.startsWith('en'));
+            if (en.length > 0) {
+                // Load Saved Settings
+                const savedQ = localStorage.getItem('lab_voice_q');
+                const savedFB = localStorage.getItem('lab_voice_fb');
+
+                // Sort to try to get consistent order. Prioritize US.
+                en.sort((a, b) => {
+                    if (a.lang === 'en-US' && b.lang !== 'en-US') return -1;
+                    if (a.lang !== 'en-US' && b.lang === 'en-US') return 1;
+                    return 0;
+                });
+
+                // Set Question Voice (from saved or default: prefer Samantha)
+                if (savedQ) {
+                    this.voiceQ = en.find(v => v.name === savedQ) || en[0];
+                } else {
+                    this.voiceQ = en.find(v => v.name === 'Samantha') || en[0];
+                }
+
+                // Set Feedback Voice (from saved or default: prefer Fred)
+                if (savedFB) {
+                    this.voiceFB = en.find(v => v.name === savedFB) || this.voiceQ;
+                } else {
+                    this.voiceFB = en.find(v => v.name === 'Fred') || en.find(v => v.name !== this.voiceQ.name) || this.voiceQ;
+                }
             }
+        };
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = load;
+        }
+        load(); // Try immediately
+    }
+
+    speakFeedback(text) {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        u.rate = 1.2;
+        u.pitch = 1.1;
+        if (this.voiceFB) u.voice = this.voiceFB;
+        speechSynthesis.speak(u);
+    }
+
+    // --- Settings / Voice Management ---
+    populateVoiceSelects() {
+        const qSel = document.getElementById('voice-q-select');
+        const fbSel = document.getElementById('voice-fb-select');
+        if (!qSel || !fbSel) return;
+
+        const all = speechSynthesis.getVoices();
+        const en = all.filter(v => v.lang.startsWith('en'));
+
+        en.sort((a, b) => {
+            if (a.lang === 'en-US' && b.lang !== 'en-US') return -1;
+            if (a.lang !== 'en-US' && b.lang === 'en-US') return 1;
+            return a.name.localeCompare(b.name);
+        });
+
+        const createOpts = (sel, current) => {
+            sel.innerHTML = '';
+            en.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.name;
+                opt.textContent = `${v.name} (${v.lang})`;
+                if (current && v.name === current.name) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            if (en.length === 0) {
+                const opt = document.createElement('option');
+                opt.textContent = "音声読み込み中...";
+                sel.appendChild(opt);
+            }
+        };
+
+        createOpts(qSel, this.voiceQ);
+        createOpts(fbSel, this.voiceFB);
+    }
+
+    saveVoiceSettings() {
+        const qSel = document.getElementById('voice-q-select');
+        const fbSel = document.getElementById('voice-fb-select');
+        if (!qSel || !fbSel) return;
+
+        const all = speechSynthesis.getVoices();
+
+        const vQ = all.find(v => v.name === qSel.value);
+        if (vQ) {
+            this.voiceQ = vQ;
+            localStorage.setItem('lab_voice_q', vQ.name);
+        }
+
+        const vFB = all.find(v => v.name === fbSel.value);
+        if (vFB) {
+            this.voiceFB = vFB;
+            localStorage.setItem('lab_voice_fb', vFB.name);
         }
     }
 
-    playCorrectSE() {
-        if (!this.audioCtx) return;
-        const ctx = this.audioCtx;
-        const now = ctx.currentTime;
-
-        // C Major Arpeggio: C5, E5, G5, C6
-        const notes = [523.25, 659.25, 783.99, 1046.50];
-
-        notes.forEach((freq, i) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            const startTime = now + i * 0.05;
-
-            osc.type = 'triangle';
-            osc.frequency.value = freq;
-
-            gain.gain.setValueAtTime(0, startTime);
-            gain.gain.linearRampToValueAtTime(0.1, startTime + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
-
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-
-            osc.start(startTime);
-            osc.stop(startTime + 0.4);
-        });
-    }
-
-    playWrongSE() {
-        if (!this.audioCtx) return;
-        const ctx = this.audioCtx;
-        const now = ctx.currentTime;
-
-        // Dissonant Cluster with Slide Down
-        const freqs = [150, 215]; // Approx G2 and C#3 (Tritone)
-
-        freqs.forEach(f => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(f, now);
-            osc.frequency.linearRampToValueAtTime(f * 0.6, now + 0.4); // Pitch Slide Down
-
-            gain.gain.setValueAtTime(0.1, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-
-            osc.start(now);
-            osc.stop(now + 0.4);
-        });
+    previewVoice(type) {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(type === 'q' ? "This is a test." : "Excellent!");
+        u.lang = 'en-US';
+        const v = (type === 'q') ? this.voiceQ : this.voiceFB;
+        if (v) u.voice = v;
+        if (type === 'fb') {
+            u.rate = 1.2;
+            u.pitch = 1.1;
+        }
+        speechSynthesis.speak(u);
     }
 
     // iOS PWA向け: ユーザーアクション時にサイレント発話でAPIをアンロックする
     unlockSpeech() {
-        // AudioContext Unlock
+        // Re-trigger voice load just in case
         this.initAudio();
-        if (this.audioCtx && this.audioCtx.state === 'suspended') {
-            this.audioCtx.resume();
-        }
 
         if (this.speechUnlocked) return;
         try {
@@ -1282,7 +1350,13 @@ class App {
         }
     }
 
-    speak(txt) { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(txt); u.lang = 'en-US'; speechSynthesis.speak(u); }
+    speak(txt) {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(txt);
+        u.lang = 'en-US';
+        if (this.voiceQ) u.voice = this.voiceQ;
+        speechSynthesis.speak(u);
+    }
     replaySpeak() { if (this.curr) this.speak(this.curr.en); }
 
     confirmHome() {
