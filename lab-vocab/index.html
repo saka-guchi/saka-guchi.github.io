@@ -95,6 +95,21 @@
         </div>
     </div>
 
+    <!-- iOS Add to Home Screen Banner -->
+    <div id="a2hs-banner" class="a2hs-banner" style="display:none;">
+        <div class="a2hs-content">
+            <div class="a2hs-icon">📲</div>
+            <div class="a2hs-text">
+                <div class="a2hs-title">ホーム画面に追加</div>
+                <div class="a2hs-desc">
+                    <span class="a2hs-share-icon">⬆️</span> をタップして<br>
+                    「ホーム画面に追加」を選択
+                </div>
+            </div>
+            <button class="a2hs-close" onclick="app.dismissA2HSBanner()">✕</button>
+        </div>
+    </div>
+
     <script src="./app.js"></script>
     <script>
         if ('serviceWorker' in navigator) {

@@ -208,6 +208,9 @@ class App {
         // Restore settings and attach listeners
         this.loadHomeSettings();
         this.bindHomeSettingsEvents();
+
+        // iOS Add to Home Screen Banner
+        this.checkA2HSBanner();
     }
 
     startRandomMessages() {
@@ -1493,6 +1496,34 @@ class App {
                 el.addEventListener('change', () => this.saveHomeSettings());
             }
         });
+    }
+
+    // --- iOS Add to Home Screen ---
+    checkA2HSBanner() {
+        // Skip if already dismissed
+        if (localStorage.getItem('lab_a2hs_dismissed')) return;
+
+        // Skip if already in standalone mode (PWA)
+        if (window.matchMedia('(display-mode: standalone)').matches) return;
+        if (window.navigator.standalone === true) return; // iOS Safari PWA
+
+        // Only show on iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (!isIOS) return;
+
+        // Show banner
+        const banner = document.getElementById('a2hs-banner');
+        if (banner) {
+            banner.style.display = 'block';
+        }
+    }
+
+    dismissA2HSBanner() {
+        const banner = document.getElementById('a2hs-banner');
+        if (banner) {
+            banner.style.display = 'none';
+        }
+        localStorage.setItem('lab_a2hs_dismissed', 'true');
     }
 
 }
