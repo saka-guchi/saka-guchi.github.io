@@ -1,13 +1,22 @@
+// --- Constants ---
+const APP_VERSION = '1.0';
+const RELEASE_NOTES = [
+    '新クイズモード「例文: 英→日 (非表示)」を追加！',
+    '「おまかせ」モードの出題ロジックを改善',
+    '親密度メッセージを大幅に増量 (全110種)',
+    'クイズ画面の表示調整'
+];
+
 
 let DATASETS = {}; // Dynamically loaded
 const LOTTIE_PATH = './assets/dog.json';
 
 // --- Icons (SVG Strings) ---
 const ICONS = {
-    eye_off: '<svg viewBox="0 0 24 24" class="icon-svg"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>',
+    eye_off: '<svg viewBox="0 0 24 24" class="icon-svg"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>',
     eye_on: '<svg viewBox="0 0 24 24" class="icon-svg"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>',
     speaker: '<svg viewBox="0 0 24 24" class="icon-svg"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg>',
-    home: '<svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>'
+    home: '<svg viewBox="0 0 24 24" class="icon-sm" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>'
 };
 
 class App {
@@ -51,8 +60,8 @@ class App {
         else if (path.includes('quiz.html')) this.initQuiz();
         else if (path.includes('result.html')) this.initResult();
         else if (path.includes('list.html')) this.initList();
-        else if (path.includes('records.html')) this.initRecords();
         else if (path.includes('settings.html')) this.initSettings();
+        else if (path.includes('records.html')) this.initRecords();
     }
 
     async loadDatasets() {
@@ -233,6 +242,53 @@ class App {
 
         // iOS Add to Home Screen Banner
         this.checkA2HSBanner();
+
+        // Check for updates
+        this.checkUpdate();
+    }
+
+    checkUpdate() {
+        if (!RELEASE_NOTES || RELEASE_NOTES.length === 0) return;
+
+        const lastVersion = localStorage.getItem('lab_app_version');
+        if (lastVersion !== APP_VERSION) {
+            this.showUpdateModal();
+            localStorage.setItem('lab_app_version', APP_VERSION);
+        }
+    }
+
+    showUpdateModal() {
+        const existing = document.getElementById('update-modal-overlay');
+        if (existing) existing.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'update-modal-overlay';
+        overlay.className = 'modal-overlay';
+
+        let listHtml = RELEASE_NOTES.map(note => `<li>${note}</li>`).join('');
+
+        overlay.innerHTML = `
+            <div class="modal-box">
+                <div class="modal-header">アップデート情報 (v${APP_VERSION})</div>
+                <div class="modal-content" style="text-align: left;">
+                    <ul style="padding-left: 20px; color: #555;">${listHtml}</ul>
+                </div>
+                <button class="modal-close-btn" style="background:#29B6F6;" onclick="app.updateApp(true)">最新版を適用 (リロード)</button>
+            </div>
+        `;
+        overlay.onclick = (e) => {
+            if (e.target === overlay) {
+                // Even if clicked outside, we want them to update eventually? 
+                // But let's allow close for now, but usually update is better.
+                overlay.remove();
+                // If closed without update, we still count as seen?
+                // Current logic: localStorage is set on check, not on close. 
+                // Wait, logic says: 
+                // if (lastVersion !== APP_VERSION) { show...; setItem... }
+                // So verify logic keeps it seen.
+            }
+        };
+        document.body.appendChild(overlay);
     }
 
     startRandomMessages() {
@@ -258,11 +314,12 @@ class App {
             <div class="modal-box">
                 <div class="modal-header">レベル別出題形式</div>
                 <div class="modal-content">
-                    <div class="modal-row"><span class="modal-badge lv0" style="min-width:100px;">未学習・苦手</span> <span class="modal-desc">英→日</span></div>
-                    <div class="modal-row"><span class="modal-badge lv2" style="min-width:100px;">うろ覚え</span> <span class="modal-desc">英→日 (非表示)</span></div>
-                    <div class="modal-row"><span class="modal-badge lv3" style="min-width:100px;">ほぼ覚えた</span> <span class="modal-desc">日→英</span></div>
-                    <div class="modal-row"><span class="modal-badge lv4" style="min-width:100px;">覚えた</span> <span class="modal-desc">例文穴埋め</span></div>
-                </div>
+                <div class="modal-row"><span class="modal-badge lv0" style="min-width:100px;">未学習</span> <span class="modal-desc">英→日</span></div>
+                <div class="modal-row"><span class="modal-badge lv1" style="min-width:100px;">苦手</span> <span class="modal-desc">英→日 (非表示)</span></div>
+                <div class="modal-row"><span class="modal-badge lv2" style="min-width:100px;">うろ覚え</span> <span class="modal-desc">日→英</span></div>
+                <div class="modal-row"><span class="modal-badge lv3" style="min-width:100px;">ほぼ覚えた</span> <span class="modal-desc">例文 (英→日など)</span></div>
+                <div class="modal-row"><span class="modal-badge lv4" style="min-width:100px;">覚えた</span> <span class="modal-desc">応用 (非表示/穴埋め)</span></div>
+            </div>
                 <button class="modal-close-btn" onclick="document.getElementById('custom-modal-overlay').remove()">閉じる</button>
             </div>
         `;
@@ -1191,8 +1248,8 @@ class App {
         }
     }
 
-    async updateApp() {
-        if (!confirm('アプリを更新しますか？\n（キャッシュをクリアして最新版を取得します）')) return;
+    async updateApp(force = false) {
+        if (!force && !confirm('アプリを更新しますか？\n（キャッシュをクリアして最新版を取得します）')) return;
 
         try {
             // Service Worker のキャッシュを削除
@@ -1211,11 +1268,11 @@ class App {
                 }
             }
 
-            alert('キャッシュをクリアしました。\nページをリロードします。');
+            if (!force) alert('キャッシュをクリアしました。\nページをリロードします。');
             window.location.reload();
         } catch (e) {
             console.error('Update failed:', e);
-            alert('更新に失敗しました。手動でページをリロードしてください。');
+            if (!force) alert('更新に失敗しました。手動でページをリロードしてください。');
             window.location.reload();
         }
     }

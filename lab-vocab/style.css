@@ -1610,6 +1610,37 @@ body {
     text-align: center;
 }
 
+/* Modal Badges */
+.modal-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #444;
+    text-align: center;
+}
+
+.modal-badge.lv0 {
+    background: var(--lv0);
+}
+
+.modal-badge.lv1 {
+    background: var(--lv1);
+}
+
+.modal-badge.lv2 {
+    background: var(--lv2);
+}
+
+.modal-badge.lv3 {
+    background: var(--lv3);
+}
+
+.modal-badge.lv4 {
+    background: var(--lv4);
+}
+
 /* Legend */
 .chart-legend {
     display: flex;
