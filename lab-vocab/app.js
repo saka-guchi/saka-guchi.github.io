@@ -252,41 +252,7 @@ class App {
         this.checkPoopStatus();
         // Render Bones
         this.checkBoneStatus();
-
-        // Debug Keys
-        this.bindDebugKeys();
     }
-
-    bindDebugKeys() {
-        document.addEventListener('keydown', (e) => {
-            if (e.key === '1') {
-                // Add Poop (Simulate +6h from current last_study)
-                let lastTime = parseInt(localStorage.getItem('lab_last_study_time'));
-                if (isNaN(lastTime)) lastTime = Date.now();
-                lastTime -= (POOP_INTERVAL_HOURS * 60 * 60 * 1000);
-                localStorage.setItem('lab_last_study_time', lastTime);
-                this.checkPoopStatus();
-                this.showBubble("デバッグ: ウンチ追加 (+6h)");
-            }
-            if (e.key === '2') {
-                // Clear Poop
-                this.markStudied();
-                this.showBubble("デバッグ: ウンチ掃除", 1000);
-            }
-            if (e.key === '3') {
-                // Add Bone
-                this.addBone();
-                this.showBubble("デバッグ: 骨追加", 1000);
-            }
-            if (e.key === '4') {
-                // Clear Bones
-                localStorage.setItem('lab_bone_count', '0');
-                this.renderBones(0);
-                this.showBubble("デバッグ: 骨全削除", 1000);
-            }
-        });
-    }
-
 
 
     checkUpdate() {
