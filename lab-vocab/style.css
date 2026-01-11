@@ -312,6 +312,57 @@ body {
     z-index: 20;
 }
 
+.poop-icon {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    z-index: 15;
+    /* Behind bubble(20) but above dog */
+    cursor: pointer;
+    filter: drop-shadow(0 2px 4px rgba(255, 228, 203, 0.7));
+    /* Custom brown-orange shadow */
+    animation: poop-bounce 0.5s ease-out;
+}
+
+@keyframes poop-bounce {
+    0% {
+        transform: scale(0) translateY(10px);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.1) translateY(-5px);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1) translateY(0);
+    }
+}
+
+.bone-icon {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    z-index: 15;
+    cursor: pointer;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    /* Darker, stronger shadow */
+    animation: bone-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bone-pop {
+    0% {
+        transform: scale(0) rotate(-45deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
 .dog-bubble.show {
     opacity: 1;
     transform: translateX(-50%) translateY(-10px);

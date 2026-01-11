@@ -4,9 +4,11 @@ const RELEASE_NOTES = [
     '新クイズモード「例文: 英→日 (非表示)」を追加！',
     '「おまかせ」モードの出題ロジックを改善',
     '親密度メッセージを大幅に増量 (全110種)',
-    'クイズ画面の表示調整'
+    'その他、画面表示の調整'
 ];
-
+const POOP_INTERVAL_HOURS = 6;
+const POOP_LIMIT = 20;
+const BONE_LIMIT = 20;
 
 let DATASETS = {}; // Dynamically loaded
 const LOTTIE_PATH = './assets/dog.json';
@@ -245,7 +247,47 @@ class App {
 
         // Check for updates
         this.checkUpdate();
+
+        // Render Poops
+        this.checkPoopStatus();
+        // Render Bones
+        this.checkBoneStatus();
+
+        // Debug Keys
+        this.bindDebugKeys();
     }
+
+    bindDebugKeys() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '1') {
+                // Add Poop (Simulate +6h from current last_study)
+                let lastTime = parseInt(localStorage.getItem('lab_last_study_time'));
+                if (isNaN(lastTime)) lastTime = Date.now();
+                lastTime -= (POOP_INTERVAL_HOURS * 60 * 60 * 1000);
+                localStorage.setItem('lab_last_study_time', lastTime);
+                this.checkPoopStatus();
+                this.showBubble("デバッグ: ウンチ追加 (+6h)");
+            }
+            if (e.key === '2') {
+                // Clear Poop
+                this.markStudied();
+                this.showBubble("デバッグ: ウンチ掃除", 1000);
+            }
+            if (e.key === '3') {
+                // Add Bone
+                this.addBone();
+                this.showBubble("デバッグ: 骨追加", 1000);
+            }
+            if (e.key === '4') {
+                // Clear Bones
+                localStorage.setItem('lab_bone_count', '0');
+                this.renderBones(0);
+                this.showBubble("デバッグ: 骨全削除", 1000);
+            }
+        });
+    }
+
+
 
     checkUpdate() {
         if (!RELEASE_NOTES || RELEASE_NOTES.length === 0) return;
@@ -790,6 +832,11 @@ class App {
         if (isCorrect) {
             const bonus = (isExcellent || isGreat) ? 0.5 : 0;
             this.addAffinityPoints(1 + bonus);
+
+            // Add Bone if Great or Excellent
+            if (isExcellent || isGreat) {
+                this.addBone();
+            }
         }
 
         // UI Feedback (Inline)
@@ -1375,10 +1422,17 @@ class App {
     }
 
     addAffinityPoints(amount) {
+        this.markStudied(); // Clear poops and update timestamp
+        // Bone addition is now handled in answer() based on quality
         const current = this.getAffinityPoints();
         this.setAffinityPoints(current + amount);
-        // Update last study date
+        // Update last study date (for decay)
         localStorage.setItem('lab_last_study', new Date().toLocaleDateString('ja-JP'));
+    }
+
+    markStudied() {
+        localStorage.setItem('lab_last_study_time', Date.now());
+        this.renderPoops(0);
     }
 
     applyAffinityDecay() {
@@ -1421,9 +1475,6 @@ class App {
     }
 
     petDog() {
-        const b = document.getElementById('dog-bubble');
-        if (!b) return;
-
         // Calculate affinity for messages (new point system)
         const points = this.getAffinityPoints();
         const aff = Math.min(10, Math.floor(points / 10)); // 0-10
@@ -1443,30 +1494,179 @@ class App {
         };
 
         const msgs = msgMap[aff] || msgMap[0];
-
-        b.innerText = msgs[Math.floor(Math.random() * msgs.length)];
-        b.classList.add('show');
-        setTimeout(() => b.classList.remove('show'), 3000);
+        this.showBubble(msgs[Math.floor(Math.random() * msgs.length)]);
     }
 
-    showAffinityProgress() {
-        const b = document.getElementById('dog-bubble');
-        if (!b) return;
+    // ... (showAffinityProgress is below, no change needed) ...
 
+    showAffinityProgress() {
         const points = this.getAffinityPoints();
         const currentAff = Math.floor(points / 10);
+        let msg = "";
 
         if (currentAff >= 10) {
-            b.innerText = "親密度MAXだワン！ありがとう！";
+            msg = "親密度MAXだワン！ありがとう！";
         } else {
             const nextTarget = (currentAff + 1) * 10;
             const diff = nextTarget - points;
-            b.innerText = `❤ x ${currentAff + 1} まで\nあと ${Math.ceil(diff)} ポイント！`;
+            msg = `❤ x ${currentAff + 1} まで\nあと ${Math.ceil(diff)} ポイント！`;
+        }
+        this.showBubble(msg, 4000);
+    }
+
+    showBubble(text, duration = 3000) {
+        const b = document.getElementById('dog-bubble');
+        if (!b) return;
+        b.innerText = text;
+        b.classList.add('show');
+        // Clear previous timer if any to prevent early dismissal
+        if (this.bubbleTimer) clearTimeout(this.bubbleTimer);
+        this.bubbleTimer = setTimeout(() => b.classList.remove('show'), duration);
+    }
+
+    // --- Poop Logic ---
+    checkPoopStatus() {
+        // lab_last_study_time: Timestamp (ms)
+        const lastTimeIdx = parseInt(localStorage.getItem('lab_last_study_time'));
+        // If not set, init with now (assume fresh start)
+        const lastTime = isNaN(lastTimeIdx) ? Date.now() : lastTimeIdx;
+
+        const now = Date.now();
+        const hoursElapsed = (now - lastTime) / (1000 * 60 * 60);
+
+        // Add 1 poop every POOP_INTERVAL_HOURS
+        let poopCount = Math.floor(hoursElapsed / POOP_INTERVAL_HOURS);
+        if (poopCount > POOP_LIMIT) poopCount = POOP_LIMIT;
+
+        this.renderPoops(poopCount);
+    }
+
+    renderPoops(count) {
+        const container = document.querySelector('.lottie-wrapper');
+        if (!container) return;
+
+        // Check if we already have the correct number of poops to avoid re-rendering loop
+        const currentPoops = container.querySelectorAll('.poop-icon').length;
+        if (currentPoops === count) return;
+
+        // Clear existing
+        const oldPoops = container.querySelectorAll('.poop-icon');
+        oldPoops.forEach(p => p.remove());
+
+        for (let i = 0; i < count; i++) {
+            const img = document.createElement('img');
+            img.src = './assets/poop.svg';
+            img.className = 'poop-icon';
+
+            // Random Position Logic
+            // x: 10% - 90%
+            // y: 60% - 90% (near feet)
+            const x = Math.random() * 80 + 10;
+            const y = Math.random() * 30 + 60;
+
+            img.style.left = `${x}%`;
+            img.style.top = `${y}%`;
+
+            // Clean on click
+            img.onclick = () => {
+                img.remove();
+                const msgs = [
+                    "掃除してくれてありがとうワン！",
+                    "スッキリしたワン！ありがとう！",
+                    "綺麗好きだね！嬉しいワン！",
+                    "片付けてくれて助かるワン！",
+                    "君はとっても優しいね！",
+                    "これで快適だワン♪",
+                    "お掃除ありがとう！大好き！",
+                    "ご主人様、ありがとうワン！",
+                    "ピカピカにしてくれて感謝だワン！",
+                    "綺麗になると気持ちいいワン！"
+                ];
+                this.showBubble(msgs[Math.floor(Math.random() * msgs.length)]);
+            };
+            container.appendChild(img);
+        }
+    }
+
+    // --- Bone Logic ---
+    checkBoneStatus() {
+        const lastTimeIdx = parseInt(localStorage.getItem('lab_last_study_time'));
+        const lastTime = isNaN(lastTimeIdx) ? Date.now() : lastTimeIdx;
+        const now = Date.now();
+        const hoursElapsed = (now - lastTime) / (1000 * 60 * 60);
+
+        // If > 1 hour passed since last study, clear bones
+        if (hoursElapsed >= 1) {
+            localStorage.setItem('lab_bone_count', '0');
+            this.renderBones(0);
+        } else {
+            // Restore bones
+            const count = parseInt(localStorage.getItem('lab_bone_count') || '0');
+            this.renderBones(count);
+        }
+    }
+
+    addBone() {
+        let count = parseInt(localStorage.getItem('lab_bone_count') || '0');
+        if (count < BONE_LIMIT) {
+            count++;
+            localStorage.setItem('lab_bone_count', count.toString());
+            this.renderBones(count);
+        }
+    }
+
+    renderBones(count) {
+        const container = document.querySelector('.lottie-wrapper');
+        if (!container) return;
+
+        // Sync bones count
+        const currentBones = container.querySelectorAll('.bone-icon').length;
+        if (currentBones === count) return;
+
+        // If decreasing (clearing), remove all
+        if (count === 0) {
+            container.querySelectorAll('.bone-icon').forEach(b => b.remove());
+            return;
         }
 
-        b.classList.add('show');
-        setTimeout(() => b.classList.remove('show'), 4000);
+        // If increasing, append new ones
+        // (Or just rebuild for simplicity to handle random pos? Rebuild is fine for small N)
+        // Actually, let's just append difference if increasing to avoid jumping
+        if (count > currentBones) {
+            for (let i = currentBones; i < count; i++) {
+                const img = document.createElement('img');
+                img.src = './assets/bone.svg';
+                img.className = 'bone-icon';
+
+                // Random Pos: x: 10-90%, y: 65-85% (Feet area)
+                const x = Math.random() * 80 + 10;
+                const y = Math.random() * 20 + 65;
+
+                img.style.left = `${x}%`;
+                img.style.top = `${y}%`;
+
+                // Hover/Click effect? Just visual reward.
+                img.onclick = () => {
+                    const msgs = [
+                        "美味しそうな骨だワン！",
+                        "ガジガジ...",
+                        "これは僕の宝物！",
+                        "まだ食べないよ〜",
+                        "じゅるり...",
+                        "いい匂い〜",
+                        "大切にするワン！",
+                        "後で食べるワン",
+                        "誰にも渡さないワン！",
+                        "最高のおやつだワン！"
+                    ];
+                    this.showBubble(msgs[Math.floor(Math.random() * msgs.length)]);
+                };
+
+                container.appendChild(img);
+            }
+        }
     }
+
 
     // --- Audio System (TTS Feedback) ---
     initAudio() {
