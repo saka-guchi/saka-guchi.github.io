@@ -1725,3 +1725,67 @@ body {
         opacity: 1;
     }
 }
+
+/* Fix for Android Tablet Layout */
+#result-screen {
+    overflow: hidden;
+    height: 100dvh;
+    /* Use dynamic viewport height if supported */
+}
+
+/* Quiz Translation Styles */
+.ex-sentence {
+    color: #5D4037;
+    font-size: 1.1rem;
+    margin-bottom: 2px;
+    line-height: 1.3;
+    text-align: center;
+    padding: 0 5px;
+}
+
+.ex-trans-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 28px;
+    margin-top: 0;
+}
+
+.ex-ja {
+    color: #8D6E63;
+    font-size: 0.95rem;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.ex-ja.masked {
+    color: transparent;
+    text-shadow: 0 0 15px rgba(141, 110, 99, 0.4);
+    background: #EEE;
+    border-radius: 6px;
+    display: inline-block;
+    padding: 0 8px;
+    user-select: none;
+}
+
+.btn-toggle-ex {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #5D4037;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+}
+
+.btn-toggle-ex:active {
+    background: #f0f0f0;
+    transform: scale(0.95);
+}

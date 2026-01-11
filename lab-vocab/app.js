@@ -296,6 +296,7 @@ class App {
             priming = document.getElementById('use-priming').checked;
             levelSelect = 'auto'; // Force auto since UI is removed
 
+
             // Save config for retry
             sessionStorage.setItem('lab_session_config', JSON.stringify({ method, problem, limit, timer, priming, levelSelect }));
         }
@@ -332,6 +333,12 @@ class App {
         // 3. Final Fallback (Random if empty? usually q has something unless empty DB)
         if (q.length === 0) {
             q = [...this.words];
+        }
+
+        // 4. Special Filter for Example Modes
+        if (method === 'ex-en-ja' || method === 'ex-ja-en' || method === 'ex-en-ja-hidden') {
+            q = q.filter(w => w.ex && w.exJa);
+            if (q.length === 0) return alert("例文・訳文が登録されている単語がありません");
         }
 
         // Shuffle and Limit
@@ -412,7 +419,35 @@ class App {
         } else {
             // Use forceLevel if present, otherwise actual level
             const effectiveLv = (this.forceLevel !== null && this.forceLevel !== undefined) ? this.forceLevel : q.stats.level;
-            if (effectiveLv >= 4) type = 'fill-in'; else if (effectiveLv >= 3) type = 'reverse'; else if (effectiveLv === 2) type = 'masked';
+
+            // New Level Spec (User Request)
+            // Lv 0 (Unlearned): Standard (En->Ja)
+            // Lv 1 (Weak): Masked (En->Ja Hidden)
+            // Lv 2 (Vague): Reverse (Ja->En)
+            // Lv 3 (Almost): Ex En->Ja OR Ex Ja->En (Random)
+            // Lv 4 (Learned): Ex En->Ja (Hidden) OR Fill-in (Random)
+
+            const hasEx = (q.ex && q.exJa);
+
+            if (effectiveLv === 0) {
+                type = 'standard';
+            } else if (effectiveLv === 1) {
+                type = 'masked';
+            } else if (effectiveLv === 2) {
+                type = 'reverse';
+            } else if (effectiveLv === 3) {
+                if (hasEx) {
+                    type = (Math.random() < 0.5) ? 'ex-en-ja' : 'ex-ja-en';
+                } else {
+                    type = 'reverse'; // Fallback
+                }
+            } else if (effectiveLv >= 4) {
+                if (hasEx) {
+                    type = (Math.random() < 0.5) ? 'ex-en-ja-hidden' : 'fill-in';
+                } else {
+                    type = 'reverse'; // Fallback
+                }
+            }
         }
 
         this.currType = type;
@@ -422,8 +457,9 @@ class App {
         this.renderQ(q, type, effectiveLv);
 
         // Audio Logic
-        if (type !== 'reverse' && type !== 'fill-in') {
-            setTimeout(() => this.speak(q.en), 300);
+        if (type !== 'reverse' && type !== 'fill-in' && type !== 'ex-ja-en') {
+            const txt = (type === 'ex-en-ja') ? q.ex : q.en;
+            if (txt) setTimeout(() => this.speak(txt), 300);
         }
     }
 
@@ -456,13 +492,23 @@ class App {
         }
 
         // Icon Visibility Control
-        const showIcons = (type !== 'reverse' && type !== 'fill-in');
+        // Eye button only for modes that start masked: 'masked' and 'ex-en-ja-hidden'
+        const showEye = (type === 'masked' || type === 'ex-en-ja-hidden');
+        // Speaker button for most, but maybe checking specific needs? 
+        // Existing logic for speaker was tied to showIcons. Let's separate if needed, or just follow showEye?
+        // Wait, Speaker button should be available for Standard? Yes.
+        // User asked to remove "Mask Display Icon". Not Speaker.
+
+        const showSpeaker = (type !== 'reverse' && type !== 'fill-in' && type !== 'ex-ja-en');
+        // 'ex-ja-en' (Trans->Ex) might not want speaker on Japanese text?
+        // Previous logic: `showIcons` was used for both.
+        // Let's split them.
 
         posBadge.style.display = (type === 'standard' && q.pos) ? 'inline-block' : 'none';
         posBadge.innerText = q.pos;
 
-        spkBtn.style.display = showIcons ? 'flex' : 'none';
-        eyeBtn.style.display = showIcons ? 'flex' : 'none';
+        spkBtn.style.display = showSpeaker ? 'flex' : 'none';
+        eyeBtn.style.display = showEye ? 'flex' : 'none';
 
         // Setup Eye Icon (Default Off)
         eyeBtn.innerHTML = ICONS.eye_off;
@@ -477,6 +523,16 @@ class App {
             const safe = q.en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             qText.innerHTML = q.ex.replace(new RegExp(`\\b${safe}\\b`, 'gi'), '_______');
             qText.classList.add('long');
+        } else if (type === 'ex-en-ja') {
+            qText.innerText = q.ex;
+            qText.classList.add('long');
+        } else if (type === 'ex-en-ja-hidden') {
+            qText.innerText = q.ex;
+            qText.classList.add('long', 'masked');
+            this.speak(q.ex);
+        } else if (type === 'ex-ja-en') {
+            qText.innerText = q.exJa;
+            qText.classList.add('long');
         } else {
             qText.innerText = q.en;
             // standard mode speaks automatically in nextQ
@@ -487,9 +543,16 @@ class App {
         area.innerHTML = '';
         let isRev = (type === 'reverse');
         let pool = isRev ? this.words.map(w => w.en) : this.words.map(w => w.ja);
+
+        // Custom Pool for Ex modes
         if (type === 'fill-in') pool = this.words.map(w => w.en);
+        if (type === 'ex-en-ja' || type === 'ex-en-ja-hidden') pool = this.words.filter(w => w.exJa).map(w => w.exJa); // Pool of translations
+        if (type === 'ex-ja-en') pool = this.words.filter(w => w.ex).map(w => w.ex);     // Pool of sentences
+
         let correct = isRev ? q.en : q.ja;
         if (type === 'fill-in') correct = q.en;
+        if (type === 'ex-en-ja' || type === 'ex-en-ja-hidden') correct = q.exJa;
+        if (type === 'ex-ja-en') correct = q.ex;
 
         let wrongs = [];
         while (wrongs.length < 3) {
@@ -503,8 +566,38 @@ class App {
             // Store correct status in data attribute for easy finding later
             b.dataset.isCorrect = (t === correct);
             b.onclick = (e) => this.answer(t === correct, b);
+            if (type === 'ex-ja-en' || type === 'ex-en-ja' || type === 'ex-en-ja-hidden') {
+                b.style.fontSize = '0.9rem'; // Smaller font for sentences
+                b.style.padding = '8px';
+            }
             area.appendChild(b);
         });
+
+        // Populate q-sub with Example (if not fill-in) and Translation (Masked)
+        const qSub = document.getElementById('q-sub');
+        if (qSub) {
+            qSub.innerHTML = '';
+
+            // Allow list (Sentence Modes only):
+            // User Request: ONLY "fill-in" mode should show sub-info.
+            const isExMode = (type === 'fill-in');
+
+            if (isExMode) {
+
+
+                // Show Translation (Helpful hint for fill-in)
+                if (q.exJa) {
+                    const transContainer = document.createElement('div');
+                    transContainer.className = 'ex-trans-container';
+                    transContainer.innerHTML = `
+                        <div id="ex-ja-text" class="ex-ja masked">${q.exJa}</div>
+                        <button class="btn-toggle-ex" onclick="app.toggleExMask()">${ICONS.eye_off}</button>
+                    `;
+                    qSub.appendChild(transContainer);
+                }
+            }
+        }
+
 
         this.startTimer();
     }
@@ -519,6 +612,35 @@ class App {
         } else {
             el.classList.add('masked');
             btn.innerHTML = ICONS.eye_off;
+        }
+    }
+
+    toggleExMask() {
+        const el = document.getElementById('ex-ja-text');
+        const btn = document.querySelector('#q-sub .btn-toggle-ex');
+        if (el && el.classList.contains('masked')) {
+            el.classList.remove('masked');
+            if (btn) btn.innerHTML = ICONS.eye_on;
+        } else if (el) {
+            el.classList.add('masked');
+            if (btn) btn.innerHTML = ICONS.eye_off;
+        }
+    }
+
+    unmaskSubInfo() {
+        // Unmask Translation
+        const el = document.getElementById('ex-ja-text');
+        const btn = document.querySelector('#q-sub .btn-toggle-ex');
+        if (el && el.classList.contains('masked')) {
+            el.classList.remove('masked');
+            if (btn) btn.innerHTML = ICONS.eye_on;
+        }
+
+        // Unmask Example (for ex-ja-en mode if we used it)
+        const elEx = document.getElementById('ex-text-masked');
+        if (elEx && elEx.classList.contains('masked')) {
+            elEx.classList.remove('masked');
+            elEx.classList.remove('ex-ja'); // Remove blur style if it relies on this class, or just 'masked'
         }
     }
 
@@ -614,13 +736,16 @@ class App {
         }
 
         // UI Feedback (Inline)
-        // マスクが適用されていれば解除する
+        // Auto-unmask main question
         const qText = document.getElementById('q-text');
         if (qText && qText.classList.contains('masked')) {
             qText.classList.remove('masked');
             const maskBtn = document.getElementById('mask-toggle-btn');
             if (maskBtn) maskBtn.innerHTML = ICONS.eye_on;
         }
+
+        // Auto-unmask sub-info (translation/example)
+        this.unmaskSubInfo();
 
         const fb = document.getElementById('inline-feedback');
         const feedbackIcon = document.getElementById('feedback-icon');
@@ -1247,17 +1372,17 @@ class App {
         const aff = Math.min(10, Math.floor(points / 10)); // 0-10
 
         const msgMap = {
-            0: ["...ワン", "お腹すいたワン...", "遊んでほしいな..."],
-            1: ["ワン！", "誰かいる？", "ちょっと元気出てきた"],
-            2: ["ご主人様？", "しっぽフリフリ", "撫でてくれる？"],
-            3: ["遊ぼう！", "くんくん...", "ボール投げて！"],
-            4: ["楽しいワン！", "もっと遊ぼう！", "わくわく！"],
-            5: ["嬉しいワン！", "一緒にいると楽しい！", "おやつちょうだい！"],
-            6: ["大好きだワン！", "撫でて〜", "もふもふ"],
-            7: ["楽しいね！", "毎日会いたいワン！", "ずっと一緒がいい！"],
-            8: ["君といると幸せ！", "信頼してるワン！", "最高の友達！"],
-            9: ["ずっと一緒だよ！", "君は最高のパートナー！", "愛してるワン！"],
-            10: ["幸せだワン！", "運命の出会いだった！", "永遠にそばにいるワン！"]
+            0: ["...ワン", "お腹すいたワン...", "遊んでほしいな...", "眠いワン...", "...", "あっち行って...", "ふぁ...", "退屈だワン...", "何？", "Zzz..."],
+            1: ["ワン！", "誰かいる？", "ちょっと元気出てきた", "ん？", "おっ？", "君は誰？", "匂うワン", "ちらっ", "起きようかな", "ふむ"],
+            2: ["ご主人様？", "しっぽフリフリ", "撫でてくれる？", "近づいていい？", "いい匂い", "お腹空いた？", "遊ぶ？", "待ってるワン", "こっち見てる？", "クンクン"],
+            3: ["遊ぼう！", "くんくん...", "ボール投げて！", "走りたいワン！", "ジャンプ！", "楽しいことない？", "お外行きたい！", "わーい！", "ねえねえ", "構って！"],
+            4: ["楽しいワン！", "もっと遊ぼう！", "わくわく！", "最高だワン！", "もっと撫でて！", "追いかけっこしよう！", "元気いっぱい！", "ハッピー！", "笑顔だワン！", "大好きなおもちゃ！"],
+            5: ["嬉しいワン！", "一緒にいると楽しい！", "おやつちょうだい！", "君が好き！", "リラックス〜", "安心するワン", "もっと一緒に！", "仲良しだね！", "スリスリ", "ポカポカするね"],
+            6: ["大好きだワン！", "撫でて〜", "もふもふ", "君のそばがいい", "落ち着くワン", "離れたくない！", "ずっと見てるよ", "君の匂い好き", "甘えん坊モード", "うっとり..."],
+            7: ["楽しいね！", "毎日会いたいワン！", "ずっと一緒がいい！", "君は僕の宝物！", "信頼してるよ", "守ってあげる！", "君のためなら！", "最高の気分！", "愛が溢れる！", "君なしじゃダメ！"],
+            8: ["君といると幸せ！", "信頼してるワン！", "最高の友達！", "相棒だワン！", "心がつながってる！", "言葉はいらないね", "君の気持ちわかるよ", "ずっと味方だからね", "絆を感じるワン", "安心できる場所"],
+            9: ["ずっと一緒だよ！", "君は最高のパートナー！", "愛してるワン！", "生まれ変わっても一緒！", "永遠の愛！", "君の幸せが僕の幸せ", "全てを捧げるワン", "君しか見えない！", "運命共同体だね", "深い愛を感じる..."],
+            10: ["幸せだワン！", "運命の出会いだった！", "永遠にそばにいるワン！", "君と僕は一つ！", "宇宙一愛してる！", "最高の人生だワン！", "ありがとう！", "愛し合ってるね！", "君が世界で一番！", "魂のペアだワン！"]
         };
 
         const msgs = msgMap[aff] || msgMap[0];
