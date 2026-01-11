@@ -171,7 +171,14 @@
   - 最終学習日は `lab_last_study` に保存
 - **データ保存**: `localStorage` (`lab_affinity`, `lab_last_study`)
 
-### 4.4 アプリ更新通知
+### 4.4 骨 (Bone) システム
+- **出現条件**: Excellent判定を10回達成するごとに骨アイコン（`bone.svg`）が1個出現。
+- **リセット条件**: 最終学習から1時間経過でExcellentカウントと骨の数がリセット。
+- **上限**: 最大20個まで。
+- **インタラクション**: クリックすると犬がメッセージを表示。
+- **データ保存**: `localStorage` (`lab_bone_count`, `lab_excellent_count`)
+
+### 4.5 アプリ更新通知
 - **バージョン管理**: `app.js` 内の `APP_VERSION` 定数で管理。
 - **更新チェック**: ホーム画面表示時に `localStorage` の保存済みバージョンと比較。
 - **通知モーダル**:

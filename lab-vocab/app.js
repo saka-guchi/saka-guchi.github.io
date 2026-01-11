@@ -799,9 +799,9 @@ class App {
             const bonus = (isExcellent || isGreat) ? 0.5 : 0;
             this.addAffinityPoints(1 + bonus);
 
-            // Add Bone if Great or Excellent
-            if (isExcellent || isGreat) {
-                this.addBone();
+            // Increment Excellent counter (bone added every 10 Excellents)
+            if (isExcellent) {
+                this.incrementExcellentCount();
             }
         }
 
@@ -1555,29 +1555,39 @@ class App {
     }
 
     // --- Bone Logic ---
+    // Excellentカウントを1時間経過でリセット、10回ごとに骨1個追加
     checkBoneStatus() {
         const lastTimeIdx = parseInt(localStorage.getItem('lab_last_study_time'));
         const lastTime = isNaN(lastTimeIdx) ? Date.now() : lastTimeIdx;
         const now = Date.now();
         const hoursElapsed = (now - lastTime) / (1000 * 60 * 60);
 
-        // If > 1 hour passed since last study, clear bones
+        // 1時間経過で骨とExcellentカウントをリセット
         if (hoursElapsed >= 1) {
             localStorage.setItem('lab_bone_count', '0');
+            localStorage.setItem('lab_excellent_count', '0');
             this.renderBones(0);
         } else {
-            // Restore bones
+            // 保存されている骨を復元
             const count = parseInt(localStorage.getItem('lab_bone_count') || '0');
             this.renderBones(count);
         }
     }
 
-    addBone() {
-        let count = parseInt(localStorage.getItem('lab_bone_count') || '0');
-        if (count < BONE_LIMIT) {
-            count++;
-            localStorage.setItem('lab_bone_count', count.toString());
-            this.renderBones(count);
+    // Excellentカウントをインクリメント、10回ごとに骨を1個追加
+    incrementExcellentCount() {
+        let excellentCount = parseInt(localStorage.getItem('lab_excellent_count') || '0');
+        excellentCount++;
+        localStorage.setItem('lab_excellent_count', excellentCount.toString());
+
+        // 10回ごとに骨を追加
+        if (excellentCount % 10 === 0) {
+            let boneCount = parseInt(localStorage.getItem('lab_bone_count') || '0');
+            if (boneCount < BONE_LIMIT) {
+                boneCount++;
+                localStorage.setItem('lab_bone_count', boneCount.toString());
+                this.renderBones(boneCount);
+            }
         }
     }
 
