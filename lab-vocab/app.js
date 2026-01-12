@@ -523,7 +523,7 @@ class App {
 
         // Audio Logic
         if (type !== 'reverse' && type !== 'fill-in' && type !== 'ex-ja-en') {
-            const txt = (type === 'ex-en-ja') ? q.ex : q.en;
+            const txt = (type === 'ex-en-ja' || type === 'ex-en-ja-hidden') ? q.ex : q.en;
             if (txt) setTimeout(() => this.speak(txt), 300);
         }
     }
@@ -594,7 +594,6 @@ class App {
         } else if (type === 'ex-en-ja-hidden') {
             qText.innerText = q.ex;
             qText.classList.add('long', 'masked');
-            this.speak(q.ex);
         } else if (type === 'ex-ja-en') {
             qText.innerText = q.exJa;
             qText.classList.add('long');
