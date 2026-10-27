@@ -1,2 +1,16 @@
 # IDE / エディタ設定
 .vscode/
+
+# 著作権保護・非公開教材パック作業ディレクトリ
+content-private/
+**/content-private/
+docs/*.pdf
+**/docs/*.pdf
+
+# Node / ビルド成果物
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+*.log
+*.tsbuildinfo

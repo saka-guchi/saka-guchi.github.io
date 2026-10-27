@@ -1,0 +1,23 @@
+# 依存関係
+node_modules/
+
+# ビルド成果物
+dist/
+*.tsbuildinfo
+
+# 著作権保護・非公開教材パック作業フォルダ
+content-private/
+
+# 環境変数
+.env
+.env.local
+
+# テスト成果物
+test-results/
+playwright-report/
+blob-report/
+
+# OS / エディタ
+.DS_Store
+Thumbs.db
+

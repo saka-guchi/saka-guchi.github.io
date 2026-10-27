@@ -1,0 +1,33 @@
+{
+  "L1": {
+    "viewport": { "width": 1024, "height": 768 },
+    "elements": {
+      "header": { "x": 0, "y": 0, "width": 1024, "height": 72 },
+      "bottom-control-bar": { "x": 0, "y": 688, "width": 1024, "height": 80 },
+      "question-area": { "x": 24, "y": 88, "width": 604, "height": 584 },
+      "answer-area": { "x": 648, "y": 88, "width": 352, "height": 584 }
+    }
+  },
+  "L2": {
+    "viewport": { "width": 1366, "height": 1024 },
+    "elements": {
+      "header": { "x": 0, "y": 0, "width": 1366, "height": 72 },
+      "bottom-control-bar": { "x": 0, "y": 944, "width": 1366, "height": 80 }
+    }
+  },
+  "P1": {
+    "viewport": { "width": 834, "height": 1194 },
+    "elements": {
+      "header": { "x": 0, "y": 0, "width": 834, "height": 72 },
+      "bottom-control-bar": { "x": 0, "y": 1114, "width": 834, "height": 80 }
+    }
+  },
+  "S1": {
+    "viewport": { "width": 390, "height": 844 },
+    "elements": {
+      "header": { "x": 0, "y": 0, "width": 390, "height": 64 },
+      "bottom-control-bar": { "x": 0, "y": 772, "width": 390, "height": 72 }
+    }
+  }
+}
+

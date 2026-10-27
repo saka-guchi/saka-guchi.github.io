@@ -1,0 +1,376 @@
+.pageLayout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.header {
+  height: 72px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+
+.iconBtn {
+  width: var(--tap-min-size);
+  height: var(--tap-min-size);
+  border-radius: 50%;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.headerCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.counterText {
+  font: var(--font-heading);
+  color: var(--text);
+}
+
+.progressBarBg {
+  max-width: 320px;
+  width: 100%;
+  height: 8px;
+  background: var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: var(--radius-pill);
+  transition: width 200ms ease;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.categoryBadge {
+  font: var(--font-label);
+  padding: 4px 10px;
+  background: var(--primary-weak);
+  color: var(--primary);
+  border-radius: var(--radius-pill);
+}
+
+.mainArea {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 604px 352px;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px 24px;
+  max-width: 1024px;
+  margin: 0 auto;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* L2 (1366×1024) 以上のデスクトップ解像度: 回答エリアをゆったり480pxに拡張 */
+@media (min-width: 1200px) {
+  .mainArea {
+    grid-template-columns: minmax(560px, 780px) 480px;
+    max-width: 1366px;
+    gap: 32px;
+  }
+}
+
+.questionArea {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.skillHeader {
+  margin-bottom: 12px;
+}
+
+.skillBadge {
+  font: var(--font-label);
+  color: var(--text-subtle);
+}
+
+.answerArea {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 思い出すパネル */
+.recallPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 0;
+  gap: 16px;
+}
+
+.recallPrompt {
+  font: var(--font-heading);
+  color: var(--text);
+}
+
+.meterCircle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--primary-weak);
+  border: 4px solid var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.recallSubtext {
+  font: var(--font-caption);
+  color: var(--text-subtle);
+  max-width: 260px;
+}
+
+.hintBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--primary);
+  background: var(--surface);
+  color: var(--primary);
+  border-radius: var(--radius-pill);
+  font: var(--font-caption);
+  font-weight: bold;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.miniHintBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--primary);
+  background: var(--surface);
+  color: var(--primary);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.hintBox {
+  width: 100%;
+  background: var(--warning-weak);
+  border: 1px solid var(--warning);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  font: var(--font-caption);
+  color: var(--text);
+  text-align: left;
+}
+
+.hintLevelText {
+  font-weight: bold;
+  color: var(--warning);
+  margin-bottom: 4px;
+}
+
+/* 回答後の解説パネル */
+.explanationPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.resultBanner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+}
+
+.correctBanner {
+  background: var(--success-weak);
+  border: 2px solid var(--success);
+  color: var(--success);
+}
+
+.wrongBanner {
+  background: var(--error-weak);
+  border: 2px solid var(--error);
+  color: var(--error);
+}
+
+.resultIcon {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.resultText {
+  font: var(--font-heading);
+}
+
+.explCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.explSection {
+  background: var(--surface-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  border: 1px solid var(--border);
+}
+
+.explLabel {
+  font: var(--font-label);
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.takeawayText {
+  font: var(--font-body);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.reasoningText {
+  font: var(--font-caption);
+  color: var(--text);
+}
+
+.detailedToggle {
+  margin-top: 8px;
+}
+
+.toggleBtn {
+  font: var(--font-caption);
+  color: var(--text-subtle);
+  padding: 6px 0;
+}
+
+.detailedContent {
+  margin-top: 8px;
+  padding: 12px;
+  background: var(--surface-subtle);
+  border-radius: var(--radius-md);
+  font: var(--font-caption);
+  color: var(--text-subtle);
+}
+
+.reportBtn {
+  font: var(--font-caption);
+  color: var(--text-subtle);
+  text-decoration: underline;
+  padding: 8px 0;
+  text-align: center;
+}
+
+/* 下部操作エリア */
+.bottomBar {
+  height: 80px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  max-width: 1024px;
+  margin: 0 auto;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.subBtn {
+  width: 200px;
+  height: var(--btn-main-height);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-pill);
+  font: var(--font-choice);
+  color: var(--text);
+}
+
+.mainBtn {
+  width: 240px;
+  height: var(--btn-main-height);
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-pill);
+  font: var(--font-choice);
+  box-shadow: var(--shadow-primary-btn);
+}
+
+.emptyContainer {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* モバイル S1 */
+@media (max-width: 768px) {
+  .pageLayout {
+    overflow-y: auto;
+  }
+  .mainArea {
+    grid-template-columns: 1fr;
+    overflow-y: visible;
+  }
+  .questionArea, .answerArea {
+    overflow-y: visible;
+  }
+  .bottomBar {
+    height: 72px;
+    padding: 0 16px;
+  }
+  .subBtn {
+    width: 120px;
+  }
+  .mainBtn {
+    width: 200px;
+  }
+}
+

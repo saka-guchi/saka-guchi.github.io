@@ -1,0 +1,133 @@
+.container {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  padding: 36px;
+  max-width: 640px;
+  width: 100%;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+
+.badgeSuccess {
+  padding: 6px 14px;
+  background: var(--success-weak);
+  color: var(--success);
+  border-radius: var(--radius-pill);
+  font: var(--font-label);
+  font-weight: 700;
+}
+
+.title {
+  font: var(--font-page-title);
+  color: var(--text);
+}
+
+.subtitle {
+  font: var(--font-body);
+  color: var(--text-subtle);
+}
+
+.scoreRow {
+  margin: 10px 0;
+}
+
+.scoreNumber {
+  font-size: 56px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.scoreTotal {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.statBox {
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.statLabel {
+  font: var(--font-label);
+  color: var(--text-subtle);
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.statDesc {
+  font: var(--font-caption);
+  color: var(--text-subtle);
+  font-size: 11px;
+}
+
+.nextReviewCard {
+  width: 100%;
+  background: var(--primary-weak);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: left;
+  font: var(--font-caption);
+  color: var(--text);
+}
+
+.nextReviewCard strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--primary);
+  font-size: 14px;
+}
+
+.actions {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.homeBtn {
+  height: var(--btn-main-height);
+  width: 240px;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-pill);
+  font: var(--font-choice);
+  box-shadow: var(--shadow-primary-btn);
+}
+
+@media (max-width: 600px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+

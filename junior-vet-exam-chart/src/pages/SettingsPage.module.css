@@ -1,0 +1,135 @@
+.container {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  height: 72px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.iconBtn {
+  width: var(--tap-min-size);
+  height: var(--tap-min-size);
+  border-radius: 50%;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font: var(--font-heading);
+  color: var(--text);
+}
+
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+}
+
+.sectionTitle {
+  font: var(--font-heading);
+  color: var(--primary);
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--primary-weak);
+  padding-bottom: 8px;
+}
+
+.settingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.settingRow:last-child {
+  border-bottom: none;
+}
+
+.subLabel {
+  font: var(--font-caption);
+  color: var(--text-subtle);
+  margin-top: 4px;
+}
+
+.selectInput {
+  height: 48px;
+  padding: 0 16px;
+  font: var(--font-body);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.toggleCheckbox {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.uploadBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-main-height);
+  padding: 0 24px;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-pill);
+  font: var(--font-choice);
+  cursor: pointer;
+  box-shadow: var(--shadow-primary-btn);
+}
+
+.actionBtn {
+  min-height: 48px;
+  padding: 0 20px;
+  background: var(--surface-subtle);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-pill);
+  font: var(--font-caption);
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.dangerBtn {
+  background: var(--error);
+  color: white;
+  border-color: var(--error);
+}
+
+.statusBox {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+  font: var(--font-body);
+  font-weight: bold;
+}
+

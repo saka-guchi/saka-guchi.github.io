@@ -1,0 +1,226 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+  overflow-y: auto;
+}
+
+.certificateWrapper {
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #fef3c7 100%);
+  border: 8px double #d97706;
+  border-radius: 24px;
+  max-width: 680px;
+  width: 100%;
+  padding: 36px 32px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(245, 158, 11, 0.1);
+  position: relative;
+  text-align: center;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.ribbonTop {
+  display: inline-block;
+  background: linear-gradient(90deg, #b45309, #d97706, #b45309);
+  color: #ffffff;
+  padding: 6px 24px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  box-shadow: 0 3px 8px rgba(180, 83, 9, 0.3);
+  margin-bottom: 12px;
+}
+
+.certTitle {
+  font-size: 28px;
+  font-weight: 900;
+  color: #78350f;
+  margin: 0 0 8px 0;
+  font-family: serif, 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+  letter-spacing: 1px;
+}
+
+.certSubtitle {
+  font-size: 14px;
+  color: #92400e;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.recipientBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.7);
+  border-bottom: 2px solid #d97706;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.recipientName {
+  font-size: 22px;
+  font-weight: bold;
+  color: #1e293b;
+  border: none;
+  background: transparent;
+  text-align: center;
+  outline: none;
+  border-bottom: 1px dashed #cbd5e1;
+}
+
+.certBody {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #451a03;
+  margin: 20px 0;
+  padding: 0 16px;
+  font-family: serif, 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+}
+
+.badgeRow {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.goldBadge {
+  background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
+  color: #451a03;
+  padding: 12px 18px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 2px solid #ffffff;
+}
+
+.goldBadgeIcon {
+  font-size: 32px;
+}
+
+.goldBadgeText {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.animalsCheerBox {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1.5px dashed #f59e0b;
+  padding: 14px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.animalsCheerHeader {
+  font-size: 13px;
+  font-weight: bold;
+  color: #b45309;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.animalsIconRow {
+  font-size: 26px;
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+  justify-content: center;
+}
+
+.animalsCheerText {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.certFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 12px;
+  color: #92400e;
+  border-top: 1px solid #fde68a;
+  padding-top: 14px;
+  margin-top: 14px;
+}
+
+.actionsRow {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.printBtn {
+  padding: 10px 24px;
+  background: #ffffff;
+  border: 2px solid #d97706;
+  color: #b45309;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.printBtn:hover {
+  background: #fef3c7;
+}
+
+.closeBtn {
+  padding: 10px 28px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: none;
+  color: #ffffff;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+  transition: all 0.15s ease;
+}
+
+.closeBtn:hover {
+  opacity: 0.9;
+}
+
+@media print {
+  .overlay {
+    position: static;
+    background: none;
+    padding: 0;
+  }
+  .actionsRow,
+  .closeBtn,
+  .printBtn {
+    display: none !important;
+  }
+  .certificateWrapper {
+    box-shadow: none;
+    max-width: 100%;
+    border-width: 4px;
+  }
+}
+
