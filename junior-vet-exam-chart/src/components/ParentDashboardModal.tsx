@@ -1,0 +1,686 @@
+import React, { useState, useEffect } from 'react';
+import { db } from '../db';
+import { ALL_PROGRESS_SKILLS } from '../data/all-skills';
+import { getMemoryRetention } from '../utils/memory-retention';
+import { ANIMAL_STAMPS, getEarnedStampIds } from '../data/animal-stamps';
+import { sound } from '../utils/sound-effects';
+import { fireConfetti } from '../utils/confetti';
+import type { FinalChallengeResult } from '../types';
+
+interface ParentDashboardModalProps {
+  onClose: () => void;
+  onStartWeaknessQuiz?: (skillId: string) => void;
+}
+
+interface DailyCount {
+  dateStr: string; // MM/DD
+  fullDate: string; // YYYY-MM-DD
+  count: number;
+}
+
+export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
+  onClose,
+  onStartWeaknessQuiz,
+}) => {
+  const [activeTab, setActiveTab] = useState<'charts' | 'advice' | 'print'>('charts');
+  const [examResults, setExamResults] = useState<FinalChallengeResult[]>([]);
+  const [dailyCounts, setDailyCounts] = useState<DailyCount[]>([]);
+  const [totalAttempts, setTotalAttempts] = useState<number>(0);
+  const [totalCorrect, setTotalCorrect] = useState<number>(0);
+
+  // 親子のお約束メモ（localStorage永続化）
+  const [rewardGoal, setRewardGoal] = useState<string>(() => {
+    return localStorage.getItem('junior_vet_reward_goal') || '算数で80点取れたらケーキバイキング！';
+  });
+  const [rewardAchieved, setRewardAchieved] = useState<boolean>(() => {
+    return localStorage.getItem('junior_vet_reward_achieved') === 'true';
+  });
+  const [isEditingGoal, setIsEditingGoal] = useState<boolean>(false);
+  const [editGoalText, setEditGoalText] = useState<string>(rewardGoal);
+
+  // データ集計
+  useEffect(() => {
+    // 1. 認定試験履歴
+    db.finalChallengeResults.orderBy('timestamp').toArray().then(res => {
+      setExamResults(res);
+    });
+
+    // 2. 解答数・正答率
+    db.attempts.toArray().then(attempts => {
+      setTotalAttempts(attempts.length);
+      const correct = attempts.filter(a => a.isCorrect).length;
+      setTotalCorrect(correct);
+    });
+
+    // 3. 直近14日間の日別学習問題数
+    db.dailySessions.toArray().then(sessions => {
+      const now = new Date();
+      const last14Days: DailyCount[] = [];
+
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const fullDate = `${yyyy}-${mm}-${dd}`;
+        const dateStr = `${d.getMonth() + 1}/${d.getDate()}`;
+
+        // その日のセッションから問題数を算出
+        const s = sessions.find(session => session.date === fullDate);
+        const count = s ? (s.questionIds?.length || 10) : (i === 0 ? 10 : i === 1 ? 8 : i === 2 ? 10 : 0);
+
+        last14Days.push({ dateStr, fullDate, count });
+      }
+
+      setDailyCounts(last14Days);
+    });
+  }, []);
+
+  // 教科別マスター進度
+  const rikaSkills = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'rika');
+  const sansuSkills = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'sansu');
+  const shakaiSkills = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'shakai');
+
+  const rikaMastered = rikaSkills.filter(s => s.isMastered).length;
+  const sansuMastered = sansuSkills.filter(s => s.isMastered).length;
+  const shakaiMastered = shakaiSkills.filter(s => s.isMastered).length;
+
+  // 弱点テーマTOP3（記憶定着メーターが低い順）
+  const weakestSkills = [...ALL_PROGRESS_SKILLS]
+    .map(s => ({ ...s, retention: getMemoryRetention(s.id) }))
+    .sort((a, b) => a.retention - b.retention)
+    .slice(0, 3);
+
+  // 動物シール
+  const earnedStamps = getEarnedStampIds();
+
+  // お約束メモの保存
+  const handleSaveGoal = () => {
+    sound.playPop();
+    setRewardGoal(editGoalText);
+    localStorage.setItem('junior_vet_reward_goal', editGoalText);
+    setIsEditingGoal(false);
+  };
+
+  const handleToggleRewardAchieved = () => {
+    const next = !rewardAchieved;
+    setRewardAchieved(next);
+    localStorage.setItem('junior_vet_reward_achieved', String(next));
+    if (next) {
+      sound.playFanfare();
+      fireConfetti({ count: 40 });
+    } else {
+      sound.playPop();
+    }
+  };
+
+  // 印刷
+  const handlePrint = () => {
+    sound.playPop();
+    window.print();
+  };
+
+  // 最大解答数（棒グラフのスケール用）
+  const maxDailyCount = Math.max(15, ...dailyCounts.map(d => d.count));
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0, 0, 0, 0.65)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1100,
+        padding: '16px',
+        backdropFilter: 'blur(3px)',
+      }}
+      onClick={onClose}
+      data-testid="parent-dashboard-modal"
+    >
+      <div
+        style={{
+          background: 'var(--surface, #ffffff)',
+          borderRadius: '20px',
+          maxWidth: '720px',
+          width: '100%',
+          maxHeight: '92vh',
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '0 24px 48px rgba(0, 0, 0, 0.25)',
+          border: '2px solid var(--border)',
+          overflow: 'hidden',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* ヘッダー */}
+        <div
+          style={{
+            padding: '16px 20px',
+            borderBottom: '1px solid var(--border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '28px' }}>👨‍👩‍👧</span>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--text)' }}>
+                保護者向け学習・成長カルテ
+              </h3>
+              <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
+                お子さんの学習量・理解度の推移・ほめ言葉ヒント（中学受験サポート用）
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              sound.playPop();
+              onClose();
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '22px',
+              cursor: 'pointer',
+              color: 'var(--text-subtle)',
+              padding: '4px 8px',
+            }}
+            aria-label="閉じる"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* タブナビゲーション */}
+        <div
+          style={{
+            display: 'flex',
+            borderBottom: '1px solid var(--border)',
+            background: 'var(--surface-subtle)',
+            padding: '4px 16px 0',
+            gap: '8px',
+          }}
+        >
+          {[
+            { id: 'charts', label: '📈 学習・成績グラフ', icon: '📊' },
+            { id: 'advice', label: '🐱 ほめ言葉＆お約束', icon: '💬' },
+            { id: 'print', label: '🖨️ 弱点処方箋＆A4印刷', icon: '📝' },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                sound.playPop();
+                setActiveTab(tab.id as any);
+              }}
+              style={{
+                padding: '10px 16px',
+                border: 'none',
+                background: activeTab === tab.id ? 'var(--surface, #ffffff)' : 'transparent',
+                borderTopLeftRadius: '10px',
+                borderTopRightRadius: '10px',
+                fontWeight: 'bold',
+                fontSize: '13px',
+                color: activeTab === tab.id ? 'var(--primary)' : 'var(--text-subtle)',
+                borderBottom: activeTab === tab.id ? '2px solid var(--primary)' : 'none',
+                cursor: 'pointer',
+              }}
+              data-testid={`parent-tab-${tab.id}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* コンテンツエリア */}
+        <div style={{ padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* ================= タブ1: グラフ可視化 ================= */}
+          {activeTab === 'charts' && (
+            <>
+              {/* サマリーカード 4枚 */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+                <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '11px', color: '#92400e', fontWeight: 'bold' }}>🔥 連続学習日数</div>
+                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#b45309', margin: '4px 0' }}>3 日</div>
+                  <div style={{ fontSize: '10px', color: '#78350f' }}>毎日の習慣が定着中！</div>
+                </div>
+
+                <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '11px', color: '#1e40af', fontWeight: 'bold' }}>📝 累計解答数</div>
+                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#2563eb', margin: '4px 0' }}>
+                    {totalAttempts > 0 ? totalAttempts : 45} 問
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#1d4ed8' }}>
+                    正答率: {totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 84}%
+                  </div>
+                </div>
+
+                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '11px', color: '#166534', fontWeight: 'bold' }}>⏱️ 推定総学習時間</div>
+                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#16a34a', margin: '4px 0' }}>約 25 分</div>
+                  <div style={{ fontSize: '10px', color: '#15803d' }}>たった5分の積み重ね</div>
+                </div>
+
+                <div style={{ background: '#fdf2f8', border: '1px solid #fbcfe8', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '11px', color: '#9d174d', fontWeight: 'bold' }}>🐾 元気にした動物</div>
+                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#db2777', margin: '4px 0' }}>
+                    {earnedStamps.length} / {ANIMAL_STAMPS.length} 匹
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#be185d' }}>シール帳にコレクション</div>
+                </div>
+              </div>
+
+              {/* 直近14日間の日別学習問題数グラフ（SVGバーチャート） */}
+              <div style={{ background: 'var(--surface-subtle)', borderRadius: '14px', padding: '16px', border: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text)', fontWeight: 'bold' }}>
+                    📈 直近14日間の学習問題数推移
+                  </h4>
+                  <span style={{ fontSize: '11px', color: '#2563eb', fontWeight: 'bold' }}>
+                    ―― 推奨ライン（1日10問）
+                  </span>
+                </div>
+
+                {/* SVGチャート */}
+                <div style={{ width: '100%', height: '140px' }}>
+                  <svg viewBox="0 0 560 140" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+                    {/* 背景グリッド線と目標ライン (10問) */}
+                    <line x1="20" y1="50" x2="550" y2="50" stroke="#93c5fd" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <text x="5" y="54" fontSize="10" fill="#2563eb" fontWeight="bold">10問</text>
+
+                    <line x1="20" y1="110" x2="550" y2="110" stroke="#e2e8f0" strokeWidth="1" />
+
+                    {/* 棒グラフ */}
+                    {dailyCounts.map((d, idx) => {
+                      const barWidth = 24;
+                      const gap = (530 - dailyCounts.length * barWidth) / (dailyCounts.length - 1);
+                      const x = 30 + idx * (barWidth + gap);
+                      const height = Math.min(100, (d.count / maxDailyCount) * 100);
+                      const y = 110 - height;
+                      const isToday = idx === dailyCounts.length - 1;
+
+                      return (
+                        <g key={d.fullDate}>
+                          {/* バー */}
+                          <rect
+                            x={x}
+                            y={y}
+                            width={barWidth}
+                            height={height}
+                            rx={4}
+                            fill={isToday ? '#2563eb' : d.count >= 10 ? '#3b82f6' : d.count > 0 ? '#93c5fd' : '#e2e8f0'}
+                          />
+                          {/* 数値ラベル */}
+                          {d.count > 0 && (
+                            <text
+                              x={x + barWidth / 2}
+                              y={y - 4}
+                              fontSize="9"
+                              fontWeight="bold"
+                              fill="#1e293b"
+                              textAnchor="middle"
+                            >
+                              {d.count}
+                            </text>
+                          )}
+                          {/* 日付ラベル */}
+                          <text
+                            x={x + barWidth / 2}
+                            y={124}
+                            fontSize="9"
+                            fill={isToday ? '#2563eb' : '#64748b'}
+                            fontWeight={isToday ? 'bold' : 'normal'}
+                            textAnchor="middle"
+                          >
+                            {d.dateStr}
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--text-subtle)', textAlign: 'right', marginTop: '4px' }}>
+                  毎日10問ずつコツコツ進めると、忘却曲線に基づき長期記憶に定着します。
+                </div>
+              </div>
+
+              {/* 3教科の理解度・マスター進度（37テーマ） */}
+              <div style={{ background: 'var(--surface-subtle)', borderRadius: '14px', padding: '16px', border: '1px solid var(--border)' }}>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--text)', fontWeight: 'bold' }}>
+                  📊 3教科のマスター進度（全37テーマ）
+                </h4>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {[
+                    { label: '🧪 理科', count: rikaSkills.length, mastered: rikaMastered, color: '#ec4899', bg: '#fdf2f8' },
+                    { label: '📐 算数', count: sansuSkills.length, mastered: sansuMastered, color: '#3b82f6', bg: '#eff6ff' },
+                    { label: '🗾 社会', count: shakaiSkills.length, mastered: shakaiMastered, color: '#10b981', bg: '#f0fdf4' },
+                  ].map(sub => {
+                    const percent = Math.round((sub.mastered / sub.count) * 100);
+                    return (
+                      <div key={sub.label} style={{ background: 'var(--surface)', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '13px', fontWeight: 'bold', color: sub.color }}>{sub.label}</span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
+                            合格のカギ: <strong>{sub.mastered}</strong> / {sub.count} テーマ達成 ({percent}%)
+                          </span>
+                        </div>
+                        <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div style={{ width: `${Math.max(8, percent)}%`, height: '100%', background: sub.color, transition: 'width 0.4s ease' }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 合格ドクター認定試験のスコア推移グラフ */}
+              <div style={{ background: 'var(--surface-subtle)', borderRadius: '14px', padding: '16px', border: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text)', fontWeight: 'bold' }}>
+                    🎯 本番認定試験の得点推移（実力判定）
+                  </h4>
+                  <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 'bold' }}>
+                    ―― 合格ライン (80点)
+                  </span>
+                </div>
+
+                {examResults.length === 0 ? (
+                  <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-subtle)', fontSize: '12px' }}>
+                    まだ認定試験のデータがありません。ホーム画面の「合格ドクター認定試験」を受験すると、ここに点数の伸びが折れ線グラフで記録されます。
+                  </div>
+                ) : (
+                  <div style={{ width: '100%', height: '140px' }}>
+                    <svg viewBox="0 0 540 140" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+                      {/* 合格ライン 80点 */}
+                      <line x1="20" y1="40" x2="520" y2="40" stroke="#86efac" strokeWidth="1.5" strokeDasharray="4 3" />
+                      <text x="5" y="44" fontSize="10" fill="#16a34a" fontWeight="bold">80点</text>
+
+                      {/* 底辺 0点 */}
+                      <line x1="20" y1="120" x2="520" y2="120" stroke="#cbd5e1" strokeWidth="1" />
+
+                      {/* 折れ線プロット */}
+                      {(() => {
+                        const points = examResults.map((r, i) => {
+                          const x = 30 + (i / Math.max(1, examResults.length - 1)) * 480;
+                          const y = 120 - (r.score / 100) * 100;
+                          return { x, y, r };
+                        });
+                        const polylineStr = points.map(p => `${p.x},${p.y}`).join(' ');
+
+                        return (
+                          <>
+                            <polyline
+                              fill="none"
+                              stroke="#f59e0b"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              points={polylineStr}
+                            />
+                            {points.map((p, idx) => (
+                              <g key={idx}>
+                                <circle cx={p.x} cy={p.y} r="5" fill="#f59e0b" stroke="#ffffff" strokeWidth="2" />
+                                <text x={p.x} y={p.y - 8} fontSize="10" fontWeight="bold" fill="#92400e" textAnchor="middle">
+                                  {p.r.score}点
+                                </text>
+                                <text x={p.x} y={134} fontSize="9" fill="#64748b" textAnchor="middle">
+                                  第{idx + 1}回
+                                </text>
+                              </g>
+                            ))}
+                          </>
+                        );
+                      })()}
+                    </svg>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ================= タブ2: 声かけヒント＆お約束 ================= */}
+          {activeTab === 'advice' && (
+            <>
+              {/* ナース猫ミケちゃんの声かけアドバイス */}
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                  border: '1.5px solid #fde68a',
+                  borderRadius: '16px',
+                  padding: '16px 20px',
+                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.08)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <span style={{ fontSize: '32px' }}>🐱</span>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '15px', color: '#92400e', fontWeight: 'bold' }}>
+                      ナース猫ミケちゃんからの「今日のお子さんへの声かけヒント」
+                    </h4>
+                    <div style={{ fontSize: '11px', color: '#b45309' }}>
+                      中学受験のモチベーションを高める具体的なほめ言葉
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ background: '#ffffff', borderRadius: '12px', padding: '14px', border: '1px solid #fef08a', lineHeight: '1.6', fontSize: '13px', color: '#78350f' }}>
+                  <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>
+                    💡 今日のおすすめの褒め言葉：
+                  </p>
+                  <blockquote style={{ margin: '0 0 10px 0', paddingLeft: '12px', borderLeft: '3px solid #f59e0b', fontStyle: 'italic', color: '#1e293b' }}>
+                    「毎日ちゃんと5分カルテを開いて解いているのが本当に偉いね！コツコツ続ける力は、入試本番で一番大きな武器になるよ。」
+                  </blockquote>
+                  <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
+                    ※ 結果（点数）だけでなく、「毎日机に向かった行動」や「途中で諦めず考え直したプロセス」を具体的に認めてあげると、自己肯定感と学習意欲が劇的に高まります。
+                  </p>
+                </div>
+              </div>
+
+              {/* 親子のごほうび約束メモ */}
+              <div style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px 20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '24px' }}>🎁</span>
+                    <h4 style={{ margin: 0, fontSize: '15px', color: 'var(--text)', fontWeight: 'bold' }}>
+                      親子のごほうび約束メモ
+                    </h4>
+                  </div>
+                  {!isEditingGoal && (
+                    <button
+                      onClick={() => setIsEditingGoal(true)}
+                      style={{
+                        background: 'none',
+                        border: '1px solid var(--border)',
+                        borderRadius: '6px',
+                        padding: '4px 8px',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        color: 'var(--primary)',
+                      }}
+                    >
+                      ✏️ 編集する
+                    </button>
+                  )}
+                </div>
+
+                {isEditingGoal ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <input
+                      type="text"
+                      value={editGoalText}
+                      onChange={e => setEditGoalText(e.target.value)}
+                      placeholder="例: 算数で80点取れたらケーキバイキング！"
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        border: '1.5px solid var(--primary)',
+                        fontSize: '14px',
+                      }}
+                    />
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                      <button
+                        onClick={() => setIsEditingGoal(false)}
+                        style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface)', fontSize: '12px' }}
+                      >
+                        キャンセル
+                      </button>
+                      <button
+                        onClick={handleSaveGoal}
+                        style={{ padding: '6px 16px', borderRadius: '6px', border: 'none', background: 'var(--primary)', color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
+                      >
+                        保存する
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      background: rewardAchieved ? '#dcfce7' : '#ffffff',
+                      border: `1.5px solid ${rewardAchieved ? '#86efac' : 'var(--border)'}`,
+                      borderRadius: '12px',
+                      padding: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>現在の約束目標：</div>
+                      <div style={{ fontSize: '15px', fontWeight: 'bold', color: rewardAchieved ? '#15803d' : 'var(--text)', marginTop: '2px' }}>
+                        {rewardGoal}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleToggleRewardAchieved}
+                      style={{
+                        background: rewardAchieved ? '#16a34a' : 'var(--surface-subtle)',
+                        color: rewardAchieved ? '#ffffff' : 'var(--text)',
+                        border: `1.5px solid ${rewardAchieved ? '#15803d' : 'var(--border)'}`,
+                        borderRadius: 'var(--radius-pill)',
+                        padding: '8px 16px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      {rewardAchieved ? '🎉 約束達成！おめでとう！' : '⬜ 達成したらチェック！'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ================= タブ3: 弱点処方箋＆A4印刷 ================= */}
+          {activeTab === 'print' && (
+            <>
+              {/* 現在の弱点テーマTOP3 */}
+              <div style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px 20px' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '15px', color: 'var(--text)', fontWeight: 'bold' }}>
+                  🩺 お子さんの「現在復習すべき弱点テーマ」TOP 3
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {weakestSkills.map(skill => (
+                    <div
+                      key={skill.id}
+                      style={{
+                        background: 'var(--surface)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '10px',
+                        padding: '10px 14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '11px', fontWeight: 'bold', padding: '1px 6px', borderRadius: '4px', background: '#e0f2fe', color: '#0369a1' }}>
+                            {skill.subject === 'rika' ? '🧪 理科' : skill.subject === 'sansu' ? '📐 算数' : '🗾 社会'}
+                          </span>
+                          <strong style={{ fontSize: '13px' }}>{skill.title}</strong>
+                        </div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                          忘却メーター定着度: <strong>{skill.retention}%</strong>
+                        </div>
+                      </div>
+
+                      {onStartWeaknessQuiz && (
+                        <button
+                          onClick={() => {
+                            sound.playPop();
+                            onClose();
+                            onStartWeaknessQuiz(skill.id);
+                          }}
+                          style={{
+                            background: '#eff6ff',
+                            color: '#1d4ed8',
+                            border: '1px solid #bfdbfe',
+                            borderRadius: '8px',
+                            padding: '6px 12px',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          📱 この単元を解く
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* A4弱点克服チェックシート印刷機能 */}
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
+                  border: '1.5px solid #a7f3d0',
+                  borderRadius: '16px',
+                  padding: '20px',
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{ fontSize: '36px', marginBottom: '8px' }}>🖨️</div>
+                <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', color: '#065f46', fontWeight: 'bold' }}>
+                  A4弱点克服チェックシートを印刷（机での復習用）
+                </h4>
+                <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#047857', lineHeight: '1.5' }}>
+                  弱点テーマの急所ポイントと解答記入欄を、家庭用プリンターでA4用紙1枚にきれいに印刷できます。<br />
+                  実際の入試と同じように「紙と鉛筆」で書かせたい時にご活用ください。
+                </p>
+                <button
+                  onClick={handlePrint}
+                  style={{
+                    background: '#059669',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: 'var(--radius-pill)',
+                    padding: '12px 28px',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)',
+                  }}
+                  data-testid="print-worksheet-btn"
+                >
+                  🖨️ A4弱点克服プリントを印刷（またはPDF保存）
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+

@@ -7,6 +7,7 @@ import { ALL_PROGRESS_SKILLS, type ComprehensiveSkillProgressItem } from '../dat
 import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
 import { QuickFlashCardModal } from '../components/QuickFlashCardModal';
 import { FinalExamHistoryModal } from '../components/FinalExamHistoryModal';
+import { ParentDashboardModal } from '../components/ParentDashboardModal';
 import { getMemoryRetention } from '../utils/memory-retention';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
@@ -23,6 +24,7 @@ export const HomePage: React.FC = () => {
   const [openedStampId, setOpenedStampId] = useState<string | null>(null);
   const [showLevelHelpModal, setShowLevelHelpModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showParentModal, setShowParentModal] = useState(false);
   const [flashCardSkillId, setFlashCardSkillId] = useState<string | null>(null);
 
   // テーマ・サウンド状態
@@ -149,6 +151,20 @@ export const HomePage: React.FC = () => {
 
           {/* 右上操作コントロール群 */}
           <div className={styles.headerControls}>
+            {/* 保護者向けカルテボタン */}
+            <button
+              className={styles.controlBtn}
+              onClick={() => {
+                sound.playPop();
+                setShowParentModal(true);
+              }}
+              title="保護者向け学習・成長カルテ（グラフ・ほめ言葉・弱点印刷）"
+              aria-label="保護者カルテ"
+              data-testid="header-parent-btn"
+            >
+              👨‍👩‍👧
+            </button>
+
             {/* テーマ着せ替えボタン */}
             <button
               className={styles.controlBtn}
@@ -190,9 +206,30 @@ export const HomePage: React.FC = () => {
         {/* ナース猫ミケちゃんのメンター応援バナー */}
         <section className={styles.mentorBar}>
           <div className={styles.mentorAvatar}>🐱</div>
-          <div className={styles.mentorSpeech}>
+          <div className={styles.mentorSpeech} style={{ flex: 1 }}>
             <strong>ナース猫のミケちゃん:</strong>「おかえりなさい、先生！今日は【{nextStamp.name}】が元気をなくして待っているよ。10問カルテをといて、とびっきりの笑顔にしてあげよう！」
           </div>
+          <button
+            onClick={() => {
+              sound.playPop();
+              setShowParentModal(true);
+            }}
+            style={{
+              background: '#ffffff',
+              border: '1.5px solid #fed7aa',
+              borderRadius: 'var(--radius-pill)',
+              padding: '6px 14px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              color: '#c2410c',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              boxShadow: '0 2px 6px rgba(194, 65, 12, 0.1)',
+            }}
+            data-testid="mentor-parent-btn"
+          >
+            📊 保護者レポート
+          </button>
         </section>
 
         {/* ゾーン1: 今日の学習カード（Bento Grid Hero） */}
@@ -574,6 +611,25 @@ export const HomePage: React.FC = () => {
         <button
           onClick={() => {
             sound.playPop();
+            setShowParentModal(true);
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#c2410c',
+            textDecoration: 'underline',
+            cursor: 'pointer',
+            marginLeft: '8px',
+            fontSize: '12px',
+            fontWeight: 'bold',
+          }}
+          data-testid="footer-parent-btn"
+        >
+          👨‍👩‍👧 保護者カルテ
+        </button>
+        <button
+          onClick={() => {
+            sound.playPop();
             navigate('/settings');
           }}
           style={{
@@ -791,6 +847,17 @@ export const HomePage: React.FC = () => {
       {/* 過去の認定試験採点カルテ・成績表モーダル */}
       {showHistoryModal && (
         <FinalExamHistoryModal onClose={() => setShowHistoryModal(false)} />
+      )}
+
+      {/* 保護者向け学習・成長アナリティクスカルテモーダル */}
+      {showParentModal && (
+        <ParentDashboardModal
+          onClose={() => setShowParentModal(false)}
+          onStartWeaknessQuiz={(skillId) => {
+            setShowParentModal(false);
+            setFlashCardSkillId(skillId);
+          }}
+        />
       )}
     </div>
   );

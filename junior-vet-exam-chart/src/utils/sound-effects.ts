@@ -139,6 +139,41 @@ class SoundEffects {
     }
   }
 
+  // ファンファーレ（タ・タ・タ・ターン♪）
+  public playFanfare() {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+
+      const notes = [
+        { freq: 523.25, time: 0, dur: 0.1 },    // C5
+        { freq: 523.25, time: 0.12, dur: 0.1 }, // C5
+        { freq: 523.25, time: 0.24, dur: 0.1 }, // C5
+        { freq: 659.25, time: 0.36, dur: 0.15 },// E5
+        { freq: 783.99, time: 0.52, dur: 0.35 },// G5
+      ];
+
+      notes.forEach(({ freq, time, dur }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + time);
+
+        gain.gain.setValueAtTime(0.2, ctx.currentTime + time);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + time + dur);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(ctx.currentTime + time);
+        osc.stop(ctx.currentTime + time + dur);
+      });
+    } catch {
+      // ignore
+    }
+  }
+
   // 動物の喜び（ピピピッ！）
   public playAnimalHappy() {
     if (!this.enabled) return;

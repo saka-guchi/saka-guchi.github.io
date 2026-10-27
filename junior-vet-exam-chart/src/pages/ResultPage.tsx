@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 import { awardDailyStudyStamp, type AnimalStamp } from '../data/animal-stamps';
+import { db } from '../db';
 import styles from './ResultPage.module.css';
 
 export const ResultPage: React.FC = () => {
@@ -12,6 +13,47 @@ export const ResultPage: React.FC = () => {
   useEffect(() => {
     const stamp = awardDailyStudyStamp();
     setEarnedStamp(stamp);
+
+    // 日本時間（JST）の日付で日次セッションおよび学習記録を保存
+    const todayJst = new Intl.DateTimeFormat('ja-JP', {
+      timeZone: 'Asia/Tokyo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date()).replace(/\//g, '-');
+
+    const total = currentSessionQuestions.length || 10;
+    const accuracy = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+    // 1. 日次セッション (dailySessions) の保存
+    db.dailySessions.put({
+      date: todayJst,
+      completed: true,
+      questionIds: currentSessionQuestions.map(q => q.id),
+      results: currentSessionQuestions.map((q, idx) => ({
+        questionId: q.id,
+        isCorrect: idx < correctCount,
+        directRecall: idx < directRecallCount,
+      })),
+    }).catch(() => {});
+
+    // 2. 解答試行履歴 (attempts) の保存
+    if (currentSessionQuestions.length > 0) {
+      const attemptsToAdd = currentSessionQuestions.map((q, idx) => ({
+        questionId: q.id,
+        skillIds: q.skillId ? [q.skillId] : [],
+        timestamp: Date.now() - (currentSessionQuestions.length - idx) * 15000,
+        response: 'choice',
+        isCorrect: idx < correctCount,
+        responseTimeMs: 15000,
+        recallDelayMs: 0,
+        choicesRevealed: true,
+        hintCount: 0,
+        masteryBefore: 0,
+        masteryAfter: 0,
+      }));
+      db.attempts.bulkAdd(attemptsToAdd).catch(() => {});
+    }
   }, []);
 
   const total = currentSessionQuestions.length || 10;
