@@ -11,7 +11,7 @@ import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
 import styles from './HomePage.module.css';
 
-type ThemeType = 'default' | 'sakura' | 'mint' | 'night';
+type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ export const HomePage: React.FC = () => {
 
   const cycleTheme = () => {
     sound.playPop();
-    const order: ThemeType[] = ['default', 'sakura', 'mint', 'night'];
+    const order: ThemeType[] = ['default', 'sakura', 'mint', 'lavender', 'night'];
     const nextIndex = (order.indexOf(currentTheme) + 1) % order.length;
     const nextTheme = order[nextIndex];
     setCurrentTheme(nextTheme);
@@ -106,9 +106,10 @@ export const HomePage: React.FC = () => {
   });
 
   const themeIcons: Record<ThemeType, string> = {
-    default: '🩺 デフォルト',
+    default: '🩺 クリニック',
     sakura: '🌸 サクラ',
     mint: '🌿 ミント',
+    lavender: '💜 ラベンダー',
     night: '🌙 夜空自習室',
   };
 
@@ -145,7 +146,7 @@ export const HomePage: React.FC = () => {
               title={`カラーテーマ切り替え: 現在 ${themeIcons[currentTheme]}`}
               aria-label="テーマ切り替え"
             >
-              {currentTheme === 'sakura' ? '🌸' : currentTheme === 'mint' ? '🌿' : currentTheme === 'night' ? '🌙' : '🎨'}
+              {currentTheme === 'sakura' ? '🌸' : currentTheme === 'mint' ? '🌿' : currentTheme === 'lavender' ? '💜' : currentTheme === 'night' ? '🌙' : '🎨'}
             </button>
 
             {/* サウンド切り替えボタン */}
@@ -227,14 +228,14 @@ export const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* ゾーン2: 元気にした動物スタンプ帳（日々の報酬・シール手帳） */}
+        {/* ゾーン2: 元気にした動物スタンプ帳（ドットノイズ解消・高コントラスト） */}
         <section className={styles.stampSection}>
           <div className={styles.stampLeft}>
             <div>
-              <div style={{ fontSize: '15px', fontWeight: '900', color: 'var(--text)' }}>
+              <div className={styles.stampHeaderTitle}>
                 🐾 元気にした動物スタンプ帳（{earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹）
               </div>
-              <div style={{ fontSize: '13px', color: '#059669', marginTop: '2px', fontWeight: '800' }}>
+              <div className={styles.stampNextHint}>
                 👉 今日の10問をとくと、次は【{nextStamp.icon} {nextStamp.name}】が元気になるよ！
               </div>
             </div>
@@ -268,7 +269,7 @@ export const HomePage: React.FC = () => {
 
         {/* ゾーン3: 下段2カラム（全9テーマのカルテ進度 と 獣医師認定試験） */}
         <div className={styles.bottomCardsGrid}>
-          {/* 左カラム: 🩺 全9テーマのカルテ進度（アコーディオン＆分野フィルターですっきり） */}
+          {/* 左カラム: 🩺 全9テーマのカルテ進度 */}
           <div className={styles.card} data-testid="card-weakness">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 className={styles.cardTitle} style={{ margin: 0 }}>
@@ -312,11 +313,11 @@ export const HomePage: React.FC = () => {
               ))}
             </div>
 
-            {/* テーマリスト（内部スクロールを撤廃し、スマートなカード表示） */}
+            {/* テーマリスト */}
             <div className={styles.allSkillsContainer}>
               {/* 未達成テーマ */}
               {filteredSkills.filter(s => !s.isMastered).length > 0 && (
-                <div style={{ fontSize: '12px', fontWeight: '800', color: '#c2410c', marginTop: '4px' }}>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: 'var(--warning-text)', marginTop: '4px' }}>
                   ✏️ レベルアップをめざすテーマ（あと {remainingCount} つ）
                 </div>
               )}
@@ -345,7 +346,7 @@ export const HomePage: React.FC = () => {
                       </span>
                     </div>
 
-                    <div style={{ fontSize: '12px', color: '#0369a1', fontWeight: '600' }}>
+                    <div className={styles.skillHint}>
                       👉 {skill.nextGoalHint}
                     </div>
 
@@ -358,7 +359,7 @@ export const HomePage: React.FC = () => {
                               className={styles.memoryBarFill}
                               style={{
                                 width: `${enhance.memoryRetention}%`,
-                                background: enhance.memoryRetention > 70 ? '#10b981' : enhance.memoryRetention > 50 ? '#f59e0b' : '#ef4444',
+                                background: enhance.memoryRetention > 70 ? 'var(--success)' : enhance.memoryRetention > 50 ? 'var(--warning)' : '#ef4444',
                               }}
                             />
                           </div>
@@ -383,7 +384,7 @@ export const HomePage: React.FC = () => {
 
               {/* 達成済みテーマ */}
               {filteredSkills.filter(s => s.isMastered).length > 0 && (
-                <div style={{ fontSize: '12px', fontWeight: '800', color: '#15803d', marginTop: '12px' }}>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: 'var(--success-text)', marginTop: '12px' }}>
                   ✅ マスター達成済みのテーマ（{masteredCount} つ）
                 </div>
               )}
@@ -398,7 +399,7 @@ export const HomePage: React.FC = () => {
                         <div>
                           <div className={styles.skillTitle}>{skill.title}</div>
                           {enhance?.patientAnimal && (
-                            <div style={{ fontSize: '11px', color: '#166534' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--success-text)' }}>
                               患者: <strong>{enhance.patientAnimal.name}（全快！）</strong>
                             </div>
                           )}
@@ -412,7 +413,7 @@ export const HomePage: React.FC = () => {
                       </span>
                     </div>
 
-                    <div style={{ fontSize: '12px', color: '#166534', fontWeight: '600' }}>
+                    <div className={styles.skillHintMastered}>
                       🎉 {skill.nextGoalHint}
                     </div>
 
@@ -423,7 +424,7 @@ export const HomePage: React.FC = () => {
                           <div className={styles.memoryBar}>
                             <div
                               className={styles.memoryBarFill}
-                              style={{ width: `${enhance.memoryRetention}%`, background: '#10b981' }}
+                              style={{ width: `${enhance.memoryRetention}%`, background: 'var(--success)' }}
                             />
                           </div>
                           <strong>{enhance.memoryRetention}%</strong>
@@ -446,7 +447,7 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* 右カラム: 🏆 合格ドクター認定試験（ホログラム調の報酬） */}
+          {/* 右カラム: 🏆 合格ドクター認定試験 */}
           <div className={styles.card} data-testid="card-final-challenge">
             <h3 className={styles.cardTitle} style={{ margin: 0 }}>
               🏆 合格ドクター認定試験
@@ -455,11 +456,11 @@ export const HomePage: React.FC = () => {
               <span className={styles.lockBadge}>
                 🔑 カギのかけら {masteredCount} / 9 集まったよ！（オープンまで：あと {remainingCount} テーマ）
               </span>
-              <p style={{ margin: 0, fontSize: '13px', lineHeight: '1.6', color: 'var(--text-subtle)' }}>
+              <p className={styles.challengeNoticeText}>
                 左のカルテにある全9テーマを<strong>【⭐Lv.4 マスター】</strong>にすると、本番形式の認定試験（過去問）に挑戦できるよ！
               </p>
 
-              {/* 過去問テストに挑む魅力的なクリア報酬（ホログラムシマー） */}
+              {/* クリア報酬カード */}
               <div className={styles.rewardCard}>
                 <div className={styles.rewardTitle}>
                   <span>🎖️ 満点クリアの豪華報酬！</span>
@@ -483,20 +484,10 @@ export const HomePage: React.FC = () => {
               認定試験の案内・過去問を見る
             </button>
             <button
+              className={styles.previewCertBtn}
               onClick={() => {
                 sound.playPop();
                 setShowCertificateModal(true);
-              }}
-              style={{
-                marginTop: '4px',
-                background: 'none',
-                border: 'none',
-                color: '#b45309',
-                fontSize: '12px',
-                cursor: 'pointer',
-                textDecoration: 'underline',
-                fontWeight: '800',
-                alignSelf: 'center',
               }}
               data-testid="preview-cert-btn"
             >
@@ -519,7 +510,7 @@ export const HomePage: React.FC = () => {
         <DoctorCertificateModal onClose={() => setShowCertificateModal(false)} />
       )}
 
-      {/* 動物スタンプ帳モーダル（シール手帳コレクション風） */}
+      {/* 動物スタンプ帳モーダル */}
       {showStampModal && (
         <div className={styles.modalOverlay} onClick={() => setShowStampModal(false)}>
           <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
@@ -561,8 +552,8 @@ export const HomePage: React.FC = () => {
                       }
                     }}
                     style={{
-                      border: isEarned ? '2px solid #93c5fd' : '1px dashed #cbd5e1',
-                      background: isEarned ? 'linear-gradient(135deg, #eff6ff 0%, #ffffff 100%)' : '#f8fafc',
+                      border: isEarned ? '2px solid var(--primary)' : '1px dashed var(--border)',
+                      background: isEarned ? 'var(--primary-weak)' : 'var(--surface-subtle)',
                       borderRadius: '14px',
                       padding: '14px',
                       display: 'flex',
@@ -570,7 +561,7 @@ export const HomePage: React.FC = () => {
                       gap: '6px',
                       opacity: isEarned ? 1 : 0.65,
                       cursor: 'pointer',
-                      boxShadow: isEarned ? '0 4px 12px rgba(37, 99, 235, 0.08)' : 'none',
+                      boxShadow: isEarned ? '0 4px 12px rgba(0, 0, 0, 0.1)' : 'none',
                       transition: 'transform 0.15s ease',
                     }}
                   >
@@ -580,7 +571,7 @@ export const HomePage: React.FC = () => {
                         <div style={{ fontSize: '14px', fontWeight: '900', color: 'var(--text)' }}>
                           {stamp.name}
                         </div>
-                        <div style={{ fontSize: '11px', color: isEarned ? '#2563eb' : '#94a3b8', fontWeight: '700' }}>
+                        <div style={{ fontSize: '11px', color: isEarned ? 'var(--primary)' : 'var(--text-muted)', fontWeight: '700' }}>
                           {isEarned ? `回復: ${stamp.patientTitle}` : '学習を続けて助けよう！'}
                         </div>
                       </div>
@@ -590,11 +581,11 @@ export const HomePage: React.FC = () => {
                         style={{
                           marginTop: '4px',
                           fontSize: '11px',
-                          color: '#475569',
-                          background: '#ffffff',
+                          color: 'var(--text-subtle)',
+                          background: 'var(--surface)',
                           padding: '8px 10px',
                           borderRadius: '8px',
-                          border: '1px solid #e2e8f0',
+                          border: '1px solid var(--border)',
                           lineHeight: '1.45',
                         }}
                       >
@@ -650,15 +641,15 @@ export const HomePage: React.FC = () => {
                   style={{
                     padding: '12px 14px',
                     borderRadius: '12px',
-                    background: '#f8fafc',
-                    border: '1px solid #e2e8f0',
+                    background: 'var(--surface-subtle)',
+                    border: '1px solid var(--border)',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: '900', color: '#2563eb' }}>{item.lv}</span>
+                    <span style={{ fontSize: '13px', fontWeight: '900', color: 'var(--primary)' }}>{item.lv}</span>
                     <span style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text)' }}>{item.name}</span>
                   </div>
-                  <div style={{ fontSize: '12px', color: '#475569', lineHeight: '1.5' }}>{item.desc}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-subtle)', lineHeight: '1.5' }}>{item.desc}</div>
                 </div>
               ))}
             </div>

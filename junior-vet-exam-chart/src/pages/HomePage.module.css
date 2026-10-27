@@ -20,7 +20,7 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(8px);
 }
 
@@ -59,14 +59,14 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
-  border: 1px solid #fed7aa;
+  background: var(--warning-badge-bg);
+  border: 1px solid var(--warning-badge-border);
   padding: 6px 12px;
   border-radius: var(--radius-pill);
   font-size: 13px;
   font-weight: 800;
-  color: #c2410c;
-  box-shadow: 0 2px 6px rgba(194, 65, 12, 0.08);
+  color: var(--warning-text);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 /* 合格カルテ完成度プログレス */
@@ -173,7 +173,7 @@
 
 /* メンターナース案内バー */
 .mentorBar {
-  background: linear-gradient(135deg, #ffffff 0%, var(--surface-subtle) 100%);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 12px 18px;
@@ -193,7 +193,7 @@
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
   animation: softFloat 3s infinite ease-in-out;
 }
@@ -212,7 +212,7 @@
 /* ゾーン1: 今日の学習カード（ヒーロー Bento） */
 .todayCard {
   background: linear-gradient(135deg, var(--surface) 0%, var(--primary-weak) 100%);
-  border: 2px solid var(--primary-weak);
+  border: 2px solid var(--border);
   border-radius: var(--radius-xl);
   padding: 28px 32px;
   box-shadow: var(--shadow-card);
@@ -255,7 +255,7 @@
 
 .badgeToday {
   background: var(--primary-weak);
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  border: 1px solid var(--primary);
   color: var(--primary);
   font-size: 12px;
   font-weight: 800;
@@ -268,10 +268,10 @@
 
 .estimatedTime {
   font-size: 12px;
-  font-weight: 700;
-  color: #059669;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
+  font-weight: 800;
+  color: var(--success-text);
+  background: var(--success-weak);
+  border: 1px solid var(--success);
   padding: 4px 10px;
   border-radius: var(--radius-pill);
   display: inline-flex;
@@ -306,9 +306,9 @@
   padding: 6px 12px;
   border-radius: var(--radius-pill);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -316,7 +316,7 @@
 
 .textLinkBtn {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--primary);
   text-decoration: underline;
   padding: 4px 0;
@@ -340,7 +340,7 @@
   height: 60px;
   padding: 0 32px;
   border-radius: var(--radius-pill);
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
   color: #ffffff;
   font-size: 18px;
   font-weight: 900;
@@ -354,17 +354,17 @@
 
 .startBtn:hover {
   transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 12px 28px var(--primary-glow);
 }
 
 .startBtn:active {
   transform: translateY(1px) scale(0.98);
 }
 
-/* ゾーン2: 元気にした動物スタンプ帳（シール手帳 Bento） */
+/* ゾーン2: 元気にした動物スタンプ帳（ドットノイズ解消・高コントラスト） */
 .stampSection {
   background: var(--surface);
-  border: 2px dashed #93c5fd;
+  border: 2px dashed var(--primary);
   border-radius: var(--radius-xl);
   padding: 20px 24px;
   box-shadow: var(--shadow-sm);
@@ -372,7 +372,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  background-image: radial-gradient(#eff6ff 15%, transparent 16%);
+  background-image: radial-gradient(var(--stamp-dot) 15%, transparent 16%);
   background-size: 16px 16px;
 }
 
@@ -381,6 +381,19 @@
   flex-direction: column;
   gap: 10px;
   flex: 1;
+}
+
+.stampHeaderTitle {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--text);
+}
+
+.stampNextHint {
+  font-size: 13px;
+  color: var(--success-text);
+  margin-top: 2px;
+  font-weight: 800;
 }
 
 .stampIconRow {
@@ -395,12 +408,12 @@
   height: 48px;
   border-radius: 50%;
   background: var(--surface-subtle);
-  border: 2px dashed #cbd5e1;
+  border: 2px dashed var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  color: #94a3b8;
+  color: var(--text-muted);
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -410,9 +423,9 @@
 }
 
 .stampSlotActive {
-  background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
-  border: 2px solid #f59e0b;
-  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
+  background: var(--accent-gold-bg);
+  border: 2px solid var(--accent-gold-border);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   animation: popIn 0.3s ease;
 }
 
@@ -421,7 +434,7 @@
   padding: 0 20px;
   border-radius: var(--radius-pill);
   background: var(--primary-weak);
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--primary);
   color: var(--primary);
   font-size: 14px;
   font-weight: 800;
@@ -432,7 +445,8 @@
 }
 
 .stampBookBtn:hover {
-  background: #dbeafe;
+  background: var(--primary);
+  color: #ffffff;
   transform: translateY(-1px);
 }
 
@@ -470,11 +484,12 @@
   border-radius: var(--radius-pill);
   padding: 4px 10px;
   background: var(--primary-weak);
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--primary);
 }
 
 .helpLinkBtn:hover {
-  background: #dbeafe;
+  background: var(--primary);
+  color: #ffffff;
 }
 
 /* 分野切り替えタブフィルター */
@@ -488,7 +503,7 @@
   padding: 4px 12px;
   border-radius: var(--radius-pill);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   border: 1px solid var(--border);
   background: var(--surface-subtle);
   color: var(--text-subtle);
@@ -501,7 +516,7 @@
   box-shadow: 0 2px 6px var(--primary-glow);
 }
 
-/* テーマリスト（内部スクロールを廃止しすっきり表示） */
+/* テーマリスト */
 .allSkillsContainer {
   display: flex;
   flex-direction: column;
@@ -520,14 +535,13 @@
 }
 
 .skillRowMini:hover {
-  border-color: #93c5fd;
+  border-color: var(--primary);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .skillRowMiniMastered {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
+  border-color: var(--success);
 }
 
 .skillRowTop {
@@ -559,6 +573,18 @@
   border-radius: var(--radius-pill);
 }
 
+.skillHint {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hint-text);
+}
+
+.skillHintMastered {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--success-text);
+}
+
 /* 記憶定着バッテリー & アクション */
 .skillMetaRow {
   display: flex;
@@ -579,7 +605,7 @@
 .memoryBar {
   width: 60px;
   height: 6px;
-  background: #e2e8f0;
+  background: var(--border);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -592,9 +618,9 @@
 .quickFlashBtn {
   padding: 4px 10px;
   border-radius: var(--radius-pill);
-  background: #fef3c7;
-  border: 1px solid #fde68a;
-  color: #b45309;
+  background: var(--warning-badge-bg);
+  border: 1px solid var(--warning-badge-border);
+  color: var(--warning-text);
   font-size: 11px;
   font-weight: 800;
   display: inline-flex;
@@ -603,10 +629,10 @@
 }
 
 .quickFlashBtn:hover {
-  background: #fde68a;
+  transform: scale(1.05);
 }
 
-/* 右カラム: 合格ドクター認定試験（ホログラム調） */
+/* 右カラム: 合格ドクター認定試験（ダーク時も調和する上品なゴールド） */
 .challengeStatus {
   display: flex;
   flex-direction: column;
@@ -619,17 +645,28 @@
   gap: 6px;
   padding: 6px 14px;
   border-radius: var(--radius-pill);
-  background: #fff7ed;
-  border: 1px solid #ffedd5;
-  color: #c2410c;
+  background: var(--warning-badge-bg);
+  border: 1px solid var(--warning-badge-border);
+  color: var(--warning-text);
   font-size: 13px;
   font-weight: 800;
   align-self: flex-start;
 }
 
+.challengeNoticeText {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-subtle);
+}
+
+.challengeNoticeText strong {
+  color: var(--text);
+}
+
 .rewardCard {
-  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-  border: 2px solid #fde68a;
+  background: var(--accent-gold-bg);
+  border: 2px solid var(--accent-gold-border);
   border-radius: var(--radius-lg);
   padding: 16px;
   display: flex;
@@ -649,7 +686,7 @@
   background: linear-gradient(
     60deg,
     rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.3) 50%,
     rgba(255, 255, 255, 0) 70%
   );
   transform: rotate(25deg);
@@ -660,7 +697,7 @@
 .rewardTitle {
   font-size: 14px;
   font-weight: 900;
-  color: #92400e;
+  color: var(--accent-gold-title);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -672,8 +709,12 @@
   flex-direction: column;
   gap: 8px;
   font-size: 13px;
-  color: #78350f;
+  color: var(--accent-gold-text);
   line-height: 1.5;
+}
+
+.rewardList strong {
+  color: var(--text);
 }
 
 .challengeBtn {
@@ -697,12 +738,24 @@
   box-shadow: 0 6px 18px var(--primary-glow);
 }
 
+.previewCertBtn {
+  margin-top: 4px;
+  background: none;
+  border: none;
+  color: var(--warning-text);
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 800;
+  align-self: center;
+}
+
 /* モーダル共用 */
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(6px);
+  background: rgba(11, 17, 32, 0.75);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -713,13 +766,14 @@
 
 .modalContent {
   background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: 24px;
   max-width: 620px;
   width: 100%;
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
   gap: 16px;

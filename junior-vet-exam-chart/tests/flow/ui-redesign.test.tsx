@@ -26,12 +26,17 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('mint');
     expect(localStorage.getItem('junior_vet_theme')).toBe('mint');
 
-    // 3回目のクリックで night
+    // 3回目のクリックで lavender
+    fireEvent.click(themeBtn);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('lavender');
+    expect(localStorage.getItem('junior_vet_theme')).toBe('lavender');
+
+    // 4回目のクリックで night
     fireEvent.click(themeBtn);
     expect(document.documentElement.getAttribute('data-theme')).toBe('night');
     expect(localStorage.getItem('junior_vet_theme')).toBe('night');
 
-    // 4回目のクリックで default（属性削除）
+    // 5回目のクリックで default（属性削除）
     fireEvent.click(themeBtn);
     expect(document.documentElement.getAttribute('data-theme')).toBeNull();
   });
