@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ANIMAL_STAMPS } from '../data/animal-stamps';
+import { fireConfetti } from '../utils/confetti';
+import { sound } from '../utils/sound-effects';
 import styles from './DoctorCertificateModal.module.css';
 
 interface DoctorCertificateModalProps {
@@ -20,8 +22,88 @@ export const DoctorCertificateModal: React.FC<DoctorCertificateModalProps> = ({
     day: 'numeric',
   });
 
+  useEffect(() => {
+    sound.playChime();
+    fireConfetti({ count: 60 });
+  }, []);
+
   const handlePrint = () => {
+    sound.playPop();
     window.print();
+  };
+
+  // Canvas による認定証画像の自動生成とダウンロード（静的で完結）
+  const handleDownloadImage = () => {
+    sound.playStamp();
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 800;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // 背景（賞状の金色・クリーム色グラデーション）
+    const grad = ctx.createLinearGradient(0, 0, 1200, 800);
+    grad.addColorStop(0, '#fffdfa');
+    grad.addColorStop(0.5, '#fffbeb');
+    grad.addColorStop(1, '#fef3c7');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 1200, 800);
+
+    // 金色の二重枠
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 12;
+    ctx.strokeRect(30, 30, 1140, 740);
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(48, 48, 1104, 704);
+
+    // リボン上部
+    ctx.fillStyle = '#b45309';
+    ctx.font = 'bold 22px "Zen Maru Gothic", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('★ 過去問 100点満点クリア認定 ★', 600, 95);
+
+    // メインタイトル
+    ctx.fillStyle = '#78350f';
+    ctx.font = 'bold 44px "Zen Maru Gothic", sans-serif';
+    ctx.fillText('合格ドクター認定証', 600, 160);
+
+    ctx.fillStyle = '#92400e';
+    ctx.font = 'bold 22px "Zen Maru Gothic", sans-serif';
+    ctx.fillText('【 みならい獣医師・マスターライセンス 】', 600, 205);
+
+    // 宛名
+    ctx.fillStyle = '#1e293b';
+    ctx.font = 'bold 32px "Zen Maru Gothic", sans-serif';
+    ctx.fillText(`${userName} どの`, 600, 280);
+
+    // 本文
+    ctx.fillStyle = '#334155';
+    ctx.font = '500 20px "Zen Maru Gothic", sans-serif';
+    ctx.fillText('あなたは「みならい獣医さんの中学受験カルテ」において、', 600, 345);
+    ctx.fillText(`出題される全9テーマの知識を完全に習得し、本番認定試験（${examTitle}）にて`, 600, 380);
+    ctx.fillText('見事に【100点満点】を達成されました。', 600, 415);
+    ctx.fillText('動物たちの生命と自然の仕組みを深く理解した努力を讃え、ここに証します。', 600, 450);
+
+    // 動物アイコン絵文字
+    ctx.font = '36px sans-serif';
+    ctx.fillText('🐕 🐱 🐰 🐹 🐧 🐬 🐻‍❄️ 🦉', 600, 530);
+
+    // 日付・番号
+    ctx.font = 'bold 18px "Zen Maru Gothic", sans-serif';
+    ctx.fillStyle = '#64748b';
+    ctx.textAlign = 'left';
+    ctx.fillText('認定番号：VET-2026-YASUDA-100', 80, 710);
+    ctx.textAlign = 'right';
+    ctx.fillText(`認定日：${todayStr}`, 1120, 710);
+
+    // ダウンロード
+    const url = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `合格ドクター認定証_${userName}.png`;
+    a.click();
+    fireConfetti({ count: 50 });
   };
 
   return (
@@ -96,10 +178,18 @@ export const DoctorCertificateModal: React.FC<DoctorCertificateModalProps> = ({
         </div>
 
         <div className={styles.actionsRow}>
-          <button className={styles.printBtn} onClick={handlePrint}>
-            🖨️ 認定証を印刷 / 保存
+          <button
+            className={styles.printBtn}
+            onClick={handleDownloadImage}
+            style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+            title="賞状を画像（PNG）として保存しておうちの人に見せよう！"
+          >
+            📸 画像（PNG）で保存
           </button>
-          <button className={styles.closeBtn} onClick={onClose} data-testid="cert-close-btn">
+          <button className={styles.printBtn} onClick={handlePrint}>
+            🖨️ 印刷する
+          </button>
+          <button className={styles.closeBtn} onClick={onClose}>
             とじる
           </button>
         </div>
@@ -107,4 +197,3 @@ export const DoctorCertificateModal: React.FC<DoctorCertificateModalProps> = ({
     </div>
   );
 };
-

@@ -1,51 +1,120 @@
 :root {
-  /* 色 */
-  --bg: #F5F7FB;
+  /* 基本配色（デフォルト：どうぶつクリニック・スカイブルー） */
+  --bg: #F4F8FC;
+  --bg-gradient: linear-gradient(180deg, #F0F7FF 0%, #F5F9FD 100%);
   --surface: #FFFFFF;
-  --surface-subtle: #F8FAFC;
+  --surface-subtle: #F8FBFE;
+  --surface-card: #FFFFFF;
+  --border: #DFEBF6;
+  --border-subtle: #EDF4FA;
   --primary: #2563EB;
   --primary-hover: #1D4ED8;
   --primary-weak: #EFF6FF;
-  --success: #16A34A;
+  --primary-glow: rgba(37, 99, 235, 0.25);
+  
+  --accent-pink: #EC4899;
+  --accent-pink-weak: #FDF2F8;
+  --accent-mint: #10B981;
+  --accent-mint-weak: #ECFDF5;
+  --accent-amber: #F59E0B;
+  --accent-amber-weak: #FFFBEB;
+  --accent-purple: #8B5CF6;
+  --accent-purple-weak: #F5F3FF;
+
+  --success: #10B981;
   --success-weak: #ECFDF5;
-  --warning: #B45309;
+  --warning: #F59E0B;
   --warning-weak: #FFFBEB;
-  --error: #DC2626;
+  --error: #EF4444;
   --error-weak: #FEF2F2;
-  --text: #172033;
-  --text-subtle: #475569;
-  --border: #DCE3EE;
-  --focus: #60A5FA;
+
+  --text: #1E293B;
+  --text-subtle: #64748B;
+  --text-muted: #94A3B8;
+  --focus: #38BDF8;
 
   /* 角丸 */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
   --radius-pill: 999px;
 
-  /* 影 */
-  --shadow-card: 0 4px 18px rgba(15, 23, 42, 0.07);
-  --shadow-primary-btn: 0 8px 20px rgba(37, 99, 235, 0.20);
+  /* 影（柔らかいトーン） */
+  --shadow-sm: 0 2px 8px rgba(30, 41, 59, 0.04);
+  --shadow-card: 0 6px 20px rgba(37, 99, 235, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02);
+  --shadow-card-hover: 0 12px 28px rgba(37, 99, 235, 0.12), 0 4px 10px rgba(0, 0, 0, 0.03);
+  --shadow-primary-btn: 0 8px 24px rgba(37, 99, 235, 0.3);
+  --shadow-pop: 0 10px 30px rgba(236, 72, 153, 0.25);
 
   /* 文字 */
-  --font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Sans', 'BIZ UDPGothic', Meiryo, sans-serif;
-  --font-page-title: 700 28px/1.3 var(--font-family);
-  --font-question: 700 26px/1.55 var(--font-family);
-  --font-heading: 700 20px/1.4 var(--font-family);
-  --font-body: 400 16px/1.65 var(--font-family);
-  --font-choice: 600 18px/1.45 var(--font-family);
-  --font-caption: 400 14px/1.5 var(--font-family);
+  --font-family: 'Zen Maru Gothic', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'BIZ UDPGothic', sans-serif;
+  --font-page-title: 700 24px/1.3 var(--font-family);
+  --font-question: 700 24px/1.55 var(--font-family);
+  --font-heading: 700 18px/1.4 var(--font-family);
+  --font-body: 500 15px/1.65 var(--font-family);
+  --font-choice: 700 17px/1.45 var(--font-family);
+  --font-caption: 500 13px/1.5 var(--font-family);
   --font-label: 700 12px/1.4 var(--font-family);
 
   /* 操作エリア */
-  --btn-main-height: 56px;
-  --choice-height: 64px;
+  --btn-main-height: 54px;
+  --choice-height: 60px;
   --choice-gap: 12px;
-  --tap-min-size: 48px;
+  --tap-min-size: 44px;
 
   /* トランジション */
-  --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-smooth: 300ms ease;
+}
+
+/* サクラテーマ（愛らしいピンククリニック） */
+[data-theme="sakura"] {
+  --bg: #FDF4F8;
+  --bg-gradient: linear-gradient(180deg, #FDF2F8 0%, #FFF5F9 100%);
+  --surface-subtle: #FFF8FA;
+  --border: #FCE7F3;
+  --primary: #DB2777;
+  --primary-hover: #BE185D;
+  --primary-weak: #FDF2F8;
+  --primary-glow: rgba(219, 39, 119, 0.25);
+  --shadow-card: 0 6px 20px rgba(219, 39, 119, 0.07);
+  --shadow-primary-btn: 0 8px 24px rgba(219, 39, 119, 0.32);
+}
+
+/* ミントテーマ（爽やかな自然・動物保護） */
+[data-theme="mint"] {
+  --bg: #F0FDF4;
+  --bg-gradient: linear-gradient(180deg, #ECFDF5 0%, #F5FBF7 100%);
+  --surface-subtle: #F6FCF8;
+  --border: #DCFCE7;
+  --primary: #059669;
+  --primary-hover: #047857;
+  --primary-weak: #ECFDF5;
+  --primary-glow: rgba(5, 150, 105, 0.25);
+  --shadow-card: 0 6px 20px rgba(5, 150, 105, 0.07);
+  --shadow-primary-btn: 0 8px 24px rgba(5, 150, 105, 0.32);
+}
+
+/* 夜空自習室モード（優しいダークパステルで疲れ目防止） */
+[data-theme="night"] {
+  --bg: #0F172A;
+  --bg-gradient: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+  --surface: #1E293B;
+  --surface-subtle: #27354A;
+  --surface-card: #1E293B;
+  --border: #334155;
+  --border-subtle: #2A394E;
+  --primary: #38BDF8;
+  --primary-hover: #0EA5E9;
+  --primary-weak: #1E3A5F;
+  --primary-glow: rgba(56, 189, 248, 0.3);
+  --text: #F1F5F9;
+  --text-subtle: #94A3B8;
+  --text-muted: #64748B;
+  --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.35);
+  --shadow-primary-btn: 0 8px 24px rgba(56, 189, 248, 0.35);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -62,13 +131,15 @@
 
 body {
   font-family: var(--font-family);
-  background-color: var(--bg);
+  background: var(--bg);
+  background-image: var(--bg-gradient);
   color: var(--text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   touch-action: manipulation;
   user-select: none;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 button {
@@ -76,6 +147,7 @@ button {
   cursor: pointer;
   border: none;
   background: none;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal), background var(--transition-normal);
 }
 
 button:focus-visible, a:focus-visible, input:focus-visible {
@@ -83,3 +155,30 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   outline-offset: 2px;
 }
 
+/* ぷるぷる触感（Jelly bouncy button） */
+@keyframes jellyBounce {
+  0% { transform: scale(1, 1); }
+  30% { transform: scale(1.1, 0.92); }
+  50% { transform: scale(0.95, 1.05); }
+  70% { transform: scale(1.02, 0.98); }
+  100% { transform: scale(1, 1); }
+}
+
+/* ホログラムのきらめき */
+@keyframes shimmerGold {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* 浮遊アニメーション */
+@keyframes softFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* ポップイン */
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  70% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
