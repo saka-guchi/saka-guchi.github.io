@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Settings, Subject } from '../types';
 import { SAMPLE_QUESTIONS, type SampleQuestion } from '../data/sample-data';
+import { ALL_CURRICULUM_QUESTIONS } from '../data/curriculum';
 
 interface AppState {
   // 設定
@@ -69,7 +70,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   correctCount: 0,
 
   startDailySession: (subject) => {
-    let pool = SAMPLE_QUESTIONS;
+    let pool = ALL_CURRICULUM_QUESTIONS;
     if (subject) {
       pool = pool.filter(q => q.subject === subject);
     }

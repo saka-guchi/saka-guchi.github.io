@@ -7,6 +7,8 @@ export interface SampleQuestion {
   prompt: string;
   category: string;
   skillTitle: string;
+  skillId?: string;
+  figureUrl?: string;
   choices?: { id: string; label: string; text: string; isCorrect: boolean }[];
   correctAnswer: any;
   hints: [{ level: 1; text: string }, { level: 2; text: string }];

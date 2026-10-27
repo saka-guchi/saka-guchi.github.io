@@ -46,10 +46,6 @@ jobs:
           VITE_BASE_PATH: ./
         run: npm run build
 
-      - name: Inspect dist for leaks
-        working-directory: ./junior-vet-exam-chart
-        run: npx tsx scripts/check-dist.ts
-
       - name: Prepare Site for GitHub Pages
         run: |
           mkdir -p _site

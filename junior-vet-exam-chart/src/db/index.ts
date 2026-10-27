@@ -43,3 +43,15 @@ class ExamChartDatabase extends Dexie {
 
 export const db = new ExamChartDatabase();
 
+export async function ensureBuiltinPackLoaded(force = false): Promise<void> {
+  try {
+    const existing = await db.contentPacks.get('yasuda-2024');
+    if (!existing || force) {
+      const { BUILTIN_YASUDA_PACK } = await import('../data/curriculum');
+      await db.contentPacks.put(BUILTIN_YASUDA_PACK);
+    }
+  } catch (err) {
+    console.warn('Failed to auto-load builtin pack into IndexedDB:', err);
+  }
+}
+

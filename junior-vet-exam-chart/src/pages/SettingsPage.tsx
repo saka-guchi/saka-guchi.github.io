@@ -200,31 +200,37 @@ export const SettingsPage: React.FC = () => {
           </div>
         </section>
 
-        {/* 教材パック管理 */}
+        {/* 教材パック情報 */}
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>教材パックの管理</h2>
-          <p className={styles.subLabel}>
-            作成した教材パック（ZIPファイル）を読み込むことで、オフラインで本格的な過去問学習ができます。
-          </p>
-
-          <div style={{ marginTop: '14px' }}>
-            <label className={styles.uploadBtn}>
-              📁 教材パック（.zip）を選択して読み込む
-              <input
-                type="file"
-                accept=".zip"
-                style={{ display: 'none' }}
-                onChange={handleZipUpload}
-                data-testid="pack-upload-input"
-              />
-            </label>
+          <h2 className={styles.sectionTitle}>📚 収録教材パック</h2>
+          <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '16px', marginTop: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <span style={{ fontSize: '24px' }}>📦</span>
+              <strong>2024年度 安田学園中学校 入試【理科】</strong>
+              <span style={{ background: '#22C55E', color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '10px' }}>収録済み</span>
+            </div>
+            <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#4B5563', lineHeight: '1.5' }}>
+              全問（基礎・応用・統合・過去問22問・同等改題22問・図版・解説）がアプリ本体に内蔵されています。ZIPファイルの準備やアップロードは不要です。
+            </p>
+            <button
+              className={styles.actionBtn}
+              onClick={async () => {
+                const { ensureBuiltinPackLoaded } = await import('../db');
+                await ensureBuiltinPackLoaded(true);
+                setPackStatus('教材データを最新の内容に再同期しました！');
+              }}
+              style={{ fontSize: '13px', padding: '8px 14px' }}
+            >
+              🔄 教材データを再同期
+            </button>
           </div>
 
           {packStatus && (
             <div
               className={styles.statusBox}
               style={{
-                color: packStatus.includes('エラー') || packStatus.includes('失敗') ? 'var(--error)' : 'var(--success)',
+                color: 'var(--success)',
+                marginTop: '10px',
               }}
               data-testid="pack-status-box"
             >

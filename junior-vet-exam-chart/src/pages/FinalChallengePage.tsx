@@ -6,6 +6,7 @@ import {
   TOTAL_PAGES,
 } from '../data/final-challenge-data';
 import { STAGE1_PAGE_CONTENTS } from '../data/final-challenge-pages';
+import { BUILTIN_YASUDA_PACK } from '../data/curriculum';
 import { DoctorCertificateModal } from '../components/DoctorCertificateModal';
 import styles from './FinalChallengePage.module.css';
 
@@ -15,7 +16,8 @@ export const FinalChallengePage: React.FC = () => {
   const [timeLeftSeconds, setTimeLeftSeconds] = useState(30 * 60); // 30分
   const [currentPage, setCurrentPage] = useState(1); // p.1 (表紙) から開始
   const [zoom, setZoom] = useState(100);
-  const [storedPack, setStoredPack] = useState<StoredPack | null>(null);
+  const [viewMode, setViewMode] = useState<'text' | 'image'>('text');
+  const [storedPack, setStoredPack] = useState<StoredPack | null>(BUILTIN_YASUDA_PACK);
 
   // 回答状態: slotId -> 入力値
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -205,11 +207,30 @@ export const FinalChallengePage: React.FC = () => {
                 100%
               </button>
             </div>
+
+            {pageImageData && (
+              <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
+                <button
+                  className={`${styles.pageBtn} ${viewMode === 'text' ? styles.activeTab : ''}`}
+                  onClick={() => setViewMode('text')}
+                  style={{ fontSize: '12px', background: viewMode === 'text' ? '#DBEAFE' : undefined }}
+                >
+                  📐 テキスト・図表
+                </button>
+                <button
+                  className={`${styles.pageBtn} ${viewMode === 'image' ? styles.activeTab : ''}`}
+                  onClick={() => setViewMode('image')}
+                  style={{ fontSize: '12px', background: viewMode === 'image' ? '#DBEAFE' : undefined }}
+                >
+                  📸 原本スキャン
+                </button>
+              </div>
+            )}
           </div>
 
           <div className={styles.pageWrapper}>
             {stage === 1 ? (
-              pageImageData ? (
+              viewMode === 'image' && pageImageData ? (
                 /* 画像がある場合は実ページ画像を表示（第13章仕様: 元のページ画像をそのまま表示し、拡大できる） */
                 <img
                   src={pageImageData}

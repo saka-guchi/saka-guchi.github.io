@@ -1,0 +1,519 @@
+[
+  {
+    "id": "stage2-rika-2024-01-01-a",
+    "correspondsToQuestionId": "rika-2024-01-01-a",
+    "requiredSkillIds": [
+      "skill-rika-plant-dicot-monocot"
+    ],
+    "prompt": "エンドウの苗を掘り起こして観察したところ、中心にある太くまっすぐ伸びる根が見られました。この中心の太い根を何といいますか。",
+    "answerType": "term",
+    "correctAnswer": "主根",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-01-01-b",
+    "correspondsToQuestionId": "rika-2024-01-01-b",
+    "requiredSkillIds": [
+      "skill-rika-plant-dicot-monocot"
+    ],
+    "prompt": "エンドウの中心の太い根から、枝分かれして周囲に広がっている細い根を何といいますか。",
+    "answerType": "term",
+    "correctAnswer": "側根",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-01-01-c",
+    "correspondsToQuestionId": "rika-2024-01-01-c",
+    "requiredSkillIds": [
+      "skill-rika-plant-vascular"
+    ],
+    "prompt": "エンドウの茎を輪切りにして顕微鏡で観察したところ、維管束の並びが見られました。維管束の外側に位置し、葉で作られたデンプンなどの栄養分を運ぶ管を何といいますか。",
+    "answerType": "term",
+    "correctAnswer": "師管",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-01-01-d",
+    "correspondsToQuestionId": "rika-2024-01-01-d",
+    "requiredSkillIds": [
+      "skill-rika-plant-vascular"
+    ],
+    "prompt": "エンドウの茎の維管束において、内側に位置し、根から吸い上げた水分や養分を運ぶ管を何といいますか。",
+    "answerType": "term",
+    "correctAnswer": "道管",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-01-01-e",
+    "correspondsToQuestionId": "rika-2024-01-01-e",
+    "requiredSkillIds": [
+      "skill-rika-plant-vascular"
+    ],
+    "prompt": "師管と道管が1つに集まって束になっている部分全体を何といいますか。",
+    "answerType": "term",
+    "correctAnswer": "維管束",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-01-02",
+    "correspondsToQuestionId": "rika-2024-01-02",
+    "requiredSkillIds": [
+      "skill-rika-plant-dicot-monocot"
+    ],
+    "prompt": "ツユクサ（単子葉類）の葉を観察すると、葉脈の並び方に特徴がありました。ツユクサの葉脈はどのような筋の配置になっているか、「平行」という言葉を使って簡潔に説明しなさい。",
+    "answerType": "open",
+    "correctAnswer": "葉脈が根元から先端へ向かって平行に配置されている。（または 平行脈をもつ）",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "「平行」に配置されている（平行脈をもつ）こと"
+      },
+      {
+        "id": "el2",
+        "elementText": "根元から先端へ伸びていること"
+      }
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-01-03",
+    "correspondsToQuestionId": "rika-2024-01-03",
+    "requiredSkillIds": [
+      "skill-rika-plant-dicot-monocot"
+    ],
+    "prompt": "次の①〜⑤の植物のうち、エンドウと同じように子葉が2枚で主根と側根をもつ双子葉類の植物をすべて選び、記号で答えなさい。\n① タンポポ　② ススキ　③ アサガオ　④ ユリ　⑤ トウモロコシ",
+    "answerType": "multi_choice",
+    "choices": [
+      {
+        "id": "1",
+        "label": "①",
+        "text": "タンポポ",
+        "isCorrect": true
+      },
+      {
+        "id": "2",
+        "label": "②",
+        "text": "ススキ",
+        "isCorrect": false
+      },
+      {
+        "id": "3",
+        "label": "③",
+        "text": "アサガオ",
+        "isCorrect": true
+      },
+      {
+        "id": "4",
+        "label": "④",
+        "text": "ユリ",
+        "isCorrect": false
+      },
+      {
+        "id": "5",
+        "label": "⑤",
+        "text": "トウモロコシ",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": [
+      "1",
+      "3"
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-01-04-c",
+    "correspondsToQuestionId": "rika-2024-01-04-c",
+    "requiredSkillIds": [
+      "skill-rika-plant-vascular"
+    ],
+    "prompt": "植物の「師管」のはたらきを、何をどこからどこへ運ぶかに着目して簡潔に説明しなさい。",
+    "answerType": "open",
+    "correctAnswer": "葉の光合成で作られたデンプン（糖・栄養分）を植物の全身へ運ぶ働き。",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "葉の光合成で作られた栄養分（デンプンや糖）であること"
+      },
+      {
+        "id": "el2",
+        "elementText": "植物の全身（根など）へ運ぶ働きであること"
+      }
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-01-04-d",
+    "correspondsToQuestionId": "rika-2024-01-04-d",
+    "requiredSkillIds": [
+      "skill-rika-plant-vascular"
+    ],
+    "prompt": "植物の「道管」のはたらきを、何をどこからどこへ運ぶかに着目して簡潔に説明しなさい。",
+    "answerType": "open",
+    "correctAnswer": "根から吸収した水や養分を植物の全身（葉など）へ運ぶ働き。",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "根から吸収した水や養分であること"
+      },
+      {
+        "id": "el2",
+        "elementText": "全身（葉など）へ運ぶ働きであること"
+      }
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-01-05",
+    "correspondsToQuestionId": "rika-2024-01-05",
+    "requiredSkillIds": [
+      "skill-rika-plant-root-hair"
+    ],
+    "prompt": "根の先端近くの表面をルーペで観察すると、無数の細かい毛のような構造が見られます。この構造を何といいますか。",
+    "answerType": "term",
+    "correctAnswer": "根毛",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-01-06",
+    "correspondsToQuestionId": "rika-2024-01-06",
+    "requiredSkillIds": [
+      "skill-rika-plant-root-hair"
+    ],
+    "prompt": "根に根毛が無数に生えていることは、土の中で植物にとってどのような利点がありますか。「表面積」という言葉を使って説明しなさい。",
+    "answerType": "open",
+    "correctAnswer": "根の表面積を大きく広げることで、土の中の水分や養分を効率よく吸収できる利点。",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "根の表面積を大きく（広げる）すること"
+      },
+      {
+        "id": "el2",
+        "elementText": "水や養分を効率よく（多く）吸収できること"
+      }
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-02-01",
+    "correspondsToQuestionId": "rika-2024-02-01",
+    "requiredSkillIds": [
+      "skill-rika-gas-co2"
+    ],
+    "prompt": "二酸化炭素の性質として正しいものを、次のア〜オからすべて選び記号で答えなさい。",
+    "answerType": "multi_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "空気よりも密度が大きく、下方置換法で集めることができる",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "火のついた線香を入れると、炎が激しく燃え上がる",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "石灰水に通すと、炭酸カルシウムが生じて白く濁る",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "アンモニアと同じように水に非常に溶けやすい気体である",
+        "isCorrect": false
+      },
+      {
+        "id": "e",
+        "label": "オ",
+        "text": "鼻につく強い刺激臭がある",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": [
+      "a",
+      "c"
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-02-02",
+    "correspondsToQuestionId": "rika-2024-02-02",
+    "requiredSkillIds": [
+      "skill-rika-gas-co2"
+    ],
+    "prompt": "実験室で二酸化炭素を発生させる方法として最も適切なものを、次のア〜エから1つ選び記号で答えなさい。",
+    "answerType": "choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "石灰石（炭酸カルシウム）にうすい塩酸を加える",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "亜鉛のかたまりにうすい塩酸を加える",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "二酸化マンガンにオキシドール（過酸化水素水）を加える",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "水酸化ナトリウム水溶液にアルミニウムを入れる",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-02-03",
+    "correspondsToQuestionId": "rika-2024-02-03",
+    "requiredSkillIds": [
+      "skill-rika-env-greenhouse"
+    ],
+    "prompt": "地球の表面から宇宙へ逃げていく熱（赤外線）を吸収し、地表を暖める効果をもつ気体を総称して何といいますか。",
+    "answerType": "term",
+    "correctAnswer": "温室効果ガス",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-02-04",
+    "correspondsToQuestionId": "rika-2024-02-04",
+    "requiredSkillIds": [
+      "skill-rika-env-greenhouse"
+    ],
+    "prompt": "二酸化炭素以外で、水田や牛のげっぷなどから発生し、強力な温室効果をもつ気体を次のア〜オから1つ選び記号で答えなさい。",
+    "answerType": "choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "窒素",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "メタン",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "酸素",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "水素",
+        "isCorrect": false
+      },
+      {
+        "id": "e",
+        "label": "オ",
+        "text": "ヘリウム",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "b",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-02-05",
+    "correspondsToQuestionId": "rika-2024-02-05",
+    "requiredSkillIds": [
+      "skill-rika-env-greenhouse"
+    ],
+    "prompt": "産業革命前と比べると、世界の植物の光合成量が増加していることが観測されています。気温の上昇以外で、光合成が促進されている最大の原因は何ですか。",
+    "answerType": "open",
+    "correctAnswer": "大気中の二酸化炭素（の濃度）が増加したため。",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "二酸化炭素"
+      },
+      {
+        "id": "el2",
+        "elementText": "濃度や量が増加したこと"
+      }
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-02-06",
+    "correspondsToQuestionId": "rika-2024-02-06",
+    "requiredSkillIds": [
+      "skill-rika-env-ocean-acidification"
+    ],
+    "prompt": "ある年の調査では、人間の活動によって大気中に排出された二酸化炭素は96億トンでした。そのうち陸上植物が28億トンを吸収し、海洋が23億トンを吸収しました。この年、大気中に増加した二酸化炭素は何億トンですか。（単位: 億トン）",
+    "answerType": "numeric",
+    "correctAnswer": "45",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-02-07",
+    "correspondsToQuestionId": "rika-2024-02-07",
+    "requiredSkillIds": [
+      "skill-rika-env-ocean-acidification"
+    ],
+    "prompt": "海水に二酸化炭素が多く溶け込むことによって生じる地球規模の環境影響として最も適切なものを、次のア〜エから1つ選び記号で答えなさい。",
+    "answerType": "choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "海水が酸性側に傾き、サンゴや貝類が殻や骨格を作りにくくなる（海洋酸性化）",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "海水の塩分濃度が急激に低下し、汽水湖のようになる",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "海水の浮力が著しく増大し、潜水艦が潜水できなくなる",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "海水の酸素濃度が異常に上昇し、深海生物が死滅する",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-03-01",
+    "correspondsToQuestionId": "rika-2024-03-01",
+    "requiredSkillIds": [
+      "skill-rika-physics-buoyancy-principle"
+    ],
+    "prompt": "底面積50cm2、高さ8cmで重さが1200gの直方体の金属ブロックを、水槽の水（密度1.0g/cm3）の中に完全に沈めました。この金属ブロックが水から受ける浮力の大きさは何gですか。（単位: g）",
+    "answerType": "numeric",
+    "correctAnswer": "400",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-03-02",
+    "correspondsToQuestionId": "rika-2024-03-02",
+    "requiredSkillIds": [
+      "skill-rika-physics-density-floating"
+    ],
+    "prompt": "水に完全に沈んでいるこの金属ブロック（体積400cm3、重さ1200g）について述べた文章として正しいものを、次の①〜⑤からすべて選び記号で答えなさい。\n① 水槽の水を食塩水（密度1.15g/cm3）に変えても、この金属ブロックは底に沈んだままである。\n② このブロックを水槽の底近く（水深30cm）まで沈めると、受ける浮力は水面直下（水深5cm）のときの2倍になる。\n③ このブロックをちょうど半分に切断して水に入れると、1つの重さが600gに減るため水に浮くようになる。\n④ このブロックの中央をくり抜いて空洞を作り、全体の重さを300g（体積400cm3のまま）にすると水に浮くようになる。\n⑤ 水槽の中の水の量を2倍に増やすと、金属ブロックが受ける浮力も2倍になる。",
+    "answerType": "multi_choice",
+    "choices": [
+      {
+        "id": "1",
+        "label": "①",
+        "text": "① 食塩水（密度1.15g/cm3）に変えても、このブロックは沈んだままである",
+        "isCorrect": true
+      },
+      {
+        "id": "2",
+        "label": "②",
+        "text": "② 水深30cmまで深く沈めると、受ける浮力は2倍になる",
+        "isCorrect": false
+      },
+      {
+        "id": "3",
+        "label": "③",
+        "text": "③ 半分に切断して重さ600gにすると水に浮くようになる",
+        "isCorrect": false
+      },
+      {
+        "id": "4",
+        "label": "④",
+        "text": "④ 中央をくり抜いて重さ300g（体積400cm3）にすると水に浮くようになる",
+        "isCorrect": true
+      },
+      {
+        "id": "5",
+        "label": "⑤",
+        "text": "⑤ 水の量を2倍に増やすと受ける浮力も2倍になる",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": [
+      "1",
+      "4"
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-03-03-no",
+    "correspondsToQuestionId": "rika-2024-03-03-no",
+    "requiredSkillIds": [
+      "skill-rika-physics-galileo-thermometer"
+    ],
+    "prompt": "ガリレオ温度計のしくみを説明した次の文章の下線部①〜④の中で、科学的に誤っているものの番号を答えなさい。\n「ガリレオ温度計は温度による液体の密度変化を利用しています。気温が上昇すると液体の体積が膨張するため、密度は①小さくなります。その結果、液体から浮きが受ける浮力は②大きくなります。そのため、浮きのプレート温度よりも気温が高くなるとその浮きは③沈みます。この温度計には水ではなく、温度による密度変化が④大きい液体が使われています。」",
+    "answerType": "choice",
+    "choices": [
+      {
+        "id": "1",
+        "label": "①",
+        "text": "① 小さく",
+        "isCorrect": false
+      },
+      {
+        "id": "2",
+        "label": "②",
+        "text": "② 大きく",
+        "isCorrect": true
+      },
+      {
+        "id": "3",
+        "label": "③",
+        "text": "③ 沈みます",
+        "isCorrect": false
+      },
+      {
+        "id": "4",
+        "label": "④",
+        "text": "④ 大きい",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "2",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-rika-2024-03-03-text",
+    "correspondsToQuestionId": "rika-2024-03-03-text",
+    "requiredSkillIds": [
+      "skill-rika-physics-galileo-thermometer"
+    ],
+    "prompt": "問3で選んだ下線部②の誤りを、科学的に正しい言葉（表現）に直しなさい。",
+    "answerType": "open",
+    "correctAnswer": "小さく（または 減少）",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "「小さく」または「減少する」こと"
+      },
+      {
+        "id": "el2",
+        "elementText": "液体の密度低下に伴い浮力が低下する意味であること"
+      }
+    ],
+    "validationStatus": "human_verified"
+  }
+]

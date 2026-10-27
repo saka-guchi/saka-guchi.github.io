@@ -1,0 +1,74 @@
+[
+  {
+    "id": "skill-rika-plant-dicot-monocot",
+    "subject": "rika",
+    "title": "双子葉類と単子葉類のつくりと仲間分け",
+    "description": "根（主根・側根とひげ根）、茎の維管束配置、葉脈（網状脈と平行脈）、および代表的な植物の分類。",
+    "level": "core",
+    "category": "植物のつくりとはたらき"
+  },
+  {
+    "id": "skill-rika-plant-vascular",
+    "subject": "rika",
+    "title": "維管束の配置と道管・師管のはたらき",
+    "description": "茎における道管（内側・根から水）と師管（外側・葉から栄養分）の配置とはたらきの理解。",
+    "level": "core",
+    "category": "植物のつくりとはたらき"
+  },
+  {
+    "id": "skill-rika-plant-root-hair",
+    "subject": "rika",
+    "title": "根毛の構造と表面積の役割",
+    "description": "根毛によって表面積を広げ、水や養分の吸収効率を高める原理。",
+    "level": "primary",
+    "category": "植物のつくりとはたらき"
+  },
+  {
+    "id": "skill-rika-gas-co2",
+    "subject": "rika",
+    "title": "二酸化炭素の性質と発生方法",
+    "description": "二酸化炭素の性質（石灰水白濁、固体ドライアイス、空気より重い等）とうすい塩酸＋石灰石/卵殻による発生法。",
+    "level": "primary",
+    "category": "気体の性質"
+  },
+  {
+    "id": "skill-rika-env-greenhouse",
+    "subject": "rika",
+    "title": "温室効果ガスと地球温暖化のメカニズム",
+    "description": "二酸化炭素やメタンなどの温室効果ガス、光合成と二酸化炭素濃度の関係。",
+    "level": "core",
+    "category": "地球環境と気候変動"
+  },
+  {
+    "id": "skill-rika-env-ocean-acidification",
+    "subject": "rika",
+    "title": "海洋酸性化と地球規模の炭素収支計算",
+    "description": "二酸化炭素の排出量・吸収量・増加量の収支計算と、海水に二酸化炭素が溶けることで生じる海洋酸性化。",
+    "level": "primary",
+    "category": "地球環境と気候変動"
+  },
+  {
+    "id": "skill-rika-physics-buoyancy-principle",
+    "subject": "rika",
+    "title": "アルキメデスの原理と浮力の計算",
+    "description": "物体が押しのけた液体の重さに等しい浮力を受けることの理解と計算。",
+    "level": "core",
+    "category": "浮力と密度"
+  },
+  {
+    "id": "skill-rika-physics-density-floating",
+    "subject": "rika",
+    "title": "物体の密度と浮き沈みの条件判断",
+    "description": "物体の密度と液体の密度を比較し、浮き沈みや条件変化（くり抜き、液体の変更等）による挙動を正しく判断する力。",
+    "level": "core",
+    "category": "浮力と密度"
+  },
+  {
+    "id": "skill-rika-physics-galileo-thermometer",
+    "subject": "rika",
+    "title": "液体の温度変化による密度変化とガリレオ温度計",
+    "description": "温度上昇に伴う液体の密度減少と浮力低下、ガリレオ温度計の読み取り原理。",
+    "level": "core",
+    "category": "浮力と密度"
+  }
+]
