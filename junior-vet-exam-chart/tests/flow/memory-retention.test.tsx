@@ -56,3 +56,4 @@ describe('Memory Retention Meter Boost Flow', () => {
     expect(retentionDisplay).toHaveTextContent(`${getMemoryRetention(skillId)}%`);
   });
 });
+

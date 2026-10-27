@@ -478,22 +478,47 @@ export const HomePage: React.FC = () => {
 
           {/* 右カラム: 🏆 合格ドクター認定試験 */}
           <div className={styles.card} data-testid="card-final-challenge">
-            <h3 className={styles.cardTitle} style={{ margin: 0 }}>
-              🏆 合格ドクター認定試験
-            </h3>
-            <div className={styles.challengeStatus} style={{ marginTop: '4px' }}>
-              <span className={styles.lockBadge}>
-                🔑 カギのかけら {masteredCount} / {filteredSkills.length} 集まったよ！（{selectedStudySubject === 'all' ? '全教科' : selectedStudySubject === 'rika' ? '理科' : selectedStudySubject === 'sansu' ? '算数' : '社会'}）
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <h3 className={styles.cardTitle} style={{ margin: 0 }}>
+                🏆 合格ドクター認定試験
+              </h3>
+              <span style={{ fontSize: '12px', background: 'var(--primary-weak)', color: 'var(--primary)', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+                理科・算数・社会
               </span>
-              <p className={styles.challengeNoticeText}>
-                <strong>【理科・算数・社会の3教科対応】</strong><br />
-                過去問原本スキャンでの本番模試（Stage 1）や、同等レベルの未見演習セット（Stage 2）に挑戦できます！
-              </p>
+            </div>
+
+            <div className={styles.challengeStatus}>
+              {/* カギの進度と集め方の説明 */}
+              <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <strong style={{ fontSize: '13px', color: '#92400e' }}>
+                    🔑 合格のカギ: {masteredCount} / {filteredSkills.length} 個
+                  </strong>
+                  <span style={{ fontSize: '11px', color: '#b45309', fontWeight: 'bold' }}>
+                    {selectedSkillSubject === 'all' ? '全教科' : selectedSkillSubject === 'rika' ? '理科' : selectedSkillSubject === 'sansu' ? '算数' : '社会'}
+                  </span>
+                </div>
+                <div style={{ fontSize: '12px', color: '#78350f', marginTop: '4px', lineHeight: '1.5' }}>
+                  【カギの集め方】左のカルテでテーマを学習し、<strong>【⭐Lv.4 マスター】</strong>にすると手に入ります。
+                </div>
+              </div>
+
+              {/* 試験内容の説明 */}
+              <div style={{ fontSize: '13px', color: 'var(--text)', lineHeight: '1.6', marginBottom: '12px' }}>
+                実際の入試問題に挑む総合テストです。各教科いつでも力試しに挑戦できます！
+                <ul style={{ margin: '6px 0 0 0', paddingLeft: '18px', fontSize: '12px', color: 'var(--text-subtle)' }}>
+                  <li><strong>Stage 1（過去問本番）</strong>: 実際の入試用紙原本スキャンを見ながら受験</li>
+                  <li><strong>Stage 2（同等未見テスト）</strong>: 同じ難易度で数値を変更した実力判定テスト</li>
+                </ul>
+              </div>
 
               {/* クリア報酬カード */}
               <div className={styles.rewardCard}>
                 <div className={styles.rewardTitle}>
                   <span>🎖️ 満点クリアの豪華報酬！</span>
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginBottom: '6px' }}>
+                  全テーマでカギ（Lv.4）を集め、認定試験で満点を取ると授与されます：
                 </div>
                 <ul className={styles.rewardList}>
                   <li>👑 <strong>「合格ドクター認定証（ライセンス）」</strong>授与＆画像保存！</li>
@@ -511,7 +536,7 @@ export const HomePage: React.FC = () => {
               }}
               data-testid="final-challenge-link-btn"
             >
-              本番認定試験（理科・算数・社会）を受ける
+              合格ドクター認定試験を受ける 🏆
             </button>
           </div>
         </div>
