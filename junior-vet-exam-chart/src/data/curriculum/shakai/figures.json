@@ -1,0 +1,67 @@
+[
+  {
+    "id": "fig-shakai-01-map",
+    "subject": "shakai",
+    "pageNumber": 2,
+    "pageFileName": "mondai_p002.png",
+    "cropRect": [
+      0.45,
+      0.55,
+      0.5,
+      0.22
+    ],
+    "caption": "大問1 図1 北海道エリア図"
+  },
+  {
+    "id": "fig-shakai-01-tables",
+    "subject": "shakai",
+    "pageNumber": 3,
+    "pageFileName": "mondai_p003.png",
+    "cropRect": [
+      0.18,
+      0.14,
+      0.65,
+      0.14
+    ],
+    "caption": "大問1 問4 都道府県面積と米収穫量"
+  },
+  {
+    "id": "fig-shakai-01-fish-table",
+    "subject": "shakai",
+    "pageNumber": 3,
+    "pageFileName": "mondai_p003.png",
+    "cropRect": [
+      0.12,
+      0.4,
+      0.78,
+      0.12
+    ],
+    "caption": "大問1 問5 魚種別漁獲量割合"
+  },
+  {
+    "id": "fig-shakai-02-japan-map",
+    "subject": "shakai",
+    "pageNumber": 4,
+    "pageFileName": "mondai_p004.png",
+    "cropRect": [
+      0.35,
+      0.72,
+      0.4,
+      0.2
+    ],
+    "caption": "大問2 問1 日本地図と古墳"
+  },
+  {
+    "id": "fig-shakai-02-edo-art",
+    "subject": "shakai",
+    "pageNumber": 5,
+    "pageFileName": "mondai_p005.png",
+    "cropRect": [
+      0.14,
+      0.38,
+      0.72,
+      0.33
+    ],
+    "caption": "大問2 問4 美術品・絵画ア〜エ"
+  }
+]

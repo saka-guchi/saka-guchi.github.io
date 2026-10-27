@@ -1,0 +1,97 @@
+[
+  {
+    "id": "trans-shakai-01",
+    "sourceQuestionIds": [
+      "shakai-2024-02-09-why"
+    ],
+    "requiredSkillIds": [
+      "skill-shakai-hist-taiko-katana-gari"
+    ],
+    "changedAspects": [
+      "太閤検地の目的との対比",
+      "兵農分離の本質"
+    ],
+    "expectedReasoning": "秀吉は刀狩りと太閤検地によって農民と武士の身分を厳格に分け、一揆を防いで安定した年貢徴収を実現した。",
+    "prompt": "豊臣秀吉がおこなった「刀狩り」と「太閤検地」が共通してめざした、社会の身分や秩序に関する目的は何ですか？",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "武士と農民の身分を明確に区別する「兵農分離」を進め、一揆を防ぐこと",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "すべての農民を武士にして軍隊を増強すること",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "キリスト教を全国に普及させること",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "農民から武器を取り上げ、田畑を登録して年貢を確実に納めさせました。"
+      },
+      {
+        "level": 2,
+        "text": "「兵農分離」というキーワードを思い出しましょう。"
+      }
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "trans-shakai-02",
+    "sourceQuestionIds": [
+      "shakai-2024-03-04"
+    ],
+    "requiredSkillIds": [
+      "skill-shakai-civics-constitution-judiciary"
+    ],
+    "changedAspects": [
+      "公布日と施行日の区別"
+    ],
+    "expectedReasoning": "日本国憲法は1946年11月3日（文化の日）に公布され、6か月後の1947年5月3日（憲法記念日）に施行された。",
+    "prompt": "日本国憲法の「公布された日（文化の日）」と「施行された日（憲法記念日）」の正しい組み合わせを選びなさい。",
+    "format": "delayed_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "公布：1946年11月3日 ／ 施行：1947年5月3日",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "公布：1945年8月15日 ／ 施行：1946年11月3日",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "公布：1947年5月3日 ／ 施行：1948年11月3日",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "国民に周知するための準備期間として約半年間の差があります。"
+      },
+      {
+        "level": 2,
+        "text": "公布は1946年の文化の日、施行は1947年の憲法記念日です。"
+      }
+    ],
+    "validationStatus": "human_verified"
+  }
+]

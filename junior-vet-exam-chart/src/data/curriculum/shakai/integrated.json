@@ -1,0 +1,43 @@
+[
+  {
+    "id": "integ-shakai-01",
+    "requiredSkillIds": [
+      "skill-shakai-geo-hokkaido",
+      "skill-shakai-civics-unesco-heritage"
+    ],
+    "prompt": "【地理×公民の統合問題】北海道にある世界自然遺産として「知床」が登録されています。知床が世界自然遺産に認められた大きな特徴は何ですか？",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "流氷がもたらす豊かな海の生態系と、サケを食べるヒグマやオジロワシなど陸の生態系が密接につながっている点",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "日本で最も広大な熱帯雨林が広がっている点",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "世界で唯一活火山が存在しない地域である点",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "冬にオホーツク海から接岸する「流氷」がプランクトンを育みます。"
+      },
+      {
+        "level": 2,
+        "text": "海と陸の食物連鎖がつながっていることが最大の評価点です。"
+      }
+    ],
+    "validationStatus": "human_verified"
+  }
+]

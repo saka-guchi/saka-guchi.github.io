@@ -1,0 +1,1164 @@
+[
+  {
+    "id": "trans-rika-dicot-01",
+    "sourceQuestionIds": [
+      "rika-2024-01-02",
+      "rika-2024-01-03"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-plant-dicot-monocot"
+    ],
+    "changedAspects": [
+      "植物の題材（ツユクサとエンドウ）",
+      "問い方（葉脈と根の組み合わせ）",
+      "選択肢構成"
+    ],
+    "expectedReasoning": "ツユクサは単子葉類（ひげ根・平行脈）、エンドウは双子葉類（主根側根・網状脈）であることを見分ける。",
+    "prompt": "道ばたでツユクサを観察しました。ツユクサの根と葉脈の特徴の組み合わせとして正しいものはどれですか？",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "根：主根と側根、葉脈：網状脈",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "根：ひげ根、葉脈：平行脈",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "根：ひげ根、葉脈：網状脈",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "根：主根と側根、葉脈：平行脈",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "b",
+    "hints": [
+      {
+        "level": 1,
+        "text": "ツユクサはイネやトウモロコシと同じ単子葉類です。"
+      },
+      {
+        "level": 2,
+        "text": "単子葉類の根は「ひげ根」、葉脈は「平行脈」です。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-dicot-02",
+    "sourceQuestionIds": [
+      "rika-2024-01-03"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-plant-dicot-monocot"
+    ],
+    "changedAspects": [
+      "題材（身近な野菜・花）",
+      "問い方（仲間外れの選択）",
+      "選択肢数"
+    ],
+    "expectedReasoning": "タンポポ・アサガオ・ヒマワリは双子葉類、ユリは単子葉類であることを見抜く。",
+    "prompt": "次の植物のうち、子葉が1枚で葉脈が平行脈である単子葉類を1つ選びなさい。",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "タンポポ",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "アサガオ",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "ユリ",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "ヒマワリ",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "c",
+    "hints": [
+      {
+        "level": 1,
+        "text": "花びらの数や葉の筋の通り方に注目しましょう。"
+      },
+      {
+        "level": 2,
+        "text": "ユリの葉はすっとまっすぐ平行に筋が通っています。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-dicot-03",
+    "sourceQuestionIds": [
+      "rika-2024-01-01-a",
+      "rika-2024-01-02"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-plant-dicot-monocot"
+    ],
+    "changedAspects": [
+      "発芽時の観察実験",
+      "数値（子葉枚数）",
+      "文章判定形式"
+    ],
+    "expectedReasoning": "トウモロコシは単子葉類なので子葉は1枚、根はひげ根になることを判断する。",
+    "prompt": "トウモロコシの種子を発芽させたときの観察記録として正しいものを1つ選びなさい。",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "はじめに太い主根が伸び、子葉が2枚開いた",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "子葉は1枚で、根元から多数のひげ根が広がった",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "網目状の葉脈をもつ本葉が最初に出てきた",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "b",
+    "hints": [
+      {
+        "level": 1,
+        "text": "トウモロコシは単子葉類です。"
+      },
+      {
+        "level": 2,
+        "text": "子葉は1枚、根はひげ根になります。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-vasc-01",
+    "sourceQuestionIds": [
+      "rika-2024-01-01-c",
+      "rika-2024-01-04-c"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-plant-vascular"
+    ],
+    "changedAspects": [
+      "赤いインクを吸わせる実験への応用",
+      "着目点（道管の染まり）",
+      "図のシチュエーション"
+    ],
+    "expectedReasoning": "根から吸い上げた赤インク水は内側の道管を通るため、茎の内側が赤く染まる。",
+    "prompt": "セロリの茎を赤い色水に数時間つけたあと輪切りにしました。赤く染まるのは維管束のどの部分ですか？",
+    "format": "delayed_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "内側の道管",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "外側の師管",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "表皮のすぐ外側",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "赤い色水は根や切り口から吸い上げられた「水分」です。"
+      },
+      {
+        "level": 2,
+        "text": "水が通る管（道管）は維管束の内側にあります。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-vasc-02",
+    "sourceQuestionIds": [
+      "rika-2024-01-04-c",
+      "rika-2024-01-04-d"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-plant-vascular"
+    ],
+    "changedAspects": [
+      "樹木の環状はく皮実験",
+      "栄養分の移動経路",
+      "理由選択形式"
+    ],
+    "expectedReasoning": "外側の樹皮（師管を含む）を一周剥ぎ取ると、葉で作られた栄養が根に届かなくなる。",
+    "prompt": "木の幹の表面（樹皮）を帯状にぐるりと削り取ると、削った部分より上が太くなりました。この理由として正しいものはどれですか？",
+    "format": "why_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "外側の師管が切られ、葉で作られたデンプン（栄養分）が下に運べず溜まったから",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "内側の道管が切られ、根からの水が溜まったから",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "空中の酸素が幹の中に大量に入ったから",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "樹皮に近い外側を通っている管は「師管」です。"
+      },
+      {
+        "level": 2,
+        "text": "葉から根に向かって栄養分（師管）が運ばれる途中で止められた現象です。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-vasc-03",
+    "sourceQuestionIds": [
+      "rika-2024-01-01-d",
+      "rika-2024-01-01-e"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-plant-vascular"
+    ],
+    "changedAspects": [
+      "単子葉類の茎の断面",
+      "維管束の散在配置",
+      "模式図読み取り"
+    ],
+    "expectedReasoning": "単子葉類の茎では維管束が輪状ではなく、断面全体に散らばっている。",
+    "prompt": "トウモロコシ（単子葉類）の茎の断面における維管束の並び方の特徴として正しいものはどれですか？",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "きれいなひとつの円を描くように輪状に並んでいる",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "断面全体に散らばるように散在している",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "中心に1つだけ巨大な維管束がある",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "b",
+    "hints": [
+      {
+        "level": 1,
+        "text": "双子葉類は輪状、単子葉類はどのようになっているか思い出しましょう。"
+      },
+      {
+        "level": 2,
+        "text": "単子葉類の維管束は散らばって配置されています。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-root-01",
+    "sourceQuestionIds": [
+      "rika-2024-01-06"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-plant-root-hair"
+    ],
+    "changedAspects": [
+      "移植（植え替え）時の注意点への応用",
+      "現象の理由説明",
+      "シチュエーション変更"
+    ],
+    "expectedReasoning": "植え替え時に根の土を落としすぎると根毛が傷つき、吸水できずに萎れる。",
+    "prompt": "植物の苗を植え替えるとき、根のまわりの土を崩さないように植えるのはなぜですか？",
+    "format": "why_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "繊細な根毛が切れて壊れると、水分を十分に吸収できなくなるから",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "土を落とすと根が光合成を始めてしまうから",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "土の中に閉じ込められた二酸化炭素を逃がさないため",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "根の表面にある「根毛」のはたらきと脆さに注目しましょう。"
+      },
+      {
+        "level": 2,
+        "text": "根毛が傷つくと水が吸えなくなって植物が枯れてしまいます。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-root-02",
+    "sourceQuestionIds": [
+      "rika-2024-01-05",
+      "rika-2024-01-06"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-plant-root-hair"
+    ],
+    "changedAspects": [
+      "人体（小腸の柔毛・肺の肺胞）との比較共通点",
+      "生物学的原理の統合",
+      "4択"
+    ],
+    "expectedReasoning": "根毛・小腸の柔毛・肺の肺胞はいずれも表面積を広げて物質のやり取り効率を高める共通原理。",
+    "prompt": "植物の根毛と同じく「表面積を大きくして効率よく吸収・交換を行う」人体のつくりはどれですか？",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "小腸の内壁にある柔毛",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "胃の筋肉の壁",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "心臓の弁",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "大脳の神経細胞",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "栄養分を効率よく吸収するためのひだや突起の構造を思い出し合おう。"
+      },
+      {
+        "level": 2,
+        "text": "小腸の「柔毛（じゅうもう）」が全く同じ原理です。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-co2-01",
+    "sourceQuestionIds": [
+      "rika-2024-02-01",
+      "rika-2024-02-02"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-gas-co2"
+    ],
+    "changedAspects": [
+      "入浴剤（炭酸ガス）からの発生",
+      "気体の捕集法（下方置換・水上置換）",
+      "実験器具の選択"
+    ],
+    "expectedReasoning": "二酸化炭素は水に少し溶け、空気より重いため、下方置換または水上置換で集める。",
+    "prompt": "炭酸水素ナトリウムを含む発泡入浴剤に水を加えて発生させた気体を集める方法として最も適したものはどれですか？",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "空気より重いので下方置換（または水上置換）で集める",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "空気より軽いので上方置換で集める",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "水に非常に激しく溶けるので水上置換は絶対にできない",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "発生する気体は二酸化炭素です。空気より重いか軽いかを考えましょう。"
+      },
+      {
+        "level": 2,
+        "text": "空気より重い気体を集めるのは「下方置換」です。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-co2-02",
+    "sourceQuestionIds": [
+      "rika-2024-02-01"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-gas-co2"
+    ],
+    "changedAspects": [
+      "ドライアイスの昇華実験",
+      "質量と状態変化",
+      "気体検知管の反応"
+    ],
+    "expectedReasoning": "ドライアイスは二酸化炭素の固体であり、液体を経ずに直接気体になる（昇華）。石灰水を白濁させる。",
+    "prompt": "密閉したビニール袋にドライアイスの小片を入れて放置したところ、袋が大きく膨らみました。この気体について正しい説明はどれですか？",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "火のついた線香を入れると激しく燃え上がる",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "石灰水に通すと白く濁り、火のついた線香を入れると消える",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "刺激臭があり、赤色リトマス紙を青色に変える",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "b",
+    "hints": [
+      {
+        "level": 1,
+        "text": "ドライアイスが気体になったものです。"
+      },
+      {
+        "level": 2,
+        "text": "二酸化炭素の性質である「ものを燃やす働きがない」「石灰水を白濁させる」を選びます。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-greenhouse-01",
+    "sourceQuestionIds": [
+      "rika-2024-02-03",
+      "rika-2024-02-04"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-env-greenhouse"
+    ],
+    "changedAspects": [
+      "金星の大気環境への転用",
+      "温室効果の原理説明",
+      "宇宙科学との融合"
+    ],
+    "expectedReasoning": "金星の表面温度が約460℃と極めて高いのは、大気の約96%が二酸化炭素で強力な温室効果が働くため。",
+    "prompt": "太陽に近い水星よりも、少し遠い金星の方が表面温度が約460℃と高くなっています。この理由として正しいものはどれですか？",
+    "format": "why_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "金星の大気の大部分が二酸化炭素であり、強力な温室効果が働いているから",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "金星の内部で常に核爆発が起きているから",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "金星の自転速度が極めて速く摩擦熱が生じるから",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "金星の大気成分（約96%が二酸化炭素）に着目しましょう。"
+      },
+      {
+        "level": 2,
+        "text": "二酸化炭素が熱（赤外線）を閉じ込める「温室効果」が極端に働いています。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-greenhouse-02",
+    "sourceQuestionIds": [
+      "rika-2024-02-05"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-env-greenhouse"
+    ],
+    "changedAspects": [
+      "ビニールハウス内の促成栽培",
+      "光合成促進の農業技術",
+      "実験条件の判断"
+    ],
+    "expectedReasoning": "光合成を活性化させるため、ハウス内に二酸化炭素を人工的に送り込む技術（炭酸ガス施用）。",
+    "prompt": "冬のイチゴ栽培ハウスで、あえて二酸化炭素発生装置を動かしてハウス内の二酸化炭素濃度を高める目的は何ですか？",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "光合成の材料を増やし、作物の成長や果実の糖度を高めるため",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "害虫を窒息させて駆除するため",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "土の中の水分を蒸発させないため",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "光合成に必要な3大要素（光・水・二酸化炭素）を思い出しましょう。"
+      },
+      {
+        "level": 2,
+        "text": "二酸化炭素濃度を上げると植物の光合成量が増加します。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-greenhouse-03",
+    "sourceQuestionIds": [
+      "rika-2024-02-04"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-env-greenhouse"
+    ],
+    "changedAspects": [
+      "永久凍土の融解による悪循環",
+      "発生気体の特定",
+      "環境問題の因果連鎖"
+    ],
+    "expectedReasoning": "シベリア等の永久凍土が温暖化で融けると、閉じ込められていたメタンが大量に放出され、さらに温暖化が加速する。",
+    "prompt": "地球温暖化によって北極圏の永久凍土が解けると、強力な温室効果をもつ気体が放出されて温暖化がさらに進むと懸念されています。この気体は何ですか？",
+    "format": "delayed_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "メタン",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "窒素",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "オゾン",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "ヘリウム",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "二酸化炭素の20倍以上の温室効果をもつ気体です。"
+      },
+      {
+        "level": 2,
+        "text": "湿地や凍土の有機物分解で発生する「メタン」です。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-ocean-01",
+    "sourceQuestionIds": [
+      "rika-2024-02-07"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-env-ocean-acidification"
+    ],
+    "changedAspects": [
+      "サンゴ礁への具体的被害",
+      "炭酸カルシウムの溶解",
+      "理由選択形式"
+    ],
+    "expectedReasoning": "海水が酸性化すると、サンゴや貝類が骨格や殻（炭酸カルシウム）を作りにくくなり、溶けてしまう。",
+    "prompt": "二酸化炭素が海水に多く溶けて酸性化が進むと、サンゴや貝類にどのような悪影響が出ますか？",
+    "format": "why_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "殻や骨格の主成分である炭酸カルシウムが作りにくくなり、溶けやすくなる",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "海水の浮力が大きくなりすぎて底に潜れなくなる",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "海水の塩分がゼロになってしまう",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "卵の殻や貝殻の成分（炭酸カルシウム）が酸とどう反応するかを思い出しましょう。"
+      },
+      {
+        "level": 2,
+        "text": "酸性の液体の中では炭酸カルシウムの殻や骨格が溶けてしまいます。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-ocean-02",
+    "sourceQuestionIds": [
+      "rika-2024-02-06"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-env-ocean-acidification"
+    ],
+    "changedAspects": [
+      "数値変更（森林吸収量と工業排出量）",
+      "単位変更（万トン）",
+      "文章題計算"
+    ],
+    "expectedReasoning": "排出量 - (森林吸収 + 海洋吸収) = 大気中増加量。",
+    "prompt": "ある地域で年間80万トンの二酸化炭素が排出され、森林が25万トン、海が15万トンを吸収しました。この年、大気中に増加した二酸化炭素は何万トンですか？",
+    "format": "numeric_answer",
+    "correctAnswer": "40",
+    "hints": [
+      {
+        "level": 1,
+        "text": "排出量から自然に吸収された合計量を引きましょう。"
+      },
+      {
+        "level": 2,
+        "text": "80 - (25 + 15) = 40 です。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-buoyancy-01",
+    "sourceQuestionIds": [
+      "rika-2024-03-01"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-physics-buoyancy-principle"
+    ],
+    "changedAspects": [
+      "形状（直方体）と数値（底面積と沈めた深さ）",
+      "液体の密度（食塩水 1.2g/cm3）",
+      "計算過程"
+    ],
+    "expectedReasoning": "押しのけた食塩水の体積 = 50cm2 × 4cm = 200cm3。浮力 = 200 × 1.2 = 240g。",
+    "prompt": "底面積50cm2の円柱を、密度1.2g/cm3の食塩水の中に深さ4cmまで沈めました。このとき円柱が受ける浮力の大きさは何gですか？",
+    "format": "numeric_answer",
+    "correctAnswer": "240",
+    "hints": [
+      {
+        "level": 1,
+        "text": "まず沈んだ部分の体積（底面積×深さ）を求めましょう。"
+      },
+      {
+        "level": 2,
+        "text": "体積200cm3 × 密度1.2g/cm3 で液体の重さを求めます。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-buoyancy-02",
+    "sourceQuestionIds": [
+      "rika-2024-03-01"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-physics-buoyancy-principle"
+    ],
+    "changedAspects": [
+      "バネばかりの目盛り変化",
+      "水槽に入れたときの指示値",
+      "実験図シチュエーション"
+    ],
+    "expectedReasoning": "空気中で400gの物体を水に沈めると、体積150cm3分の浮力150gを受けるため、バネばかりは 400 - 150 = 250g を示す。",
+    "prompt": "空気中で重さ400g、体積150cm3の金属のかたまりをバネばかりにつるし、全体を水の中に沈めました。バネばかりの目盛りは何gを示しますか？",
+    "format": "numeric_answer",
+    "correctAnswer": "250",
+    "hints": [
+      {
+        "level": 1,
+        "text": "水から受ける浮力の分だけバネばかりにかかる重さが軽くなります。"
+      },
+      {
+        "level": 2,
+        "text": "浮力は150gなので、400 - 150 を計算します。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-buoyancy-03",
+    "sourceQuestionIds": [
+      "rika-2024-03-01"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-physics-buoyancy-principle"
+    ],
+    "changedAspects": [
+      "沈める深さと水圧・浮力の関係",
+      "誤解の見極め",
+      "正誤判定"
+    ],
+    "expectedReasoning": "完全に水面下に沈んだ後は、深さを変えても押しのける水の体積が変わらないため浮力は一定。",
+    "prompt": "完全に水の中に沈んでいる立方体を、水面下5cmの位置から水面下15cmの位置までさらに深く沈めました。このとき物体が受ける浮力の大きさはどうなりますか？",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "深くなっても押しのけた水の体積が変わらないため、浮力は変わらない",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "水圧が強くなるため、浮力は2倍に大きくなる",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "深くなると浮力は徐々に小さくなる",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "浮力の大きさは何によって決まるか（押しのけた水の量）を考えましょう。"
+      },
+      {
+        "level": 2,
+        "text": "完全に沈んでいれば、深さが変わっても押しのける水の体積は同じなので浮力は変化しません。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-density-01",
+    "sourceQuestionIds": [
+      "rika-2024-03-02"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-physics-density-floating"
+    ],
+    "changedAspects": [
+      "鉄の船がなぜ水に浮くかの原理",
+      "平均密度の考え方",
+      "身近なテクノロジー"
+    ],
+    "expectedReasoning": "鉄単体の密度は約7.8g/cm3で沈むが、船の形にして内部に空洞（空気）を持たせると全体の平均密度が水より小さくなるため浮く。",
+    "prompt": "鉄のかたまりは水に沈みますが、鉄でできた巨大な船が水に浮くことができるのはなぜですか？",
+    "format": "why_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "船の内部に大きな空間（空気）があり、船全体の平均密度が水より小さくなっているから",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "船の底に磁石が付いていて水と反発しているから",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "海水には塩があるためどんな重い金属でも絶対に沈まないから",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "船全体の「体積」と「重さ」の比率（密度）を考えましょう。"
+      },
+      {
+        "level": 2,
+        "text": "空気をたくさん含んだ全体の密度が水（1g/cm3）より小さくなっています。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-density-02",
+    "sourceQuestionIds": [
+      "rika-2024-03-02"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-physics-density-floating"
+    ],
+    "changedAspects": [
+      "氷が水に浮く理由と密度の比較",
+      "水と氷の特異性",
+      "4択"
+    ],
+    "expectedReasoning": "水は氷になると体積が増えて密度が約0.92g/cm3（水1.0g/cm3より小）になるため水に浮く。",
+    "prompt": "コップの水に氷を入れると水面に浮く理由として正しい説明はどれですか？",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "水が凍って氷になると体積が増え、密度が水より小さくなるから",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "氷の中に目に見えない空気の泡がたくさん含まれているから",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "冷たいものはすべて上に上がる性質があるから",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "水分子が結合して軽くなるから",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "水を凍らせたときにペットボトルが膨らむ現象を思い出しましょう。"
+      },
+      {
+        "level": 2,
+        "text": "体積が増える＝同じ重さあたりの密度が小さくなるため浮きます。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-density-03",
+    "sourceQuestionIds": [
+      "rika-2024-03-02"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-physics-density-floating"
+    ],
+    "changedAspects": [
+      "生卵が食塩水に浮く実験",
+      "液体の密度変化",
+      "手順・観察問題"
+    ],
+    "expectedReasoning": "水（1.0g/cm3）には沈む生卵（約1.08g/cm3）も、食塩を大量に溶かして食塩水の密度を1.1g/cm3以上にすると浮く。",
+    "prompt": "水に入れた生卵が底に沈みました。この生卵を水面に浮かせるにはどうすればよいですか？",
+    "format": "delayed_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "水に食塩をたくさん溶かして、液体の密度を生卵より大きくする",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "水を熱湯にして液体の密度を小さくする",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "水を増やして水槽の底からの水圧を高める",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "液体の密度を高くして、受ける浮力を増やす方法を考えましょう。"
+      },
+      {
+        "level": 2,
+        "text": "食塩をたくさん溶かすと液体の密度が大きくなり、卵が浮き上がります。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-galileo-01",
+    "sourceQuestionIds": [
+      "rika-2024-03-03-no",
+      "rika-2024-03-03-text"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-physics-galileo-thermometer"
+    ],
+    "changedAspects": [
+      "温度目盛りの読み取り練習",
+      "異なる浮きの配置",
+      "気温判断問題"
+    ],
+    "expectedReasoning": "浮いている球の中で一番下にある球のプレート温度が現在の気温。上に24℃、22℃があり、下に20℃、18℃が沈んでいれば気温は22℃。",
+    "prompt": "ガリレオ温度計で、上のほうに「24℃」「22℃」の浮きが浮かび、下のほうに「20℃」「18℃」の浮きが沈んでいました。現在の気温は何℃と読み取れますか？",
+    "format": "delayed_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "22℃",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "24℃",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "20℃",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "21℃",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "「上に浮かんでいる浮きの中で最も下に位置する浮き」の温度を見ます。"
+      },
+      {
+        "level": 2,
+        "text": "24℃と22℃が浮いているので、最も下の浮きである「22℃」です。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-galileo-02",
+    "sourceQuestionIds": [
+      "rika-2024-03-03-no"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-physics-galileo-thermometer"
+    ],
+    "changedAspects": [
+      "各浮きの重さの比較理由",
+      "プレートの数字と重さの関係",
+      "理由選択"
+    ],
+    "expectedReasoning": "高温（密度の低い液体）でも浮く球ほど、球自体の平均密度（重さ）が小さく作られている。",
+    "prompt": "ガリレオ温度計の浮きについて、「24℃」の浮きと「18℃」の浮きの重さを比べるとどうなっていますか？",
+    "format": "why_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "高い温度の密度の小さい液体でも浮くよう、24℃の浮きの方が軽く作られている",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "24℃の浮きの方が重く作られている",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "温度計の中の浮きはすべて完全に同じ重さである",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "温度が高いときの液体は密度が小さい（浮力が小さい）ことを思い出しましょう。"
+      },
+      {
+        "level": 2,
+        "text": "浮力が小さくても浮くためには、浮き自身が軽くなければなりません。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "trans-rika-galileo-03",
+    "sourceQuestionIds": [
+      "rika-2024-03-03-no",
+      "rika-2024-03-03-text"
+    ],
+    "requiredSkillIds": [
+      "skill-rika-physics-galileo-thermometer"
+    ],
+    "changedAspects": [
+      "温度上昇時の浮きの挙動アニメーション的理解",
+      "順番・変化の追跡",
+      "3択"
+    ],
+    "expectedReasoning": "室温が20℃から26℃に急上昇すると、液体の密度が小さくなり、今まで浮いていた22℃や24℃の浮きが次々に底へ沈んでいく。",
+    "prompt": "冬の朝、室温が上がって暖房が効いてきたとき、ガリレオ温度計の浮きはどのように動きますか？",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "液体の浮力が減るため、浮いていた球が上から下へと沈んでいく",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "液体の浮力が増えるため、沈んでいた球が下から上へと浮き上がる",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "すべての浮きが中央にぴったり整列して静止する",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "温度が上がると液体の密度はどうなるか思い出しましょう。"
+      },
+      {
+        "level": 2,
+        "text": "液体の密度が下がり浮力が小さくなるので、浮きは下へ沈みます。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  }
+]

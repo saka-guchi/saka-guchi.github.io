@@ -1,0 +1,54 @@
+[
+  {
+    "id": "fig-rika-01-root",
+    "subject": "rika",
+    "pageNumber": 2,
+    "pageFileName": "mondai_p002.png",
+    "cropRect": [
+      0.15,
+      0.11,
+      0.32,
+      0.13
+    ],
+    "caption": "図1 植物Aと植物Bの根の様子"
+  },
+  {
+    "id": "fig-rika-01-stem",
+    "subject": "rika",
+    "pageNumber": 2,
+    "pageFileName": "mondai_p002.png",
+    "cropRect": [
+      0.48,
+      0.11,
+      0.42,
+      0.26
+    ],
+    "caption": "図2 植物Aと植物Bの茎の様子"
+  },
+  {
+    "id": "fig-rika-03-archimedes",
+    "subject": "rika",
+    "pageNumber": 5,
+    "pageFileName": "mondai_p005.png",
+    "cropRect": [
+      0.2,
+      0.28,
+      0.6,
+      0.13
+    ],
+    "caption": "図1と図2 浮力の実験"
+  },
+  {
+    "id": "fig-rika-03-thermometer",
+    "subject": "rika",
+    "pageNumber": 6,
+    "pageFileName": "mondai_p006.png",
+    "cropRect": [
+      0.3,
+      0.1,
+      0.4,
+      0.24
+    ],
+    "caption": "図3・図4 ガリレオ温度計と模式図"
+  }
+]

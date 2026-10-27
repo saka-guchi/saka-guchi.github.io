@@ -1,0 +1,613 @@
+[
+  {
+    "id": "shakai-2024-01-01",
+    "subject": "shakai",
+    "section": "1",
+    "questionNumber": "問1",
+    "pageNumber": 2,
+    "prompt": "文中の（ ① ）に当てはまる都市名として適当なものを、図1を参考に、ア〜エから一つ選びなさい。\nカイト「今回は道南に行く予定だよ。」\nヒロキ「だったら、（ ① ）市を中心に観光するのがいいと思うよ。」",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "旭川",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "札幌",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "苫小牧",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "函館",
+        "isCorrect": true
+      }
+    ],
+    "correctAnswer": "d",
+    "figureIds": [
+      "fig-shakai-01-map"
+    ],
+    "answerType": "choice",
+    "primarySkillId": "skill-shakai-geo-hokkaido"
+  },
+  {
+    "id": "shakai-2024-01-02",
+    "subject": "shakai",
+    "section": "1",
+    "questionNumber": "問2",
+    "pageNumber": 2,
+    "prompt": "文中の（ ② ）には、地名の由来となった人々についての説明が入ります。それはいつ、どのような目的で北海道へ来た人々か、解答欄に収まる程度で簡潔に答えなさい。",
+    "answerType": "term",
+    "correctAnswer": "明治時代に北海道の開拓のために移住してきた。",
+    "primarySkillId": "skill-shakai-geo-pioneer"
+  },
+  {
+    "id": "shakai-2024-01-03",
+    "subject": "shakai",
+    "section": "1",
+    "questionNumber": "問3",
+    "pageNumber": 2,
+    "prompt": "文中の（ ③ ）に当てはまる都道府県名を漢字で答えなさい。\nカイト「東京都には東久留米市があるよ。『久留米』ってことは（ ③ ）が由来に関係しているのかな？」",
+    "answerType": "term",
+    "correctAnswer": "福岡県",
+    "primarySkillId": "skill-shakai-geo-pioneer"
+  },
+  {
+    "id": "shakai-2024-01-04",
+    "subject": "shakai",
+    "section": "1",
+    "questionNumber": "問4",
+    "pageNumber": 3,
+    "prompt": "下線部Aについて、表1は都道府県を面積が大きい順に並べたもので、表2は北海道と表1中の④〜⑥で示した都道府県のいずれかにおける米の収穫量（2021年）を示したものです。表1中の④（面積第2位：岩手県）に当てはまるものを、表2中のア〜エから一つ選びなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "ア (620,000t)",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "イ (573,700t)",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "ウ (501,200t)",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "エ (268,600t)",
+        "isCorrect": true
+      }
+    ],
+    "correctAnswer": "d",
+    "figureIds": [
+      "fig-shakai-01-tables"
+    ],
+    "answerType": "choice",
+    "primarySkillId": "skill-shakai-geo-agriculture-fishery"
+  },
+  {
+    "id": "shakai-2024-01-05",
+    "subject": "shakai",
+    "section": "1",
+    "questionNumber": "問5",
+    "pageNumber": 3,
+    "prompt": "下線部Bについて、次の表はイカ、カニ、アサリ、サケのいずれかにおける、魚種別漁獲量上位3都道府県とその漁獲量が全国に占める割合を示したものです。イカに当てはまるものをア〜エから一つ選びなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "ア（北海道97.3%, 青森県1.2%, 岩手県0.6%）",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "イ（北海道23.6%, 鳥取県14.3%, 兵庫県11.5%）",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "ウ（青森県18.4%, 北海道14.8%, 長崎県11.6%）",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "エ（愛知県48.0%, 北海道35.5%, 三重県4.0%）",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "c",
+    "figureIds": [
+      "fig-shakai-01-fish-table"
+    ],
+    "answerType": "choice",
+    "primarySkillId": "skill-shakai-geo-agriculture-fishery"
+  },
+  {
+    "id": "shakai-2024-01-06",
+    "subject": "shakai",
+    "section": "1",
+    "questionNumber": "問6",
+    "pageNumber": 3,
+    "prompt": "下線部Cについて、表3は北広島市の基本情報をまとめたものです。北広島市の人口密度を求めなさい。なお、答えは小数第一位で四捨五入して整数で表し、単位もあわせて記入しなさい。（人口：約58,000人、面積：約119km2）",
+    "answerType": "term",
+    "correctAnswer": "487人/km2",
+    "primarySkillId": "skill-shakai-geo-demography-density"
+  },
+  {
+    "id": "shakai-2024-01-07",
+    "subject": "shakai",
+    "section": "1",
+    "questionNumber": "問7",
+    "pageNumber": 3,
+    "prompt": "下線部Dについて、ア〜エはそれぞれ北海道の代表的な観光地について述べたものです。ニセコ町でみられる観光の説明として当てはまるものを一つ選びなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "諸外国の文化を取り入れて発展してきた歴史をもち、異国情緒あふれる美しい街並みが広がっている。",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "国の天然記念物「マリモ」が生息する湖があり、アイヌ文化に触れられる施設がある。",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "「蝦夷富士」と呼ばれる羊蹄山を臨む雄大な自然が広がり、夏はラフティング、冬はパウダースノーのスキーが体験できる。",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "ラベンダー畑を中心に季節ごとのカラフルな花畑が広がり、天然のプラネタリウムを楽しめる。",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "c",
+    "answerType": "choice",
+    "primarySkillId": "skill-shakai-geo-demography-density"
+  },
+  {
+    "id": "shakai-2024-02-01",
+    "subject": "shakai",
+    "section": "2",
+    "questionNumber": "問1",
+    "pageNumber": 4,
+    "prompt": "下線部Aに関連して、「ワカタケル大王」と書かれた鉄刀が見つかった江田船山古墳の場所として最も適切なものを地図中のア〜エから一つ選びなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "ア (宮城)",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "イ (三重)",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "ウ (島根)",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "エ (熊本)",
+        "isCorrect": true
+      }
+    ],
+    "correctAnswer": "d",
+    "figureIds": [
+      "fig-shakai-02-japan-map"
+    ],
+    "answerType": "choice",
+    "primarySkillId": "skill-shakai-hist-ancient-kofun"
+  },
+  {
+    "id": "shakai-2024-02-02",
+    "subject": "shakai",
+    "section": "2",
+    "questionNumber": "問2",
+    "pageNumber": 5,
+    "prompt": "下線部Bに関連して、奈良時代の聖武天皇は都の場所を何度も移しました。奈良時代に移された都の順番として、最も適切なものを次のア〜エの中から一つ選びなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "平城京 → 恭仁京 → 難波宮 → 紫香楽宮 → 平城京",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "平城京 → 恭仁京 → 福原京 → 紫香楽宮 → 飛鳥宮",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "平城京 → 恭仁京 → 平安京 → 紫香楽宮 → 藤原京",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "平安京 → 恭仁京 → 難波宮 → 紫香楽宮 → 平城京",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "answerType": "choice",
+    "primarySkillId": "skill-shakai-hist-nara-heian"
+  },
+  {
+    "id": "shakai-2024-02-03",
+    "subject": "shakai",
+    "section": "2",
+    "questionNumber": "問3",
+    "pageNumber": 5,
+    "prompt": "下線部Cに関連して、随筆『枕草子』を書き、天皇のきさきに仕えた人物は誰か、漢字で答えなさい。",
+    "answerType": "term",
+    "correctAnswer": "清少納言",
+    "primarySkillId": "skill-shakai-hist-nara-heian"
+  },
+  {
+    "id": "shakai-2024-02-04",
+    "subject": "shakai",
+    "section": "2",
+    "questionNumber": "問4",
+    "pageNumber": 5,
+    "prompt": "下線部Dに関連して、江戸時代に描かれたものを、図のア〜エの中から一つ選びなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "ア（唐獅子図屏風・安土桃山）",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "イ（源氏物語絵巻・平安）",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "ウ（水墨画・室町）",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "エ（富嶽三十六景 凱風快晴・葛飾北斎）",
+        "isCorrect": true
+      }
+    ],
+    "correctAnswer": "d",
+    "figureIds": [
+      "fig-shakai-02-edo-art"
+    ],
+    "answerType": "choice",
+    "primarySkillId": "skill-shakai-hist-edo-culture"
+  },
+  {
+    "id": "shakai-2024-02-05",
+    "subject": "shakai",
+    "section": "2",
+    "questionNumber": "問5",
+    "pageNumber": 5,
+    "prompt": "下線部Eに関連して、明治政府の初代内閣総理大臣になった長州藩出身の人物は誰か、漢字で答えなさい。",
+    "answerType": "term",
+    "correctAnswer": "伊藤博文",
+    "primarySkillId": "skill-shakai-hist-modern-cabinet"
+  },
+  {
+    "id": "shakai-2024-02-06",
+    "subject": "shakai",
+    "section": "2",
+    "questionNumber": "問6",
+    "pageNumber": 5,
+    "prompt": "下線部Fに関連して、1940年に日本が軍事同盟を結んだ国を二カ国答えなさい。",
+    "answerType": "term",
+    "correctAnswer": "イタリア、ドイツ",
+    "primarySkillId": "skill-shakai-hist-showa-postwar"
+  },
+  {
+    "id": "shakai-2024-02-07",
+    "subject": "shakai",
+    "section": "2",
+    "questionNumber": "問7",
+    "pageNumber": 6,
+    "prompt": "下線部Gに関連して、1945年の敗戦後、日本政府は連合国軍の指導の下で様々な戦後改革をおこないました。戦後改革の内容として誤っているものを一つ選びなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "女性の選挙権を保障する選挙制度がつくられた。",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "農地改革がおこなわれ、小作人も自分の農地を持てるようになった。",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "政党が解散させられ、大政翼賛会が結成された。",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "財閥解体がおこなわれ、特定の大会社が解体させられた。",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "c",
+    "answerType": "choice",
+    "primarySkillId": "skill-shakai-hist-showa-postwar"
+  },
+  {
+    "id": "shakai-2024-02-08",
+    "subject": "shakai",
+    "section": "2",
+    "questionNumber": "問8",
+    "pageNumber": 6,
+    "prompt": "刀剣に関連した文を、起こった年代が古い順に並べ替えなさい。\nア: 三種の神器「草薙の剣」が壇ノ浦の戦いで海に沈んだ。\nイ: 百済王が倭王に石上神宮七支刀をおくった。\nウ: 足利義満によって日明貿易で刀剣などが輸出された。\nエ: 姉川の戦いの功により、徳川家康が織田信長から名刀を授けられた。",
+    "answerType": "order",
+    "correctAnswer": [
+      "イ",
+      "ア",
+      "ウ",
+      "エ"
+    ],
+    "primarySkillId": "skill-shakai-hist-chronology-swords"
+  },
+  {
+    "id": "shakai-2024-02-09-who",
+    "subject": "shakai",
+    "section": "2",
+    "questionNumber": "問9(人物)",
+    "pageNumber": 6,
+    "prompt": "資料「諸国の百姓が、刀・やり・鉄砲などの武器を持つことをかたく禁止する…」の法令を出した人物を漢字で答えなさい。",
+    "answerType": "term",
+    "correctAnswer": "豊臣秀吉",
+    "primarySkillId": "skill-shakai-hist-taiko-katana-gari"
+  },
+  {
+    "id": "shakai-2024-02-09-why",
+    "subject": "shakai",
+    "section": "2",
+    "questionNumber": "問9(意図)",
+    "pageNumber": 6,
+    "prompt": "刀狩令の中で「取り上げた刀などは、方広寺の大仏のくぎなどにする」という一文を加えた意図を説明しなさい。",
+    "answerType": "open",
+    "correctAnswer": "「刀を差し出す」という行為が「仏のためになりご利益がある」ものだと農民たちに理解してもらうことで、武器を没収することへの反発を抑えようとした。",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "大仏建立のため・ご利益があるという宗教的理由"
+      },
+      {
+        "id": "el2",
+        "elementText": "農民から武器を没収することへの反発・抵抗を和らげるため"
+      }
+    ],
+    "primarySkillId": "skill-shakai-hist-taiko-katana-gari"
+  },
+  {
+    "id": "shakai-2024-03-01",
+    "subject": "shakai",
+    "section": "3",
+    "questionNumber": "問1",
+    "pageNumber": 8,
+    "prompt": "下線部Aの数値は文部科学省の文化庁から発表されましたが、文化庁は2023年3月末より東京から移転しました。移転先となった都道府県を一つ選びなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "宮城県",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "新潟県",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "京都府",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "福岡県",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "c",
+    "answerType": "choice",
+    "primarySkillId": "skill-shakai-civics-modern-economy"
+  },
+  {
+    "id": "shakai-2024-03-02",
+    "subject": "shakai",
+    "section": "3",
+    "questionNumber": "問2",
+    "pageNumber": 8,
+    "prompt": "スマートフォンアプリ「ハイパー江戸博」の空欄①（浮世絵師）と②（明治の小説家）の組み合わせとして正しいものを選びなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "① 葛飾北斎　② 夏目漱石",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "① 葛飾北斎　② 福沢諭吉",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "① 滝沢馬琴　② 夏目漱石",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "① 滝沢馬琴　② 福沢諭吉",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "answerType": "choice",
+    "primarySkillId": "skill-shakai-hist-edo-culture"
+  },
+  {
+    "id": "shakai-2024-03-03",
+    "subject": "shakai",
+    "section": "3",
+    "questionNumber": "問3",
+    "pageNumber": 9,
+    "prompt": "下線部Cに関連して、制定や改正された法律が憲法に違反していないかを裁判所が判断する権限を何というか、漢字で答えなさい。",
+    "answerType": "term",
+    "correctAnswer": "違憲立法審査権",
+    "primarySkillId": "skill-shakai-civics-constitution-judiciary"
+  },
+  {
+    "id": "shakai-2024-03-04",
+    "subject": "shakai",
+    "section": "3",
+    "questionNumber": "問4",
+    "pageNumber": 9,
+    "prompt": "日本国憲法が「施行」された年月日を、西暦の算用数字で答えなさい。",
+    "answerType": "term",
+    "correctAnswer": "1947年5月3日",
+    "primarySkillId": "skill-shakai-civics-constitution-judiciary"
+  },
+  {
+    "id": "shakai-2024-03-05",
+    "subject": "shakai",
+    "section": "3",
+    "questionNumber": "問5",
+    "pageNumber": 9,
+    "prompt": "下線部Eの「クラウドファンディング」の意味として正しいものを一つ選びなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "一定期間利用できる権利に対して料金を支払うこと。",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "インターネットを通じて不特定多数の人々から少額ずつ資金を調達すること。",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "金融機関から多額の資金を調達すること。",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "電子マネーアプリを利用して決済すること。",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "b",
+    "answerType": "choice",
+    "primarySkillId": "skill-shakai-civics-modern-economy"
+  },
+  {
+    "id": "shakai-2024-03-06",
+    "subject": "shakai",
+    "section": "3",
+    "questionNumber": "問6",
+    "pageNumber": 9,
+    "prompt": "世界遺産の登録を行う国際連合の専門機関の名前をカタカナで答えなさい。",
+    "answerType": "term",
+    "correctAnswer": "ユネスコ",
+    "primarySkillId": "skill-shakai-civics-unesco-heritage"
+  },
+  {
+    "id": "shakai-2024-03-07-v1",
+    "subject": "shakai",
+    "section": "3",
+    "questionNumber": "問7(視点1)",
+    "pageNumber": 9,
+    "prompt": "博物館・美術館が存続していくために必要な解決策として、「視点1: 収益を増やすこと」について「入館料を上げる」以外で考えられる方策を答えなさい。",
+    "answerType": "open",
+    "correctAnswer": "ミュージアムグッズの種類を増やして売り上げを増やす。企業にスポンサーになってもらう。",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "グッズ販売やオリジナル商品の拡充"
+      },
+      {
+        "id": "el2",
+        "elementText": "企業スポンサーや寄付・命名権の導入"
+      }
+    ],
+    "primarySkillId": "skill-shakai-civics-museum-management"
+  },
+  {
+    "id": "shakai-2024-03-07-v2",
+    "subject": "shakai",
+    "section": "3",
+    "questionNumber": "問7(視点2)",
+    "pageNumber": 9,
+    "prompt": "博物館・美術館が存続していくために必要な解決策として、「視点2: 地域住民が普段から日常的に利用できるようにすること」について考えられる方策を答えなさい。",
+    "answerType": "open",
+    "correctAnswer": "入館料を下げたり無料ゾーンを設け、地域住民が憩えるカフェやフリースペースを設ける。",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "無料ゾーンや住民割引の導入"
+      },
+      {
+        "id": "el2",
+        "elementText": "日常的に使えるカフェやコミュニティ・フリースペースの設置"
+      }
+    ],
+    "primarySkillId": "skill-shakai-civics-museum-management"
+  }
+]

@@ -9,8 +9,8 @@ import { BUILTIN_YASUDA_PACK, ALL_CURRICULUM_QUESTIONS } from '../../src/data/cu
 describe('Built-in Curriculum Pack & Database Initialization Tests', () => {
   it('has valid built-in pack data and curriculum questions', () => {
     expect(BUILTIN_YASUDA_PACK.examId).toBe('yasuda-2024');
-    expect(BUILTIN_YASUDA_PACK.questions.length).toBe(22);
-    expect(BUILTIN_YASUDA_PACK.skills.length).toBe(9);
+    expect(BUILTIN_YASUDA_PACK.questions.length).toBe(63); // 理科22 + 算数16 + 社会25
+    expect(BUILTIN_YASUDA_PACK.skills.length).toBe(37); // 理科9 + 算数13 + 社会15
     expect(ALL_CURRICULUM_QUESTIONS.length).toBeGreaterThan(50);
   });
 
@@ -18,7 +18,7 @@ describe('Built-in Curriculum Pack & Database Initialization Tests', () => {
     await ensureBuiltinPackLoaded(true);
     const stored = await db.contentPacks.get('yasuda-2024');
     expect(stored).toBeDefined();
-    expect(stored?.questions.length).toBe(22);
+    expect(stored?.questions.length).toBe(63);
     expect(stored?.manifest.packId).toBe('pack-yasuda-2024-1.0.0');
   });
 

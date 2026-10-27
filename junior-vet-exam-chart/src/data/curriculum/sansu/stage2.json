@@ -1,0 +1,64 @@
+[
+  {
+    "id": "stage2-sansu-2024-01-03",
+    "correspondsToQuestionId": "sansu-2024-01-03",
+    "requiredSkillIds": [
+      "skill-sansu-geom-area-diff"
+    ],
+    "prompt": "【面積の本質理解】直角三角形ABCとおうぎ形の共通部分をXとするとき、斜線部分①とおうぎ形②の面積が等しいことから導かれる正しい関係を選びなさい。",
+    "answerType": "choice",
+    "choices": [
+      {
+        "id": "1",
+        "label": "ア",
+        "text": "（直角三角形ABCの面積）＝（おうぎ形全体の面積）",
+        "isCorrect": true
+      },
+      {
+        "id": "2",
+        "label": "イ",
+        "text": "（直角三角形ABCの面積）＝ 2 ×（おうぎ形全体の面積）",
+        "isCorrect": false
+      },
+      {
+        "id": "3",
+        "label": "ウ",
+        "text": "（斜線部分①の面積）＝（共通部分Xの面積）",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "1",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-sansu-2024-01-08",
+    "correspondsToQuestionId": "sansu-2024-01-08",
+    "requiredSkillIds": [
+      "skill-sansu-solid-water-tilt"
+    ],
+    "prompt": "【立方体の傾けと体積の本質】立方体の角を下に傾けて3頂点A, B, Cを通る平面まで水を入れたとき、入っている水の立体形状は何ですか？",
+    "answerType": "choice",
+    "choices": [
+      {
+        "id": "1",
+        "label": "ア",
+        "text": "直角をはさむ3辺が24cmの三角すい（体積＝24×24÷2×24÷3）",
+        "isCorrect": true
+      },
+      {
+        "id": "2",
+        "label": "イ",
+        "text": "底面が正方形の四角すい",
+        "isCorrect": false
+      },
+      {
+        "id": "3",
+        "label": "ウ",
+        "text": "立方体の体積のちょうど半分",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "1",
+    "validationStatus": "human_verified"
+  }
+]

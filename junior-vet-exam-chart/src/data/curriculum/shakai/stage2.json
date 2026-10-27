@@ -1,0 +1,64 @@
+[
+  {
+    "id": "stage2-shakai-2024-02-09",
+    "correspondsToQuestionId": "shakai-2024-02-09-why",
+    "requiredSkillIds": [
+      "skill-shakai-hist-taiko-katana-gari"
+    ],
+    "prompt": "【刀狩令の本質】秀吉が「大仏のくぎにする」と名目を掲げた理由の核心はどれですか？",
+    "answerType": "choice",
+    "choices": [
+      {
+        "id": "1",
+        "label": "ア",
+        "text": "民衆の信仰心を利用して「仏のご利益がある善行」と位置づけ、武装解除に伴う農民の警戒心や反発を和らげるため",
+        "isCorrect": true
+      },
+      {
+        "id": "2",
+        "label": "イ",
+        "text": "大仏を作る金属が日本中から完全に枯渇していたから",
+        "isCorrect": false
+      },
+      {
+        "id": "3",
+        "label": "ウ",
+        "text": "農民全員を出家させて僧侶にするため",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "1",
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "stage2-shakai-2024-03-03",
+    "correspondsToQuestionId": "shakai-2024-03-03",
+    "requiredSkillIds": [
+      "skill-shakai-civics-constitution-judiciary"
+    ],
+    "prompt": "【違憲立法審査権の本質】裁判所に違憲立法審査権が認められている最大の理由は何ですか？",
+    "answerType": "choice",
+    "choices": [
+      {
+        "id": "1",
+        "label": "ア",
+        "text": "最高法規である憲法を守り、多数派が作った法律であっても国民の基本的人権が不当に侵害されるのを防ぐため",
+        "isCorrect": true
+      },
+      {
+        "id": "2",
+        "label": "イ",
+        "text": "国会よりも内閣の命令を優先させるため",
+        "isCorrect": false
+      },
+      {
+        "id": "3",
+        "label": "ウ",
+        "text": "裁判の件数を減らして裁判官の負担を軽くするため",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "1",
+    "validationStatus": "human_verified"
+  }
+]

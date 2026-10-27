@@ -1,0 +1,106 @@
+[
+  {
+    "id": "skill-sansu-calc-order",
+    "subject": "sansu",
+    "title": "計算の順序と四則混合計算",
+    "description": "かっこ（中かっこ・小かっこ）と掛け算・割り算を先に行う四則演算の確実な遂行力。",
+    "level": "core",
+    "category": "数と計算"
+  },
+  {
+    "id": "skill-sansu-fraction-calc",
+    "subject": "sansu",
+    "title": "分数の加減乗除と通分・約分",
+    "description": "異分母分数の通分と約分、帯分数・仮分数の処理と正確な乗除計算。",
+    "level": "core",
+    "category": "数と計算"
+  },
+  {
+    "id": "skill-sansu-geom-area-diff",
+    "subject": "sansu",
+    "title": "等積変形と共通部分を利用した面積計算",
+    "description": "おうぎ形と直角三角形の共通部分に着目し、面積の差から未知の長さを求める力。",
+    "level": "core",
+    "category": "平面図形"
+  },
+  {
+    "id": "skill-sansu-consecutive-integers",
+    "subject": "sansu",
+    "title": "連続する整数の和と平均の性質",
+    "description": "連続する整数の和から中央値（平均）を求め、最小または最大の整数を導く。",
+    "level": "primary",
+    "category": "数の性質・規則性"
+  },
+  {
+    "id": "skill-sansu-tsurukame-elimination",
+    "subject": "sansu",
+    "title": "つるかめ算と消去算の条件整理",
+    "description": "固定の追加費用（箱代など）を差し引き、単価の差から個数を求める特殊算。",
+    "level": "core",
+    "category": "特殊算・文章題"
+  },
+  {
+    "id": "skill-sansu-triangle-inequality",
+    "subject": "sansu",
+    "title": "三角形の成立条件と場合の数",
+    "description": "「最も長い辺 < 他の2辺の和」の条件を満たす組み合わせを漏れなく数え上げる力。",
+    "level": "primary",
+    "category": "平面図形・場合の数"
+  },
+  {
+    "id": "skill-sansu-inverse-operation",
+    "subject": "sansu",
+    "title": "逆算と割合のかけ算・割り算の過誤算",
+    "description": "「× A/B」と「÷ A/B」の差に着目し、方程式的に元の数を特定する。",
+    "level": "core",
+    "category": "数と計算・割合"
+  },
+  {
+    "id": "skill-sansu-solid-water-tilt",
+    "subject": "sansu",
+    "title": "直方体・立方体の傾けと水の体積",
+    "description": "傾けたときの水（三角すい）の体積を求め、水平に戻したときの底面積と深さの関係を解く。",
+    "level": "core",
+    "category": "立体図形・水そう"
+  },
+  {
+    "id": "skill-sansu-divisor-condition",
+    "subject": "sansu",
+    "title": "整数の積と等差数列の条件整理",
+    "description": "等差関係（B-A=C-B）にある整数の積から約数分解を用いて整数を決定する力。",
+    "level": "primary",
+    "category": "数の性質"
+  },
+  {
+    "id": "skill-sansu-newton-pump",
+    "subject": "sansu",
+    "title": "ニュートン算（湧水と排出ポンプ）",
+    "description": "一定速度の流入がある池から複数台のポンプで水を抜く仕事量計算。",
+    "level": "core",
+    "category": "特殊算・仕事算"
+  },
+  {
+    "id": "skill-sansu-moving-point-area",
+    "subject": "sansu",
+    "title": "動点と台形の面積変化",
+    "description": "図形の線上を動く点Pの位置に応じた三角形の底辺・高さの把握と等積条件の逆算。",
+    "level": "core",
+    "category": "平面図形と動点"
+  },
+  {
+    "id": "skill-sansu-irreducible-fraction",
+    "subject": "sansu",
+    "title": "約分・既約分数と素因数分解（互いに素）",
+    "description": "分母の約数と分子の関係から、単位分数になる個数や互いに素な整数の個数を数える。",
+    "level": "core",
+    "category": "数の性質・分数"
+  },
+  {
+    "id": "skill-sansu-cube-slice",
+    "subject": "sansu",
+    "title": "立方体の切断と立体の体積",
+    "description": "立方体を複数平面で切断したときの切断面の延長と分割立体の求積（断頭三角柱・すい体）。",
+    "level": "core",
+    "category": "立体図形・切断"
+  }
+]

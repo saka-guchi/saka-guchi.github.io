@@ -1,0 +1,170 @@
+[
+  {
+    "id": "prac-shakai-01",
+    "skillId": "skill-shakai-geo-hokkaido",
+    "format": "recall_card",
+    "prompt": "【北海道の地理】北海道の道庁所在地であり、人口約200万人を擁する政令指定都市はどこですか？",
+    "correctAnswer": "札幌市",
+    "hints": [
+      {
+        "level": 1,
+        "text": "道央に位置し、大通公園や時計台で有名です。"
+      },
+      {
+        "level": 2,
+        "text": "「さ」から始まる市です。"
+      }
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "prac-shakai-02",
+    "skillId": "skill-shakai-geo-pioneer",
+    "format": "delayed_choice",
+    "prompt": "【開拓の歴史】明治時代、北海道の開拓と北方警備を担った農兵組織を何といいますか？",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "屯田兵",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "防人",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "奇兵隊",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "新選組",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "開拓使のもとで全国の士族などが募集されました。"
+      },
+      {
+        "level": 2,
+        "text": "「屯」の文字がつきます。"
+      }
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "prac-shakai-03",
+    "skillId": "skill-shakai-hist-ancient-kofun",
+    "format": "multiple_choice",
+    "prompt": "【古墳時代】埼玉県の稲荷山古墳や熊本県の江田船山古墳から出土した鉄刀に刻まれていた、大王（天皇）の名は何ですか？",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "ワカタケル大王（雄略天皇）",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "聖徳太子",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "中大兄皇子",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "卑弥呼",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "5世紀後半、ヤマト王権の勢力が東国から九州まで及んでいたことを示します。"
+      },
+      {
+        "level": 2,
+        "text": "「獲加多支鹵」の漢字が刻まれています。"
+      }
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "prac-shakai-04",
+    "skillId": "skill-shakai-civics-constitution-judiciary",
+    "format": "delayed_choice",
+    "prompt": "【三権分立】最高裁判所が法律や国の行為について憲法に違反していないかを最終的に審査する権限をもつことから、裁判所は何と呼ばれますか？",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "憲法の番人",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "法の支配者",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "行政の監視塔",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "国権の最高機関",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "憲法を守る「番人」の役割を果たします。"
+      },
+      {
+        "level": 2,
+        "text": "国権の最高機関は「国会」です。"
+      }
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "prac-shakai-05",
+    "skillId": "skill-shakai-civics-unesco-heritage",
+    "format": "recall_card",
+    "prompt": "【国際組織】世界遺産の選定や教育・科学・文化の国際交流を推進する国際連合の専門機関は何ですか？",
+    "correctAnswer": "ユネスコ",
+    "hints": [
+      {
+        "level": 1,
+        "text": "UNESCOと略されます。本部はフランスのパリにあります。"
+      },
+      {
+        "level": 2,
+        "text": "カタカナ4文字です。"
+      }
+    ],
+    "validationStatus": "human_verified"
+  }
+]

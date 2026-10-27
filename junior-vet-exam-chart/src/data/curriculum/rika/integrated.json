@@ -1,0 +1,91 @@
+[
+  {
+    "id": "integ-rika-01",
+    "requiredSkillIds": [
+      "skill-rika-plant-dicot-monocot",
+      "skill-rika-plant-vascular"
+    ],
+    "prompt": "ある植物の茎を顕微鏡で観察したところ、維管束が輪状に並び、内側に道管、外側に師管が確認できました。この植物の「根」と「葉脈」の組み合わせとして正しいものを1つ選びなさい。",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "根：主根と側根、葉脈：網状脈（双子葉類）",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "根：ひげ根、葉脈：平行脈（単子葉類）",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "根：ひげ根、葉脈：網状脈",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "根：主根と側根、葉脈：平行脈",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "維管束が「輪状」に並んでいることから、まず双子葉類か単子葉類かを判定しましょう。"
+      },
+      {
+        "level": 2,
+        "text": "輪状＝双子葉類です。双子葉類の根は「主根・側根」、葉脈は「網状脈」です。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "integ-rika-02",
+    "requiredSkillIds": [
+      "skill-rika-physics-buoyancy-principle",
+      "skill-rika-physics-density-floating"
+    ],
+    "prompt": "水槽の水（密度1.0g/cm3）に、体積600cm3で重さ450gの直方体の木片を浮かべました。このとき、木片が水面下に沈んでいる部分の体積は何cm3ですか？",
+    "format": "numeric_answer",
+    "correctAnswer": "450",
+    "hints": [
+      {
+        "level": 1,
+        "text": "木片が静止して浮いているとき、「木片全体の重さ」と「受ける浮力」は等しく釣り合っています。"
+      },
+      {
+        "level": 2,
+        "text": "浮力が450gになるということは、押しのけた水の体積は何cm3になるか考えましょう（水の密度は1g/cm3）。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "integ-rika-03",
+    "requiredSkillIds": [
+      "skill-rika-physics-buoyancy-principle",
+      "skill-rika-physics-galileo-thermometer"
+    ],
+    "prompt": "ガリレオ温度計の中に入っている体積10cm3のガラス球の浮きがあります。液体の密度が1.02g/cm3のとき、この浮きが受ける浮力は何gですか？（小数第1位まで）",
+    "format": "numeric_answer",
+    "correctAnswer": "10.2",
+    "hints": [
+      {
+        "level": 1,
+        "text": "浮力＝押しのけた液体の重さ（体積×液体の密度）です。"
+      },
+      {
+        "level": 2,
+        "text": "10cm3 × 1.02g/cm3 を計算しましょう。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  }
+]

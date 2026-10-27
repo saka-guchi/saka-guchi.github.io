@@ -26,6 +26,7 @@ export const HomePage: React.FC = () => {
   const [currentTheme, setCurrentTheme] = useState<ThemeType>('default');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedStudySubject, setSelectedStudySubject] = useState<'all' | 'rika' | 'sansu' | 'shakai'>('all');
 
   useEffect(() => {
     try {
@@ -78,7 +79,7 @@ export const HomePage: React.FC = () => {
 
   const handleStartToday = () => {
     sound.playChime();
-    startDailySession();
+    startDailySession(selectedStudySubject === 'all' ? undefined : selectedStudySubject);
     navigate('/study');
   };
 
@@ -196,8 +197,30 @@ export const HomePage: React.FC = () => {
               今日のオススメ 10問をといて、動物を元気にしよう！
             </h2>
             <p className={styles.todaySubText} style={{ margin: 0 }}>
-              忘れないように毎日少しずつ解くのが記憶のコツ！「もっとやりたい！」ときは何回でも遊べるよ。
+              理科・算数・社会の3教科すべてに対応！忘れないように毎日少しずつ解くのが記憶のコツだよ。
             </p>
+
+            {/* 科目選択タブ */}
+            <div className={styles.categoryFilterRow} style={{ marginTop: '10px', marginBottom: '8px' }}>
+              {[
+                { id: 'all', label: '🌟 全教科ミックス' },
+                { id: 'rika', label: '🧪 理科' },
+                { id: 'sansu', label: '📐 算数' },
+                { id: 'shakai', label: '🗾 社会' },
+              ].map(sub => (
+                <button
+                  key={sub.id}
+                  className={`${styles.categoryFilterBtn} ${selectedStudySubject === sub.id ? styles.categoryFilterBtnActive : ''}`}
+                  onClick={() => {
+                    sound.playPop();
+                    setSelectedStudySubject(sub.id as any);
+                  }}
+                  type="button"
+                >
+                  {sub.label}
+                </button>
+              ))}
+            </div>
 
             {/* 今日の10問内訳メニュー（わかりやすいタグ） */}
             <div className={styles.todayMenuRow}>
@@ -223,7 +246,13 @@ export const HomePage: React.FC = () => {
               onClick={handleStartToday}
               data-testid="start-study-btn"
             >
-              オススメ10問をスタート！ 🐾
+              {selectedStudySubject === 'all'
+                ? '全教科オススメ10問をスタート！ 🐾'
+                : selectedStudySubject === 'rika'
+                ? '理科 10問をスタート！ 🧪'
+                : selectedStudySubject === 'sansu'
+                ? '算数 10問をスタート！ 📐'
+                : '社会 10問をスタート！ 🗾'}
             </button>
           </div>
         </section>

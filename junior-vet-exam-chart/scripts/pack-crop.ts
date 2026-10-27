@@ -31,14 +31,13 @@ export interface FigureDef {
   caption: string;
 }
 
-// 理科の図表定義 (200dpi画像: 1653 x 2338)
+// 理科の図表定義
 export const rikaFigures: FigureDef[] = [
   {
     id: 'fig-rika-01-root',
     subject: 'rika',
     pageNumber: 2,
     pageFileName: 'mondai_p002.png',
-    // 図1 根の様子
     cropRect: [0.15, 0.11, 0.32, 0.13],
     caption: '図1 植物Aと植物Bの根の様子',
   },
@@ -47,7 +46,6 @@ export const rikaFigures: FigureDef[] = [
     subject: 'rika',
     pageNumber: 2,
     pageFileName: 'mondai_p002.png',
-    // 図2 茎の様子
     cropRect: [0.48, 0.11, 0.42, 0.26],
     caption: '図2 植物Aと植物Bの茎の様子',
   },
@@ -56,7 +54,6 @@ export const rikaFigures: FigureDef[] = [
     subject: 'rika',
     pageNumber: 5,
     pageFileName: 'mondai_p005.png',
-    // 図1と図2
     cropRect: [0.20, 0.28, 0.60, 0.13],
     caption: '図1と図2 浮力の実験',
   },
@@ -65,18 +62,104 @@ export const rikaFigures: FigureDef[] = [
     subject: 'rika',
     pageNumber: 6,
     pageFileName: 'mondai_p006.png',
-    // 図3と図4 ガリレオ温度計
     cropRect: [0.30, 0.10, 0.40, 0.24],
     caption: '図3・図4 ガリレオ温度計と模式図',
   },
 ];
 
-async function cropFigures() {
-  const figuresJsonPath = path.join(authoringDir, 'figures.json');
-  fs.writeFileSync(figuresJsonPath, JSON.stringify(rikaFigures, null, 2), 'utf-8');
-  console.log(`Saved figure definitions to ${figuresJsonPath}`);
+// 算数の図表定義
+export const sansuFigures: FigureDef[] = [
+  {
+    id: 'fig-sansu-01-fan',
+    subject: 'sansu',
+    pageNumber: 2,
+    pageFileName: 'mondai_p002.png',
+    cropRect: [0.50, 0.65, 0.45, 0.20],
+    caption: '大問1(3) 直角三角形とおうぎ形',
+  },
+  {
+    id: 'fig-sansu-01-cube-tilt',
+    subject: 'sansu',
+    pageNumber: 4,
+    pageFileName: 'mondai_p004.png',
+    cropRect: [0.18, 0.55, 0.68, 0.22],
+    caption: '大問1(8) 立方体の傾けと水平状態',
+  },
+  {
+    id: 'fig-sansu-02-trapezoid',
+    subject: 'sansu',
+    pageNumber: 6,
+    pageFileName: 'mondai_p006.png',
+    cropRect: [0.60, 0.05, 0.35, 0.25],
+    caption: '大問2 台形ABCDと動点P',
+  },
+  {
+    id: 'fig-sansu-04-cube-cut',
+    subject: 'sansu',
+    pageNumber: 10,
+    pageFileName: 'mondai_p010.png',
+    cropRect: [0.65, 0.12, 0.30, 0.20],
+    caption: '大問4 立方体の切断',
+  },
+];
 
-  for (const fig of rikaFigures) {
+// 社会の図表定義
+export const shakaiFigures: FigureDef[] = [
+  {
+    id: 'fig-shakai-01-map',
+    subject: 'shakai',
+    pageNumber: 2,
+    pageFileName: 'mondai_p002.png',
+    cropRect: [0.45, 0.55, 0.50, 0.22],
+    caption: '大問1 図1 北海道エリア図',
+  },
+  {
+    id: 'fig-shakai-01-tables',
+    subject: 'shakai',
+    pageNumber: 3,
+    pageFileName: 'mondai_p003.png',
+    cropRect: [0.18, 0.14, 0.65, 0.14],
+    caption: '大問1 問4 都道府県面積と米収穫量',
+  },
+  {
+    id: 'fig-shakai-01-fish-table',
+    subject: 'shakai',
+    pageNumber: 3,
+    pageFileName: 'mondai_p003.png',
+    cropRect: [0.12, 0.40, 0.78, 0.12],
+    caption: '大問1 問5 魚種別漁獲量割合',
+  },
+  {
+    id: 'fig-shakai-02-japan-map',
+    subject: 'shakai',
+    pageNumber: 4,
+    pageFileName: 'mondai_p004.png',
+    cropRect: [0.35, 0.72, 0.40, 0.20],
+    caption: '大問2 問1 日本地図と古墳',
+  },
+  {
+    id: 'fig-shakai-02-edo-art',
+    subject: 'shakai',
+    pageNumber: 5,
+    pageFileName: 'mondai_p005.png',
+    cropRect: [0.14, 0.38, 0.72, 0.33],
+    caption: '大問2 問4 美術品・絵画ア〜エ',
+  },
+];
+
+const figureMap: Record<string, FigureDef[]> = {
+  rika: rikaFigures,
+  sansu: sansuFigures,
+  shakai: shakaiFigures,
+};
+
+async function cropFigures() {
+  const currentFigures = figureMap[subject] || [];
+  const figuresJsonPath = path.join(authoringDir, 'figures.json');
+  fs.writeFileSync(figuresJsonPath, JSON.stringify(currentFigures, null, 2), 'utf-8');
+  console.log(`Saved figure definitions (${currentFigures.length} figures) to ${figuresJsonPath}`);
+
+  for (const fig of currentFigures) {
     const pagePath = path.join(pagesDir, fig.pageFileName);
     if (!fs.existsSync(pagePath)) {
       console.warn(`Source page not found: ${pagePath}`);
@@ -87,10 +170,10 @@ async function cropFigures() {
     const width = metadata.width || 1653;
     const height = metadata.height || 2338;
 
-    const left = Math.round(fig.cropRect[0] * width);
-    const top = Math.round(fig.cropRect[1] * height);
-    const extractWidth = Math.round(fig.cropRect[2] * width);
-    const extractHeight = Math.round(fig.cropRect[3] * height);
+    const left = Math.max(0, Math.round(fig.cropRect[0] * width));
+    const top = Math.max(0, Math.round(fig.cropRect[1] * height));
+    const extractWidth = Math.min(width - left, Math.round(fig.cropRect[2] * width));
+    const extractHeight = Math.min(height - top, Math.round(fig.cropRect[3] * height));
 
     const outWebpPath = path.join(buildFiguresDir, `${fig.id}.webp`);
 
@@ -108,4 +191,3 @@ cropFigures().catch(err => {
   console.error(err);
   process.exit(1);
 });
-

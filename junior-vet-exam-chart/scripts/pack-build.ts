@@ -17,7 +17,7 @@ function sha256Buffer(buf: Buffer): string {
 }
 
 async function buildPack() {
-  console.log('=== Building Content Pack (master100-pack-yasuda-2024-v1.0.0.zip) ===');
+  console.log('=== Building Full Content Pack (master100-pack-yasuda-2024-1.0.0.zip) ===');
   const zip = new JSZip();
 
   const examId = 'yasuda-2024';
@@ -25,11 +25,12 @@ async function buildPack() {
   const schemaVersion = '1.0.0';
   const contentVersion = '1.0.0';
 
-  const authoringDir = path.join(privateDir, 'authoring', 'rika');
-  const pagesDir = path.join(privateDir, 'pages', 'rika');
+  const authoringBaseDir = path.join(privateDir, 'authoring');
+  const pagesBaseDir = path.join(privateDir, 'pages');
   const figuresDir = path.join(privateDir, 'build', 'figures');
 
-  // data/ フォルダ
+  const subjects = ['rika', 'sansu', 'shakai'] as const;
+
   const dataFiles = [
     'questions.json',
     'skills.json',
@@ -42,29 +43,69 @@ async function buildPack() {
 
   const filesManifest: { path: string; sha256: string }[] = [];
 
-  for (const fileName of dataFiles) {
-    const filePath = path.join(authoringDir, fileName);
-    if (fs.existsSync(filePath)) {
-      const content = fs.readFileSync(filePath);
-      const zipPath = `data/${fileName}`;
-      zip.file(zipPath, content);
-      filesManifest.push({ path: zipPath, sha256: sha256Buffer(content) });
-    }
+  // 各教科のデータを zip の data/<subject>/ に格納し、ルート data/ にも統合して格納
+  const mergedData: Record<string, any[]> = {};
+  for (const df of dataFiles) {
+    mergedData[df] = [];
   }
 
-  // ページ画像を WebP に変換して images/pages/rika/ に格納
-  const pageFiles = fs.readdirSync(pagesDir).filter(f => f.endsWith('.png'));
-  for (const pf of pageFiles) {
-    const srcPng = path.join(pagesDir, pf);
-    const webpName = pf.replace('.png', '.webp');
-    const webpBuffer = await sharp(srcPng)
-      .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
-      .webp({ quality: 85 })
-      .toBuffer();
+  const subjectStats: { subject: string; questionCount: number; pageCount: number; timeLimitMinutes: number }[] = [];
 
-    const zipPath = `images/pages/rika/${webpName}`;
-    zip.file(zipPath, webpBuffer);
-    filesManifest.push({ path: zipPath, sha256: sha256Buffer(webpBuffer) });
+  for (const sub of subjects) {
+    const subAuthoringDir = path.join(authoringBaseDir, sub);
+    const subPagesDir = path.join(pagesBaseDir, sub);
+
+    let qCount = 0;
+    for (const fileName of dataFiles) {
+      const filePath = path.join(subAuthoringDir, fileName);
+      if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath);
+        const parsed = JSON.parse(content.toString('utf-8'));
+        if (fileName === 'questions.json') {
+          qCount = parsed.length;
+        }
+        if (Array.isArray(parsed)) {
+          mergedData[fileName].push(...parsed);
+        }
+        const zipPath = `data/${sub}/${fileName}`;
+        zip.file(zipPath, content);
+        filesManifest.push({ path: zipPath, sha256: sha256Buffer(content) });
+      }
+    }
+
+    // ページ画像 WebP
+    let pageCount = 0;
+    if (fs.existsSync(subPagesDir)) {
+      const pageFiles = fs.readdirSync(subPagesDir).filter(f => f.endsWith('.png'));
+      pageCount = pageFiles.filter(f => f.startsWith('mondai_')).length;
+      for (const pf of pageFiles) {
+        const srcPng = path.join(subPagesDir, pf);
+        const webpName = pf.replace('.png', '.webp');
+        const webpBuffer = await sharp(srcPng)
+          .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
+          .webp({ quality: 85 })
+          .toBuffer();
+
+        const zipPath = `images/pages/${sub}/${webpName}`;
+        zip.file(zipPath, webpBuffer);
+        filesManifest.push({ path: zipPath, sha256: sha256Buffer(webpBuffer) });
+      }
+    }
+
+    subjectStats.push({
+      subject: sub,
+      questionCount: qCount,
+      pageCount,
+      timeLimitMinutes: sub === 'sansu' ? 50 : sub === 'rika' ? 30 : 30,
+    });
+  }
+
+  // ルート data/ に統合JSONを格納
+  for (const fileName of dataFiles) {
+    const buf = Buffer.from(JSON.stringify(mergedData[fileName], null, 2), 'utf-8');
+    const zipPath = `data/${fileName}`;
+    zip.file(zipPath, buf);
+    filesManifest.push({ path: zipPath, sha256: sha256Buffer(buf) });
   }
 
   // 切り抜き図表
@@ -83,17 +124,11 @@ async function buildPack() {
   const manifest = {
     packId,
     examId,
+    title: '2024年度 安田学園中学校 入学試験【理科・算数・社会】',
     schemaVersion,
     contentVersion,
     createdAt: new Date().toISOString(),
-    subjects: [
-      {
-        subject: 'rika',
-        timeLimitMinutes: 30,
-        pageCount: 7,
-        questionCount: 22,
-      },
-    ],
+    subjects: subjectStats,
     files: filesManifest,
     needsReviewCount: 0,
   };
@@ -107,11 +142,11 @@ async function buildPack() {
   const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE', compressionOptions: { level: 9 } });
   fs.writeFileSync(packFilePath, zipBuffer);
 
-  console.log(`Successfully generated content pack: ${packFilePath} (${(zipBuffer.length / 1024 / 1024).toFixed(2)} MB)`);
+  console.log(`Successfully generated full content pack: ${packFilePath} (${(zipBuffer.length / 1024 / 1024).toFixed(2)} MB)`);
+  console.log(`Subjects summary:`, subjectStats);
 }
 
 buildPack().catch(err => {
   console.error(err);
   process.exit(1);
 });
-

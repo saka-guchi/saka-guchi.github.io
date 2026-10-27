@@ -1,0 +1,86 @@
+[
+  {
+    "id": "trans-sansu-01",
+    "sourceQuestionIds": [
+      "sansu-2024-01-03"
+    ],
+    "requiredSkillIds": [
+      "skill-sansu-geom-area-diff"
+    ],
+    "changedAspects": [
+      "半径を12cmに変更",
+      "直角三角形の縦の長さを変更",
+      "等積条件を維持"
+    ],
+    "expectedReasoning": "直角三角形とおうぎ形の共通部分を差し引くと、直角三角形の面積とおうぎ形の面積が等しくなる。",
+    "prompt": "直角三角形ABCと、点Cを中心とする半径12cm・中心角90度のおうぎ形があります。三角形ABCとおうぎ形の面積が等しいとき、底辺BCの長さを求めなさい。（円周率は3.14、高さAC=12cm）",
+    "format": "numeric_answer",
+    "correctAnswer": "18.84",
+    "hints": [
+      {
+        "level": 1,
+        "text": "直角三角形の面積は BC × 12 ÷ 2 = BC × 6。"
+      },
+      {
+        "level": 2,
+        "text": "おうぎ形の面積は 12 × 12 × 3.14 ÷ 4 = 113.04。BC × 6 = 113.04 から逆算します。"
+      }
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "trans-sansu-02",
+    "sourceQuestionIds": [
+      "sansu-2024-01-06"
+    ],
+    "requiredSkillIds": [
+      "skill-sansu-triangle-inequality"
+    ],
+    "changedAspects": [
+      "棒の長さを2cm, 4cm, 6cm, 8cm, 10cmに変更"
+    ],
+    "expectedReasoning": "3辺 a < b < c において a + b > c を満たす組み合わせを調べる。",
+    "prompt": "2cm, 4cm, 6cm, 8cm, 10cmの5本の棒があります。この中から3本を選んで三角形を作るとき、選び方は何通りありますか？",
+    "format": "numeric_answer",
+    "correctAnswer": "3",
+    "hints": [
+      {
+        "level": 1,
+        "text": "最大の辺 c が 10cm のとき、他の2辺の和が 10 より大きくなる組み合わせを探しましょう。"
+      },
+      {
+        "level": 2,
+        "text": "(4, 8, 10), (6, 8, 10) と、最大の辺が 8cm のときの (4, 6, 8) の計3通りです。"
+      }
+    ],
+    "validationStatus": "human_verified"
+  },
+  {
+    "id": "trans-sansu-03",
+    "sourceQuestionIds": [
+      "sansu-2024-03-01"
+    ],
+    "requiredSkillIds": [
+      "skill-sansu-irreducible-fraction"
+    ],
+    "changedAspects": [
+      "分母を120に変更",
+      "単位分数になる条件"
+    ],
+    "expectedReasoning": "分子が分母の約数であれば、約分して分子が1の単位分数になる。",
+    "prompt": "分母が120で分子が1から119までの分数のうち、約分して分子が1になる分数は何個ありますか？",
+    "format": "numeric_answer",
+    "correctAnswer": "15",
+    "hints": [
+      {
+        "level": 1,
+        "text": "分子が120の約数であれば約分して 1/n になります。"
+      },
+      {
+        "level": 2,
+        "text": "120の約数の個数は (3+1)×(1+1)×(1+1) = 16個。分子は1から119なので、120自身を除いて15個です。"
+      }
+    ],
+    "validationStatus": "human_verified"
+  }
+]

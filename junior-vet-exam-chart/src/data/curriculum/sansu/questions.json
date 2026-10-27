@@ -1,0 +1,196 @@
+[
+  {
+    "id": "sansu-2024-01-01",
+    "subject": "sansu",
+    "section": "1",
+    "questionNumber": "(1)",
+    "pageNumber": 2,
+    "prompt": "次の計算をしなさい。\n123 - {45 - (6 + 54 ÷ 3) ÷ 2} + 10",
+    "answerType": "numeric",
+    "correctAnswer": "100",
+    "primarySkillId": "skill-sansu-calc-order"
+  },
+  {
+    "id": "sansu-2024-01-02",
+    "subject": "sansu",
+    "section": "1",
+    "questionNumber": "(2)",
+    "pageNumber": 2,
+    "prompt": "次の計算をしなさい。\n(1 + 1/2 - 1/4 - 1/5 + 1/7 - 1/10) × 1/3",
+    "answerType": "numeric",
+    "correctAnswer": "51/140",
+    "primarySkillId": "skill-sansu-fraction-calc"
+  },
+  {
+    "id": "sansu-2024-01-03",
+    "subject": "sansu",
+    "section": "1",
+    "questionNumber": "(3)",
+    "pageNumber": 2,
+    "prompt": "直角三角形ABCと点Cを中心とする半径10cmのおうぎ形を組み合わせた図があります。そのおうぎ形とBCとの交点をDとします。斜線部分①とおうぎ形②の面積が等しいとき、BDの長さを求めなさい。（円周率は3.14）",
+    "answerType": "numeric",
+    "correctAnswer": "5.7",
+    "figureIds": [
+      "fig-sansu-01-fan"
+    ],
+    "primarySkillId": "skill-sansu-geom-area-diff"
+  },
+  {
+    "id": "sansu-2024-01-04",
+    "subject": "sansu",
+    "section": "1",
+    "questionNumber": "(4)",
+    "pageNumber": 3,
+    "prompt": "連続する4つの整数の和が230のとき、最小の整数を求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "56",
+    "primarySkillId": "skill-sansu-consecutive-integers"
+  },
+  {
+    "id": "sansu-2024-01-05",
+    "subject": "sansu",
+    "section": "1",
+    "questionNumber": "(5)",
+    "pageNumber": 3,
+    "prompt": "あるケーキ屋さんで、1個350円のショートケーキと1個420円のモンブランを合わせて14個買い、100円の箱に詰めてもらったところ、代金は5560円でした。モンブランはいくつ買ったか求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "8",
+    "primarySkillId": "skill-sansu-tsurukame-elimination"
+  },
+  {
+    "id": "sansu-2024-01-06",
+    "subject": "sansu",
+    "section": "1",
+    "questionNumber": "(6)",
+    "pageNumber": 3,
+    "prompt": "1cm, 2cm, 3cm, 4cm, 5cmの5本の棒があります。これらの中から3本を選んで、それを3辺とする三角形を作るとき、棒の選び方は何通りあるか求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "3",
+    "primarySkillId": "skill-sansu-triangle-inequality"
+  },
+  {
+    "id": "sansu-2024-01-07",
+    "subject": "sansu",
+    "section": "1",
+    "questionNumber": "(7)",
+    "pageNumber": 4,
+    "prompt": "ある数に 2/3 をかけるところを、誤って割ってしまったため、正しい答えより45大きくなりました。ある数を求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "54",
+    "primarySkillId": "skill-sansu-inverse-operation"
+  },
+  {
+    "id": "sansu-2024-01-08",
+    "subject": "sansu",
+    "section": "1",
+    "questionNumber": "(8)",
+    "pageNumber": 4,
+    "prompt": "1辺が24cmの立方体の容器を図1のように傾けて3点A, B, Cを通る平面まで水を入れます。この状態から図2のように、水平な机の上に立方体の容器を置いたとき、水面の高さは何cmになるか求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "4",
+    "figureIds": [
+      "fig-sansu-01-cube-tilt"
+    ],
+    "primarySkillId": "skill-sansu-solid-water-tilt"
+  },
+  {
+    "id": "sansu-2024-01-09",
+    "subject": "sansu",
+    "section": "1",
+    "questionNumber": "(9)",
+    "pageNumber": 5,
+    "prompt": "3つの整数A, B, Cについて、次のことがわかっています。\n① Aが最も小さく、Cが最も大きい\n② BとAの差はCとBの差に等しい\n③ AとBとCの積は28である\nこのとき、整数Bを求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "4",
+    "primarySkillId": "skill-sansu-divisor-condition"
+  },
+  {
+    "id": "sansu-2024-01-10",
+    "subject": "sansu",
+    "section": "1",
+    "questionNumber": "(10)",
+    "pageNumber": 5,
+    "prompt": "一定の割合で水が入ってきている池があります。この池の水を抜くためにポンプを用意しました。池の水をすべて抜くのに、ポンプ6台ではちょうど65日かかり、ポンプ8台ではちょうど45日かかります。使用するすべてのポンプは同じ割合で水をくみ出すとします。25日以内で池の水をすべて抜くには、最も少ない場合で何台のポンプが必要か求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "14",
+    "primarySkillId": "skill-sansu-newton-pump"
+  },
+  {
+    "id": "sansu-2024-02-01",
+    "subject": "sansu",
+    "section": "2",
+    "questionNumber": "(1)",
+    "pageNumber": 6,
+    "prompt": "図のようなABが7cm, BCが6cm, CDが3cmで、角Bと角Cがともに90度の台形ABCDがあります。点PはAを出発し、A→B→C→Dの順にDまで毎秒1cmで動きます。15秒後の三角形ABPの面積を求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "21",
+    "figureIds": [
+      "fig-sansu-02-trapezoid"
+    ],
+    "primarySkillId": "skill-sansu-moving-point-area"
+  },
+  {
+    "id": "sansu-2024-02-02",
+    "subject": "sansu",
+    "section": "2",
+    "questionNumber": "(2)",
+    "pageNumber": 6,
+    "prompt": "点Pが辺BC上にあるとき、三角形ADPの面積が台形ABCDの面積の半分になるのは、点PがAを出発してから何秒後か求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "10",
+    "figureIds": [
+      "fig-sansu-02-trapezoid"
+    ],
+    "primarySkillId": "skill-sansu-moving-point-area"
+  },
+  {
+    "id": "sansu-2024-03-01",
+    "subject": "sansu",
+    "section": "3",
+    "questionNumber": "(1)",
+    "pageNumber": 8,
+    "prompt": "251/252, 250/252, 249/252, 248/252, ..., 2/252 のように250個の分数が並んでいます。約分したときに分子が1となる分数は何個あるか求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "16",
+    "primarySkillId": "skill-sansu-irreducible-fraction"
+  },
+  {
+    "id": "sansu-2024-03-02",
+    "subject": "sansu",
+    "section": "3",
+    "questionNumber": "(2)",
+    "pageNumber": 8,
+    "prompt": "251/252, 250/252, 249/252, 248/252, ..., 2/252 のうち、これ以上約分できない分数（既約分数）は何個あるか求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "71",
+    "primarySkillId": "skill-sansu-irreducible-fraction"
+  },
+  {
+    "id": "sansu-2024-04-01",
+    "subject": "sansu",
+    "section": "4",
+    "questionNumber": "(1)",
+    "pageNumber": 10,
+    "prompt": "1辺が12cmの立方体があります。辺ABと辺ADの中点をそれぞれP, Qとします。3点P, Q, Fを通る平面で立方体を切ったとき、頂点Aを含む立体の体積を求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "504",
+    "figureIds": [
+      "fig-sansu-04-cube-cut"
+    ],
+    "primarySkillId": "skill-sansu-cube-slice"
+  },
+  {
+    "id": "sansu-2024-04-02",
+    "subject": "sansu",
+    "section": "4",
+    "questionNumber": "(2)",
+    "pageNumber": 10,
+    "prompt": "さらに、3点P, C, Gを通る平面で切りました。このとき、頂点Dを含む立体の体積を求めなさい。",
+    "answerType": "numeric",
+    "correctAnswer": "840",
+    "figureIds": [
+      "fig-sansu-04-cube-cut"
+    ],
+    "primarySkillId": "skill-sansu-cube-slice"
+  }
+]

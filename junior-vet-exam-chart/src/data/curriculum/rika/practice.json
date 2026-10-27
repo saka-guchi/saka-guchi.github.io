@@ -1,0 +1,322 @@
+[
+  {
+    "id": "prac-rika-dicot-01",
+    "skillId": "skill-rika-plant-dicot-monocot",
+    "format": "delayed_choice",
+    "prompt": "アブラナのように子葉が2枚で、根が主根と側根からなる植物のグループを何といいますか？",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "単子葉類",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "双子葉類",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "シダ植物",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "コケ植物",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "b",
+    "hints": [
+      {
+        "level": 1,
+        "text": "子葉の枚数（2枚）に注目してみよう。"
+      },
+      {
+        "level": 2,
+        "text": "「双」という漢字が使われる仲間です。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "prac-rika-vascular-01",
+    "skillId": "skill-rika-plant-vascular",
+    "format": "why_choice",
+    "prompt": "茎の維管束において、道管が師管よりも内側に配置されているのはなぜですか？",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "根から吸い上げた水分を保護し、乾燥や外傷から守るため内側にある",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "光合成を早く行うため外側にある",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "根からの養分を空気中に逃がすため",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "「内道外師（うちどう・そとし）」の配置の理由を考えよう。"
+      },
+      {
+        "level": 2,
+        "text": "大切な水を通す管が外側にあると傷つきやすいことに注目しよう。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "prac-rika-root-01",
+    "skillId": "skill-rika-plant-root-hair",
+    "format": "delayed_choice",
+    "prompt": "根の先端近くにある細かい毛のような構造「根毛」の最大の利点は何ですか？",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "植物体を土に固定する強度を10倍にする",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "表面積を大きくして水分や養分の吸収効率を高める",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "土の中の虫を捕まえて栄養にする",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "b",
+    "hints": [
+      {
+        "level": 1,
+        "text": "細い毛がたくさん生えることで何が広がるか考えよう。"
+      },
+      {
+        "level": 2,
+        "text": "小腸の柔毛と同じく「表面積」を広げる工夫です。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "prac-rika-co2-01",
+    "skillId": "skill-rika-gas-co2",
+    "format": "multiple_choice",
+    "prompt": "実験室で二酸化炭素を発生させるとき、石灰石に加える適切な液体はどれですか？",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "うすい水酸化ナトリウム水溶液",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "うすい塩酸",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "オキシドール（過酸化水素水）",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "食塩水",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "b",
+    "hints": [
+      {
+        "level": 1,
+        "text": "炭酸カルシウムを溶かして気体を出す酸性の液体です。"
+      },
+      {
+        "level": 2,
+        "text": "理科実験で最も代表的な酸である「うすい塩酸」です。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "prac-rika-greenhouse-01",
+    "skillId": "skill-rika-env-greenhouse",
+    "format": "delayed_choice",
+    "prompt": "二酸化炭素以外で、牛のげっぷや水田などから発生し地球温暖化係数が高い温室効果ガスは何ですか？",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "メタン",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "酸素",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "窒素",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "水素",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "天然ガスの主成分でもある気体です。"
+      },
+      {
+        "level": 2,
+        "text": "「メ」から始まる気体名です。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "prac-rika-ocean-01",
+    "skillId": "skill-rika-env-ocean-acidification",
+    "format": "numeric_answer",
+    "prompt": "ある都市で1年間に排出される二酸化炭素が120万トン、緑地が吸収する量が40万トン、土壌が吸収する量が10万トンです。大気中に残る二酸化炭素は何万トンですか？",
+    "correctAnswer": "70",
+    "hints": [
+      {
+        "level": 1,
+        "text": "排出量から吸収量の合計を引き算しましょう。"
+      },
+      {
+        "level": 2,
+        "text": "120 - (40 + 10) を計算します。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "prac-rika-buoyancy-01",
+    "skillId": "skill-rika-physics-buoyancy-principle",
+    "format": "numeric_answer",
+    "prompt": "体積が500cm3の物体をすべて水（密度1g/cm3）の中に沈めたとき、この物体が水から受ける浮力の大きさは何gですか？",
+    "correctAnswer": "500",
+    "hints": [
+      {
+        "level": 1,
+        "text": "アルキメデスの原理：浮力の大きさ＝物体が押しのけた液体の重さです。"
+      },
+      {
+        "level": 2,
+        "text": "体積500cm3の水の重さは何gになるか考えましょう。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "prac-rika-density-01",
+    "skillId": "skill-rika-physics-density-floating",
+    "format": "multiple_choice",
+    "prompt": "水（密度1.0g/cm3）に浮いている木片を、エタノール（密度0.79g/cm3）に入れるとどうなりますか？（木片の密度は0.6g/cm3）",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "木片の密度の方がエタノールより小さいので、エタノールでも浮く",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "水より密度が小さい液体なので、完全に底まで沈む",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "木片が溶けて液体になる",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "木片の密度（0.6g/cm3）とエタノールの密度（0.79g/cm3）を比べましょう。"
+      },
+      {
+        "level": 2,
+        "text": "物体の密度が液体の密度より小さければ浮きます。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  },
+  {
+    "id": "prac-rika-galileo-01",
+    "skillId": "skill-rika-physics-galileo-thermometer",
+    "format": "why_choice",
+    "prompt": "ガリレオ温度計で、気温が上昇すると液体の中の浮きが沈むのはなぜですか？",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "液体の温度が上がると体積が膨張して密度が小さくなり、浮力が小さくなるから",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "浮き自体が熱くなって重くなるから",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "ガラスが縮んで浮きを下に押し下げるから",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "液体の温度が上がったときの「密度」と「浮力」の変化を考えましょう。"
+      },
+      {
+        "level": 2,
+        "text": "温まると液体は膨張して密度が減るため、押しのける液体の重さ（浮力）が減ります。"
+      }
+    ],
+    "validationStatus": "self_verified"
+  }
+]

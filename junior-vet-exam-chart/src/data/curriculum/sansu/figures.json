@@ -1,0 +1,54 @@
+[
+  {
+    "id": "fig-sansu-01-fan",
+    "subject": "sansu",
+    "pageNumber": 2,
+    "pageFileName": "mondai_p002.png",
+    "cropRect": [
+      0.5,
+      0.65,
+      0.45,
+      0.2
+    ],
+    "caption": "大問1(3) 直角三角形とおうぎ形"
+  },
+  {
+    "id": "fig-sansu-01-cube-tilt",
+    "subject": "sansu",
+    "pageNumber": 4,
+    "pageFileName": "mondai_p004.png",
+    "cropRect": [
+      0.18,
+      0.55,
+      0.68,
+      0.22
+    ],
+    "caption": "大問1(8) 立方体の傾けと水平状態"
+  },
+  {
+    "id": "fig-sansu-02-trapezoid",
+    "subject": "sansu",
+    "pageNumber": 6,
+    "pageFileName": "mondai_p006.png",
+    "cropRect": [
+      0.6,
+      0.05,
+      0.35,
+      0.25
+    ],
+    "caption": "大問2 台形ABCDと動点P"
+  },
+  {
+    "id": "fig-sansu-04-cube-cut",
+    "subject": "sansu",
+    "pageNumber": 10,
+    "pageFileName": "mondai_p010.png",
+    "cropRect": [
+      0.65,
+      0.12,
+      0.3,
+      0.2
+    ],
+    "caption": "大問4 立方体の切断"
+  }
+]

@@ -1,0 +1,43 @@
+[
+  {
+    "id": "integ-sansu-01",
+    "requiredSkillIds": [
+      "skill-sansu-moving-point-area",
+      "skill-sansu-tsurukame-elimination"
+    ],
+    "prompt": "【動点と速さの総合問題】点Pが毎秒2cm、点Qが毎秒1cmで正方形の周上を動きます。2点が出会う回数と面積の変化から時刻を割り出す問題では、動点ごとの移動距離の和と差を正確に把握することが決め手になります。",
+    "format": "multiple_choice",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "出会うときは2点の移動距離の和、追いつくときは移動距離の差に着目する",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "常に2点の速さの積で距離を割る",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "動点の方向に関係なく足し算をする",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hints": [
+      {
+        "level": 1,
+        "text": "旅人算の原理と同じです。"
+      },
+      {
+        "level": 2,
+        "text": "反対向きは速さの和、同方向は速さの差です。"
+      }
+    ],
+    "validationStatus": "human_verified"
+  }
+]

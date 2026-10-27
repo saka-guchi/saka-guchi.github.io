@@ -1,0 +1,570 @@
+[
+  {
+    "id": "rika-2024-01-01-a",
+    "subject": "rika",
+    "section": "1",
+    "questionNumber": "1",
+    "partNumber": "ア",
+    "pageNumber": 2,
+    "prompt": "図1の植物Aの根に見られる、図中の㋐に当てはまる語句を答えなさい。",
+    "correctAnswer": "主根",
+    "answerType": "term",
+    "figureIds": [
+      "fig-rika-01-root"
+    ],
+    "primarySkillId": "skill-rika-plant-dicot-monocot"
+  },
+  {
+    "id": "rika-2024-01-01-b",
+    "subject": "rika",
+    "section": "1",
+    "questionNumber": "1",
+    "partNumber": "イ",
+    "pageNumber": 2,
+    "prompt": "図1の植物Aの根に見られる、図中の㋑に当てはまる語句を答えなさい。",
+    "correctAnswer": "側根",
+    "answerType": "term",
+    "figureIds": [
+      "fig-rika-01-root"
+    ],
+    "primarySkillId": "skill-rika-plant-dicot-monocot"
+  },
+  {
+    "id": "rika-2024-01-01-c",
+    "subject": "rika",
+    "section": "1",
+    "questionNumber": "1",
+    "partNumber": "ウ",
+    "pageNumber": 2,
+    "prompt": "図2の植物Aの茎の断面に見られる、図中の外側にある組織㋒に当てはまる語句を答えなさい。",
+    "correctAnswer": "師管",
+    "answerType": "term",
+    "figureIds": [
+      "fig-rika-01-stem"
+    ],
+    "primarySkillId": "skill-rika-plant-vascular"
+  },
+  {
+    "id": "rika-2024-01-01-d",
+    "subject": "rika",
+    "section": "1",
+    "questionNumber": "1",
+    "partNumber": "エ",
+    "pageNumber": 2,
+    "prompt": "図2の植物Aの茎の断面に見られる、図中の内側にある組織㋓に当てはまる語句を答えなさい。",
+    "correctAnswer": "道管",
+    "answerType": "term",
+    "figureIds": [
+      "fig-rika-01-stem"
+    ],
+    "primarySkillId": "skill-rika-plant-vascular"
+  },
+  {
+    "id": "rika-2024-01-01-e",
+    "subject": "rika",
+    "section": "1",
+    "questionNumber": "1",
+    "partNumber": "オ",
+    "pageNumber": 2,
+    "prompt": "図2の植物Aの茎において、㋒と㋓が束になったもの㋔に当てはまる語句を答えなさい。",
+    "correctAnswer": "維管束",
+    "answerType": "term",
+    "figureIds": [
+      "fig-rika-01-stem"
+    ],
+    "primarySkillId": "skill-rika-plant-vascular"
+  },
+  {
+    "id": "rika-2024-01-02",
+    "subject": "rika",
+    "section": "1",
+    "questionNumber": "2",
+    "pageNumber": 2,
+    "prompt": "植物Aと植物Bの葉の様子を観察すると、葉脈の様子が異なっていました。植物Bはどのような葉脈であったか簡単に説明しなさい。",
+    "correctAnswer": "葉脈が平行に配置されている。（または 平行脈をもつ。葉脈が根元から先端へまっすぐ伸びている。）",
+    "answerType": "open",
+    "figureIds": [
+      "fig-rika-01-root"
+    ],
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "「平行脈」または「平行に」配置されていること"
+      },
+      {
+        "id": "el2",
+        "elementText": "葉脈が根元から先端へまっすぐ伸びていること"
+      }
+    ],
+    "primarySkillId": "skill-rika-plant-dicot-monocot"
+  },
+  {
+    "id": "rika-2024-01-03",
+    "subject": "rika",
+    "section": "1",
+    "questionNumber": "3",
+    "pageNumber": 2,
+    "prompt": "次の①〜⑤のうち、植物Aと同じ仲間の植物をすべて選び、記号で答えなさい。\n① ホウセンカ　② トウモロコシ　③ アブラナ　④ イネ　⑤ ツユクサ",
+    "choices": [
+      {
+        "id": "1",
+        "label": "①",
+        "text": "ホウセンカ",
+        "isCorrect": true
+      },
+      {
+        "id": "2",
+        "label": "②",
+        "text": "トウモロコシ",
+        "isCorrect": false
+      },
+      {
+        "id": "3",
+        "label": "③",
+        "text": "アブラナ",
+        "isCorrect": true
+      },
+      {
+        "id": "4",
+        "label": "④",
+        "text": "イネ",
+        "isCorrect": false
+      },
+      {
+        "id": "5",
+        "label": "⑤",
+        "text": "ツユクサ",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": [
+      "1",
+      "3"
+    ],
+    "answerType": "multi_choice",
+    "primarySkillId": "skill-rika-plant-dicot-monocot"
+  },
+  {
+    "id": "rika-2024-01-04-c",
+    "subject": "rika",
+    "section": "1",
+    "questionNumber": "4",
+    "partNumber": "ウ",
+    "pageNumber": 2,
+    "prompt": "図2の㋒（師管）のはたらきを簡単に説明しなさい。",
+    "correctAnswer": "葉の光合成で合成したデンプン（糖・栄養分）を全身へ運ぶ働き。",
+    "answerType": "open",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "葉の光合成で作られた栄養分（デンプンや糖）であること"
+      },
+      {
+        "id": "el2",
+        "elementText": "植物の全身へ運ぶ働きであること"
+      }
+    ],
+    "primarySkillId": "skill-rika-plant-vascular"
+  },
+  {
+    "id": "rika-2024-01-04-d",
+    "subject": "rika",
+    "section": "1",
+    "questionNumber": "4",
+    "partNumber": "エ",
+    "pageNumber": 2,
+    "prompt": "図2の㋓（道管）のはたらきを簡単に説明しなさい。",
+    "correctAnswer": "根から吸収した水分や栄養分を全身へ運ぶ働き。",
+    "answerType": "open",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "根から吸収した水分や養分であること"
+      },
+      {
+        "id": "el2",
+        "elementText": "全身（葉など）へ運ぶ働きであること"
+      }
+    ],
+    "primarySkillId": "skill-rika-plant-vascular"
+  },
+  {
+    "id": "rika-2024-01-05",
+    "subject": "rika",
+    "section": "1",
+    "questionNumber": "5",
+    "pageNumber": 2,
+    "prompt": "植物Aの根をさらに観察したところ㋑の表面に細かい毛のような構造がたくさんありました。この構造をなんといいますか。",
+    "correctAnswer": "根毛",
+    "answerType": "term",
+    "primarySkillId": "skill-rika-plant-root-hair"
+  },
+  {
+    "id": "rika-2024-01-06",
+    "subject": "rika",
+    "section": "1",
+    "questionNumber": "6",
+    "pageNumber": 2,
+    "prompt": "問5の構造（根毛）は植物にとってどのような利点があると考えられますか。",
+    "correctAnswer": "根の表面積を大きくすることで、水分や養分を効率よく吸収できる。",
+    "answerType": "open",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "根の表面積を大きく（広げる）すること"
+      },
+      {
+        "id": "el2",
+        "elementText": "水分や養分を効率よく（たくさん）吸収できること"
+      }
+    ],
+    "primarySkillId": "skill-rika-plant-root-hair"
+  },
+  {
+    "id": "rika-2024-02-01",
+    "subject": "rika",
+    "section": "2",
+    "questionNumber": "1",
+    "pageNumber": 3,
+    "prompt": "二酸化炭素の性質として正しいものを、次のア〜オからすべて選び記号で答えなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "空気よりも軽い",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "石灰水を白く濁らせる",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "水に非常によく溶ける",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "固体はドライアイスである",
+        "isCorrect": true
+      },
+      {
+        "id": "e",
+        "label": "オ",
+        "text": "大量に集めると青白い色があることが分かる",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": [
+      "b",
+      "d"
+    ],
+    "answerType": "multi_choice",
+    "primarySkillId": "skill-rika-gas-co2"
+  },
+  {
+    "id": "rika-2024-02-02",
+    "subject": "rika",
+    "section": "2",
+    "questionNumber": "2",
+    "pageNumber": 3,
+    "prompt": "二酸化炭素の発生法として正しいものを、次のア〜エから1つ選び記号で答えなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "うすい塩酸に卵の殻を入れる",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "うすい塩酸にアルミニウムを入れる",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "過酸化水素水に二酸化マンガンを入れる",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "うすい塩酸を加熱する",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "answerType": "choice",
+    "primarySkillId": "skill-rika-gas-co2"
+  },
+  {
+    "id": "rika-2024-02-03",
+    "subject": "rika",
+    "section": "2",
+    "questionNumber": "3",
+    "pageNumber": 3,
+    "prompt": "二酸化炭素は地球温暖化の原因となっている気体の1つといわれています。このような気体を何と言いますか。",
+    "correctAnswer": "温室効果ガス",
+    "answerType": "term",
+    "primarySkillId": "skill-rika-env-greenhouse"
+  },
+  {
+    "id": "rika-2024-02-04",
+    "subject": "rika",
+    "section": "2",
+    "questionNumber": "4",
+    "pageNumber": 3,
+    "prompt": "二酸化炭素と同じように地球温暖化の原因とされている温室効果ガスを次のア〜オから1つ選び記号で答えなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "ちっ素",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "酸素",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "メタン",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "水素",
+        "isCorrect": false
+      },
+      {
+        "id": "e",
+        "label": "オ",
+        "text": "アルゴン",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "c",
+    "answerType": "choice",
+    "primarySkillId": "skill-rika-env-greenhouse"
+  },
+  {
+    "id": "rika-2024-02-05",
+    "subject": "rika",
+    "section": "2",
+    "questionNumber": "5",
+    "pageNumber": 4,
+    "prompt": "1万年前と比べると、現在の植物の光合成した量は非常に多くなっています。その原因として、気温が上昇していること以外に考えられる最も大きな理由を1つ答えなさい。",
+    "correctAnswer": "二酸化炭素（の濃度）が増えたため。",
+    "answerType": "open",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "二酸化炭素"
+      },
+      {
+        "id": "el2",
+        "elementText": "濃度や量が増加したこと"
+      }
+    ],
+    "primarySkillId": "skill-rika-env-greenhouse"
+  },
+  {
+    "id": "rika-2024-02-06",
+    "subject": "rika",
+    "section": "2",
+    "questionNumber": "6",
+    "pageNumber": 4,
+    "prompt": "調査結果より、現在1年間に大気中で増加している二酸化炭素の量は何億トンになるか求めなさい。（単位: 億トン）",
+    "correctAnswer": "50",
+    "answerType": "numeric",
+    "primarySkillId": "skill-rika-env-ocean-acidification"
+  },
+  {
+    "id": "rika-2024-02-07",
+    "subject": "rika",
+    "section": "2",
+    "questionNumber": "7",
+    "pageNumber": 4,
+    "prompt": "海水に溶ける二酸化炭素が増えることによる直接的な影響として正しいものを、次のア〜カから1つ選び記号で答えなさい。",
+    "choices": [
+      {
+        "id": "a",
+        "label": "ア",
+        "text": "海水の塩分濃度が現在よりも上がる",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "イ",
+        "text": "海水の塩分濃度が現在よりも下がる",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "ウ",
+        "text": "海水温が現在よりも上がる",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "エ",
+        "text": "海水温が現在よりも下がる",
+        "isCorrect": false
+      },
+      {
+        "id": "e",
+        "label": "オ",
+        "text": "海水が現在よりも酸性になる",
+        "isCorrect": true
+      },
+      {
+        "id": "f",
+        "label": "カ",
+        "text": "海水が現在よりもアルカリ性になる",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "e",
+    "answerType": "choice",
+    "primarySkillId": "skill-rika-env-ocean-acidification"
+  },
+  {
+    "id": "rika-2024-03-01",
+    "subject": "rika",
+    "section": "3",
+    "questionNumber": "1",
+    "pageNumber": 5,
+    "prompt": "図2のように、1辺の長さが10cmで重さが3000gの立方体を体積2000cm3の水の中に沈めました。この物体が受ける浮力の大きさが何gになるか求めなさい。（単位: g）",
+    "correctAnswer": "1000",
+    "answerType": "numeric",
+    "figureIds": [
+      "fig-rika-03-archimedes"
+    ],
+    "primarySkillId": "skill-rika-physics-buoyancy-principle"
+  },
+  {
+    "id": "rika-2024-03-02",
+    "subject": "rika",
+    "section": "3",
+    "questionNumber": "2",
+    "pageNumber": 5,
+    "prompt": "水に沈めた立方体（体積1000cm3、重さ3000g）について述べた文章として正しいものを次の①〜⑤からすべて選び、記号で答えなさい。",
+    "choices": [
+      {
+        "id": "1",
+        "label": "①",
+        "text": "水槽の中の液体を、水ではなく海水（密度1.03g/cm3）に変えたとしても、この立方体は浮かない。",
+        "isCorrect": true
+      },
+      {
+        "id": "2",
+        "label": "②",
+        "text": "この立方体と同じ重さの立方体を水に浮かせる場合、1辺の長さをより短くする必要がある。",
+        "isCorrect": false
+      },
+      {
+        "id": "3",
+        "label": "③",
+        "text": "この立方体を半分に割ると、水槽の中の水の重さよりも軽くなるため、水に浮かぶようになる。",
+        "isCorrect": false
+      },
+      {
+        "id": "4",
+        "label": "④",
+        "text": "この立方体の中身を半分くり抜き、形や大きさはそのままで重さだけ半分にしても、水には浮かばない。",
+        "isCorrect": true
+      },
+      {
+        "id": "5",
+        "label": "⑤",
+        "text": "水の量を増やしていくと、水の重さが3000gを超えたところで、物体は水に浮かぶようになる。",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": [
+      "1",
+      "4"
+    ],
+    "answerType": "multi_choice",
+    "figureIds": [
+      "fig-rika-03-archimedes"
+    ],
+    "primarySkillId": "skill-rika-physics-density-floating"
+  },
+  {
+    "id": "rika-2024-03-03-no",
+    "subject": "rika",
+    "section": "3",
+    "questionNumber": "3",
+    "partNumber": "番号",
+    "pageNumber": 6,
+    "prompt": "ガリレオ温度計のしくみについて説明した文章の下線部①〜④の中で、間違っているものの番号を答えなさい。",
+    "choices": [
+      {
+        "id": "1",
+        "label": "①",
+        "text": "① 小さく",
+        "isCorrect": false
+      },
+      {
+        "id": "2",
+        "label": "②",
+        "text": "② 20℃以上",
+        "isCorrect": true
+      },
+      {
+        "id": "3",
+        "label": "③",
+        "text": "③ 小さく",
+        "isCorrect": false
+      },
+      {
+        "id": "4",
+        "label": "④",
+        "text": "④ 変化しやすい",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "2",
+    "answerType": "choice",
+    "figureIds": [
+      "fig-rika-03-thermometer"
+    ],
+    "primarySkillId": "skill-rika-physics-galileo-thermometer"
+  },
+  {
+    "id": "rika-2024-03-03-text",
+    "subject": "rika",
+    "section": "3",
+    "questionNumber": "3",
+    "partNumber": "文章",
+    "pageNumber": 6,
+    "prompt": "問3で選んだ下線部②の誤りを、正しい文章（表現）に直しなさい。",
+    "correctAnswer": "20℃ 以下",
+    "answerType": "open",
+    "openElements": [
+      {
+        "id": "el1",
+        "elementText": "20℃"
+      },
+      {
+        "id": "el2",
+        "elementText": "以下（またはより低いとき）"
+      }
+    ],
+    "figureIds": [
+      "fig-rika-03-thermometer"
+    ],
+    "primarySkillId": "skill-rika-physics-galileo-thermometer"
+  }
+]

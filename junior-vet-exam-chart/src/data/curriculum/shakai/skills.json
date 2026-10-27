@@ -1,0 +1,122 @@
+[
+  {
+    "id": "skill-shakai-geo-hokkaido",
+    "subject": "shakai",
+    "title": "北海道の地理区分と主要都市・産業",
+    "description": "道南・道央・道北・道東の地域特性と主要都市（函館・札幌・旭川など）の位置や産業・気候。",
+    "level": "core",
+    "category": "日本の地理（北海道）"
+  },
+  {
+    "id": "skill-shakai-geo-pioneer",
+    "subject": "shakai",
+    "title": "北海道開拓の歴史と屯田兵・地名",
+    "description": "明治時代の開拓使と屯田兵の役割、全国各地からの移住者が残した地名の由来。",
+    "level": "core",
+    "category": "日本の地理・歴史"
+  },
+  {
+    "id": "skill-shakai-geo-agriculture-fishery",
+    "subject": "shakai",
+    "title": "都道府県の農林水産業と統計グラフ読解",
+    "description": "米の収穫量（新潟・北海道・秋田等）や魚種別漁獲量割合（イカ・カニ・アサリ等）の統計分析力。",
+    "level": "core",
+    "category": "日本の産業・統計"
+  },
+  {
+    "id": "skill-shakai-geo-demography-density",
+    "subject": "shakai",
+    "title": "人口密度計算と地域社会・観光",
+    "description": "人口÷面積による人口密度の算出と、自然景観を活かした観光開発（ニセコ町等）。",
+    "level": "primary",
+    "category": "日本の地理・人口"
+  },
+  {
+    "id": "skill-shakai-hist-ancient-kofun",
+    "subject": "shakai",
+    "title": "古墳時代とヤマト王権の勢力拡大",
+    "description": "前方後円墳の広がりと銘文鉄刀（江田船山古墳・稲荷山古墳のワカタケル大王）。",
+    "level": "core",
+    "category": "日本の歴史（古代）"
+  },
+  {
+    "id": "skill-shakai-hist-nara-heian",
+    "subject": "shakai",
+    "title": "奈良・平安時代の政治と国風文化",
+    "description": "聖武天皇の頻繁な遷都と鎮護国家思想、国風文化の文学（清少納言の枕草子、紫式部の源氏物語）。",
+    "level": "core",
+    "category": "日本の歴史（古代・中世）"
+  },
+  {
+    "id": "skill-shakai-hist-edo-culture",
+    "subject": "shakai",
+    "title": "江戸時代の町人文化と浮世絵",
+    "description": "化政文化と葛飾北斎（富嶽三十六景）・歌川広重などの風景画・浮世絵版画の発展。",
+    "level": "primary",
+    "category": "日本の歴史（江戸）"
+  },
+  {
+    "id": "skill-shakai-hist-modern-cabinet",
+    "subject": "shakai",
+    "title": "明治維新と内閣制度・近代国家の建設",
+    "description": "大日本帝国憲法制定、内閣制度の創設と初代内閣総理大臣（伊藤博文）の治績。",
+    "level": "core",
+    "category": "日本の歴史（近代）"
+  },
+  {
+    "id": "skill-shakai-hist-showa-postwar",
+    "subject": "shakai",
+    "title": "昭和の戦争とGHQの戦後改革",
+    "description": "日独伊三国同盟から第二次世界大戦、戦後の民主化（農地改革・財閥解体・女性参政権等）。",
+    "level": "core",
+    "category": "日本の歴史（近現代）"
+  },
+  {
+    "id": "skill-shakai-hist-chronology-swords",
+    "subject": "shakai",
+    "title": "武器・刀剣に見る日本史の時代変遷",
+    "description": "古代の七支刀から壇ノ浦、日明貿易、戦国期の合戦に至る時代順序の構造的理解。",
+    "level": "core",
+    "category": "日本の歴史（通史）"
+  },
+  {
+    "id": "skill-shakai-hist-taiko-katana-gari",
+    "subject": "shakai",
+    "title": "豊臣秀吉の天下統一と刀狩令の目的",
+    "description": "兵農分離を目的とした刀狩令と、「方広寺大仏建立」を名目にして農民の反発を抑えた政策的意図。",
+    "level": "core",
+    "category": "日本の歴史（安土桃山）"
+  },
+  {
+    "id": "skill-shakai-civics-constitution-judiciary",
+    "subject": "shakai",
+    "title": "日本国憲法の基本原則と裁判所の違憲審査権",
+    "description": "三権分立、最高裁判所の違憲立法審査権（憲法の番人）、憲法施行（1947年5月3日）。",
+    "level": "core",
+    "category": "現代社会・公民"
+  },
+  {
+    "id": "skill-shakai-civics-modern-economy",
+    "subject": "shakai",
+    "title": "現代社会の経済・行政の動向と地方創生",
+    "description": "文化庁の京都移転、クラウドファンディングによる少額資金調達と市民参加。",
+    "level": "primary",
+    "category": "現代社会・公民"
+  },
+  {
+    "id": "skill-shakai-civics-unesco-heritage",
+    "subject": "shakai",
+    "title": "国際連合の専門機関と世界遺産・文化財保護",
+    "description": "ユネスコ（国際連合教育科学文化機関）の活動と、文化・自然遺産の継承。",
+    "level": "primary",
+    "category": "国際社会・公民"
+  },
+  {
+    "id": "skill-shakai-civics-museum-management",
+    "subject": "shakai",
+    "title": "公共文化施設の経営課題と地域共生・多面的思考",
+    "description": "博物館・美術館の財政健全化（自主財源確保）と地域住民との共生策の立案記述力。",
+    "level": "core",
+    "category": "総合記述・現代社会"
+  }
+]
