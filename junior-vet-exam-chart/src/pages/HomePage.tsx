@@ -19,6 +19,7 @@ export const HomePage: React.FC = () => {
   const { startDailySession } = useAppStore();
   const [earnedStampIds, setEarnedStampIds] = useState<string[]>([]);
   const [showStampModal, setShowStampModal] = useState(false);
+  const [openedStampId, setOpenedStampId] = useState<string | null>(null);
   const [showLevelHelpModal, setShowLevelHelpModal] = useState(false);
   const [flashCardSkillId, setFlashCardSkillId] = useState<string | null>(null);
 
@@ -602,6 +603,8 @@ export const HomePage: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
               {ANIMAL_STAMPS.map(stamp => {
                 const isEarned = earnedStampIds.includes(stamp.id);
+                const isOpened = openedStampId === stamp.id;
+
                 return (
                   <div
                     key={stamp.id}
@@ -609,23 +612,26 @@ export const HomePage: React.FC = () => {
                       if (isEarned) {
                         sound.playAnimalHappy();
                         fireConfetti({ count: 20 });
+                        setOpenedStampId(prev => (prev === stamp.id ? null : stamp.id));
                       } else {
                         sound.playPop();
                       }
                     }}
                     style={{
                       border: isEarned ? '2px solid var(--primary)' : '1px dashed var(--border)',
-                      background: isEarned ? 'var(--primary-weak)' : 'var(--surface-subtle)',
+                      background: isEarned ? (isOpened ? '#fef3c7' : 'var(--primary-weak)') : 'var(--surface-subtle)',
                       borderRadius: '14px',
                       padding: '14px',
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '6px',
+                      gap: '8px',
                       opacity: isEarned ? 1 : 0.65,
                       cursor: 'pointer',
                       boxShadow: isEarned ? '0 4px 12px rgba(0, 0, 0, 0.1)' : 'none',
-                      transition: 'transform 0.15s ease',
+                      transition: 'all 0.2s ease',
+                      transform: isOpened ? 'scale(1.02)' : 'none',
                     }}
+                    data-testid={`animal-stamp-${stamp.id}`}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <span style={{ fontSize: '32px' }}>{isEarned ? stamp.icon : '🔒'}</span>
@@ -638,21 +644,59 @@ export const HomePage: React.FC = () => {
                         </div>
                       </div>
                     </div>
+
                     {isEarned && (
-                      <div
-                        style={{
-                          marginTop: '4px',
-                          fontSize: '11px',
-                          color: 'var(--text-subtle)',
-                          background: 'var(--surface)',
-                          padding: '8px 10px',
-                          borderRadius: '8px',
-                          border: '1px solid var(--border)',
-                          lineHeight: '1.45',
-                        }}
-                      >
-                        {stamp.vetFact}
-                      </div>
+                      isOpened ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                          {/* 飛び出す鳴き声・感謝メッセージ */}
+                          <div
+                            style={{
+                              background: '#ffffff',
+                              border: '1.5px solid #f59e0b',
+                              color: '#92400e',
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              padding: '8px 10px',
+                              borderRadius: '8px',
+                              lineHeight: '1.45',
+                              boxShadow: '0 2px 6px rgba(245, 158, 11, 0.15)',
+                            }}
+                            data-testid={`stamp-cheer-${stamp.id}`}
+                          >
+                            🐾 {stamp.cheerMessage}
+                          </div>
+
+                          {/* 飛び出す獣医師プチ知識 */}
+                          <div
+                            style={{
+                              fontSize: '11px',
+                              color: 'var(--text-subtle)',
+                              background: 'var(--surface)',
+                              padding: '8px 10px',
+                              borderRadius: '8px',
+                              border: '1px solid var(--border)',
+                              lineHeight: '1.45',
+                            }}
+                            data-testid={`stamp-fact-${stamp.id}`}
+                          >
+                            {stamp.vetFact}
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            fontSize: '11px',
+                            color: 'var(--primary)',
+                            background: 'rgba(37, 99, 235, 0.08)',
+                            padding: '6px 8px',
+                            borderRadius: '8px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                          }}
+                        >
+                          👆 タップすると鳴き声と豆知識が飛び出すよ！
+                        </div>
+                      )
                     )}
                   </div>
                 );

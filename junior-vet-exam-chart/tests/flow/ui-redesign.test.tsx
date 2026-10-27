@@ -122,4 +122,28 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(screen.getByText(/ナース猫のミケちゃん:/)).toBeInTheDocument();
     expect(screen.getByText('3日れんぞく！')).toBeInTheDocument();
   });
+
+  it('toggles cheer message and vet fact on stamp click in animal stamp album', () => {
+    render(<App />);
+    // スタンプ帳ボタンをクリック
+    const stampAlbumBtn = screen.getByTestId('open-stamp-book-btn');
+    fireEvent.click(stampAlbumBtn);
+
+    // シール帳モーダルが開く
+    expect(screen.getByText('🐾 みならい獣医さんの動物シール帳')).toBeInTheDocument();
+
+    // 獲得済みスタンプ（テスト初期状態では1番目 stamp-dog-shiba などが獲得済み）
+    // クリック前は「👆 タップすると鳴き声と豆知識が飛び出すよ！」が表示されている
+    const promptNotice = screen.getAllByText('👆 タップすると鳴き声と豆知識が飛び出すよ！')[0];
+    expect(promptNotice).toBeInTheDocument();
+    expect(screen.queryByTestId('stamp-cheer-stamp-dog-shiba')).not.toBeInTheDocument();
+
+    // スタンプをクリック
+    const dogStamp = screen.getByTestId('animal-stamp-stamp-dog-shiba');
+    fireEvent.click(dogStamp);
+
+    // クリック後に鳴き声と豆知識が飛び出す！
+    expect(screen.getByTestId('stamp-cheer-stamp-dog-shiba')).toBeInTheDocument();
+    expect(screen.getByTestId('stamp-fact-stamp-dog-shiba')).toBeInTheDocument();
+  });
 });
