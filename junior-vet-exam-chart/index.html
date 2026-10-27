@@ -12,6 +12,37 @@
         }
       })();
     </script>
+    <!-- 古いService Worker・キャッシュ破損による白画面を自動検知して復旧する安全ガード -->
+    <script>
+      window.addEventListener('error', function(e) {
+        if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
+          console.warn('アセット読み込みエラーを検知しました。キャッシュをパージします:', e);
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              for (var i = 0; i < regs.length; i++) regs[i].unregister();
+            });
+          }
+          if ('caches' in window) {
+            caches.keys().then(function(keys) {
+              for (var i = 0; i < keys.length; i++) caches.delete(keys[i]);
+            });
+          }
+          var root = document.getElementById('root');
+          if (root && !root.hasChildNodes()) {
+            root.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:sans-serif;background:#F8FAFC;">' +
+              '<div style="font-size:48px;margin-bottom:12px;">🐾✨</div>' +
+              '<h2 style="font-size:20px;font-weight:bold;margin-bottom:8px;color:#1E293B;">アプリの最新バージョンが見つかりました</h2>' +
+              '<p style="font-size:14px;color:#64748B;max-width:380px;line-height:1.6;margin-bottom:20px;">' +
+              'ブラウザの古いキャッシュをクリアして最新版を読み込みます。下のボタンを押してください。' +
+              '</p>' +
+              '<button onclick="location.reload(true)" style="padding:12px 28px;border-radius:999px;background:#2563EB;color:#FFF;font-weight:bold;border:none;cursor:pointer;font-size:15px;box-shadow:0 4px 14px rgba(37,99,235,0.3);">' +
+              '🔄 最新版を読み込む' +
+              '</button>' +
+              '</div>';
+          }
+        }
+      }, true);
+    </script>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="theme-color" content="#38bdf8" />
     <!-- Google Fonts: Zen Maru Gothic -->

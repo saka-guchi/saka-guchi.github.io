@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 import { ANIMAL_STAMPS, getEarnedStampIds } from '../data/animal-stamps';
 import { getMasteryLevelInfo } from '../utils/mastery-helper';
-import { RIKA_EXAM_SKILLS } from '../data/rika-skills';
+import { ALL_PROGRESS_SKILLS, type ComprehensiveSkillProgressItem } from '../data/all-skills';
 import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
 import { QuickFlashCardModal } from '../components/QuickFlashCardModal';
 import { sound } from '../utils/sound-effects';
@@ -24,7 +24,7 @@ export const HomePage: React.FC = () => {
   // テーマ・サウンド状態
   const [currentTheme, setCurrentTheme] = useState<ThemeType>('default');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedSkillSubject, setSelectedSkillSubject] = useState<'all' | 'rika' | 'sansu' | 'shakai'>('all');
   const [selectedStudySubject, setSelectedStudySubject] = useState<'all' | 'rika' | 'sansu' | 'shakai'>('all');
 
   useEffect(() => {
@@ -73,8 +73,6 @@ export const HomePage: React.FC = () => {
   };
 
   const nextStamp = ANIMAL_STAMPS.find(s => !earnedStampIds.includes(s.id)) || ANIMAL_STAMPS[0];
-  const masteredCount = RIKA_EXAM_SKILLS.filter(s => s.isMastered).length;
-  const remainingCount = RIKA_EXAM_SKILLS.length - masteredCount;
 
   const handleStartToday = () => {
     sound.playChime();
@@ -92,12 +90,19 @@ export const HomePage: React.FC = () => {
     setShowStampModal(true);
   };
 
-  // 分野別フィルター
-  const filteredSkills = RIKA_EXAM_SKILLS.filter(skill => {
-    if (selectedCategory === 'all') return true;
-    const enhance = THEME_ENHANCEMENTS[skill.id];
-    return enhance ? enhance.field === selectedCategory : true;
+  // 科目別フィルター（小学生向け科目タブ：すべて・理科・算数・社会）
+  const filteredSkills = ALL_PROGRESS_SKILLS.filter(skill => {
+    if (selectedSkillSubject === 'all') return true;
+    return skill.subject === selectedSkillSubject;
   });
+
+  const masteredCount = filteredSkills.filter(s => s.isMastered).length;
+  const remainingCount = filteredSkills.length - masteredCount;
+
+  // 各教科のスキル数カウント
+  const rikaCount = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'rika').length;
+  const sansuCount = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'sansu').length;
+  const shakaiCount = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'shakai').length;
 
   const themeIcons: Record<ThemeType, string> = {
     default: '🩺 クリニック',
@@ -280,13 +285,13 @@ export const HomePage: React.FC = () => {
           </button>
         </section>
 
-        {/* ゾーン3: 下段2カラム（全9テーマのカルテ進度 と 獣医師認定試験） */}
+        {/* ゾーン3: 下段2カラム（全37テーマのカルテ進度 と 獣医師認定試験） */}
         <div className={styles.bottomCardsGrid}>
-          {/* 左カラム: 🩺 全9テーマのカルテ進度 */}
+          {/* 左カラム: 🩺 受験カルテ進度（全37テーマ） */}
           <div className={styles.card} data-testid="card-weakness">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 className={styles.cardTitle} style={{ margin: 0 }}>
-                🩺 全9テーマのカルテ進度
+                🩺 受験カルテ進度（全37テーマ）
               </h3>
               <button
                 className={styles.helpLinkBtn}
@@ -301,25 +306,25 @@ export const HomePage: React.FC = () => {
             </div>
 
             <div style={{ fontSize: '13px', color: 'var(--text-subtle)', margin: '2px 0 4px 0' }}>
-              マスター達成（⭐Lv.4以上）：<strong style={{ color: 'var(--primary)' }}>{masteredCount} / {RIKA_EXAM_SKILLS.length} テーマ</strong>（すべてLv.4にすると認定試験オープン！）
+              マスター達成（⭐Lv.4以上）：<strong style={{ color: 'var(--primary)' }}>{masteredCount} / {filteredSkills.length} テーマ</strong>
             </div>
 
-            {/* 理科4分野フィルター */}
-            <div className={styles.categoryFilterRow}>
+            {/* 小学生向け科目別フィルター */}
+            <div className={styles.categoryFilterRow} data-testid="skill-subject-filter-row">
               {[
-                { id: 'all', label: 'すべて (9)' },
-                { id: '生物', label: '🌿 生物 (3)' },
-                { id: '物理', label: '⚡ 物理 (3)' },
-                { id: '地学', label: '🌍 地学 (2)' },
-                { id: '化学', label: '🧪 化学 (1)' },
+                { id: 'all', label: `🌟 すべて (${ALL_PROGRESS_SKILLS.length})` },
+                { id: 'rika', label: `🧪 理科 (${rikaCount})` },
+                { id: 'sansu', label: `📐 算数 (${sansuCount})` },
+                { id: 'shakai', label: `🗾 社会 (${shakaiCount})` },
               ].map(cat => (
                 <button
                   key={cat.id}
-                  className={`${styles.categoryFilterBtn} ${selectedCategory === cat.id ? styles.categoryFilterBtnActive : ''}`}
+                  className={`${styles.categoryFilterBtn} ${selectedSkillSubject === cat.id ? styles.categoryFilterBtnActive : ''}`}
                   onClick={() => {
                     sound.playPop();
-                    setSelectedCategory(cat.id);
+                    setSelectedSkillSubject(cat.id as any);
                   }}
+                  data-testid={`skill-subject-btn-${cat.id}`}
                 >
                   {cat.label}
                 </button>
@@ -337,18 +342,19 @@ export const HomePage: React.FC = () => {
               {filteredSkills.filter(s => !s.isMastered).map(skill => {
                 const info = getMasteryLevelInfo(skill.stage);
                 const enhance = THEME_ENHANCEMENTS[skill.id];
+                const patientIcon = enhance?.patientAnimal?.icon || skill.patientIcon || '🐾';
+                const patientName = enhance?.patientAnimal?.name || skill.patientName || '患者どうぶつ';
+
                 return (
                   <div key={skill.id} className={styles.skillRowMini}>
                     <div className={styles.skillRowTop}>
                       <div className={styles.skillTitleArea}>
-                        <span className={styles.patientIcon}>{enhance?.patientAnimal?.icon || '🐾'}</span>
+                        <span className={styles.patientIcon}>{patientIcon}</span>
                         <div>
                           <div className={styles.skillTitle}>{skill.title}</div>
-                          {enhance?.patientAnimal && (
-                            <div style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>
-                              患者: <strong>{enhance.patientAnimal.name}</strong>
-                            </div>
-                          )}
+                          <div style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>
+                            患者: <strong>{patientName}</strong>（{skill.subjectLabel}）
+                          </div>
                         </div>
                       </div>
                       <span
@@ -364,21 +370,19 @@ export const HomePage: React.FC = () => {
                     </div>
 
                     <div className={styles.skillMetaRow}>
-                      {enhance && (
-                        <div className={styles.memoryBarWrap} title="忘却曲線に基づく記憶定着ゲージ">
-                          <span>記憶メーター:</span>
-                          <div className={styles.memoryBar}>
-                            <div
-                              className={styles.memoryBarFill}
-                              style={{
-                                width: `${enhance.memoryRetention}%`,
-                                background: enhance.memoryRetention > 70 ? 'var(--success)' : enhance.memoryRetention > 50 ? 'var(--warning)' : '#ef4444',
-                              }}
-                            />
-                          </div>
-                          <strong>{enhance.memoryRetention}%</strong>
+                      <div className={styles.memoryBarWrap} title="忘却曲線に基づく記憶定着ゲージ">
+                        <span>記憶メーター:</span>
+                        <div className={styles.memoryBar}>
+                          <div
+                            className={styles.memoryBarFill}
+                            style={{
+                              width: `${enhance?.memoryRetention || 65}%`,
+                              background: (enhance?.memoryRetention || 65) > 70 ? 'var(--success)' : 'var(--warning)',
+                            }}
+                          />
                         </div>
-                      )}
+                        <strong>{enhance?.memoryRetention || 65}%</strong>
+                      </div>
 
                       <button
                         className={styles.quickFlashBtn}
@@ -404,18 +408,19 @@ export const HomePage: React.FC = () => {
               {filteredSkills.filter(s => s.isMastered).map(skill => {
                 const info = getMasteryLevelInfo(skill.stage);
                 const enhance = THEME_ENHANCEMENTS[skill.id];
+                const patientIcon = enhance?.patientAnimal?.icon || skill.patientIcon || '🐾';
+                const patientName = enhance?.patientAnimal?.name || skill.patientName || '患者どうぶつ';
+
                 return (
                   <div key={skill.id} className={`${styles.skillRowMini} ${styles.skillRowMiniMastered}`}>
                     <div className={styles.skillRowTop}>
                       <div className={styles.skillTitleArea}>
-                        <span className={styles.patientIcon}>{enhance?.patientAnimal?.icon || '🐾'}</span>
+                        <span className={styles.patientIcon}>{patientIcon}</span>
                         <div>
                           <div className={styles.skillTitle}>{skill.title}</div>
-                          {enhance?.patientAnimal && (
-                            <div style={{ fontSize: '11px', color: 'var(--success-text)' }}>
-                              患者: <strong>{enhance.patientAnimal.name}（全快！）</strong>
-                            </div>
-                          )}
+                          <div style={{ fontSize: '11px', color: 'var(--success-text)' }}>
+                            患者: <strong>{patientName}（全快！）</strong>（{skill.subjectLabel}）
+                          </div>
                         </div>
                       </div>
                       <span
@@ -431,18 +436,16 @@ export const HomePage: React.FC = () => {
                     </div>
 
                     <div className={styles.skillMetaRow}>
-                      {enhance && (
-                        <div className={styles.memoryBarWrap} title="忘却曲線に基づく記憶定着ゲージ">
-                          <span>記憶メーター:</span>
-                          <div className={styles.memoryBar}>
-                            <div
-                              className={styles.memoryBarFill}
-                              style={{ width: `${enhance.memoryRetention}%`, background: 'var(--success)' }}
-                            />
-                          </div>
-                          <strong>{enhance.memoryRetention}%</strong>
+                      <div className={styles.memoryBarWrap} title="忘却曲線に基づく記憶定着ゲージ">
+                        <span>記憶メーター:</span>
+                        <div className={styles.memoryBar}>
+                          <div
+                            className={styles.memoryBarFill}
+                            style={{ width: `${enhance?.memoryRetention || 90}%`, background: 'var(--success)' }}
+                          />
                         </div>
-                      )}
+                        <strong>{enhance?.memoryRetention || 90}%</strong>
+                      </div>
 
                       <button
                         className={styles.quickFlashBtn}

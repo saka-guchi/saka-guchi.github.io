@@ -34,3 +34,4 @@ describe('Version Management and Cache Control', () => {
     expect(footer).toHaveTextContent(`v${APP_VERSION}`);
   });
 });
+

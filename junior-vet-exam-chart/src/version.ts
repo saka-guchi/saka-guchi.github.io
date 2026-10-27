@@ -36,3 +36,4 @@ export async function clearCacheAndReload(): Promise<void> {
     window.location.href = url.toString();
   }
 }
+

@@ -58,23 +58,32 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(soundBtn).toHaveTextContent('🔔');
   });
 
-  it('filters topics by science field tabs', () => {
+  it('filters topics by subject tabs (Science, Math, Social Studies)', () => {
     render(<App />);
 
-    // 初期状態では全9テーマ表示
-    expect(screen.getByText('すべて (9)')).toBeInTheDocument();
+    // 初期状態では全37テーマ表示
+    expect(screen.getByText('🌟 すべて (37)')).toBeInTheDocument();
 
-    // 「生物 (3)」をクリック
-    const bioBtn = screen.getByText('🌿 生物 (3)');
-    fireEvent.click(bioBtn);
+    // 「🧪 理科 (9)」をクリック
+    const rikaBtn = screen.getByText('🧪 理科 (9)');
+    fireEvent.click(rikaBtn);
 
-    // 生物のテーマが表示され、物理のアルキメデスが表示されていないことを確認
+    // 理科のテーマが表示され、算数のテーマが表示されていないことを確認
     expect(screen.getByText('維管束の配置（内道外師）')).toBeInTheDocument();
-    expect(screen.queryByText('アルキメデスの原理と浮力の計算')).not.toBeInTheDocument();
+    expect(screen.queryByText('つるかめ算と消去算の条件整理')).not.toBeInTheDocument();
 
-    // 「すべて」に戻す
-    fireEvent.click(screen.getByText('すべて (9)'));
-    expect(screen.getByText('アルキメデスの原理と浮力の計算')).toBeInTheDocument();
+    // 「📐 算数 (14)」をクリック
+    const sansuBtn = screen.getByText('📐 算数 (14)');
+    fireEvent.click(sansuBtn);
+
+    // 算数のテーマが表示され、理科のテーマが表示されていないことを確認
+    expect(screen.getByText('つるかめ算と消去算の条件整理')).toBeInTheDocument();
+    expect(screen.queryByText('維管束の配置（内道外師）')).not.toBeInTheDocument();
+
+    // 「🌟 すべて (37)」に戻す
+    fireEvent.click(screen.getByText('🌟 すべて (37)'));
+    expect(screen.getByText('維管束の配置（内道外師）')).toBeInTheDocument();
+    expect(screen.getByText('つるかめ算と消去算の条件整理')).toBeInTheDocument();
   });
 
   it('opens and flips 30-second flashcard modal', () => {
