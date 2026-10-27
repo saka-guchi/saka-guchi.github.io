@@ -6,6 +6,7 @@ import { getMasteryLevelInfo } from '../utils/mastery-helper';
 import { ALL_PROGRESS_SKILLS, type ComprehensiveSkillProgressItem } from '../data/all-skills';
 import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
 import { QuickFlashCardModal } from '../components/QuickFlashCardModal';
+import { getMemoryRetention } from '../utils/memory-retention';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
 import { APP_VERSION, BUILD_TIMESTAMP } from '../version';
@@ -26,6 +27,13 @@ export const HomePage: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [selectedSkillSubject, setSelectedSkillSubject] = useState<'all' | 'rika' | 'sansu' | 'shakai'>('all');
   const [selectedStudySubject, setSelectedStudySubject] = useState<'all' | 'rika' | 'sansu' | 'shakai'>('all');
+  const [, setRetentionTick] = useState(0);
+
+  useEffect(() => {
+    const handleRetentionUpdate = () => setRetentionTick(t => t + 1);
+    window.addEventListener('memory-retention-updated', handleRetentionUpdate);
+    return () => window.removeEventListener('memory-retention-updated', handleRetentionUpdate);
+  }, []);
 
   useEffect(() => {
     try {
@@ -344,6 +352,7 @@ export const HomePage: React.FC = () => {
                 const enhance = THEME_ENHANCEMENTS[skill.id];
                 const patientIcon = enhance?.patientAnimal?.icon || skill.patientIcon || '🐾';
                 const patientName = enhance?.patientAnimal?.name || skill.patientName || '患者どうぶつ';
+                const retention = getMemoryRetention(skill.id);
 
                 return (
                   <div key={skill.id} className={styles.skillRowMini}>
@@ -376,12 +385,12 @@ export const HomePage: React.FC = () => {
                           <div
                             className={styles.memoryBarFill}
                             style={{
-                              width: `${enhance?.memoryRetention || 65}%`,
-                              background: (enhance?.memoryRetention || 65) > 70 ? 'var(--success)' : 'var(--warning)',
+                              width: `${retention}%`,
+                              background: retention >= 80 ? 'var(--success)' : retention >= 50 ? 'var(--warning)' : '#ef4444',
                             }}
                           />
                         </div>
-                        <strong>{enhance?.memoryRetention || 65}%</strong>
+                        <strong data-testid={`retention-score-${skill.id}`}>{retention}%</strong>
                       </div>
 
                       <button
@@ -410,6 +419,7 @@ export const HomePage: React.FC = () => {
                 const enhance = THEME_ENHANCEMENTS[skill.id];
                 const patientIcon = enhance?.patientAnimal?.icon || skill.patientIcon || '🐾';
                 const patientName = enhance?.patientAnimal?.name || skill.patientName || '患者どうぶつ';
+                const retention = getMemoryRetention(skill.id);
 
                 return (
                   <div key={skill.id} className={`${styles.skillRowMini} ${styles.skillRowMiniMastered}`}>
@@ -441,10 +451,13 @@ export const HomePage: React.FC = () => {
                         <div className={styles.memoryBar}>
                           <div
                             className={styles.memoryBarFill}
-                            style={{ width: `${enhance?.memoryRetention || 90}%`, background: 'var(--success)' }}
+                            style={{
+                              width: `${retention}%`,
+                              background: retention >= 80 ? 'var(--success)' : retention >= 50 ? 'var(--warning)' : '#ef4444',
+                            }}
                           />
                         </div>
-                        <strong>{enhance?.memoryRetention || 90}%</strong>
+                        <strong data-testid={`retention-score-${skill.id}`}>{retention}%</strong>
                       </div>
 
                       <button

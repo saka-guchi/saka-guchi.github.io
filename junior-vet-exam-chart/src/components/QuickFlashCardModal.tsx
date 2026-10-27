@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { THEME_ENHANCEMENTS, ThemeEnhancement } from '../data/vet-curriculum-enhancement';
+import { getMemoryRetention, boostMemoryRetention } from '../utils/memory-retention';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
 import styles from './QuickFlashCardModal.module.css';
@@ -7,17 +8,31 @@ import styles from './QuickFlashCardModal.module.css';
 interface QuickFlashCardModalProps {
   initialSkillId?: string;
   onClose: () => void;
+  onRetentionUpdated?: () => void;
 }
 
-export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({ initialSkillId, onClose }) => {
+export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
+  initialSkillId,
+  onClose,
+  onRetentionUpdated,
+}) => {
   const keys = Object.keys(THEME_ENHANCEMENTS);
   const initialIndex = initialSkillId ? Math.max(0, keys.indexOf(initialSkillId)) : 0;
 
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [boostMessage, setBoostMessage] = useState<string | null>(null);
 
   const currentKey = keys[currentIndex];
   const item: ThemeEnhancement = THEME_ENHANCEMENTS[currentKey] || THEME_ENHANCEMENTS[keys[0]];
+
+  // 記憶メーター値（ローカルストレージと同期）
+  const [retention, setRetention] = useState<number>(() => getMemoryRetention(item.skillId));
+
+  useEffect(() => {
+    setRetention(getMemoryRetention(item.skillId));
+    setBoostMessage(null);
+  }, [item.skillId]);
 
   const handleFlip = () => {
     sound.playPop();
@@ -28,6 +43,7 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({ initia
     if (currentIndex < keys.length - 1) {
       sound.playPop();
       setIsFlipped(false);
+      setBoostMessage(null);
       setCurrentIndex(currentIndex + 1);
     }
   };
@@ -36,15 +52,27 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({ initia
     if (currentIndex > 0) {
       sound.playPop();
       setIsFlipped(false);
+      setBoostMessage(null);
       setCurrentIndex(currentIndex - 1);
     }
   };
 
+  // 「🎉 思い出せた！（定着チェック）」ボタン押下時
   const handleMastered = (e: React.MouseEvent) => {
     e.stopPropagation();
     sound.playChime();
     fireConfetti();
-    handleNext();
+
+    // 記憶メーターを +20% 上昇して永続保存！
+    const nextVal = boostMemoryRetention(item.skillId, 20);
+    setRetention(nextVal);
+    setBoostMessage(`🔥 記憶メーター +20% UP！（現在 ${nextVal}%）`);
+    onRetentionUpdated?.();
+
+    // 1秒後に次のカードへ進む
+    setTimeout(() => {
+      handleNext();
+    }, 1000);
   };
 
   return (
@@ -91,7 +119,7 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({ initia
                   {item.subjectLabel}
                 </span>
                 <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                  記憶定着メーター: <strong>{item.memoryRetention}%</strong>
+                  記憶定着メーター: <strong data-testid="flashcard-retention-val">{retention}%</strong>
                 </span>
               </div>
 
@@ -129,20 +157,40 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({ initia
                 </div>
               </div>
 
+              {boostMessage && (
+                <div
+                  style={{
+                    background: '#dcfce7',
+                    color: '#15803d',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    animation: 'pulse 1s infinite',
+                  }}
+                  data-testid="boost-success-message"
+                >
+                  {boostMessage}
+                </div>
+              )}
+
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <button
                   onClick={handleMastered}
                   style={{
-                    padding: '6px 16px',
+                    padding: '8px 20px',
                     borderRadius: 'var(--radius-pill)',
                     background: '#10b981',
                     color: '#ffffff',
                     fontWeight: 'bold',
-                    fontSize: '12px',
+                    fontSize: '13px',
                     boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                    cursor: 'pointer',
+                    border: 'none',
                   }}
+                  data-testid="flashcard-remembered-btn"
                 >
-                  🎉 思い出せた！（定着チェック）
+                  🎉 思い出せた！（記憶メーターUP）
                 </button>
               </div>
             </div>
