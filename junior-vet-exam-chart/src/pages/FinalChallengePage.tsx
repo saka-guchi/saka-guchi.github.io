@@ -13,6 +13,7 @@ import {
 } from '../data/final-challenge-pages';
 import { BUILTIN_YASUDA_PACK } from '../data/curriculum';
 import { DoctorCertificateModal } from '../components/DoctorCertificateModal';
+import { FinalExamHistoryModal } from '../components/FinalExamHistoryModal';
 import { sound } from '../utils/sound-effects';
 import styles from './FinalChallengePage.module.css';
 
@@ -38,7 +39,14 @@ export const FinalChallengePage: React.FC = () => {
   const [showScoringModal, setShowScoringModal] = useState(false);
   const [rubricChecks, setRubricChecks] = useState<Record<string, Record<number, boolean>>>({});
   const [showCertModal, setShowCertModal] = useState(false);
-  const [lastExamResult, setLastExamResult] = useState<{ score: number; passed: boolean } | null>(null);
+  const [showExamResultModal, setShowExamResultModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [lastExamResult, setLastExamResult] = useState<{
+    score: number;
+    passed: boolean;
+    correctCount: number;
+    totalQuestions: number;
+  } | null>(null);
 
   const currentSubjectData = FINAL_CHALLENGE_DATA_BY_SUBJECT[currentSubject] || FINAL_CHALLENGE_DATA_BY_SUBJECT.rika;
   const currentSections = currentSubjectData.sections;
@@ -143,16 +151,13 @@ export const FinalChallengePage: React.FC = () => {
     });
 
     setShowScoringModal(false);
-    setLastExamResult({ score, passed });
+    setLastExamResult({ score, passed, correctCount, totalQuestions });
+    setShowExamResultModal(true);
 
     if (passed) {
-      // 合格・満点時は合格ドクター認定証を堂々授与！
-      setShowCertModal(true);
+      sound.playAnimalHappy();
     } else {
-      alert(
-        `【採点完了】\n教科: ${currentSubjectData.subjectLabel}\n得点: ${score} 点 (${correctCount} / ${totalQuestions} 問正解)\n判定: 不合格（もう一度復習して挑戦しましょう！）`
-      );
-      navigate('/');
+      sound.playPop();
     }
   };
 
@@ -847,6 +852,161 @@ export const FinalChallengePage: React.FC = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {/* 採点結果発表モーダル（ブラウザalert廃止） */}
+      {showExamResultModal && lastExamResult && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.65)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1050,
+            padding: '16px',
+            backdropFilter: 'blur(3px)',
+          }}
+          data-testid="exam-result-modal"
+        >
+          <div
+            style={{
+              background: 'var(--surface, #ffffff)',
+              borderRadius: '20px',
+              maxWidth: '460px',
+              width: '100%',
+              padding: '28px 24px',
+              textAlign: 'center',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
+              border: lastExamResult.passed ? '2px solid #22c55e' : '2px solid var(--border)',
+            }}
+          >
+            <div style={{ fontSize: '54px', marginBottom: '8px' }}>
+              {lastExamResult.score === 100 ? '🎖️' : lastExamResult.passed ? '👑' : '🌱'}
+            </div>
+
+            <div
+              style={{
+                display: 'inline-block',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                padding: '2px 10px',
+                borderRadius: '12px',
+                background: 'var(--surface-subtle)',
+                color: 'var(--text-subtle)',
+                marginBottom: '8px',
+              }}
+            >
+              {currentSubjectData.icon} {currentSubjectData.subjectLabel}（{stage === 1 ? '過去問原本本番' : 'Stage 2 同等未見テスト'}）
+            </div>
+
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '22px', color: 'var(--text)', fontWeight: '800' }}>
+              {lastExamResult.score === 100
+                ? '満点クリア！おめでとう！'
+                : lastExamResult.passed
+                ? '合格ドクター認定！'
+                : '採点完了（あと一歩！）'}
+            </h3>
+
+            <div
+              style={{
+                fontSize: '44px',
+                fontWeight: '900',
+                margin: '12px 0 4px',
+                color: lastExamResult.passed ? '#15803d' : 'var(--text)',
+              }}
+              data-testid="result-score-display"
+            >
+              {lastExamResult.score} <span style={{ fontSize: '20px' }}>点</span>
+            </div>
+
+            <div style={{ fontSize: '13px', color: 'var(--text-subtle)', marginBottom: '16px' }}>
+              正解数: <strong>{lastExamResult.correctCount}</strong> / {lastExamResult.totalQuestions} 問
+              （合格基準: 80点以上）
+            </div>
+
+            <p style={{ fontSize: '13px', color: 'var(--text)', lineHeight: '1.6', background: 'var(--surface-subtle)', padding: '12px', borderRadius: '10px', margin: '0 0 20px 0' }}>
+              {lastExamResult.passed
+                ? '素晴らしい実力です！全問カルテの分析が完璧でした。認定証を受け取りましょう！'
+                : '惜しい！間違えた単元をカルテで復習して、再挑戦してみましょう。採点結果はいつでも成績表から見返せます。'}
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {lastExamResult.passed && (
+                <button
+                  onClick={() => {
+                    setShowExamResultModal(false);
+                    setShowCertModal(true);
+                  }}
+                  style={{
+                    background: '#f59e0b',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: 'var(--radius-pill)',
+                    padding: '12px 20px',
+                    fontSize: '15px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+                  }}
+                  data-testid="show-cert-from-result-btn"
+                >
+                  📜 合格認定証を受け取る！
+                </button>
+              )}
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => {
+                    setShowExamResultModal(false);
+                    setShowHistoryModal(true);
+                  }}
+                  style={{
+                    flex: 1,
+                    background: 'var(--surface-subtle)',
+                    color: 'var(--text)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-pill)',
+                    padding: '10px 14px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                  }}
+                  data-testid="view-history-from-result-btn"
+                >
+                  📋 成績表を見る
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowExamResultModal(false);
+                    navigate('/');
+                  }}
+                  style={{
+                    flex: 1,
+                    background: 'var(--primary)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: 'var(--radius-pill)',
+                    padding: '10px 14px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                  }}
+                  data-testid="return-home-from-result-btn"
+                >
+                  🏠 ホームに戻る
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 過去の採点カルテ・成績表モーダル */}
+      {showHistoryModal && (
+        <FinalExamHistoryModal onClose={() => setShowHistoryModal(false)} />
       )}
     </div>
   );

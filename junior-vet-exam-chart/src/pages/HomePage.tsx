@@ -6,6 +6,7 @@ import { getMasteryLevelInfo } from '../utils/mastery-helper';
 import { ALL_PROGRESS_SKILLS, type ComprehensiveSkillProgressItem } from '../data/all-skills';
 import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
 import { QuickFlashCardModal } from '../components/QuickFlashCardModal';
+import { FinalExamHistoryModal } from '../components/FinalExamHistoryModal';
 import { getMemoryRetention } from '../utils/memory-retention';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
@@ -21,6 +22,7 @@ export const HomePage: React.FC = () => {
   const [showStampModal, setShowStampModal] = useState(false);
   const [openedStampId, setOpenedStampId] = useState<string | null>(null);
   const [showLevelHelpModal, setShowLevelHelpModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [flashCardSkillId, setFlashCardSkillId] = useState<string | null>(null);
 
   // テーマ・サウンド状態
@@ -529,16 +531,39 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
-            <button
-              className={styles.challengeBtn}
-              onClick={() => {
-                sound.playPop();
-                navigate('/final-challenge');
-              }}
-              data-testid="final-challenge-link-btn"
-            >
-              合格ドクター認定試験を受ける 🏆
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button
+                className={styles.challengeBtn}
+                onClick={() => {
+                  sound.playPop();
+                  navigate('/final-challenge');
+                }}
+                data-testid="final-challenge-link-btn"
+              >
+                合格ドクター認定試験を受ける 🏆
+              </button>
+
+              <button
+                onClick={() => {
+                  sound.playPop();
+                  setShowHistoryModal(true);
+                }}
+                style={{
+                  background: 'var(--surface-subtle)',
+                  color: 'var(--text)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-pill)',
+                  padding: '8px 16px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                }}
+                data-testid="open-exam-history-btn"
+              >
+                📋 過去の採点カルテ・成績表を見る
+              </button>
+            </div>
           </div>
         </div>
       </main>
@@ -761,6 +786,11 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 過去の認定試験採点カルテ・成績表モーダル */}
+      {showHistoryModal && (
+        <FinalExamHistoryModal onClose={() => setShowHistoryModal(false)} />
       )}
     </div>
   );

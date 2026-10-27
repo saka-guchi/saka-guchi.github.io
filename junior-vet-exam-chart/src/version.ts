@@ -1,6 +1,6 @@
 // アプリバージョン・ビルドメタ情報
 export const APP_VERSION: string =
-  typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.3.0';
+  typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.4.0';
 
 const getFallbackJstTimestamp = () => {
   try {

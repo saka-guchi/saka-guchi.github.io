@@ -146,4 +146,13 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(screen.getByTestId('stamp-cheer-stamp-dog-shiba')).toBeInTheDocument();
     expect(screen.getByTestId('stamp-fact-stamp-dog-shiba')).toBeInTheDocument();
   });
+
+  it('opens exam history modal from HomePage', () => {
+    render(<App />);
+    const historyBtn = screen.getByTestId('open-exam-history-btn');
+    fireEvent.click(historyBtn);
+
+    expect(screen.getByTestId('exam-history-modal')).toBeInTheDocument();
+    expect(screen.getByText('合格ドクター認定試験 採点カルテ・成績表')).toBeInTheDocument();
+  });
 });

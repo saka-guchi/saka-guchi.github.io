@@ -148,5 +148,35 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     expect(screen.queryByText('📸 原本スキャン')).not.toBeInTheDocument();
     expect(screen.getByText('✨ 同等未見問題モード（オリジナル出題）')).toBeInTheDocument();
   });
+
+  it('displays in-app result modal and allows opening history modal after finalizing score', async () => {
+    const { waitFor } = await import('@testing-library/react');
+
+    render(
+      <MemoryRouter>
+        <FinalChallengePage />
+      </MemoryRouter>
+    );
+
+    // 提出ボタンを押す
+    fireEvent.click(screen.getByTestId('submit-exam-btn'));
+    expect(screen.getByTestId('scoring-modal')).toBeInTheDocument();
+
+    // 採点を確定
+    fireEvent.click(screen.getByTestId('finalize-score-btn'));
+
+    // ブラウザalertではなく、アプリ内リザルトモーダルが表示されること
+    await waitFor(() => {
+      expect(screen.getByTestId('exam-result-modal')).toBeInTheDocument();
+      expect(screen.getByTestId('result-score-display')).toBeInTheDocument();
+    });
+
+    // 「成績表を見る」ボタンを押すと、過去の採点カルテ・成績表モーダルが開くこと
+    fireEvent.click(screen.getByTestId('view-history-from-result-btn'));
+    await waitFor(() => {
+      expect(screen.getByTestId('exam-history-modal')).toBeInTheDocument();
+      expect(screen.getByText('合格ドクター認定試験 採点カルテ・成績表')).toBeInTheDocument();
+    });
+  });
 });
 
