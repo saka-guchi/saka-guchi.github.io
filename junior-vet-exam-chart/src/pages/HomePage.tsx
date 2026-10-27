@@ -5,7 +5,6 @@ import { ANIMAL_STAMPS, getEarnedStampIds } from '../data/animal-stamps';
 import { getMasteryLevelInfo } from '../utils/mastery-helper';
 import { RIKA_EXAM_SKILLS } from '../data/rika-skills';
 import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
-import { DoctorCertificateModal } from '../components/DoctorCertificateModal';
 import { QuickFlashCardModal } from '../components/QuickFlashCardModal';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
@@ -15,11 +14,10 @@ type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { startDailySession, startSampleSession } = useAppStore();
+  const { startDailySession } = useAppStore();
   const [earnedStampIds, setEarnedStampIds] = useState<string[]>([]);
   const [showStampModal, setShowStampModal] = useState(false);
   const [showLevelHelpModal, setShowLevelHelpModal] = useState(false);
-  const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [flashCardSkillId, setFlashCardSkillId] = useState<string | null>(null);
 
   // テーマ・サウンド状態
@@ -80,12 +78,6 @@ export const HomePage: React.FC = () => {
   const handleStartToday = () => {
     sound.playChime();
     startDailySession(selectedStudySubject === 'all' ? undefined : selectedStudySubject);
-    navigate('/study');
-  };
-
-  const handleStartSample = () => {
-    sound.playPop();
-    startSampleSession();
     navigate('/study');
   };
 
@@ -228,15 +220,6 @@ export const HomePage: React.FC = () => {
               <span className={styles.todayMenuPill}>✏️ やり直し：2問</span>
               <span className={styles.todayMenuPill}>🌱 新知識：2問</span>
               <span className={styles.todayMenuPill}>⭐ 応用問題：3問</span>
-            </div>
-
-            <div>
-              <button
-                className={styles.textLinkBtn}
-                onClick={handleStartSample}
-              >
-                📖 サンプル教材（全15問）を解く →
-              </button>
             </div>
           </div>
 
@@ -512,16 +495,6 @@ export const HomePage: React.FC = () => {
             >
               認定試験の案内・過去問を見る
             </button>
-            <button
-              className={styles.previewCertBtn}
-              onClick={() => {
-                sound.playPop();
-                setShowCertificateModal(true);
-              }}
-              data-testid="preview-cert-btn"
-            >
-              🎖️ 満点クリア認定証を見る（プレビュー）
-            </button>
           </div>
         </div>
       </main>
@@ -532,11 +505,6 @@ export const HomePage: React.FC = () => {
           initialSkillId={flashCardSkillId}
           onClose={() => setFlashCardSkillId(null)}
         />
-      )}
-
-      {/* 合格ドクター認定証モーダル（満点報酬 / デバッグ確認） */}
-      {showCertificateModal && (
-        <DoctorCertificateModal onClose={() => setShowCertificateModal(false)} />
       )}
 
       {/* 動物スタンプ帳モーダル */}
