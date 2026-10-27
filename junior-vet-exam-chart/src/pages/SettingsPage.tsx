@@ -126,8 +126,14 @@ export const SettingsPage: React.FC = () => {
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
+      const jstDateStr = new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(new Date()).replace(/\//g, '-');
       a.href = url;
-      a.download = `junior-vet-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `junior-vet-backup-${jstDateStr}.json`;
       a.click();
       URL.revokeObjectURL(url);
       setBackupStatus(`✅ バックアップを書き出しました（解答記録: ${attempts.length}問, 習得度: ${masteries.length}テーマ）`);
