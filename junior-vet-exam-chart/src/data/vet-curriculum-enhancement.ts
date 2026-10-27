@@ -116,8 +116,8 @@ export const THEME_ENHANCEMENTS: Record<string, ThemeEnhancement> = {
       examPoint: 'ばねばかりの目盛りの減り＝浮力。台ばかりの目盛りの増え＝浮力（反作用）！',
     },
   },
-  'skill-rika-earth-greenhouse-effect': {
-    skillId: 'skill-rika-earth-greenhouse-effect',
+  'skill-rika-env-greenhouse': {
+    skillId: 'skill-rika-env-greenhouse',
     field: '地学',
     fieldColor: '#f59e0b',
     fieldBg: '#fffbeb',
@@ -154,8 +154,8 @@ export const THEME_ENHANCEMENTS: Record<string, ThemeEnhancement> = {
       examPoint: '記述試験の超定番フレーズ！「表面積を大きく」「効率よく」の2語を必ず入れよう。',
     },
   },
-  'skill-rika-earth-ocean-acidification': {
-    skillId: 'skill-rika-earth-ocean-acidification',
+  'skill-rika-env-ocean-acidification': {
+    skillId: 'skill-rika-env-ocean-acidification',
     field: '地学',
     fieldColor: '#f59e0b',
     fieldBg: '#fffbeb',
@@ -173,8 +173,8 @@ export const THEME_ENHANCEMENTS: Record<string, ThemeEnhancement> = {
       examPoint: '地球温暖化とセットで環境問題大問の最後の考察問題として出題急増中！',
     },
   },
-  'skill-rika-physics-thermometer-liquid': {
-    skillId: 'skill-rika-physics-thermometer-liquid',
+  'skill-rika-physics-galileo-thermometer': {
+    skillId: 'skill-rika-physics-galileo-thermometer',
     field: '物理',
     fieldColor: '#3b82f6',
     fieldBg: '#eff6ff',

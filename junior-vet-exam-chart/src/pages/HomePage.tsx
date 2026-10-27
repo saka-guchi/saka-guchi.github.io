@@ -28,20 +28,28 @@ export const HomePage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   useEffect(() => {
-    setEarnedStampIds(getEarnedStampIds());
-    setSoundEnabled(sound.isEnabled());
-    
-    // 保存済みテーマの復元
-    const savedTheme = (localStorage.getItem('junior_vet_theme') as ThemeType) || 'default';
-    setCurrentTheme(savedTheme);
-    applyTheme(savedTheme);
+    try {
+      setEarnedStampIds(getEarnedStampIds());
+      setSoundEnabled(sound.isEnabled());
+
+      // 保存済みテーマの復元
+      const savedTheme = (localStorage.getItem('junior_vet_theme') as ThemeType) || 'default';
+      setCurrentTheme(savedTheme);
+      applyTheme(savedTheme);
+    } catch {
+      // ignore
+    }
   }, []);
 
   const applyTheme = (theme: ThemeType) => {
-    if (theme === 'default') {
-      document.documentElement.removeAttribute('data-theme');
-    } else {
-      document.documentElement.setAttribute('data-theme', theme);
+    try {
+      if (theme === 'default') {
+        document.documentElement.removeAttribute('data-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+    } catch {
+      // ignore
     }
   };
 
@@ -52,7 +60,11 @@ export const HomePage: React.FC = () => {
     const nextTheme = order[nextIndex];
     setCurrentTheme(nextTheme);
     applyTheme(nextTheme);
-    localStorage.setItem('junior_vet_theme', nextTheme);
+    try {
+      localStorage.setItem('junior_vet_theme', nextTheme);
+    } catch {
+      // ignore
+    }
   };
 
   const handleToggleSound = () => {
@@ -315,10 +327,10 @@ export const HomePage: React.FC = () => {
                   <div key={skill.id} className={styles.skillRowMini}>
                     <div className={styles.skillRowTop}>
                       <div className={styles.skillTitleArea}>
-                        <span className={styles.patientIcon}>{enhance?.patientAnimal.icon || '🐾'}</span>
+                        <span className={styles.patientIcon}>{enhance?.patientAnimal?.icon || '🐾'}</span>
                         <div>
                           <div className={styles.skillTitle}>{skill.title}</div>
-                          {enhance && (
+                          {enhance?.patientAnimal && (
                             <div style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>
                               患者: <strong>{enhance.patientAnimal.name}</strong>
                             </div>
@@ -382,10 +394,10 @@ export const HomePage: React.FC = () => {
                   <div key={skill.id} className={`${styles.skillRowMini} ${styles.skillRowMiniMastered}`}>
                     <div className={styles.skillRowTop}>
                       <div className={styles.skillTitleArea}>
-                        <span className={styles.patientIcon}>{enhance?.patientAnimal.icon || '🐾'}</span>
+                        <span className={styles.patientIcon}>{enhance?.patientAnimal?.icon || '🐾'}</span>
                         <div>
                           <div className={styles.skillTitle}>{skill.title}</div>
-                          {enhance && (
+                          {enhance?.patientAnimal && (
                             <div style={{ fontSize: '11px', color: '#166534' }}>
                               患者: <strong>{enhance.patientAnimal.name}（全快！）</strong>
                             </div>

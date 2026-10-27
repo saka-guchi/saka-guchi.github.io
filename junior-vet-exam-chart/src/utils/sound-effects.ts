@@ -1,5 +1,5 @@
 // Web Audio API を活用した、外部音声ファイル不要の軽量効果音シンセサイザー
-// 静的サイトでも完全動作し、いつでもミュート可能
+// 静的サイトでも完全動作し、いつでもミュート可能（localStorage例外完全防護）
 
 const SOUND_STORAGE_KEY = 'junior_vet_sound_enabled';
 
@@ -8,24 +8,32 @@ class SoundEffects {
   private enabled: boolean = true;
 
   constructor() {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(SOUND_STORAGE_KEY);
-      this.enabled = stored !== null ? stored === 'true' : true;
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const stored = window.localStorage.getItem(SOUND_STORAGE_KEY);
+        this.enabled = stored !== null ? stored === 'true' : true;
+      }
+    } catch {
+      this.enabled = true;
     }
   }
 
   private getContext(): AudioContext | null {
-    if (typeof window === 'undefined') return null;
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (AudioCtx) {
-        this.ctx = new AudioCtx();
+    try {
+      if (typeof window === 'undefined') return null;
+      if (!this.ctx) {
+        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (AudioCtx) {
+          this.ctx = new AudioCtx();
+        }
       }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+      return this.ctx;
+    } catch {
+      return null;
     }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-    return this.ctx;
   }
 
   public isEnabled(): boolean {
@@ -34,8 +42,12 @@ class SoundEffects {
 
   public setEnabled(val: boolean) {
     this.enabled = val;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(SOUND_STORAGE_KEY, String(val));
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(SOUND_STORAGE_KEY, String(val));
+      }
+    } catch {
+      // ignore
     }
   }
 
@@ -50,10 +62,10 @@ class SoundEffects {
   // 軽いタップ・ポップ音（ボタン押下）
   public playPop() {
     if (!this.enabled) return;
-    const ctx = this.getContext();
-    if (!ctx) return;
-
     try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
@@ -76,10 +88,10 @@ class SoundEffects {
   // スタンプ押下音（ポンッ！）
   public playStamp() {
     if (!this.enabled) return;
-    const ctx = this.getContext();
-    if (!ctx) return;
-
     try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
@@ -102,10 +114,10 @@ class SoundEffects {
   // 正解・ファンファーレチャイム（ピロリン♪）
   public playChime() {
     if (!this.enabled) return;
-    const ctx = this.getContext();
-    if (!ctx) return;
-
     try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+
       const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
       notes.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
@@ -130,10 +142,10 @@ class SoundEffects {
   // 動物の喜び（ピピピッ！）
   public playAnimalHappy() {
     if (!this.enabled) return;
-    const ctx = this.getContext();
-    if (!ctx) return;
-
     try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';

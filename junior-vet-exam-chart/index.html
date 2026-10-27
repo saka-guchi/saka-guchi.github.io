@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>みならい獣医さんの中学受験カルテ - 過去問 満点トレーナー</title>
+    <!-- 末尾スラッシュなしアクセス時の相対アセット解決エラー（404白画面）防止ガード -->
+    <script>
+      (function() {
+        if (location.pathname.endsWith('/junior-vet-exam-chart')) {
+          location.replace(location.pathname + '/' + location.search + location.hash);
+        }
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="theme-color" content="#38bdf8" />
     <!-- Google Fonts: Zen Maru Gothic -->

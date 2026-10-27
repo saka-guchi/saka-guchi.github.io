@@ -43,7 +43,7 @@ jobs:
       - name: Build Junior Vet App
         working-directory: ./junior-vet-exam-chart
         env:
-          VITE_BASE_PATH: ./
+          VITE_BASE_PATH: /junior-vet-exam-chart/
         run: npm run build
 
       - name: Prepare Site for GitHub Pages
