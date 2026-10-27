@@ -437,3 +437,4 @@ export const ALL_PROGRESS_SKILLS: ComprehensiveSkillProgressItem[] = [
   ...SANSU_PROGRESS_SKILLS,
   ...SHAKAI_PROGRESS_SKILLS,
 ];
+
