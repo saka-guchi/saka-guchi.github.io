@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { App } from '../../src/App';
+import { DoctorCertificateModal } from '../../src/components/DoctorCertificateModal';
 import { useAppStore } from '../../src/store/appStore';
 
 describe('UI Redesign & New Features Integration Tests', () => {
@@ -90,7 +91,7 @@ describe('UI Redesign & New Features Integration Tests', () => {
     render(<App />);
 
     // 「30秒暗記カード」ボタンをクリック
-    const flashBtns = screen.getAllByText('⚡ 30秒暗記カード');
+    const flashBtns = screen.getAllByText(/30秒暗記カード/);
     fireEvent.click(flashBtns[0]);
 
     // モーダルが表示される
@@ -133,8 +134,8 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(screen.getByText('🐾 みならい獣医さんの動物シール帳')).toBeInTheDocument();
 
     // 獲得済みスタンプ（テスト初期状態では1番目 stamp-dog-shiba などが獲得済み）
-    // クリック前は「👆 タップすると鳴き声と豆知識が飛び出すよ！」が表示されている
-    const promptNotice = screen.getAllByText('👆 タップすると鳴き声と豆知識が飛び出すよ！')[0];
+    // クリック前は「👆 タップするとメッセージと豆知識が飛び出すよ！」が表示されている
+    const promptNotice = screen.getAllByText('👆 タップするとメッセージと豆知識が飛び出すよ！')[0];
     expect(promptNotice).toBeInTheDocument();
     expect(screen.queryByTestId('stamp-cheer-stamp-dog-shiba')).not.toBeInTheDocument();
 
@@ -142,7 +143,7 @@ describe('UI Redesign & New Features Integration Tests', () => {
     const dogStamp = screen.getByTestId('animal-stamp-stamp-dog-shiba');
     fireEvent.click(dogStamp);
 
-    // クリック後に鳴き声と豆知識が飛び出す！
+    // クリック後にメッセージと豆知識が飛び出す！
     expect(screen.getByTestId('stamp-cheer-stamp-dog-shiba')).toBeInTheDocument();
     expect(screen.getByTestId('stamp-fact-stamp-dog-shiba')).toBeInTheDocument();
   });
@@ -154,5 +155,56 @@ describe('UI Redesign & New Features Integration Tests', () => {
 
     expect(screen.getByTestId('exam-history-modal')).toBeInTheDocument();
     expect(screen.getByText('合格ドクター認定試験 採点カルテ・成績表')).toBeInTheDocument();
+  });
+
+  it('displays key progress box in the medical chart area and shows reward details', () => {
+    render(<App />);
+
+    // カルテ領域に合格のカギボックスが存在
+    const keyBox = screen.getByTestId('key-progress-box');
+    expect(keyBox).toBeInTheDocument();
+    expect(keyBox).toHaveTextContent(/🔑 合格のカギ:/);
+    expect(keyBox).toHaveTextContent(/【⭐Lv.4 マスター】にすると手に入ります/);
+    expect(keyBox).toHaveTextContent(/🐾 カギ全達成特典: 全動物からの感謝メッセージ/);
+
+    // 右カラム認定試験の報酬カードの二段階報酬（Stage 1: 認定証 / Stage 1&2: 獣医師バッジ）
+    const rewardCard = screen.getByTestId('challenge-reward-card');
+    expect(rewardCard).toBeInTheDocument();
+    expect(rewardCard).toHaveTextContent('Stage 1（過去問本番）クリア');
+    expect(rewardCard).toHaveTextContent('「合格ドクター認定証（ライセンス）」');
+    expect(rewardCard).toHaveTextContent('Stage 1 & 2（同等未見問題）両方クリア');
+    expect(rewardCard).toHaveTextContent('「金のマスター獣医師バッジ」');
+  });
+
+  it('verifies DoctorCertificateModal renders master badge according to hasMasterBadge prop', () => {
+    const handleClose = vi.fn();
+
+    // 1. Stage 1 のみクリア（hasMasterBadge: false）の場合: バッジはロック表示
+    const { unmount } = render(
+      <DoctorCertificateModal
+        onClose={handleClose}
+        examTitle="2024年度 理科 過去問マスター"
+        isPerfectScore={true}
+        hasMasterBadge={false}
+      />
+    );
+    expect(screen.getByText('合格ドクター認定証')).toBeInTheDocument();
+    expect(screen.getByText('合格ドクターライセンス')).toBeInTheDocument();
+    expect(screen.getByTestId('master-vet-badge-locked')).toBeInTheDocument();
+    expect(screen.queryByTestId('master-vet-badge-earned')).not.toBeInTheDocument();
+    unmount();
+
+    // 2. Stage 1 & 2 両方クリア（hasMasterBadge: true）の場合: 金のマスター獣医師バッジ授与！
+    render(
+      <DoctorCertificateModal
+        onClose={handleClose}
+        examTitle="2024年度 理科 過去問マスター"
+        isPerfectScore={true}
+        hasMasterBadge={true}
+      />
+    );
+    expect(screen.getByTestId('master-vet-badge-earned')).toBeInTheDocument();
+    expect(screen.getByText(/金のマスター獣医師バッジ（Stage 1&2 制覇！）/)).toBeInTheDocument();
+    expect(screen.queryByTestId('master-vet-badge-locked')).not.toBeInTheDocument();
   });
 });

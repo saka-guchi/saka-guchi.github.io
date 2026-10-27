@@ -27,11 +27,32 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     expect(sheetArea).toHaveTextContent('大問 1');
     expect(sheetArea).toHaveTextContent('大問 2');
     expect(sheetArea).toHaveTextContent('大問 3');
-    expect(sheetArea).toHaveTextContent('全 23 欄');
+    expect(sheetArea).toHaveTextContent('全 22 欄');
+
+    // 設問ラベルに大問番号が付与され（例: 「大問1 問1」「大問1 問2」）、複数大問の問1と混同しないこと
+    expect(sheetArea).toHaveTextContent('大問1 問1');
+    expect(sheetArea).toHaveTextContent('大問1 問2 (記述)');
 
     // 問1の小問 [ア]〜[オ] があること
     expect(screen.getByTestId('slot-rika-2024-01-01-a')).toBeInTheDocument();
     expect(screen.getByTestId('slot-rika-2024-01-01-e')).toBeInTheDocument();
+
+    // 問4が「ウのはたらき」「エのはたらき」の記述欄であり、無関係な「植物A」「植物B」の選択肢欄になっていないこと
+    expect(sheetArea).toHaveTextContent('問4 [ウのはたらき] (記述)');
+    expect(sheetArea).toHaveTextContent('問4 [エのはたらき] (記述)');
+    expect(sheetArea).not.toHaveTextContent('問4 [植物A]');
+    expect(sheetArea).not.toHaveTextContent('問4 [植物B]');
+    expect(screen.getByTestId('slot-rika-2024-01-04-c')).toBeInTheDocument();
+    expect(screen.getByTestId('slot-rika-2024-01-04-d')).toBeInTheDocument();
+
+    // 問5が「語句を入力」のinput欄であり、問6が記述用textarea欄であること
+    const slot5Input = screen.getByTestId('slot-rika-2024-01-05');
+    expect(slot5Input.tagName).toBe('INPUT');
+    expect(slot5Input).toHaveAttribute('placeholder', '語句を入力');
+
+    const slot6Textarea = screen.getByTestId('slot-rika-2024-01-06');
+    expect(slot6Textarea.tagName).toBe('TEXTAREA');
+    expect(slot6Textarea).toHaveAttribute('placeholder', 'ノートや紙に記述後、提出時に自己採点要素を確認します');
 
     // 4. 次のページへ進むと p.2 (大問1) が表示されること
     fireEvent.click(screen.getByTestId('next-page-btn'));
@@ -39,6 +60,14 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     expect(screen.getByText('大問【1】 植物の根と茎・葉脈の観察')).toBeInTheDocument();
     expect(screen.getByText('【問1】')).toBeInTheDocument();
     expect(screen.getByText('【問2】')).toBeInTheDocument();
+
+    // 問題用紙（大問1）の問題文に答え（師管・道管など）がネタバレ漏洩していないこと
+    const pdfArea = screen.getByTestId('challenge-pdf-area');
+    expect(pdfArea).not.toHaveTextContent('(師管)');
+    expect(pdfArea).not.toHaveTextContent('(道管)');
+    expect(pdfArea).not.toHaveTextContent('組織㋒（師管）');
+    expect(pdfArea).not.toHaveTextContent('組織㋓（道管）');
+    expect(pdfArea).toHaveTextContent('図2の㋒と㋓のはたらきを簡単に説明しなさい。');
 
     // 5. 提出ボタンを押すと記述採点モーダルが表示されること
     fireEvent.click(screen.getByTestId('submit-exam-btn'));
@@ -77,7 +106,7 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     const rikaTab = screen.getByTestId('subject-tab-rika');
     fireEvent.click(rikaTab);
     expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 7');
-    expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 23 欄');
+    expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 22 欄');
   });
 
   it('preserves elapsed time across subject switches and triggers time-up modal when timer reaches zero', async () => {
@@ -142,11 +171,18 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     fireEvent.click(stage2Tab);
 
     expect(stage2Tab).toHaveClass(/activeTab/);
-    expect(screen.getByText('Stage 2：同等未見問題セット（人による確認済み）')).toBeInTheDocument();
+    expect(screen.getByText('Stage 2：同等未見問題（人による確認済み）')).toBeInTheDocument();
 
     // Stage 2 では原本が存在しないため原本スキャンボタンは非表示、代わりに未見問題モードバッジが表示されること
     expect(screen.queryByText('📸 原本スキャン')).not.toBeInTheDocument();
     expect(screen.getByText('✨ 同等未見問題モード（オリジナル出題）')).toBeInTheDocument();
+
+    // 次のページ（p.2）へ進むと、Stage 2 の問題カードと選択肢が問題用紙に正しくレンダリングされること
+    fireEvent.click(screen.getByTestId('next-page-btn'));
+    expect(screen.getByTestId('stage2-card-rika-2024-01-03')).toBeInTheDocument();
+    // 選択肢（① ホウセンカ、② ツユクサ等）が表示されていること
+    expect(screen.getByTestId('stage2-options-rika-2024-01-03')).toBeInTheDocument();
+    expect(screen.getAllByText('① ホウセンカ').length).toBeGreaterThanOrEqual(1);
   });
 
   it('displays in-app result modal and allows opening history modal after finalizing score', async () => {

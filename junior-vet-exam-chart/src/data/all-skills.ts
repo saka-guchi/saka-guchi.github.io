@@ -416,10 +416,13 @@ export const RIKA_PROGRESS_SKILLS: ComprehensiveSkillProgressItem[] = RIKA_EXAM_
     'skill-rika-physics-density-floating': { icon: '🦭', name: 'アザラシのゴマちゃん' },
     'skill-rika-plant-vascular': { icon: '🐰', name: 'ウサギのロップくん' },
     'skill-rika-physics-buoyancy-principle': { icon: '🦦', name: 'カワウソのカイくん' },
+    'skill-rika-env-greenhouse': { icon: '🐧', name: 'ペンギンのペンペン' },
+    'skill-rika-plant-root-hair': { icon: '🐭', name: 'ハツカネズミのチュウ太' },
+    'skill-rika-env-ocean-acidification': { icon: '🐢', name: 'ウミガメのタメさん' },
+    'skill-rika-physics-galileo-thermometer': { icon: '🐻', name: 'シロクマのポーラ' },
+    // 旧キー互換用
     'skill-rika-gas-properties-collecting': { icon: '🐧', name: 'ペンギンのペンペン' },
     'skill-rika-earth-carbon-cycle': { icon: '🐢', name: 'ウミガメのタメさん' },
-    'skill-rika-physics-galileo-thermometer': { icon: '🐻', name: 'シロクマのポーラ' },
-    'skill-rika-plant-root-hair': { icon: '🐭', name: 'ハツカネズミのチュウ太' },
   };
   const patient = iconMap[s.id] || { icon: '🐾', name: '患者どうぶつ' };
   return {

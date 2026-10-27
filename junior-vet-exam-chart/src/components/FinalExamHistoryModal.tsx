@@ -230,7 +230,7 @@ export const FinalExamHistoryModal: React.FC<FinalExamHistoryModalProps> = ({ on
                                 {sub.icon} {sub.label}
                               </span>
                               <span style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>
-                                {item.stage === 1 ? '過去問原本本番' : 'Stage 2 同等未見テスト'}
+                                {item.stage === 1 ? 'Stage 1（過去問本番）' : 'Stage 2（同等未見問題）'}
                               </span>
                             </div>
                             <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '2px' }}>
@@ -288,17 +288,24 @@ export const FinalExamHistoryModal: React.FC<FinalExamHistoryModalProps> = ({ on
       </div>
 
       {/* 認定証再表示モーダル */}
-      {selectedCertResult && (
-        <DoctorCertificateModal
-          onClose={() => setSelectedCertResult(null)}
-          examTitle={
-            selectedCertResult.stage === 1
-              ? `2024年度 ${getSubjectInfo(selectedCertResult.examId).label} 過去問`
-              : `Stage 2 ${getSubjectInfo(selectedCertResult.examId).label} 同等未見問題`
-          }
-          isPerfectScore={selectedCertResult.score === 100}
-        />
-      )}
+      {selectedCertResult && (() => {
+        const examId = selectedCertResult.examId;
+        const s1Passed = history.some(h => h.examId === examId && h.stage === 1 && h.passed);
+        const s2Passed = history.some(h => h.examId === examId && h.stage === 2 && h.passed);
+        const hasMasterBadge = s1Passed && s2Passed;
+        return (
+          <DoctorCertificateModal
+            onClose={() => setSelectedCertResult(null)}
+            examTitle={
+              selectedCertResult.stage === 1
+                ? `2024年度 ${getSubjectInfo(selectedCertResult.examId).label} 過去問`
+                : `Stage 2 ${getSubjectInfo(selectedCertResult.examId).label} 同等未見問題`
+            }
+            isPerfectScore={selectedCertResult.score === 100}
+            hasMasterBadge={hasMasterBadge}
+          />
+        );
+      })()}
     </>
   );
 };

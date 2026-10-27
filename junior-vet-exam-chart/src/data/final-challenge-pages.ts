@@ -100,7 +100,7 @@ export const STAGE1_PAGE_CONTENTS: Record<number, PageContent> = {
         questions: [
           {
             qNum: '問1',
-            prompt: '図1・図2中の㋐〜㋒に当てはまる語句を答えなさい。\n㋐：中心の太い根\n㋑：太い根から枝分かれする細い根\n㋒：茎の断面の外側にある管\n㋓：茎の断面の内側にある管\n㋔：㋒と㋓が束になった構造',
+            prompt: '図1・図2中の㋐〜㋔に当てはまる語句を答えなさい。\n㋐：中心の太い根\n㋑：太い根から枝分かれする細い根\n㋒：茎の断面の外側にある管\n㋓：茎の断面の内側にある管\n㋔：㋒と㋓が束になった構造',
           },
           {
             qNum: '問2',
@@ -112,7 +112,7 @@ export const STAGE1_PAGE_CONTENTS: Record<number, PageContent> = {
           },
           {
             qNum: '問4',
-            prompt: '問1の組織㋒（師管）と組織㋓（道管）がそれぞれ果たしているはたらきを簡潔に説明しなさい。',
+            prompt: '図2の㋒と㋓のはたらきを簡単に説明しなさい。',
           },
           {
             qNum: '問5',

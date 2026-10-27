@@ -39,6 +39,7 @@ export const FinalChallengePage: React.FC = () => {
   const [showScoringModal, setShowScoringModal] = useState(false);
   const [rubricChecks, setRubricChecks] = useState<Record<string, Record<number, boolean>>>({});
   const [showCertModal, setShowCertModal] = useState(false);
+  const [hasMasterBadge, setHasMasterBadge] = useState(false);
   const [showExamResultModal, setShowExamResultModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [lastExamResult, setLastExamResult] = useState<{
@@ -140,8 +141,9 @@ export const FinalChallengePage: React.FC = () => {
     const score = Math.round((correctCount / totalQuestions) * 100);
     const passed = score >= 80;
 
+    const examPrefix = storedPack?.examId ? `${storedPack.examId}-${currentSubject}` : `yasuda-2024-${currentSubject}`;
     await db.finalChallengeResults.add({
-      examId: storedPack?.examId ? `${storedPack.examId}-${currentSubject}` : `yasuda-2024-${currentSubject}`,
+      examId: examPrefix,
       stage,
       timestamp: Date.now(),
       score,
@@ -149,6 +151,16 @@ export const FinalChallengePage: React.FC = () => {
       passed,
       questionScores,
     });
+
+    // Stage 1 & Stage 2 の両方合格しているかチェック（金のマスター獣医師バッジ授与判定）
+    try {
+      const history = await db.finalChallengeResults.where('examId').equals(examPrefix).toArray();
+      const otherStage = stage === 1 ? 2 : 1;
+      const otherPassed = history.some(h => h.stage === otherStage && h.passed);
+      setHasMasterBadge(Boolean(passed && otherPassed));
+    } catch {
+      setHasMasterBadge(false);
+    }
 
     setShowScoringModal(false);
     setLastExamResult({ score, passed, correctCount, totalQuestions });
@@ -231,7 +243,7 @@ export const FinalChallengePage: React.FC = () => {
             onClick={() => setStage(1)}
             data-testid="stage-1-tab"
           >
-            Stage 1（元過去問）
+            Stage 1（過去問本番）
           </button>
           <button
             className={`${styles.stageTab} ${stage === 2 ? styles.activeTab : ''}`}
@@ -516,7 +528,7 @@ export const FinalChallengePage: React.FC = () => {
                       marginBottom: '8px',
                     }}
                   >
-                    Stage 2：同等未見問題セット（人による確認済み）
+                    Stage 2：同等未見問題（人による確認済み）
                   </div>
                   <h3 style={{ borderBottom: '2px solid var(--primary)', paddingBottom: '8px' }}>
                     {currentPage === 1 && `Stage 2 ${currentSubjectData.subjectLabel} 試験表紙`}
@@ -526,7 +538,7 @@ export const FinalChallengePage: React.FC = () => {
                   {currentPage === 1 && (
                     <div style={{ marginTop: '20px', lineHeight: '2' }}>
                       <p>
-                        本テストは、2024年度過去問（{currentSubjectData.subjectLabel}）と<strong>Skill構成・難易度・問われ方が同等</strong>で、題材や数値を変更した<strong>未見問題セット</strong>です。
+                        本テストは、2024年度過去問（{currentSubjectData.subjectLabel}）と<strong>Skill構成・難易度・問われ方が同等</strong>で、題材や数値を変更した<strong>同等未見問題</strong>です。
                       </p>
                       <p>
                         右側の解答用紙にすべての答えを記入してください。80点以上で合格、満点を達成すると「Master (M6)」に認定されます。
@@ -538,22 +550,54 @@ export const FinalChallengePage: React.FC = () => {
                     <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                       {currentSections.flatMap(s => s.slots)
                         .filter(slot => slot.pageNumber === currentPage)
-                        .map(slot => (
-                          <div
-                            key={slot.id}
-                            style={{
-                              padding: '14px',
-                              background: 'var(--surface-subtle)',
-                              borderRadius: '8px',
-                              borderLeft: '4px solid var(--primary)',
-                            }}
-                          >
-                            <strong style={{ color: 'var(--primary)' }}>【{slot.label}】</strong>
-                            <p style={{ marginTop: '6px', lineHeight: '1.7' }}>
-                              {slot.stage2Prompt || '同等難易度で更新した未見問題です。'}
-                            </p>
-                          </div>
-                        ))}
+                        .map(slot => {
+                          const activeOptions = slot.stage2Options || slot.options;
+                          return (
+                            <div
+                              key={slot.id}
+                              style={{
+                                padding: '14px',
+                                background: 'var(--surface-subtle)',
+                                borderRadius: '8px',
+                                borderLeft: '4px solid var(--primary)',
+                              }}
+                              data-testid={`stage2-card-${slot.id}`}
+                            >
+                              <strong style={{ color: 'var(--primary)' }}>【大問{slot.section} {slot.label}】</strong>
+                              <p style={{ marginTop: '6px', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
+                                {slot.stage2Prompt || '同等難易度で更新した未見問題です。'}
+                              </p>
+                              {activeOptions && activeOptions.length > 0 && (
+                                <div
+                                  style={{
+                                    marginTop: '10px',
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                                    gap: '8px',
+                                  }}
+                                  data-testid={`stage2-options-${slot.id}`}
+                                >
+                                  {activeOptions.map((opt, optIdx) => (
+                                    <div
+                                      key={optIdx}
+                                      style={{
+                                        padding: '8px 12px',
+                                        background: 'var(--surface)',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '6px',
+                                        fontSize: '13px',
+                                        lineHeight: '1.4',
+                                        color: 'var(--text)',
+                                      }}
+                                    >
+                                      {opt}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                     </div>
                   )}
                 </div>
@@ -579,7 +623,7 @@ export const FinalChallengePage: React.FC = () => {
                 {/* 理科問1のような小問集合はスッキリ並べる */}
                 {currentSubject === 'rika' && sec.sectionNumber === 1 && (
                   <div style={{ marginBottom: '12px' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>問1</div>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>大問{sec.sectionNumber} 問1</div>
                     <div className={styles.subSlotGrid}>
                       {sec.slots.filter(s => s.questionNumber === '1').map(slot => (
                         <div key={slot.id} className={styles.slotItem}>
@@ -603,7 +647,7 @@ export const FinalChallengePage: React.FC = () => {
                   .filter(s => !(currentSubject === 'rika' && sec.sectionNumber === 1 && s.questionNumber === '1'))
                   .map(slot => (
                     <div key={slot.id} className={styles.slotItem} style={{ marginBottom: '10px' }}>
-                      <label style={{ fontWeight: 'bold' }}>{slot.label}:</label>
+                      <label style={{ fontWeight: 'bold' }}>大問{sec.sectionNumber} {slot.label}:</label>
 
                       {slot.answerType === 'open' ? (
                         <textarea
@@ -622,7 +666,7 @@ export const FinalChallengePage: React.FC = () => {
                           onChange={e => handleInputChange(slot.id, e.target.value)}
                           data-testid={`slot-${slot.id}`}
                         />
-                      ) : slot.options ? (
+                      ) : (slot.stage2Options || slot.options) ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <input
                             type="text"
@@ -633,7 +677,7 @@ export const FinalChallengePage: React.FC = () => {
                             data-testid={`slot-${slot.id}`}
                           />
                           <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                            選択肢: {slot.options.join(' / ')}
+                            選択肢: {((stage === 2 && slot.stage2Options) ? slot.stage2Options : (slot.options || [])).join(' / ')}
                           </div>
                         </div>
                       ) : (
@@ -658,7 +702,7 @@ export const FinalChallengePage: React.FC = () => {
               onClick={handleSubmitExam}
               data-testid="submit-exam-btn"
             >
-              解答を提出して採点する
+              📝 解答を提出して採点する
             </button>
             <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '6px' }}>
               ※ 制限時間（{currentSubjectData.timeLimitMinutes}分）がゼロになると自動で提出・採点に進みます。
@@ -713,7 +757,7 @@ export const FinalChallengePage: React.FC = () => {
                       background: 'var(--surface-subtle)',
                     }}
                   >
-                    <strong>【{slot.label}】</strong>
+                    <strong>【大問{slot.section} {slot.label}】</strong>
                     <div style={{ marginTop: '6px', fontSize: '14px' }}>
                       <span style={{ color: 'var(--text-subtle)' }}>模範解答：</span>
                       <span style={{ fontWeight: 'bold', color: 'var(--primary)' }}>
@@ -766,11 +810,11 @@ export const FinalChallengePage: React.FC = () => {
               </button>
               <button
                 className={styles.submitExamBtn}
-                style={{ marginTop: 0, padding: '0 24px' }}
+                style={{ marginTop: 0, padding: '0 32px' }}
                 onClick={handleFinalizeScore}
                 data-testid="finalize-score-btn"
               >
-                採点を確定して結果を見る
+                ✅ 採点を確定して結果を見る
               </button>
             </div>
           </div>
@@ -790,6 +834,7 @@ export const FinalChallengePage: React.FC = () => {
               : `Stage 2 ${currentSubjectData.subjectLabel} 同等未見問題`
           }
           isPerfectScore={lastExamResult?.score === 100}
+          hasMasterBadge={hasMasterBadge}
         />
       )}
 
@@ -840,7 +885,7 @@ export const FinalChallengePage: React.FC = () => {
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: 'var(--radius-pill)',
-                padding: '12px 20px',
+                padding: '14px 28px',
                 fontSize: '15px',
                 fontWeight: 'bold',
                 cursor: 'pointer',
@@ -898,7 +943,7 @@ export const FinalChallengePage: React.FC = () => {
                 marginBottom: '8px',
               }}
             >
-              {currentSubjectData.icon} {currentSubjectData.subjectLabel}（{stage === 1 ? '過去問原本本番' : 'Stage 2 同等未見テスト'}）
+              {currentSubjectData.icon} {currentSubjectData.subjectLabel}（{stage === 1 ? 'Stage 1（過去問本番）' : 'Stage 2（同等未見問題）'}）
             </div>
 
             <h3 style={{ margin: '0 0 4px 0', fontSize: '22px', color: 'var(--text)', fontWeight: '800' }}>
@@ -944,7 +989,7 @@ export const FinalChallengePage: React.FC = () => {
                     color: '#ffffff',
                     border: 'none',
                     borderRadius: 'var(--radius-pill)',
-                    padding: '12px 20px',
+                    padding: '14px 28px',
                     fontSize: '15px',
                     fontWeight: 'bold',
                     cursor: 'pointer',
@@ -968,7 +1013,7 @@ export const FinalChallengePage: React.FC = () => {
                     color: 'var(--text)',
                     border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-pill)',
-                    padding: '10px 14px',
+                    padding: '10px 18px',
                     fontSize: '13px',
                     fontWeight: 'bold',
                     cursor: 'pointer',
@@ -989,7 +1034,7 @@ export const FinalChallengePage: React.FC = () => {
                     color: '#ffffff',
                     border: 'none',
                     borderRadius: 'var(--radius-pill)',
-                    padding: '10px 14px',
+                    padding: '10px 18px',
                     fontSize: '13px',
                     fontWeight: 'bold',
                     cursor: 'pointer',

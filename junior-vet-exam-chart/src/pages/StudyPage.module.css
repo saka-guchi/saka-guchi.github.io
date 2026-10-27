@@ -322,23 +322,36 @@
 }
 
 .subBtn {
-  width: 200px;
+  min-width: 200px;
   height: var(--btn-main-height);
+  padding: 0 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: var(--surface);
   border: 2px solid var(--border);
   border-radius: var(--radius-pill);
   font: var(--font-choice);
   color: var(--text);
+  white-space: nowrap;
+  cursor: pointer;
 }
 
 .mainBtn {
-  width: 240px;
+  min-width: 240px;
   height: var(--btn-main-height);
+  padding: 0 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: var(--primary);
   color: white;
   border-radius: var(--radius-pill);
   font: var(--font-choice);
   box-shadow: var(--shadow-primary-btn);
+  border: none;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
 .emptyContainer {

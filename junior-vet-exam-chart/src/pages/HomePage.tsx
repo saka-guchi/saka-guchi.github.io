@@ -25,6 +25,7 @@ export const HomePage: React.FC = () => {
   const [showLevelHelpModal, setShowLevelHelpModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showParentModal, setShowParentModal] = useState(false);
+  const [showAllAnimalsModal, setShowAllAnimalsModal] = useState(false);
   const [flashCardSkillId, setFlashCardSkillId] = useState<string | null>(null);
 
   // テーマ・サウンド状態
@@ -151,18 +152,19 @@ export const HomePage: React.FC = () => {
 
           {/* 右上操作コントロール群 */}
           <div className={styles.headerControls}>
-            {/* 保護者向けカルテボタン */}
+            {/* 保護者カルテボタン */}
             <button
-              className={styles.controlBtn}
+              className={styles.parentBadgeBtn}
               onClick={() => {
                 sound.playPop();
                 setShowParentModal(true);
               }}
-              title="保護者向け学習・成長カルテ（グラフ・ほめ言葉・弱点印刷）"
+              title="保護者カルテ（学習進度グラフ・ほめ言葉ヒント・A4弱点印刷）"
               aria-label="保護者カルテ"
               data-testid="header-parent-btn"
             >
-              👨‍👩‍👧
+              <span style={{ fontSize: '15px' }}>👨‍👩‍👧</span>
+              <span>保護者カルテ</span>
             </button>
 
             {/* テーマ着せ替えボタン */}
@@ -209,27 +211,6 @@ export const HomePage: React.FC = () => {
           <div className={styles.mentorSpeech} style={{ flex: 1 }}>
             <strong>ナース猫のミケちゃん:</strong>「おかえりなさい、先生！今日は【{nextStamp.name}】が元気をなくして待っているよ。10問カルテをといて、とびっきりの笑顔にしてあげよう！」
           </div>
-          <button
-            onClick={() => {
-              sound.playPop();
-              setShowParentModal(true);
-            }}
-            style={{
-              background: '#ffffff',
-              border: '1.5px solid #fed7aa',
-              borderRadius: 'var(--radius-pill)',
-              padding: '6px 14px',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              color: '#c2410c',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              boxShadow: '0 2px 6px rgba(194, 65, 12, 0.1)',
-            }}
-            data-testid="mentor-parent-btn"
-          >
-            📊 保護者レポート
-          </button>
         </section>
 
         {/* ゾーン1: 今日の学習カード（Bento Grid Hero） */}
@@ -357,6 +338,51 @@ export const HomePage: React.FC = () => {
               マスター達成（⭐Lv.4以上）：<strong style={{ color: 'var(--primary)' }}>{masteredCount} / {filteredSkills.length} テーマ</strong>
             </div>
 
+            {/* 合格のカギ（Lv.4マスター）の進度と集め方の説明（カルテ領域に配置） */}
+            <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '10px', padding: '10px 12px', margin: '8px 0 10px 0' }} data-testid="key-progress-box">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <strong style={{ fontSize: '13px', color: '#92400e' }}>
+                  🔑 合格のカギ: {masteredCount} / {filteredSkills.length} 個
+                </strong>
+                <span style={{ fontSize: '11px', color: '#b45309', fontWeight: 'bold' }}>
+                  {selectedSkillSubject === 'all' ? '全教科' : selectedSkillSubject === 'rika' ? '理科' : selectedSkillSubject === 'sansu' ? '算数' : '社会'}
+                </span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#78350f', marginTop: '4px', lineHeight: '1.5' }}>
+                【集め方】下のカルテでテーマを学習し、<strong>【⭐Lv.4 マスター】</strong>にすると手に入ります。
+              </div>
+              <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #fcd34d', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '11px', color: '#92400e', fontWeight: 'bold' }}>
+                  🐾 カギ全達成特典: 全動物からの感謝メッセージ
+                </span>
+                {masteredCount >= filteredSkills.length && filteredSkills.length > 0 ? (
+                  <button
+                    onClick={() => {
+                      sound.playChime();
+                      setShowAllAnimalsModal(true);
+                    }}
+                    style={{
+                      background: '#f59e0b',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '12px',
+                      padding: '3px 10px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                    }}
+                    data-testid="all-animals-message-btn"
+                  >
+                    🎉 メッセージを見る！
+                  </button>
+                ) : (
+                  <span style={{ fontSize: '10px', color: '#b45309', background: '#fef9c3', padding: '2px 6px', borderRadius: '8px' }}>
+                    🔒 あと {remainingCount} 個
+                  </span>
+                )}
+              </div>
+            </div>
+
             {/* 小学生向け科目別フィルター */}
             <div className={styles.categoryFilterRow} data-testid="skill-subject-filter-row">
               {[
@@ -439,9 +465,11 @@ export const HomePage: React.FC = () => {
                           sound.playPop();
                           setFlashCardSkillId(skill.id);
                         }}
-                        title="30秒で重要ポイントを復習する"
+                        title="30秒で重要ポイントを復習して記憶メーターをアップ！"
+                        data-testid={`quick-flash-btn-${skill.id}`}
                       >
-                        ⚡ 30秒暗記カード
+                        <span>📇 30秒暗記カード</span>
+                        <span className={styles.btnArrow}>❯</span>
                       </button>
                     </div>
                   </div>
@@ -506,8 +534,11 @@ export const HomePage: React.FC = () => {
                           sound.playPop();
                           setFlashCardSkillId(skill.id);
                         }}
+                        title="30秒で重要ポイントを復習して記憶メーターをアップ！"
+                        data-testid={`quick-flash-btn-mastered-${skill.id}`}
                       >
-                        ⚡ 30秒暗記カード
+                        <span>📇 30秒暗記カード</span>
+                        <span className={styles.btnArrow}>❯</span>
                       </button>
                     </div>
                   </div>
@@ -528,42 +559,36 @@ export const HomePage: React.FC = () => {
             </div>
 
             <div className={styles.challengeStatus}>
-              {/* カギの進度と集め方の説明 */}
-              <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <strong style={{ fontSize: '13px', color: '#92400e' }}>
-                    🔑 合格のカギ: {masteredCount} / {filteredSkills.length} 個
-                  </strong>
-                  <span style={{ fontSize: '11px', color: '#b45309', fontWeight: 'bold' }}>
-                    {selectedSkillSubject === 'all' ? '全教科' : selectedSkillSubject === 'rika' ? '理科' : selectedSkillSubject === 'sansu' ? '算数' : '社会'}
-                  </span>
-                </div>
-                <div style={{ fontSize: '12px', color: '#78350f', marginTop: '4px', lineHeight: '1.5' }}>
-                  【カギの集め方】左のカルテでテーマを学習し、<strong>【⭐Lv.4 マスター】</strong>にすると手に入ります。
-                </div>
-              </div>
-
               {/* 試験内容の説明 */}
               <div style={{ fontSize: '13px', color: 'var(--text)', lineHeight: '1.6', marginBottom: '12px' }}>
                 実際の入試問題に挑む総合テストです。各教科いつでも力試しに挑戦できます！
                 <ul style={{ margin: '6px 0 0 0', paddingLeft: '18px', fontSize: '12px', color: 'var(--text-subtle)' }}>
-                  <li><strong>Stage 1（過去問本番）</strong>: 実際の入試用紙原本スキャンを見ながら受験</li>
-                  <li><strong>Stage 2（同等未見テスト）</strong>: 同じ難易度で数値を変更した実力判定テスト</li>
+                  <li><strong>Stage 1（過去問本番）</strong>: 実際の入試問題（過去問原本）を見ながら受験</li>
+                  <li><strong>Stage 2（同等未見問題）</strong>: Skill構成と難易度が同等の新しい未見問題で実力判定</li>
                 </ul>
               </div>
 
               {/* クリア報酬カード */}
-              <div className={styles.rewardCard}>
+              <div className={styles.rewardCard} data-testid="challenge-reward-card">
                 <div className={styles.rewardTitle}>
-                  <span>🎖️ 満点クリアの豪華報酬！</span>
+                  <span>🎖️ 認定試験クリアの豪華報酬！</span>
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginBottom: '6px' }}>
-                  全テーマでカギ（Lv.4）を集め、認定試験で満点を取ると授与されます：
+                <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginBottom: '8px' }}>
+                  本番テストを突破して、実力の証（ライセンス＆バッジ）を獲得しよう：
                 </div>
                 <ul className={styles.rewardList}>
-                  <li>👑 <strong>「合格ドクター認定証（ライセンス）」</strong>授与＆画像保存！</li>
-                  <li>⭐ <strong>「金のマスター獣医師バッジ」</strong>をGET！</li>
-                  <li>🐾 <strong>全動物たちからの特別感謝メッセージ</strong>をアンロック！</li>
+                  <li style={{ marginBottom: '8px' }}>
+                    👑 <strong>Stage 1（過去問本番）クリア</strong>
+                    <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                      → <strong>「合格ドクター認定証（ライセンス）」</strong>授与＆画像保存！
+                    </div>
+                  </li>
+                  <li>
+                    ⭐ <strong>Stage 1 & 2（同等未見問題）両方クリア</strong>
+                    <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                      → <strong>「金のマスター獣医師バッジ」</strong>をアンロック！
+                    </div>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -666,7 +691,7 @@ export const HomePage: React.FC = () => {
                     🐾 みならい獣医さんの動物シール帳
                   </h3>
                   <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                    集めた動物たちをクリックすると、鳴き声や豆知識が飛び出すよ！
+                    集めた動物たちをクリックすると、メッセージや豆知識が飛び出すよ！
                   </div>
                 </div>
               </div>
@@ -775,7 +800,7 @@ export const HomePage: React.FC = () => {
                             fontWeight: 'bold',
                           }}
                         >
-                          👆 タップすると鳴き声と豆知識が飛び出すよ！
+                          👆 タップするとメッセージと豆知識が飛び出すよ！
                         </div>
                       )
                     )}
@@ -847,6 +872,116 @@ export const HomePage: React.FC = () => {
       {/* 過去の認定試験採点カルテ・成績表モーダル */}
       {showHistoryModal && (
         <FinalExamHistoryModal onClose={() => setShowHistoryModal(false)} />
+      )}
+
+      {/* 全動物たちからの特別感謝メッセージモーダル（カギ全問達成特典） */}
+      {showAllAnimalsModal && (
+        <div
+          className={styles.modalOverlay}
+          onClick={() => setShowAllAnimalsModal(false)}
+          data-testid="all-animals-modal"
+        >
+          <div
+            className={styles.modalContent}
+            style={{ maxWidth: '640px' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className={styles.modalHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '24px' }}>🎉</span>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: 'var(--text)' }}>
+                    全動物たちからの特別感謝メッセージ
+                  </h3>
+                  <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
+                    全テーマの合格のカギ（⭐Lv.4マスター）達成おめでとう！
+                  </div>
+                </div>
+              </div>
+              <button
+                className={styles.modalCloseBtn}
+                onClick={() => {
+                  sound.playPop();
+                  setShowAllAnimalsModal(false);
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                border: '2px solid #f59e0b',
+                borderRadius: '16px',
+                padding: '16px',
+                textAlign: 'center',
+                marginBottom: '16px',
+              }}
+            >
+              <div style={{ fontSize: '28px', marginBottom: '4px' }}>🏆 🐾 👑 🐾 🏆</div>
+              <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '900', color: '#78350f' }}>
+                「すべてのカルテをマスターしてくれてありがとう！！」
+              </h4>
+              <p style={{ margin: 0, fontSize: '13px', color: '#92400e', lineHeight: '1.6' }}>
+                きみが毎日カルテで学習してくれたおかげで、クリニックの動物たちがみんな元気になったよ！<br />
+                きみはもう本物の知識をもった立派なみならい獣医さんです！
+              </p>
+            </div>
+
+            {/* 動物たちの一言メッセージ一覧 */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                gap: '10px',
+                maxHeight: '340px',
+                overflowY: 'auto',
+                paddingRight: '4px',
+              }}
+            >
+              {ANIMAL_STAMPS.map(animal => (
+                <div
+                  key={animal.id}
+                  style={{
+                    background: 'var(--surface-subtle)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '12px',
+                    padding: '10px 12px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '10px',
+                  }}
+                  data-testid={`animal-message-card-${animal.id}`}
+                >
+                  <span style={{ fontSize: '24px', lineHeight: 1 }}>{animal.icon}</span>
+                  <div>
+                    <strong style={{ fontSize: '13px', color: 'var(--text)' }}>{animal.name}</strong>
+                    <div style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 'bold', margin: '2px 0' }}>
+                      {animal.cheerMessage}
+                    </div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-subtle)', lineHeight: '1.4' }}>
+                      {animal.vetFact}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginTop: '16px', textAlign: 'center' }}>
+              <button
+                className={styles.stampBookBtn}
+                style={{ width: '100%', padding: '12px', fontSize: '14px' }}
+                onClick={() => {
+                  sound.playPop();
+                  setShowAllAnimalsModal(false);
+                }}
+              >
+                ありがとう！これからも頑張るよ！ 🐾
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* 保護者向け学習・成長アナリティクスカルテモーダル */}

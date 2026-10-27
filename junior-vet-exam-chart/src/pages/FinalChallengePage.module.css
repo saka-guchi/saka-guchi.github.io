@@ -33,7 +33,7 @@
   color: var(--primary);
   border: 2px solid var(--primary);
   border-radius: var(--radius-pill);
-  padding: 6px 14px;
+  padding: 8px 18px;
   font: var(--font-heading);
   font-weight: 800;
   white-space: nowrap;
@@ -76,7 +76,7 @@
 }
 
 .subjectTab {
-  padding: 6px 14px;
+  padding: 8px 18px;
   border-radius: var(--radius-pill);
   border: none;
   background: transparent;
@@ -95,7 +95,7 @@
 }
 
 .stageTab {
-  padding: 8px 16px;
+  padding: 8px 20px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border);
   background: var(--surface-subtle);
@@ -149,12 +149,18 @@
 }
 
 .pageBtn {
-  padding: 6px 14px;
+  padding: 8px 18px;
   background: var(--surface-subtle);
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   font-weight: bold;
   cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all var(--transition-fast);
 }
 
 .pageBtn:disabled {
@@ -255,12 +261,33 @@
 
 .submitExamBtn {
   margin-top: 16px;
-  height: var(--btn-main-height);
+  min-height: var(--btn-main-height);
+  padding: 12px 36px;
   background: var(--primary);
   color: white;
   border-radius: var(--radius-pill);
   font: var(--font-choice);
+  font-weight: 800;
   box-shadow: var(--shadow-primary-btn);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  transition: all var(--transition-fast);
+}
+
+.submitExamBtn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--primary-glow);
+}
+
+.submitExamBtn:active {
+  transform: translateY(0);
 }
 
 @media (max-width: 768px) {

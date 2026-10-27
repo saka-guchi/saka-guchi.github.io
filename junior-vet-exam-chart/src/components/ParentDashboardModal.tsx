@@ -169,10 +169,10 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
             <span style={{ fontSize: '28px' }}>👨‍👩‍👧</span>
             <div>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--text)' }}>
-                保護者向け学習・成長カルテ
+                保護者カルテ
               </h3>
               <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                お子さんの学習量・理解度の推移・ほめ言葉ヒント（中学受験サポート用）
+                お子さんの学習量・理解度の推移・ほめ言葉ヒント・A4弱点印刷
               </div>
             </div>
           </div>

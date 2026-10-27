@@ -25,7 +25,7 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     render(<ParentDashboardModal onClose={handleClose} />);
 
     // タイトル
-    expect(screen.getByText(/保護者向け学習・成長カルテ/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '保護者カルテ' })).toBeInTheDocument();
 
     // 3つのタブ
     expect(screen.getByTestId('parent-tab-charts')).toBeInTheDocument();
@@ -115,7 +115,7 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     fireEvent.click(headerBtn);
 
     await waitFor(() => {
-      expect(screen.getByText(/保護者向け学習・成長カルテ/)).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: '保護者カルテ' })).toBeInTheDocument();
     });
 
     // 閉じる
@@ -123,7 +123,7 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     fireEvent.click(closeBtn);
 
     await waitFor(() => {
-      expect(screen.queryByText(/保護者向け学習・成長カルテ/)).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: '保護者カルテ' })).not.toBeInTheDocument();
     });
   });
 });

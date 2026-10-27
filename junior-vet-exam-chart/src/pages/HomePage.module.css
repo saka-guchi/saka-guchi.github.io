@@ -121,6 +121,30 @@
   gap: 8px;
 }
 
+.parentBadgeBtn {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-subtle);
+  border: 1.5px solid #fed7aa;
+  font-size: 13px;
+  font-weight: 800;
+  color: #c2410c;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.parentBadgeBtn:hover {
+  background: #fff7ed;
+  border-color: #f97316;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(194, 65, 12, 0.12);
+}
+
 .controlBtn {
   width: 40px;
   height: 40px;
@@ -616,20 +640,39 @@
 }
 
 .quickFlashBtn {
-  padding: 4px 10px;
+  padding: 6px 14px;
   border-radius: var(--radius-pill);
-  background: var(--warning-badge-bg);
-  border: 1px solid var(--warning-badge-border);
-  color: var(--warning-text);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: none;
+  color: #ffffff;
   font-size: 11px;
   font-weight: 800;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.35);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
 }
 
 .quickFlashBtn:hover {
-  transform: scale(1.05);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 5px 12px rgba(217, 119, 6, 0.45);
+}
+
+.quickFlashBtn:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 1px 4px rgba(217, 119, 6, 0.3);
+}
+
+.quickFlashBtn .btnArrow {
+  font-size: 11px;
+  transition: transform 0.2s ease;
+}
+
+.quickFlashBtn:hover .btnArrow {
+  transform: translateX(3px);
 }
 
 /* 右カラム: 合格ドクター認定試験（ダーク時も調和する上品なゴールド） */

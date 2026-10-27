@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { ANIMAL_STAMPS } from '../data/animal-stamps';
 import { fireConfetti } from '../utils/confetti';
 import { sound } from '../utils/sound-effects';
 import styles from './DoctorCertificateModal.module.css';
@@ -8,12 +7,14 @@ interface DoctorCertificateModalProps {
   onClose: () => void;
   examTitle?: string;
   isPerfectScore?: boolean;
+  hasMasterBadge?: boolean;
 }
 
 export const DoctorCertificateModal: React.FC<DoctorCertificateModalProps> = ({
   onClose,
   examTitle = '2024年度 理科 過去問マスター',
   isPerfectScore = true,
+  hasMasterBadge = false,
 }) => {
   const [userName, setUserName] = useState('みならいドクター');
   const todayStr = new Date().toLocaleDateString('ja-JP', {
@@ -80,14 +81,27 @@ export const DoctorCertificateModal: React.FC<DoctorCertificateModalProps> = ({
     // 本文
     ctx.fillStyle = '#334155';
     ctx.font = '500 20px "Zen Maru Gothic", sans-serif';
-    ctx.fillText('あなたは「みならい獣医さんの中学受験カルテ」において、', 600, 345);
-    ctx.fillText(`出題される全9テーマの知識を完全に習得し、本番認定試験（${examTitle}）にて`, 600, 380);
-    ctx.fillText('見事に【100点満点】を達成されました。', 600, 415);
-    ctx.fillText('動物たちの生命と自然の仕組みを深く理解した努力を讃え、ここに証します。', 600, 450);
+    ctx.fillText('あなたは「みならい獣医さんの中学受験カルテ」において、', 600, 340);
+    ctx.fillText(`本番認定試験（${examTitle}）にて`, 600, 375);
+    ctx.fillText(isPerfectScore ? '見事に【100点満点】を達成されました。' : '見事に合格基準を達成されました。', 600, 410);
+    if (hasMasterBadge) {
+      ctx.fillStyle = '#b45309';
+      ctx.font = 'bold 22px "Zen Maru Gothic", sans-serif';
+      ctx.fillText('★ Stage 1 & 2 完全制覇！金のマスター獣医師バッジ獲得 ★', 600, 450);
+      ctx.fillStyle = '#334155';
+      ctx.font = '500 20px "Zen Maru Gothic", sans-serif';
+    } else {
+      ctx.fillText('動物たちの生命と自然の仕組みを深く理解した努力を讃え、ここに証します。', 600, 450);
+    }
 
-    // 動物アイコン絵文字
-    ctx.font = '36px sans-serif';
-    ctx.fillText('🐕 🐱 🐰 🐹 🐧 🐬 🐻‍❄️ 🦉', 600, 530);
+    // 授与バッジ表示
+    ctx.font = 'bold 24px "Zen Maru Gothic", sans-serif';
+    ctx.fillStyle = '#b45309';
+    ctx.fillText('👑 合格ドクターライセンス 授与', 600, 520);
+    if (hasMasterBadge) {
+      ctx.fillStyle = '#d97706';
+      ctx.fillText('⭐ 金のマスター獣医師バッジ（Stage 1 & 2 完全制覇！）授与', 600, 560);
+    }
 
     // 日付・番号
     ctx.font = 'bold 18px "Zen Maru Gothic", sans-serif';
@@ -141,31 +155,26 @@ export const DoctorCertificateModal: React.FC<DoctorCertificateModalProps> = ({
         <div className={styles.badgeRow}>
           <div className={styles.goldBadge}>
             <span className={styles.goldBadgeIcon}>👑</span>
-            <span className={styles.goldBadgeText}>金のマスター獣医師バッジ</span>
+            <span className={styles.goldBadgeText}>合格ドクターライセンス</span>
           </div>
-          <div className={styles.goldBadge}>
-            <span className={styles.goldBadgeIcon}>🎖️</span>
-            <span className={styles.goldBadgeText}>過去問満点メダル</span>
-          </div>
-        </div>
-
-        {/* 動物たちからの感謝パレード */}
-        <div className={styles.animalsCheerBox}>
-          <div className={styles.animalsCheerHeader}>
-            <span>🐾 元気になった動物たちからのメッセージ</span>
-          </div>
-          <div className={styles.animalsIconRow}>
-            {ANIMAL_STAMPS.map(stamp => (
-              <span key={stamp.id} title={stamp.name}>
-                {stamp.icon}
+          {hasMasterBadge ? (
+            <div className={styles.goldBadge} data-testid="master-vet-badge-earned">
+              <span className={styles.goldBadgeIcon}>⭐</span>
+              <span className={styles.goldBadgeText}>金のマスター獣医師バッジ（Stage 1&2 制覇！）</span>
+            </div>
+          ) : (
+            <div
+              className={styles.goldBadge}
+              style={{ opacity: 0.7, background: '#f3f4f6', borderColor: '#d1d5db', color: '#6b7280' }}
+              title="Stage 1 と Stage 2（同等未見問題）の両方をクリアするとアンロックされます"
+              data-testid="master-vet-badge-locked"
+            >
+              <span className={styles.goldBadgeIcon}>🔒</span>
+              <span className={styles.goldBadgeText} style={{ color: '#4b5563' }}>
+                金のマスター獣医師バッジ（Stage 1 & 2 両方クリアでアンロック！）
               </span>
-            ))}
-          </div>
-          <div className={styles.animalsCheerText}>
-            「私たちの病気やケガを治してくれて本当にありがとう！
-            <br />
-            きみはもう立派な動物のお医者さんだよ！これからもたくさんの動物を救ってね！」
-          </div>
+            </div>
+          )}
         </div>
 
         <div className={styles.certFooter}>

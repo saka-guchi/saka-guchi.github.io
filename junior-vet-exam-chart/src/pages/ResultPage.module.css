@@ -117,12 +117,20 @@
 
 .homeBtn {
   height: var(--btn-main-height);
-  width: 240px;
+  min-width: 240px;
+  padding: 0 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   background: var(--primary);
   color: white;
   border-radius: var(--radius-pill);
   font: var(--font-choice);
   box-shadow: var(--shadow-primary-btn);
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 @media (max-width: 600px) {

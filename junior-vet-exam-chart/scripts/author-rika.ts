@@ -201,7 +201,7 @@ export const rikaQuestions: Question[] = [
     questionNumber: '4',
     partNumber: 'ウ',
     pageNumber: 2,
-    prompt: '図2の㋒（師管）のはたらきを簡単に説明しなさい。',
+    prompt: '図2の㋒のはたらきを簡単に説明しなさい。',
     correctAnswer: '葉の光合成で合成したデンプン（糖・栄養分）を全身へ運ぶ働き。',
     answerType: 'open',
     openElements: [
@@ -217,7 +217,7 @@ export const rikaQuestions: Question[] = [
     questionNumber: '4',
     partNumber: 'エ',
     pageNumber: 2,
-    prompt: '図2の㋓（道管）のはたらきを簡単に説明しなさい。',
+    prompt: '図2の㋓のはたらきを簡単に説明しなさい。',
     correctAnswer: '根から吸収した水分や栄養分を全身へ運ぶ働き。',
     answerType: 'open',
     openElements: [
@@ -243,7 +243,7 @@ export const rikaQuestions: Question[] = [
     section: '1',
     questionNumber: '6',
     pageNumber: 2,
-    prompt: '問5の構造（根毛）は植物にとってどのような利点があると考えられますか。',
+    prompt: '問5の構造は植物にとってどのような利点があると考えられますか。',
     correctAnswer: '根の表面積を大きくすることで、水分や養分を効率よく吸収できる。',
     answerType: 'open',
     openElements: [
