@@ -1,4 +1,4 @@
-name: Deploy Junior Vet Exam Chart to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -17,9 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./junior-vet-exam-chart
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,21 +29,41 @@ jobs:
           cache-dependency-path: junior-vet-exam-chart/package.json
 
       - name: Install dependencies
+        working-directory: ./junior-vet-exam-chart
         run: npm ci
 
       - name: Type check
+        working-directory: ./junior-vet-exam-chart
         run: npx tsc -b
 
       - name: Run tests
+        working-directory: ./junior-vet-exam-chart
         run: npm test
 
-      - name: Build
+      - name: Build Junior Vet App
+        working-directory: ./junior-vet-exam-chart
         env:
-          VITE_BASE_PATH: /saka-guchi.github.io/junior-vet-exam-chart/
+          VITE_BASE_PATH: ./
         run: npm run build
 
       - name: Inspect dist for leaks
+        working-directory: ./junior-vet-exam-chart
         run: npx tsx scripts/check-dist.ts
+
+      - name: Prepare Site for GitHub Pages
+        run: |
+          mkdir -p _site
+          touch _site/.nojekyll
+          # Copy root portal
+          if [ -f index.html ]; then
+            cp index.html _site/index.html
+          fi
+          # Copy lab-vocab if present
+          if [ -d lab-vocab ]; then
+            cp -r lab-vocab _site/lab-vocab
+          fi
+          # Copy built junior-vet-exam-chart
+          cp -r junior-vet-exam-chart/dist _site/junior-vet-exam-chart
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -54,7 +71,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: junior-vet-exam-chart/dist
+          path: _site
 
   deploy:
     environment:
@@ -66,4 +83,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
