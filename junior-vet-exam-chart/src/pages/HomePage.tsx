@@ -8,6 +8,7 @@ import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
 import { QuickFlashCardModal } from '../components/QuickFlashCardModal';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
+import { APP_VERSION, BUILD_TIMESTAMP } from '../version';
 import styles from './HomePage.module.css';
 
 type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
@@ -499,6 +500,28 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* フッター: バージョン表記と設定へのリンク */}
+      <footer style={{ textAlign: 'center', padding: '16px 0 24px', fontSize: '12px', color: 'var(--text-subtle)' }} data-testid="home-footer-version">
+        <span>みならい獣医さんの中学受験カルテ v{APP_VERSION} ({BUILD_TIMESTAMP})</span>
+        <button
+          onClick={() => {
+            sound.playPop();
+            navigate('/settings');
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--primary)',
+            textDecoration: 'underline',
+            cursor: 'pointer',
+            marginLeft: '8px',
+            fontSize: '12px',
+          }}
+        >
+          ⚙️ 設定・キャッシュ更新
+        </button>
+      </footer>
 
       {/* 30秒フラッシュ暗記カードモーダル */}
       {flashCardSkillId && (

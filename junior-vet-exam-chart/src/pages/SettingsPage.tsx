@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 import JSZip from 'jszip';
 import { db } from '../db';
+import { APP_VERSION, BUILD_TIMESTAMP, clearCacheAndReload } from '../version';
 import styles from './SettingsPage.module.css';
 
 export const SettingsPage: React.FC = () => {
@@ -10,6 +11,7 @@ export const SettingsPage: React.FC = () => {
   const { settings, updateSettings } = useAppStore();
   const [packStatus, setPackStatus] = useState<string | null>(null);
   const [resetStep, setResetStep] = useState(0);
+  const [isClearingCache, setIsClearingCache] = useState(false);
 
   // 教材パックZIPの読み込み
   const handleZipUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,11 +208,11 @@ export const SettingsPage: React.FC = () => {
           <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '16px', marginTop: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
               <span style={{ fontSize: '24px' }}>📦</span>
-              <strong>2024年度 安田学園中学校 入試【理科】</strong>
-              <span style={{ background: '#22C55E', color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '10px' }}>収録済み</span>
+              <strong>2024年度 安田学園中学校 入試【理科・算数・社会】</strong>
+              <span style={{ background: '#22C55E', color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '10px' }}>3教科収録済み</span>
             </div>
             <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#4B5563', lineHeight: '1.5' }}>
-              全問（基礎・応用・統合・過去問22問・同等改題22問・図版・解説）がアプリ本体に内蔵されています。ZIPファイルの準備やアップロードは不要です。
+              全問（理科22問・算数16問・社会25問 計63問、全37スキル、Stage2全63問、原本スキャン画像、図版・解説）がアプリ本体に内蔵されています。
             </p>
             <button
               className={styles.actionBtn}
@@ -239,6 +241,40 @@ export const SettingsPage: React.FC = () => {
           )}
         </section>
 
+        {/* アプリ・バージョン情報 */}
+        <section className={styles.section} data-testid="app-version-section">
+          <h2 className={styles.sectionTitle}>ℹ️ アプリ・バージョン情報</h2>
+          <div style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', marginTop: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '8px', fontSize: '14px', marginBottom: '14px' }}>
+              <span style={{ color: 'var(--text-subtle)' }}>バージョン:</span>
+              <strong data-testid="app-version-value">v{APP_VERSION}</strong>
+
+              <span style={{ color: 'var(--text-subtle)' }}>ビルド日時:</span>
+              <span data-testid="build-timestamp-value" style={{ fontFamily: 'monospace' }}>{BUILD_TIMESTAMP}</span>
+
+              <span style={{ color: 'var(--text-subtle)' }}>状態:</span>
+              <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>● 稼働中（PWA対応）</span>
+            </div>
+
+            <p style={{ fontSize: '12px', color: 'var(--text-subtle)', margin: '0 0 12px 0', lineHeight: '1.5' }}>
+              💡 アップデートしたはずの画面が反映されない場合は、ブラウザのキャッシュまたはService Workerが古いデータを保持している可能性があります。下のボタンを押すとキャッシュを完全に削除して最新版を取得します。
+            </p>
+
+            <button
+              className={styles.actionBtn}
+              onClick={async () => {
+                setIsClearingCache(true);
+                await clearCacheAndReload();
+              }}
+              disabled={isClearingCache}
+              data-testid="clear-cache-btn"
+              style={{ background: 'var(--primary)', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '13px' }}
+            >
+              {isClearingCache ? '⏳ キャッシュ削除＆リロード中...' : '🧹 キャッシュを削除して最新版に更新'}
+            </button>
+          </div>
+        </section>
+
         {/* 履歴の保存とバックアップ */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>学習履歴のバックアップ</h2>
@@ -255,6 +291,11 @@ export const SettingsPage: React.FC = () => {
             </button>
           </div>
         </section>
+
+        {/* ページフッターのバージョン表記 */}
+        <div style={{ textAlign: 'center', marginTop: '24px', paddingBottom: '16px', fontSize: '12px', color: 'var(--text-subtle)' }}>
+          みならい獣医さんの中学受験カルテ v{APP_VERSION} ({BUILD_TIMESTAMP})
+        </div>
       </main>
     </div>
   );
