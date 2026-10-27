@@ -72,6 +72,63 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 25 欄');
     expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 30:00');
     expect(screen.getByTestId('slot-shakai-2024-01-01')).toBeInTheDocument();
+
+    // 再び理科に戻っても、理科のタブが正常に切り替わること
+    const rikaTab = screen.getByTestId('subject-tab-rika');
+    fireEvent.click(rikaTab);
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 7');
+    expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 23 欄');
+  });
+
+  it('preserves elapsed time across subject switches and triggers time-up modal when timer reaches zero', async () => {
+    const { act } = await import('@testing-library/react');
+    const { vi } = await import('vitest');
+
+    vi.useFakeTimers();
+
+    render(
+      <MemoryRouter>
+        <FinalChallengePage />
+      </MemoryRouter>
+    );
+
+    // 初期状態: 理科 30:00
+    expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 30:00');
+
+    // 10秒経過
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+    expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 29:50');
+
+    // 算数へ切り替え: 算数の残り時間は 50:00
+    fireEvent.click(screen.getByTestId('subject-tab-sansu'));
+    expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 50:00');
+
+    // 算数で20秒経過
+    act(() => {
+      vi.advanceTimersByTime(20000);
+    });
+    expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 49:40');
+
+    // 再び理科に戻る: 復活せず 29:50 から再開すること！
+    fireEvent.click(screen.getByTestId('subject-tab-rika'));
+    expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 29:50');
+
+    // 残り時間すべて進める
+    act(() => {
+      vi.advanceTimersByTime(29 * 60 * 1000 + 51 * 1000);
+    });
+
+    // タイムアップモーダルが表示されること
+    expect(screen.getByTestId('timeup-modal')).toBeInTheDocument();
+    expect(screen.getByText('試験時間が終了しました！')).toBeInTheDocument();
+
+    // 採点へ進むボタンをクリックすると採点モーダルへ遷移
+    fireEvent.click(screen.getByTestId('timeup-proceed-btn'));
+    expect(screen.getByTestId('scoring-modal')).toBeInTheDocument();
+
+    vi.useRealTimers();
   });
 
   it('switches to Stage 2 and displays human-verified Stage 2 questions', () => {

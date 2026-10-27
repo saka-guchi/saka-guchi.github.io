@@ -13,13 +13,20 @@ import {
 } from '../data/final-challenge-pages';
 import { BUILTIN_YASUDA_PACK } from '../data/curriculum';
 import { DoctorCertificateModal } from '../components/DoctorCertificateModal';
+import { sound } from '../utils/sound-effects';
 import styles from './FinalChallengePage.module.css';
 
 export const FinalChallengePage: React.FC = () => {
   const navigate = useNavigate();
   const [currentSubject, setCurrentSubject] = useState<Subject>('rika');
   const [stage, setStage] = useState<1 | 2>(1);
-  const [timeLeftSeconds, setTimeLeftSeconds] = useState(30 * 60); // 30分
+  // 教科ごとの残り時間（秒）: 理科30分、算数50分、社会30分（各教科独立して保持し、切り替え時も経過時間を維持）
+  const [subjectTimes, setSubjectTimes] = useState<Record<Subject, number>>({
+    rika: FINAL_CHALLENGE_DATA_BY_SUBJECT.rika.timeLimitMinutes * 60,
+    sansu: FINAL_CHALLENGE_DATA_BY_SUBJECT.sansu.timeLimitMinutes * 60,
+    shakai: FINAL_CHALLENGE_DATA_BY_SUBJECT.shakai.timeLimitMinutes * 60,
+  });
+  const [showTimeUpModal, setShowTimeUpModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // p.1 (表紙) から開始
   const [zoom, setZoom] = useState(100);
   const [viewMode, setViewMode] = useState<'text' | 'image'>('text');
@@ -46,22 +53,34 @@ export const FinalChallengePage: React.FC = () => {
     });
   }, []);
 
-  // 科目切り替え
+  // 科目切り替え（各教科の残り時間は保持されるためリセットされません）
   const handleSubjectChange = (newSubject: Subject) => {
     if (newSubject === currentSubject) return;
+    sound.playPop();
     setCurrentSubject(newSubject);
     setCurrentPage(1);
-    const subData = FINAL_CHALLENGE_DATA_BY_SUBJECT[newSubject];
-    setTimeLeftSeconds(subData.timeLimitMinutes * 60);
   };
 
-  // タイマー
+  // タイマー: 現在選択中の教科の残り時間を毎秒カウントダウン
   useEffect(() => {
+    // 採点モーダル・認定証・タイムアップモーダル表示中はタイマーを一時停止
+    if (showScoringModal || showCertModal || showTimeUpModal) return;
+
     const timer = setInterval(() => {
-      setTimeLeftSeconds(prev => (prev > 0 ? prev - 1 : 0));
+      setSubjectTimes(prev => {
+        const current = prev[currentSubject] ?? 0;
+        if (current <= 1) {
+          clearInterval(timer);
+          sound.playPop();
+          setShowTimeUpModal(true);
+          return { ...prev, [currentSubject]: 0 };
+        }
+        return { ...prev, [currentSubject]: current - 1 };
+      });
     }, 1000);
+
     return () => clearInterval(timer);
-  }, []);
+  }, [currentSubject, showScoringModal, showCertModal, showTimeUpModal]);
 
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
@@ -150,6 +169,10 @@ export const FinalChallengePage: React.FC = () => {
   const subjectContents = STAGE1_PAGE_CONTENTS_BY_SUBJECT[currentSubject] || STAGE1_PAGE_CONTENTS;
   const currentPageContent = subjectContents[currentPage];
 
+  const currentTimeLeft = subjectTimes[currentSubject] ?? 0;
+  const isTimeCritical = currentTimeLeft <= 60;
+  const isTimeWarning = currentTimeLeft <= 300 && !isTimeCritical;
+
   return (
     <div className={styles.container} data-testid="final-challenge-page">
       <header className={styles.header}>
@@ -181,8 +204,20 @@ export const FinalChallengePage: React.FC = () => {
           </div>
         </div>
 
-        <div className={styles.timerBadge} data-testid="challenge-timer">
-          ⏱ 残り時間: {formatTime(timeLeftSeconds)}
+        {/* 制限時間タイマー（各教科独立・残り時間により警告色） */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div
+            className={`${styles.timerBadge} ${
+              isTimeCritical ? styles.timerCritical : isTimeWarning ? styles.timerWarning : ''
+            }`}
+            data-testid="challenge-timer"
+            title="本番入試の制限時間: 0:00になると自動で試験終了・採点へ進みます"
+          >
+            ⏱ 残り時間: {formatTime(currentTimeLeft)}
+          </div>
+          <span style={{ fontSize: '11px', color: 'var(--text-subtle)', whiteSpace: 'nowrap' }}>
+            （0:00で自動採点）
+          </span>
         </div>
 
         <div className={styles.stageTabs}>
@@ -612,13 +647,18 @@ export const FinalChallengePage: React.FC = () => {
             ))}
           </div>
 
-          <button
-            className={styles.submitExamBtn}
-            onClick={handleSubmitExam}
-            data-testid="submit-exam-btn"
-          >
-            解答を提出して採点する
-          </button>
+          <div style={{ marginTop: '12px', textAlign: 'center' }}>
+            <button
+              className={styles.submitExamBtn}
+              onClick={handleSubmitExam}
+              data-testid="submit-exam-btn"
+            >
+              解答を提出して採点する
+            </button>
+            <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '6px' }}>
+              ※ 制限時間（{currentSubjectData.timeLimitMinutes}分）がゼロになると自動で提出・採点に進みます。
+            </div>
+          </div>
         </section>
       </main>
 
@@ -746,6 +786,67 @@ export const FinalChallengePage: React.FC = () => {
           }
           isPerfectScore={lastExamResult?.score === 100}
         />
+      )}
+
+      {/* 制限時間終了（タイムアップ）モーダル */}
+      {showTimeUpModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.65)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1100,
+            padding: '16px',
+            backdropFilter: 'blur(3px)',
+          }}
+          data-testid="timeup-modal"
+        >
+          <div
+            style={{
+              background: 'var(--surface, #ffffff)',
+              borderRadius: '20px',
+              maxWidth: '440px',
+              width: '100%',
+              padding: '28px 24px',
+              textAlign: 'center',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
+              border: '2px solid var(--primary)',
+            }}
+          >
+            <div style={{ fontSize: '48px', marginBottom: '8px' }}>⏰</div>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', color: 'var(--text)', fontWeight: 'bold' }}>
+              試験時間が終了しました！
+            </h3>
+            <p style={{ fontSize: '14px', color: 'var(--text-subtle)', lineHeight: '1.6', margin: '0 0 20px 0' }}>
+              【{currentSubjectData.subjectLabel}】の制限時間（{currentSubjectData.timeLimitMinutes}分）となりました。<br />
+              これまでの記入内容で解答を提出し、採点に進みます。
+            </p>
+            <button
+              onClick={() => {
+                setShowTimeUpModal(false);
+                handleSubmitExam();
+              }}
+              style={{
+                width: '100%',
+                background: 'var(--primary)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 'var(--radius-pill)',
+                padding: '12px 20px',
+                fontSize: '15px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+              }}
+              data-testid="timeup-proceed-btn"
+            >
+              採点へ進む 📝
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
