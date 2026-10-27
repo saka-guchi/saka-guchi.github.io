@@ -257,7 +257,7 @@ export const FinalChallengePage: React.FC = () => {
               </button>
             </div>
 
-            {pageImageData && (
+            {stage === 1 && pageImageData && (
               <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
                 <button
                   className={`${styles.pageBtn} ${viewMode === 'text' ? styles.activeTab : ''}`}
@@ -273,6 +273,23 @@ export const FinalChallengePage: React.FC = () => {
                 >
                   📸 原本スキャン
                 </button>
+              </div>
+            )}
+
+            {stage === 2 && (
+              <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
+                <span
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    color: 'var(--primary)',
+                    background: 'var(--primary-weak)',
+                    padding: '4px 10px',
+                    borderRadius: '12px',
+                  }}
+                >
+                  ✨ 同等未見問題モード（オリジナル出題）
+                </span>
               </div>
             )}
           </div>

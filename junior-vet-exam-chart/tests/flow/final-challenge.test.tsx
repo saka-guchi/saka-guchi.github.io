@@ -86,6 +86,10 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
 
     expect(stage2Tab).toHaveClass(/activeTab/);
     expect(screen.getByText('Stage 2：同等未見問題セット（人による確認済み）')).toBeInTheDocument();
+
+    // Stage 2 では原本が存在しないため原本スキャンボタンは非表示、代わりに未見問題モードバッジが表示されること
+    expect(screen.queryByText('📸 原本スキャン')).not.toBeInTheDocument();
+    expect(screen.getByText('✨ 同等未見問題モード（オリジナル出題）')).toBeInTheDocument();
   });
 });
 
