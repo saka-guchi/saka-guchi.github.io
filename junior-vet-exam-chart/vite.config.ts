@@ -3,9 +3,22 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import pkg from './package.json';
 
-const now = new Date();
-const pad = (n: number) => String(n).padStart(2, '0');
-const buildTimestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+// 日本標準時（JST: UTC+9）でタイムスタンプを生成（GitHub Actions等のUTCサーバーでも日本時間で記録）
+const getJstTimestamp = () => {
+  const parts = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date());
+  const p = Object.fromEntries(parts.map(x => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}:${p.second} (日本時間)`;
+};
+const buildTimestamp = getJstTimestamp();
 
 export default defineConfig({
   base: process.env.VITE_BASE_PATH || './',
