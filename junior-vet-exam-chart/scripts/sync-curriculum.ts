@@ -34,3 +34,4 @@ for (const sub of subjects) {
 }
 
 console.log('Curriculum files copied successfully.');
+
