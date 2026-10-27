@@ -10,6 +10,7 @@ export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { settings, updateSettings } = useAppStore();
   const [packStatus, setPackStatus] = useState<string | null>(null);
+  const [backupStatus, setBackupStatus] = useState<string | null>(null);
   const [resetStep, setResetStep] = useState(0);
   const [isClearingCache, setIsClearingCache] = useState(false);
 
@@ -91,18 +92,110 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
-  // 学習履歴の書き出し
+  // 学習履歴の書き出し（バックアップ保存）
   const handleExportHistory = async () => {
-    const attempts = await db.attempts.toArray();
-    const masteries = await db.masteries.toArray();
-    const data = { attempts, masteries, exportedAt: new Date().toISOString() };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `junior-vet-history-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const attempts = await db.attempts.toArray();
+      const masteries = await db.masteries.toArray();
+      const reviewSchedules = await db.reviewSchedules.toArray();
+      const dailySessions = await db.dailySessions.toArray();
+      const finalChallengeResults = await db.finalChallengeResults.toArray();
+
+      // localStorage内の記憶定着メーター・動物スタンプ・設定もバックアップ
+      const localData: Record<string, string> = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('junior_vet_') || key === 'vet_exam_settings')) {
+          const val = localStorage.getItem(key);
+          if (val !== null) localData[key] = val;
+        }
+      }
+
+      const data = {
+        app: 'junior-vet-exam-chart',
+        version: APP_VERSION,
+        exportedAt: new Date().toISOString(),
+        attempts,
+        masteries,
+        reviewSchedules,
+        dailySessions,
+        finalChallengeResults,
+        localData,
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `junior-vet-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setBackupStatus(`✅ バックアップを書き出しました（解答記録: ${attempts.length}問, 習得度: ${masteries.length}テーマ）`);
+    } catch (err: any) {
+      setBackupStatus(`❌ バックアップの書き出しに失敗しました: ${err.message}`);
+    }
+  };
+
+  // 学習履歴の取り込み（バックアップから復元）
+  const handleImportHistory = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setBackupStatus('⏳ バックアップファイルを読み込み中...');
+      const text = typeof file.text === 'function'
+        ? await file.text()
+        : await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error || new Error('ファイルの読み込みに失敗しました'));
+            reader.readAsText(file);
+          });
+      const data = JSON.parse(text);
+
+      if (!data || typeof data !== 'object') {
+        throw new Error('JSONファイルの形式が正しくありません。');
+      }
+
+      let restoredAttempts = 0;
+      let restoredMasteries = 0;
+
+      // IndexedDBの復元
+      if (Array.isArray(data.attempts) && data.attempts.length > 0) {
+        await db.attempts.bulkPut(data.attempts);
+        restoredAttempts = data.attempts.length;
+      }
+      if (Array.isArray(data.masteries) && data.masteries.length > 0) {
+        await db.masteries.bulkPut(data.masteries);
+        restoredMasteries = data.masteries.length;
+      }
+      if (Array.isArray(data.reviewSchedules) && data.reviewSchedules.length > 0) {
+        await db.reviewSchedules.bulkPut(data.reviewSchedules);
+      }
+      if (Array.isArray(data.dailySessions) && data.dailySessions.length > 0) {
+        await db.dailySessions.bulkPut(data.dailySessions);
+      }
+      if (Array.isArray(data.finalChallengeResults) && data.finalChallengeResults.length > 0) {
+        await db.finalChallengeResults.bulkPut(data.finalChallengeResults);
+      }
+
+      // localStorage（記憶定着メーター・動物シール）の復元
+      if (data.localData && typeof data.localData === 'object') {
+        for (const [key, val] of Object.entries(data.localData)) {
+          if (typeof val === 'string') {
+            localStorage.setItem(key, val);
+          }
+        }
+      }
+
+      setBackupStatus(
+        `🎉 復元が完了しました！（解答記録: ${restoredAttempts}件, 習得度: ${restoredMasteries}テーマ）`
+      );
+    } catch (err: any) {
+      setBackupStatus(`❌ 復元に失敗しました: ${err.message || 'データ形式が不正です'}`);
+    } finally {
+      if (e.target) e.target.value = '';
+    }
   };
 
   // 学習履歴の初期化
@@ -114,8 +207,20 @@ export const SettingsPage: React.FC = () => {
       await db.masteries.clear();
       await db.reviewSchedules.clear();
       await db.dailySessions.clear();
+      await db.finalChallengeResults.clear();
+
+      // localStorage内のカルテ記憶メーター・動物スタンプもリセット
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('junior_vet_memory_retention_') || k === 'junior_vet_earned_stamps')) {
+          keysToRemove.push(k);
+        }
+      }
+      keysToRemove.forEach(k => localStorage.removeItem(k));
+
       setResetStep(0);
-      alert('学習履歴を初期化しました。');
+      setBackupStatus('⚠️ 学習履歴・カルテ進度をすべて初期化しました。');
     }
   };
 
@@ -275,13 +380,40 @@ export const SettingsPage: React.FC = () => {
           </div>
         </section>
 
-        {/* 履歴の保存とバックアップ */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>学習履歴のバックアップ</h2>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '12px' }}>
-            <button className={styles.actionBtn} onClick={handleExportHistory}>
-              📥 履歴を書き出し（JSON）
+        {/* 履歴の保存とバックアップ・復元 */}
+        <section className={styles.section} data-testid="backup-section">
+          <h2 className={styles.sectionTitle}>💾 学習履歴のバックアップと復元</h2>
+          <p style={{ fontSize: '13px', color: 'var(--text-subtle)', margin: '8px 0 12px 0', lineHeight: '1.5' }}>
+            別の端末（iPadやPCなど）への引き継ぎや、ブラウザのキャッシュ削除前の退避用として、学習進度（カルテの解答記録・習得度）をファイルに書き出し・復元できます。
+          </p>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button className={styles.actionBtn} onClick={handleExportHistory} data-testid="export-history-btn">
+              📥 履歴を書き出し（バックアップ保存）
             </button>
+
+            <label
+              className={styles.actionBtn}
+              style={{
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                background: 'var(--primary)',
+                color: '#ffffff',
+                border: 'none',
+                fontWeight: 'bold',
+              }}
+              data-testid="import-history-label"
+            >
+              📤 履歴を取り込み（復元）
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportHistory}
+                style={{ display: 'none' }}
+                data-testid="import-history-input"
+              />
+            </label>
+
             <button
               className={`${styles.actionBtn} ${resetStep > 0 ? styles.dangerBtn : ''}`}
               onClick={handleResetHistory}
@@ -290,6 +422,24 @@ export const SettingsPage: React.FC = () => {
               {resetStep === 0 ? '⚠️ 学習履歴を初期化' : '本当に初期化しますか？（タップで確定）'}
             </button>
           </div>
+
+          {backupStatus && (
+            <div
+              style={{
+                marginTop: '12px',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                fontSize: '13px',
+                lineHeight: '1.5',
+                background: backupStatus.includes('❌') ? '#FEF2F2' : backupStatus.includes('⚠️') ? '#FFFBEB' : '#F0FDF4',
+                border: backupStatus.includes('❌') ? '1px solid #FECACA' : backupStatus.includes('⚠️') ? '1px solid #FDE68A' : '1px solid #BBF7D0',
+                color: backupStatus.includes('❌') ? '#DC2626' : backupStatus.includes('⚠️') ? '#D97706' : '#16A34A',
+              }}
+              data-testid="backup-status-box"
+            >
+              {backupStatus}
+            </div>
+          )}
         </section>
 
         {/* ページフッターのバージョン表記 */}
