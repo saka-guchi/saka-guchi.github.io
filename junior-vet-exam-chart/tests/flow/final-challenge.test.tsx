@@ -27,7 +27,7 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     expect(sheetArea).toHaveTextContent('大問 1');
     expect(sheetArea).toHaveTextContent('大問 2');
     expect(sheetArea).toHaveTextContent('大問 3');
-    expect(sheetArea).toHaveTextContent('全 22 欄');
+    expect(sheetArea).toHaveTextContent('全 23 欄');
 
     // 問1の小問 [ア]〜[オ] があること
     expect(screen.getByTestId('slot-rika-2024-01-01-a')).toBeInTheDocument();
@@ -44,6 +44,34 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     fireEvent.click(screen.getByTestId('submit-exam-btn'));
     expect(screen.getByTestId('scoring-modal')).toBeInTheDocument();
     expect(screen.getByText('記述問題の自己判定（第13章仕様）')).toBeInTheDocument();
+  });
+
+  it('switches subjects between Science, Math, and Social Studies', () => {
+    render(
+      <MemoryRouter>
+        <FinalChallengePage />
+      </MemoryRouter>
+    );
+
+    // 算数タブに切り替え
+    const sansuTab = screen.getByTestId('subject-tab-sansu');
+    fireEvent.click(sansuTab);
+
+    // 算数: 10ページ、16問、50分
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 10');
+    expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 16 欄');
+    expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 50:00');
+    expect(screen.getByTestId('slot-sansu-2024-01-01')).toBeInTheDocument();
+
+    // 社会タブに切り替え
+    const shakaiTab = screen.getByTestId('subject-tab-shakai');
+    fireEvent.click(shakaiTab);
+
+    // 社会: 9ページ、25問、30分
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 9');
+    expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 25 欄');
+    expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 30:00');
+    expect(screen.getByTestId('slot-shakai-2024-01-01')).toBeInTheDocument();
   });
 
   it('switches to Stage 2 and displays human-verified Stage 2 questions', () => {

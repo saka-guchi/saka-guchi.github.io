@@ -466,10 +466,11 @@ export const HomePage: React.FC = () => {
             </h3>
             <div className={styles.challengeStatus} style={{ marginTop: '4px' }}>
               <span className={styles.lockBadge}>
-                🔑 カギのかけら {masteredCount} / 9 集まったよ！（オープンまで：あと {remainingCount} テーマ）
+                🔑 カギのかけら {masteredCount} / {filteredSkills.length} 集まったよ！（{selectedStudySubject === 'all' ? '全教科' : selectedStudySubject === 'rika' ? '理科' : selectedStudySubject === 'sansu' ? '算数' : '社会'}）
               </span>
               <p className={styles.challengeNoticeText}>
-                左のカルテにある全9テーマを<strong>【⭐Lv.4 マスター】</strong>にすると、本番形式の認定試験（過去問）に挑戦できるよ！
+                <strong>【理科・算数・社会の3教科対応】</strong><br />
+                過去問原本スキャンでの本番模試（Stage 1）や、同等レベルの未見演習セット（Stage 2）に挑戦できます！
               </p>
 
               {/* クリア報酬カード */}
@@ -493,7 +494,7 @@ export const HomePage: React.FC = () => {
               }}
               data-testid="final-challenge-link-btn"
             >
-              認定試験の案内・過去問を見る
+              本番認定試験（理科・算数・社会）を受ける
             </button>
           </div>
         </div>

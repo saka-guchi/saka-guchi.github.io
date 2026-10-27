@@ -46,6 +46,35 @@
   flex-shrink: 0;
 }
 
+.subjectTabs {
+  display: flex;
+  gap: 6px;
+  background: var(--surface-subtle);
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.subjectTab {
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: transparent;
+  font: var(--font-caption);
+  font-weight: bold;
+  white-space: nowrap;
+  cursor: pointer;
+  color: var(--text-subtle);
+  transition: all var(--transition-fast);
+}
+
+.activeSubjectTab {
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
 .stageTab {
   padding: 8px 16px;
   border-radius: var(--radius-pill);

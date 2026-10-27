@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db, type StoredPack } from '../db';
+import type { Subject } from '../types';
 import {
+  FINAL_CHALLENGE_DATA_BY_SUBJECT,
   FINAL_CHALLENGE_SECTIONS,
   TOTAL_PAGES,
 } from '../data/final-challenge-data';
-import { STAGE1_PAGE_CONTENTS } from '../data/final-challenge-pages';
+import {
+  STAGE1_PAGE_CONTENTS,
+  STAGE1_PAGE_CONTENTS_BY_SUBJECT,
+} from '../data/final-challenge-pages';
 import { BUILTIN_YASUDA_PACK } from '../data/curriculum';
 import { DoctorCertificateModal } from '../components/DoctorCertificateModal';
 import styles from './FinalChallengePage.module.css';
 
 export const FinalChallengePage: React.FC = () => {
   const navigate = useNavigate();
+  const [currentSubject, setCurrentSubject] = useState<Subject>('rika');
   const [stage, setStage] = useState<1 | 2>(1);
   const [timeLeftSeconds, setTimeLeftSeconds] = useState(30 * 60); // 30分
   const [currentPage, setCurrentPage] = useState(1); // p.1 (表紙) から開始
@@ -27,6 +33,10 @@ export const FinalChallengePage: React.FC = () => {
   const [showCertModal, setShowCertModal] = useState(false);
   const [lastExamResult, setLastExamResult] = useState<{ score: number; passed: boolean } | null>(null);
 
+  const currentSubjectData = FINAL_CHALLENGE_DATA_BY_SUBJECT[currentSubject] || FINAL_CHALLENGE_DATA_BY_SUBJECT.rika;
+  const currentSections = currentSubjectData.sections;
+  const currentTotalPages = currentSubjectData.totalPages;
+
   // パック読み込み
   useEffect(() => {
     db.contentPacks.toArray().then(packs => {
@@ -35,6 +45,15 @@ export const FinalChallengePage: React.FC = () => {
       }
     });
   }, []);
+
+  // 科目切り替え
+  const handleSubjectChange = (newSubject: Subject) => {
+    if (newSubject === currentSubject) return;
+    setCurrentSubject(newSubject);
+    setCurrentPage(1);
+    const subData = FINAL_CHALLENGE_DATA_BY_SUBJECT[newSubject];
+    setTimeLeftSeconds(subData.timeLimitMinutes * 60);
+  };
 
   // タイマー
   useEffect(() => {
@@ -56,13 +75,19 @@ export const FinalChallengePage: React.FC = () => {
 
   // 提出・採点
   const handleSubmitExam = () => {
-    setShowScoringModal(true);
+    const openSlots = currentSections.flatMap(s => s.slots).filter(s => s.answerType === 'open');
+    if (openSlots.length > 0) {
+      setShowScoringModal(true);
+    } else {
+      // 記述問題がない場合は直接採点
+      handleFinalizeScore();
+    }
   };
 
   const handleFinalizeScore = async () => {
     // 採点計算
     let correctCount = 0;
-    const allSlots = FINAL_CHALLENGE_SECTIONS.flatMap(s => s.slots);
+    const allSlots = currentSections.flatMap(s => s.slots);
     const questionScores: Record<string, { isCorrect: boolean; userSelfScored?: boolean }> = {};
 
     for (const slot of allSlots) {
@@ -89,7 +114,7 @@ export const FinalChallengePage: React.FC = () => {
     const passed = score >= 80;
 
     await db.finalChallengeResults.add({
-      examId: storedPack?.examId || 'yasuda-2024',
+      examId: storedPack?.examId ? `${storedPack.examId}-${currentSubject}` : `yasuda-2024-${currentSubject}`,
       stage,
       timestamp: Date.now(),
       score,
@@ -106,31 +131,55 @@ export const FinalChallengePage: React.FC = () => {
       setShowCertModal(true);
     } else {
       alert(
-        `【採点完了】\n得点: ${score} 点 (${correctCount} / ${totalQuestions} 問正解)\n判定: 不合格（もう一度復習して挑戦しましょう！）`
+        `【採点完了】\n教科: ${currentSubjectData.subjectLabel}\n得点: ${score} 点 (${correctCount} / ${totalQuestions} 問正解)\n判定: 不合格（もう一度復習して挑戦しましょう！）`
       );
       navigate('/');
     }
   };
 
-  // 現在ページの画像（インポート済みの場合）
-  const pageImageKey = `images/pages/rika/mondai_p00${currentPage}.webp`;
-  const pageImageAltKey = `images/pages/rika/mondai_p00${currentPage}.png`;
+  // 現在ページの画像（インポート済みの場合またはpublicフォールバック）
+  const padPage = String(currentPage).padStart(3, '0');
+  const pageImageKey = `images/pages/${currentSubject}/mondai_p${padPage}.webp`;
+  const pageImageAltKey = `images/pages/${currentSubject}/mondai_p${padPage}.png`;
+  const publicFallback = `${import.meta.env.BASE_URL}pages/${currentSubject}/mondai_p${padPage}.webp`;
   const pageImageData =
-    storedPack?.images?.[pageImageKey] || storedPack?.images?.[pageImageAltKey];
+    storedPack?.images?.[pageImageKey] ||
+    storedPack?.images?.[pageImageAltKey] ||
+    publicFallback;
 
-  const currentPageContent = STAGE1_PAGE_CONTENTS[currentPage];
+  const subjectContents = STAGE1_PAGE_CONTENTS_BY_SUBJECT[currentSubject] || STAGE1_PAGE_CONTENTS;
+  const currentPageContent = subjectContents[currentPage];
 
   return (
     <div className={styles.container} data-testid="final-challenge-page">
       <header className={styles.header}>
-        <button
-          className={styles.iconBtn}
-          onClick={() => navigate('/')}
-          aria-label="戻る"
-          data-testid="challenge-back-btn"
-        >
-          ←
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            className={styles.iconBtn}
+            onClick={() => navigate('/')}
+            aria-label="戻る"
+            data-testid="challenge-back-btn"
+          >
+            ←
+          </button>
+
+          {/* 教科切り替えタブ */}
+          <div className={styles.subjectTabs} data-testid="challenge-subject-tabs">
+            {(['rika', 'sansu', 'shakai'] as Subject[]).map(sub => {
+              const info = FINAL_CHALLENGE_DATA_BY_SUBJECT[sub];
+              return (
+                <button
+                  key={sub}
+                  className={`${styles.subjectTab} ${currentSubject === sub ? styles.activeSubjectTab : ''}`}
+                  onClick={() => handleSubjectChange(sub)}
+                  data-testid={`subject-tab-${sub}`}
+                >
+                  {info.icon} {info.subjectLabel}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         <div className={styles.timerBadge} data-testid="challenge-timer">
           ⏱ 残り時間: {formatTime(timeLeftSeconds)}
@@ -160,7 +209,7 @@ export const FinalChallengePage: React.FC = () => {
           <div className={styles.pdfControls}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span data-testid="page-indicator">
-                ページ: {currentPage} / {TOTAL_PAGES}
+                ページ: {currentPage} / {currentTotalPages}
               </span>
               <button
                 className={styles.pageBtn}
@@ -172,8 +221,8 @@ export const FinalChallengePage: React.FC = () => {
               </button>
               <button
                 className={styles.pageBtn}
-                onClick={() => setCurrentPage(p => Math.min(TOTAL_PAGES, p + 1))}
-                disabled={currentPage >= TOTAL_PAGES}
+                onClick={() => setCurrentPage(p => Math.min(currentTotalPages, p + 1))}
+                disabled={currentPage >= currentTotalPages}
                 data-testid="next-page-btn"
               >
                 次のページ ▶
@@ -243,7 +292,7 @@ export const FinalChallengePage: React.FC = () => {
                   data-testid="exam-page-image"
                 />
               ) : (
-                /* 画像未インポート時の完全テキスト・図表・設問表示 */
+                /* テキスト・図表・設問表示 */
                 <div
                   className={styles.samplePdfMock}
                   style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
@@ -413,29 +462,24 @@ export const FinalChallengePage: React.FC = () => {
                     Stage 2：同等未見問題セット（人による確認済み）
                   </div>
                   <h3 style={{ borderBottom: '2px solid var(--primary)', paddingBottom: '8px' }}>
-                    {currentPage === 1 && 'Stage 2 試験表紙'}
-                    {currentPage === 2 && '大問【1】 エンドウの根と茎・葉脈の観察（同等未見問題）'}
-                    {currentPage === 3 && '大問【2】 気体の発生と性質（同等未見問題・前半）'}
-                    {currentPage === 4 && '大問【2】 炭素循環と環境変化（同等未見問題・後半）'}
-                    {currentPage === 5 && '大問【3】 浮力の測定実験（同等未見問題・前半）'}
-                    {currentPage === 6 && '大問【3】 ガリレオ温度計の仕組み（同等未見問題・後半）'}
-                    {currentPage >= 7 && '見直しページ'}
+                    {currentPage === 1 && `Stage 2 ${currentSubjectData.subjectLabel} 試験表紙`}
+                    {currentPage > 1 && (currentPageContent?.title || `問題用紙 (p.${currentPage})`)}
                   </h3>
 
                   {currentPage === 1 && (
                     <div style={{ marginTop: '20px', lineHeight: '2' }}>
                       <p>
-                        本テストは、2024年度過去問と<strong>Skill構成・難易度・問われ方が同等</strong>で、題材や数値を変更した<strong>未見問題セット</strong>です。
+                        本テストは、2024年度過去問（{currentSubjectData.subjectLabel}）と<strong>Skill構成・難易度・問われ方が同等</strong>で、題材や数値を変更した<strong>未見問題セット</strong>です。
                       </p>
                       <p>
-                        右側の解答用紙にすべての答えを記入してください。満点を達成すると「Master (M6)」に認定されます。
+                        右側の解答用紙にすべての答えを記入してください。80点以上で合格、満点を達成すると「Master (M6)」に認定されます。
                       </p>
                     </div>
                   )}
 
-                  {currentPage >= 2 && currentPage <= 6 && (
+                  {currentPage > 1 && (
                     <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                      {FINAL_CHALLENGE_SECTIONS.flatMap(s => s.slots)
+                      {currentSections.flatMap(s => s.slots)
                         .filter(slot => slot.pageNumber === currentPage)
                         .map(slot => (
                           <div
@@ -466,17 +510,17 @@ export const FinalChallengePage: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
             <h2 style={{ font: 'var(--font-heading)', margin: 0 }}>解答用紙</h2>
             <span style={{ fontSize: '13px', color: 'var(--text-subtle)' }}>
-              全 {FINAL_CHALLENGE_SECTIONS.flatMap(s => s.slots).length} 欄
+              全 {currentSections.flatMap(s => s.slots).length} 欄
             </span>
           </div>
 
           <div className={styles.slotList}>
-            {FINAL_CHALLENGE_SECTIONS.map(sec => (
+            {currentSections.map(sec => (
               <div key={sec.sectionNumber} className={styles.sectionGroup}>
                 <div className={styles.sectionHeader}>{sec.title} ({sec.pageRange})</div>
 
-                {/* 問1のような小問集合はスッキリ並べる */}
-                {sec.sectionNumber === 1 && (
+                {/* 理科問1のような小問集合はスッキリ並べる */}
+                {currentSubject === 'rika' && sec.sectionNumber === 1 && (
                   <div style={{ marginBottom: '12px' }}>
                     <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>問1</div>
                     <div className={styles.subSlotGrid}>
@@ -499,7 +543,7 @@ export const FinalChallengePage: React.FC = () => {
 
                 {/* その他の設問 */}
                 {sec.slots
-                  .filter(s => !(sec.sectionNumber === 1 && s.questionNumber === '1'))
+                  .filter(s => !(currentSubject === 'rika' && sec.sectionNumber === 1 && s.questionNumber === '1'))
                   .map(slot => (
                     <div key={slot.id} className={styles.slotItem} style={{ marginBottom: '10px' }}>
                       <label style={{ fontWeight: 'bold' }}>{slot.label}:</label>
@@ -595,7 +639,7 @@ export const FinalChallengePage: React.FC = () => {
             </p>
 
             <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {FINAL_CHALLENGE_SECTIONS.flatMap(s => s.slots)
+              {currentSections.flatMap(s => s.slots)
                 .filter(s => s.answerType === 'open')
                 .map(slot => (
                   <div
@@ -678,7 +722,11 @@ export const FinalChallengePage: React.FC = () => {
             setShowCertModal(false);
             navigate('/');
           }}
-          examTitle={stage === 1 ? '2024年度 理科 過去問' : 'Stage 2 理科 同等未見問題'}
+          examTitle={
+            stage === 1
+              ? `2024年度 ${currentSubjectData.subjectLabel} 過去問`
+              : `Stage 2 ${currentSubjectData.subjectLabel} 同等未見問題`
+          }
           isPerfectScore={lastExamResult?.score === 100}
         />
       )}
