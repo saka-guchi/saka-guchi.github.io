@@ -97,6 +97,10 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(screen.getByTestId('flashcard-modal')).toBeInTheDocument();
     expect(screen.getByText('30秒フラッシュ暗記カード')).toBeInTheDocument();
 
+    // 科目バッジが「🧪 理科」であり、高校分野の「生物」ではないこと
+    expect(screen.getByTestId('flashcard-subject-badge')).toHaveTextContent('🧪 理科');
+    expect(screen.queryByText('生物')).not.toBeInTheDocument();
+
     // 表面の問題が表示されている
     expect(screen.getByText('【問題】頭の中でパッと思い出せるかな？')).toBeInTheDocument();
 

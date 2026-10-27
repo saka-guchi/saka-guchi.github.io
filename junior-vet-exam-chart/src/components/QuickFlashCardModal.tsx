@@ -12,12 +12,12 @@ interface QuickFlashCardModalProps {
 export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({ initialSkillId, onClose }) => {
   const keys = Object.keys(THEME_ENHANCEMENTS);
   const initialIndex = initialSkillId ? Math.max(0, keys.indexOf(initialSkillId)) : 0;
-  
+
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isFlipped, setIsFlipped] = useState(false);
 
   const currentKey = keys[currentIndex];
-  const item: ThemeEnhancement = THEME_ENHANCEMENTS[currentKey];
+  const item: ThemeEnhancement = THEME_ENHANCEMENTS[currentKey] || THEME_ENHANCEMENTS[keys[0]];
 
   const handleFlip = () => {
     sound.playPop();
@@ -86,8 +86,9 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({ initia
                 <span
                   className={styles.fieldBadge}
                   style={{ color: item.fieldColor, background: item.fieldBg }}
+                  data-testid="flashcard-subject-badge"
                 >
-                  {item.field}
+                  {item.subjectLabel}
                 </span>
                 <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
                   記憶定着メーター: <strong>{item.memoryRetention}%</strong>
