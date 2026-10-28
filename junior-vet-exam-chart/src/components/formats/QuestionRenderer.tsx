@@ -628,7 +628,6 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
 
   // 7. Diagram Touch
   if (question.format === 'diagram_touch') {
-    const regionName = question.data?.regions?.find((r: any) => r.id === activeRegion)?.name || activeRegion;
     const correctRegionName = question.data?.regions?.find((r: any) => r.id === question.correctAnswer)?.name || question.correctAnswer;
     const userRegionName = question.data?.regions?.find((r: any) => r.id === userAnswer)?.name || userAnswer;
     const isCorrect = userAnswer === question.correctAnswer;
@@ -645,12 +644,13 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
                   borderRadius: '12px',
                   border: '1.5px solid var(--primary)',
                 }}
+                data-testid="diagram-selected-banner"
               >
                 <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--primary)', marginBottom: '4px' }}>
-                  📍 タップした場所を選択中
+                  📍 図の場所を選択中
                 </div>
-                <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text)', marginBottom: '6px' }}>
-                  「{regionName}」
+                <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text)', marginBottom: '6px' }}>
+                  青色に光っている場所を選んでいます
                 </div>
                 <p style={{ fontSize: '13px', color: 'var(--text-subtle)', margin: 0, lineHeight: '1.5' }}>
                   この場所で決定する場合は、下の<strong>「この場所で決定」</strong>を押してください。（図の別の場所をタップして選び直すこともできます）
@@ -664,12 +664,13 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
                   borderRadius: '12px',
                   border: '1px solid var(--border)',
                 }}
+                data-testid="diagram-hint-banner"
               >
                 <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text)', marginBottom: '6px' }}>
-                  👆 左の顕微鏡の図をタップしよう
+                  👆 図の場所をタップしよう
                 </div>
                 <p style={{ fontSize: '13px', color: 'var(--text-subtle)', margin: 0, lineHeight: '1.6' }}>
-                  顕微鏡の各部から、ピントを合わせるために回す<strong>「調節ねじ」</strong>の場所を探して直接タップしてください。
+                  問題文で指示された場所を探して、図の該当部分を直接タップしてください。
                 </p>
               </div>
             )}
@@ -695,11 +696,11 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
             }}
           >
             <div style={{ fontWeight: 800, fontSize: '15px', color: isCorrect ? 'var(--success)' : 'var(--error)', marginBottom: '6px' }}>
-              {isCorrect ? '✓ 正解！調節ねじを正しく選択できました' : `✕ あなたが選んだのは「${userRegionName || '未選択'}」です`}
+              {isCorrect ? `✓ 正解！「${correctRegionName}」を正しく選択できました` : `✕ あなたが選んだのは「${userRegionName || '未選択'}」です`}
             </div>
             {!isCorrect && (
               <div style={{ fontSize: '13px', color: 'var(--text)', lineHeight: '1.5' }}>
-                正解の「{correctRegionName}」は、アームの側面についている丸いダイヤル部分です。（図の緑色に光っている部分）
+                正解の「{correctRegionName}」は、図の緑色に光っている部分です。
               </div>
             )}
           </div>

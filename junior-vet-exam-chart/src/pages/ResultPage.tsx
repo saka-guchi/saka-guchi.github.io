@@ -1,13 +1,136 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppStore } from '../store/appStore';
+import { useAppStore, type SessionAnswerRecord } from '../store/appStore';
 import { awardDailyStudyStamp, type AnimalStamp } from '../data/animal-stamps';
+import { getFormatBadge } from '../components/formats/QuestionRenderer';
 import { db } from '../db';
 import styles from './ResultPage.module.css';
 
+// 回答値・正解値のフォーマットヘルパー
+function formatAnswerDisplay(question: any, answer: any): string {
+  if (answer === null || answer === undefined || answer === '') {
+    return '（未回答）';
+  }
+
+  // 選択式 (delayed_choice, multiple_choice, why_choice, next_step)
+  if (question.data?.choices) {
+    const choice = question.data.choices.find((c: any) => c.id === answer);
+    if (choice) return choice.text;
+  }
+
+  // 図表タップ (diagram_touch)
+  if (question.format === 'diagram_touch' && question.data?.regions) {
+    const region = question.data.regions.find((r: any) => r.id === answer);
+    if (region) return region.name;
+  }
+
+  // 並べ替え (ordering)
+  if (Array.isArray(answer) && question.data?.items) {
+    const itemMap = new Map(question.data.items.map((i: any) => [i.id, i.text]));
+    return answer.map((id, idx) => `${idx + 1}. ${itemMap.get(id) || id}`).join(' → ');
+  }
+
+  // 自己採点 (self_check)
+  if (question.format === 'self_check') {
+    switch (answer) {
+      case 'correct': return '正解した';
+      case 'method_correct_calc_miss': return '解き方は合っていたが計算ミス';
+      case 'partial': return '途中まで分かった';
+      case 'dont_know': return '解き方が分からなかった';
+      default: return String(answer);
+    }
+  }
+
+  // 組み合わせ (matching)
+  if (typeof answer === 'object' && answer !== null && !Array.isArray(answer)) {
+    const leftMap = new Map(question.data?.leftItems?.map((i: any) => [i.id, i.text]));
+    const rightMap = new Map(question.data?.rightItems?.map((i: any) => [i.id, i.text]));
+    return Object.entries(answer)
+      .map(([l, r]) => `${leftMap.get(l) || l} 🔗 ${rightMap.get(r as string) || r}`)
+      .join(' / ');
+  }
+
+  return String(answer);
+}
+
+// 間違えた問題振り返りカード
+const MistakeReviewCard: React.FC<{ record: SessionAnswerRecord; index: number }> = ({ record, index }) => {
+  const [openDetail, setOpenDetail] = useState(false);
+  const q = record.question;
+  const badge = getFormatBadge(q.format);
+  const formattedUserAnswer = formatAnswerDisplay(q, record.userAnswer);
+  const formattedCorrectAnswer = formatAnswerDisplay(q, q.correctAnswer);
+
+  return (
+    <div className={styles.mistakeCard} data-testid={`mistake-card-${index}`}>
+      <div className={styles.mistakeCardHeader}>
+        <span className={styles.badgeSubject}>{q.subject || '総合'}</span>
+        <span className={styles.badgeSkill}>🩺 {q.skillTitle}</span>
+        <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
+          {badge.icon} {badge.label}
+        </span>
+      </div>
+
+      <div className={styles.mistakePrompt}>{q.prompt}</div>
+
+      <div className={styles.answerComparisonGrid}>
+        <div className={styles.userAnswerBox}>
+          <div className={styles.answerBoxLabel}>✕ あなたの答え</div>
+          <div className={styles.answerBoxValue}>{formattedUserAnswer}</div>
+        </div>
+        <div className={styles.correctAnswerBox}>
+          <div className={styles.answerBoxLabel}>✓ 正解</div>
+          <div className={styles.answerBoxValue}>{formattedCorrectAnswer}</div>
+        </div>
+      </div>
+
+      {q.explanation && (
+        <div className={styles.explanationBox}>
+          <div className={styles.explanationLabel}>💡 考え方・覚えること</div>
+          <div style={{ fontWeight: 600, marginBottom: '4px' }}>{q.explanation.keyTakeaway}</div>
+          <div style={{ color: 'var(--text-subtle)' }}>{q.explanation.reasoning}</div>
+
+          {q.hints && q.hints.length > 0 && (
+            <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed var(--border)' }}>
+              <span style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '12px' }}>
+                出題ヒント: {q.hints.map(h => h.text).join(' / ')}
+              </span>
+            </div>
+          )}
+
+          {q.explanation.resultSummary && (
+            <div style={{ marginTop: '8px' }}>
+              <button
+                type="button"
+                onClick={() => setOpenDetail(!openDetail)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--primary)',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  fontSize: '12px',
+                  padding: 0,
+                }}
+              >
+                {openDetail ? '▲ 詳しい解説を閉じる' : '▼ 詳しい解説を見る'}
+              </button>
+              {openDetail && (
+                <div style={{ marginTop: '6px', fontSize: '12px', color: 'var(--text-subtle)', lineHeight: '1.5' }}>
+                  {q.explanation.resultSummary}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const ResultPage: React.FC = () => {
   const navigate = useNavigate();
-  const { currentSessionQuestions, correctCount, directRecallCount, resetSession } = useAppStore();
+  const { currentSessionQuestions, correctCount, directRecallCount, sessionResults, resetSession } = useAppStore();
   const [earnedStamp, setEarnedStamp] = useState<AnimalStamp | null>(null);
 
   useEffect(() => {
@@ -23,28 +146,35 @@ export const ResultPage: React.FC = () => {
     }).format(new Date()).replace(/\//g, '-');
 
     const total = currentSessionQuestions.length || 10;
-    const accuracy = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+    const effectiveResults = sessionResults.length > 0
+      ? sessionResults
+      : currentSessionQuestions.map((q, idx) => ({
+          question: q,
+          userAnswer: null,
+          isCorrect: idx < correctCount,
+          directRecall: idx < directRecallCount,
+        }));
 
     // 1. 日次セッション (dailySessions) の保存
     db.dailySessions.put({
       date: todayJst,
       completed: true,
       questionIds: currentSessionQuestions.map(q => q.id),
-      results: currentSessionQuestions.map((q, idx) => ({
-        questionId: q.id,
-        isCorrect: idx < correctCount,
-        directRecall: idx < directRecallCount,
+      results: effectiveResults.map(r => ({
+        questionId: r.question.id,
+        isCorrect: r.isCorrect,
+        directRecall: r.directRecall,
       })),
     }).catch(() => {});
 
     // 2. 解答試行履歴 (attempts) の保存
-    if (currentSessionQuestions.length > 0) {
-      const attemptsToAdd = currentSessionQuestions.map((q, idx) => ({
-        questionId: q.id,
-        skillIds: q.skillId ? [q.skillId] : [],
-        timestamp: Date.now() - (currentSessionQuestions.length - idx) * 15000,
+    if (effectiveResults.length > 0) {
+      const attemptsToAdd = effectiveResults.map((r, idx) => ({
+        questionId: r.question.id,
+        skillIds: r.question.skillId ? [r.question.skillId] : [],
+        timestamp: Date.now() - (effectiveResults.length - idx) * 15000,
         response: 'choice',
-        isCorrect: idx < correctCount,
+        isCorrect: r.isCorrect,
         responseTimeMs: 15000,
         recallDelayMs: 0,
         choicesRevealed: true,
@@ -59,6 +189,11 @@ export const ResultPage: React.FC = () => {
   const total = currentSessionQuestions.length || 10;
   const choiceCorrectCount = Math.max(0, correctCount - directRecallCount);
   const mistakeCount = Math.max(0, total - correctCount);
+
+  // 間違えた問題の抽出
+  const mistakeResults = sessionResults.length > 0
+    ? sessionResults.filter(r => !r.isCorrect)
+    : [];
 
   const handleGoHome = () => {
     resetSession();
@@ -154,6 +289,43 @@ export const ResultPage: React.FC = () => {
           <strong>📅 次回の復習予定</strong>
           <p>明日：まちがえた問題（{mistakeCount}問）と、忘れかけの知識を中心に出題されます。</p>
         </div>
+
+        {/* まちがえた問題の振り返りセクション */}
+        {mistakeResults.length > 0 ? (
+          <div className={styles.mistakeReviewSection} data-testid="mistake-review-section">
+            <div className={styles.mistakeSectionHeader}>
+              <div className={styles.mistakeSectionTitle}>
+                <span>📝 まちがえた問題の振り返り</span>
+                <span className={styles.mistakeCountBadge}>{mistakeResults.length} 問</span>
+              </div>
+              <p className={styles.mistakeSectionSubtext}>
+                自分の答えと正解・「考え方」を確認して、次は正解できるようにしよう！
+              </p>
+            </div>
+
+            <div className={styles.mistakeList}>
+              {mistakeResults.map((result, idx) => (
+                <MistakeReviewCard
+                  key={result.question.id || idx}
+                  record={result}
+                  index={idx}
+                />
+              ))}
+            </div>
+          </div>
+        ) : mistakeCount === 0 ? (
+          <div className={styles.allCorrectBanner} data-testid="all-correct-banner">
+            <span style={{ fontSize: '32px' }}>🌟</span>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--success)' }}>
+                まちがえた問題はありません！全問パーフェクト！
+              </div>
+              <div style={{ fontSize: '13px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                すばらしい集中力です！この調子でゴールドマスター獣医師を目指そう！
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <div className={styles.actions}>
           <button className={styles.homeBtn} onClick={handleGoHome} data-testid="result-home-btn">

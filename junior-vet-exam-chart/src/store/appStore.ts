@@ -3,6 +3,13 @@ import type { Settings, Subject } from '../types';
 import { SAMPLE_QUESTIONS, type SampleQuestion } from '../data/sample-data';
 import { ALL_CURRICULUM_QUESTIONS } from '../data/curriculum';
 
+export interface SessionAnswerRecord {
+  question: SampleQuestion;
+  userAnswer: any;
+  isCorrect: boolean;
+  directRecall: boolean;
+}
+
 interface AppState {
   // 設定
   settings: Settings;
@@ -18,6 +25,7 @@ interface AppState {
   currentIsCorrect: boolean | null;
   directRecallCount: number;
   correctCount: number;
+  sessionResults: SessionAnswerRecord[];
 
   // セッション操作
   startDailySession: (subject?: Subject) => void;
@@ -68,6 +76,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   currentIsCorrect: null,
   directRecallCount: 0,
   correctCount: 0,
+  sessionResults: [],
 
   startDailySession: (subject) => {
     let pool = ALL_CURRICULUM_QUESTIONS;
@@ -87,6 +96,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       currentIsCorrect: null,
       directRecallCount: 0,
       correctCount: 0,
+      sessionResults: [],
     });
   },
 
@@ -101,6 +111,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       currentIsCorrect: null,
       directRecallCount: 0,
       correctCount: 0,
+      sessionResults: [],
     });
   },
 
@@ -115,14 +126,27 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   recordAnswer: (answer, isCorrect, directRecall) => {
-    set(state => ({
-      currentAnswered: true,
-      currentUserAnswer: answer,
-      currentIsCorrect: isCorrect,
-      recallPhase: false,
-      directRecallCount: directRecall ? state.directRecallCount + 1 : state.directRecallCount,
-      correctCount: isCorrect ? state.correctCount + 1 : state.correctCount,
-    }));
+    set(state => {
+      const currentQ = state.currentSessionQuestions[state.currentIndex];
+      const newRecord: SessionAnswerRecord = {
+        question: currentQ,
+        userAnswer: answer,
+        isCorrect,
+        directRecall,
+      };
+      const newResults = [...state.sessionResults];
+      newResults[state.currentIndex] = newRecord;
+
+      return {
+        currentAnswered: true,
+        currentUserAnswer: answer,
+        currentIsCorrect: isCorrect,
+        recallPhase: false,
+        directRecallCount: directRecall ? state.directRecallCount + 1 : state.directRecallCount,
+        correctCount: isCorrect ? state.correctCount + 1 : state.correctCount,
+        sessionResults: newResults,
+      };
+    });
   },
 
   nextQuestion: () => {
@@ -150,6 +174,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       currentAnswered: false,
       currentUserAnswer: null,
       currentIsCorrect: null,
+      sessionResults: [],
     });
   },
 }));

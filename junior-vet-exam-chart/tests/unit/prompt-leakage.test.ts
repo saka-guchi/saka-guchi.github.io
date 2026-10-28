@@ -204,6 +204,30 @@ describe('Prompt Leakage & Fidelity Unit Tests', () => {
       ).not.toBe('🐾');
     });
   });
+
+  it('guarantees diagram_touch questions do not leak region names prior to submitting answer', async () => {
+    const fs = await import('fs');
+    const path = await import('path');
+    const rendererFile = path.resolve(__dirname, '../../src/components/formats/QuestionRenderer.tsx');
+    const rendererCode = fs.readFileSync(rendererFile, 'utf-8');
+
+    // AnswerAreaView 内の diagram_touch 描画ブロックを取得
+    const marker = "if (question.format === 'diagram_touch') {";
+    const lastIdx = rendererCode.lastIndexOf(marker);
+    expect(lastIdx).toBeGreaterThan(0);
+
+    const diagramTouchBlock = rendererCode.slice(lastIdx, rendererCode.indexOf("if (question.format === 'matching')", lastIdx));
+    expect(diagramTouchBlock.length).toBeGreaterThan(50);
+
+    // 回答前（!answered）のブロックを抽出
+    const notAnsweredPart = diagramTouchBlock.split('!answered ?')[1]?.split(') : (')[0];
+    expect(notAnsweredPart).toBeDefined();
+
+    // 確定前に regionName や部位名を出力していないこと
+    expect(notAnsweredPart).not.toMatch(/\{regionName\}/);
+    expect(notAnsweredPart).not.toMatch(/\$\{regionName\}/);
+    expect(notAnsweredPart).not.toMatch(/r\.name/);
+  });
 });
 
 

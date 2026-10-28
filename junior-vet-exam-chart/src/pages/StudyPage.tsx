@@ -200,14 +200,35 @@ export const StudyPage: React.FC = () => {
             /* 回答エリア本体：回答前も回答後も常に表示！ */
             <div className={styles.activeAnswerPanel}>
               {currentAnswered ? (
-                /* 1. 回答後の結果ヘッダー（✓ 正解！ / ✕ 不正解） */
+                /* 1. 回答後の結果ヘッダー（✓ 正解！ / ✕ 不正解）とヒント確認ボタン */
                 <div
-                  className={`${styles.resultBanner} ${currentIsCorrect ? styles.correctBanner : styles.wrongBanner}`}
-                  data-testid="result-banner"
-                  style={{ marginBottom: '16px' }}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '16px',
+                    gap: '12px',
+                    flexWrap: 'wrap',
+                  }}
                 >
-                  <span className={styles.resultIcon}>{currentIsCorrect ? '✓' : '✕'}</span>
-                  <span className={styles.resultText}>{currentIsCorrect ? '正解！' : '不正解'}</span>
+                  <div
+                    className={`${styles.resultBanner} ${currentIsCorrect ? styles.correctBanner : styles.wrongBanner}`}
+                    data-testid="result-banner"
+                    style={{ margin: 0, flex: 1, minWidth: '160px' }}
+                  >
+                    <span className={styles.resultIcon}>{currentIsCorrect ? '✓' : '✕'}</span>
+                    <span className={styles.resultText}>{currentIsCorrect ? '正解！' : '不正解'}</span>
+                  </div>
+                  {hintLevel < 2 && currentQ.hints && currentQ.hints.length > 0 && (
+                    <button
+                      className={styles.miniHintBtn}
+                      onClick={showHint}
+                      data-testid="show-hint-btn"
+                      aria-label="ヒントを見る"
+                    >
+                      💡 ヒント ({hintLevel}/2)
+                    </button>
+                  )}
                 </div>
               ) : (
                 /* 回答前の形式見出し＆ヒント */
@@ -262,7 +283,7 @@ export const StudyPage: React.FC = () => {
                 </div>
               )}
 
-              {hintLevel > 0 && !currentAnswered && (
+              {hintLevel > 0 && (
                 <div className={styles.hintBox} style={{ marginBottom: '14px' }} data-testid="hint-box">
                   <div className={styles.hintLevelText}>ヒント {hintLevel}:</div>
                   <div>{currentQ.hints[hintLevel - 1]?.text}</div>
@@ -295,6 +316,33 @@ export const StudyPage: React.FC = () => {
                       <div className={styles.explLabel}>考え方</div>
                       <div className={styles.reasoningText}>{currentQ.explanation.reasoning}</div>
                     </div>
+
+                    {/* 回答後のヒント振り返りセクション */}
+                    {currentQ.hints && currentQ.hints.length > 0 && (
+                      <div className={styles.explSection} data-testid="reviewed-hints-section">
+                        <div className={styles.explLabel}>出題ヒントの振り返り</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
+                          {currentQ.hints.map((h, i) => (
+                            <div
+                              key={i}
+                              style={{
+                                fontSize: '13px',
+                                lineHeight: '1.5',
+                                background: 'var(--surface-subtle)',
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                borderLeft: '3px solid var(--primary)',
+                              }}
+                            >
+                              <span style={{ fontWeight: 700, color: 'var(--primary)', marginRight: '6px' }}>
+                                💡 ヒント {h.level || i + 1}:
+                              </span>
+                              {h.text}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     <div className={styles.detailedToggle}>
                       <button
