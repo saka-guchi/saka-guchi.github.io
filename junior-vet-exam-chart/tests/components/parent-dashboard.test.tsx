@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { ParentDashboardModal } from '../../src/components/ParentDashboardModal';
 import { HomePage } from '../../src/pages/HomePage';
@@ -98,20 +98,32 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     expect(worksheet).toHaveTextContent('問1 答え:');
   });
 
-  it('triggers onStartWeaknessQuiz callback when weakness challenge button is clicked', async () => {
+  it('allows expanding parent advice accordion and triggers onStartWeaknessQuiz without closing parent modal', async () => {
+    const handleClose = vi.fn();
     const handleStartWeakness = vi.fn();
-    render(<ParentDashboardModal onClose={() => {}} onStartWeaknessQuiz={handleStartWeakness} />);
+    render(<ParentDashboardModal onClose={handleClose} onStartWeaknessQuiz={handleStartWeakness} />);
 
     // タブ3へ移動
     const printTab = screen.getByTestId('parent-tab-print');
     fireEvent.click(printTab);
 
-    // 弱点TOP3セクション内の挑戦ボタンを探す
-    const challengeBtns = screen.getAllByRole('button', { name: /この単元を解く/ });
-    expect(challengeBtns.length).toBeGreaterThan(0);
+    // 弱点TOP3セクション内の指導ヒント展開ボタンを探す
+    const guideBtns = screen.getAllByRole('button', { name: /急所・指導ヒントを見る/ });
+    expect(guideBtns.length).toBeGreaterThan(0);
 
-    fireEvent.click(challengeBtns[0]);
+    // 1問目のガイドを展開
+    fireEvent.click(guideBtns[0]);
+    expect(screen.getByText(/お子さんのつまずき急所:/)).toBeInTheDocument();
+    expect(screen.getByText(/家庭での声かけ・解法のコツ:/)).toBeInTheDocument();
+    expect(screen.getByText(/出題される問題の例:/)).toBeInTheDocument();
+
+    // 「お子さんにこの単元を解かせる」ボタンをクリック
+    const startQuizBtn = screen.getByRole('button', { name: /お子さんにこの単元を解かせる/ });
+    fireEvent.click(startQuizBtn);
+
+    // 暗記カード開始コールバックが呼ばれ、かつ保護者カルテは閉じない（handleCloseは呼ばれない）
     expect(handleStartWeakness).toHaveBeenCalled();
+    expect(handleClose).not.toHaveBeenCalled();
   });
 
   it('opens parent dashboard modal from HomePage triggers', async () => {
@@ -135,6 +147,50 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
 
     await waitFor(() => {
       expect(screen.queryByRole('heading', { name: '保護者カルテ' })).not.toBeInTheDocument();
+    });
+  });
+
+  it('keeps parent modal open when launching and closing quick flashcard from weakness tab', async () => {
+    render(
+      <BrowserRouter>
+        <HomePage />
+      </BrowserRouter>
+    );
+
+    // 保護者カルテを開く
+    const headerBtn = screen.getByTestId('header-parent-btn');
+    fireEvent.click(headerBtn);
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: '保護者カルテ' })).toBeInTheDocument();
+    });
+
+    // タブ3へ移動
+    const printTab = screen.getByTestId('parent-tab-print');
+    fireEvent.click(printTab);
+
+    // 指導ヒントを展開
+    const guideBtns = screen.getAllByRole('button', { name: /急所・指導ヒントを見る/ });
+    fireEvent.click(guideBtns[0]);
+
+    // お子さんに解かせる（暗記カード起動）
+    const startQuizBtn = screen.getByRole('button', { name: /お子さんにこの単元を解かせる/ });
+    fireEvent.click(startQuizBtn);
+
+    // 暗記カードが前面に表示され、かつ保護者カルテも背後で維持されている
+    await waitFor(() => {
+      expect(screen.getByTestId('flashcard-modal')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: '保護者カルテ' })).toBeInTheDocument();
+    });
+
+    // 暗記カード内の「✕」閉じるボタンをクリック
+    const flashcardModal = screen.getByTestId('flashcard-modal');
+    const flashCardCloseBtn = within(flashcardModal).getByLabelText('閉じる');
+    fireEvent.click(flashCardCloseBtn);
+
+    // 暗記カードは閉じ、保護者カルテは開いたまま維持される（トップ画面に抜けない）
+    await waitFor(() => {
+      expect(screen.queryByTestId('flashcard-modal')).not.toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: '保護者カルテ' })).toBeInTheDocument();
     });
   });
 });

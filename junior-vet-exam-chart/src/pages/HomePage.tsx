@@ -682,14 +682,6 @@ export const HomePage: React.FC = () => {
         </button>
       </footer>
 
-      {/* 30秒フラッシュ暗記カードモーダル */}
-      {flashCardSkillId && (
-        <QuickFlashCardModal
-          initialSkillId={flashCardSkillId}
-          onClose={() => setFlashCardSkillId(null)}
-        />
-      )}
-
       {/* 動物スタンプ帳モーダル */}
       {showStampModal && (
         <div className={styles.modalOverlay} onClick={() => setShowStampModal(false)}>
@@ -1001,9 +993,17 @@ export const HomePage: React.FC = () => {
         <ParentDashboardModal
           onClose={() => setShowParentModal(false)}
           onStartWeaknessQuiz={(skillId) => {
-            setShowParentModal(false);
+            // 保護者カルテは開いたまま維持し、前面に暗記カードを表示する（閉じたら保護者カルテに戻る）
             setFlashCardSkillId(skillId);
           }}
+        />
+      )}
+
+      {/* サクッと暗記カードモーダル（最前面スタック） */}
+      {flashCardSkillId && (
+        <QuickFlashCardModal
+          initialSkillId={flashCardSkillId}
+          onClose={() => setFlashCardSkillId(null)}
         />
       )}
     </div>

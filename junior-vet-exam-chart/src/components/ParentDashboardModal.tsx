@@ -40,6 +40,16 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   const [isEditingGoal, setIsEditingGoal] = useState<boolean>(false);
   const [editGoalText, setEditGoalText] = useState<string>(rewardGoal);
 
+  // 弱点テーマの保護者向け指導アドバイス展開状態
+  const [expandedSkillIds, setExpandedSkillIds] = useState<string[]>([]);
+
+  const toggleSkillExpand = (skillId: string) => {
+    sound.playPop();
+    setExpandedSkillIds(prev =>
+      prev.includes(skillId) ? prev.filter(id => id !== skillId) : [...prev, skillId]
+    );
+  };
+
   // データ集計
   useEffect(() => {
     // 1. 認定試験履歴
@@ -609,54 +619,151 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                   🩺 お子さんの「現在復習すべき弱点テーマ」TOP 3
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {weakestSkills.map(skill => (
-                    <div
-                      key={skill.id}
-                      style={{
-                        background: 'var(--surface)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '10px',
-                        padding: '10px 14px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                      }}
-                    >
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ fontSize: '11px', fontWeight: 'bold', padding: '1px 6px', borderRadius: '4px', background: '#e0f2fe', color: '#0369a1' }}>
-                            {skill.subject === 'rika' ? '🧪 理科' : skill.subject === 'sansu' ? '📐 算数' : '🗾 社会'}
-                          </span>
-                          <strong style={{ fontSize: '13px' }}>{skill.title}</strong>
-                        </div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '2px' }}>
-                          忘却メーター定着度: <strong>{skill.retention}%</strong>
-                        </div>
-                      </div>
+                  {weakestSkills.map(skill => {
+                    const isExpanded = expandedSkillIds.includes(skill.id);
+                    const enhancement = THEME_ENHANCEMENTS[skill.id];
 
-                      {onStartWeaknessQuiz && (
-                        <button
-                          onClick={() => {
-                            sound.playPop();
-                            onClose();
-                            onStartWeaknessQuiz(skill.id);
-                          }}
+                    return (
+                      <div
+                        key={skill.id}
+                        style={{
+                          background: 'var(--surface)',
+                          border: isExpanded ? '1.5px solid #3b82f6' : '1px solid var(--border)',
+                          borderRadius: '12px',
+                          padding: '12px 14px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '10px',
+                          transition: 'all 0.2s ease',
+                          boxShadow: isExpanded ? '0 4px 12px rgba(59, 130, 246, 0.08)' : 'none',
+                        }}
+                      >
+                        <div
                           style={{
-                            background: '#eff6ff',
-                            color: '#1d4ed8',
-                            border: '1px solid #bfdbfe',
-                            borderRadius: '8px',
-                            padding: '6px 12px',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
                           }}
                         >
-                          📱 この単元を解く
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ fontSize: '11px', fontWeight: 'bold', padding: '1px 6px', borderRadius: '4px', background: '#e0f2fe', color: '#0369a1' }}>
+                                {skill.subject === 'rika' ? '🧪 理科' : skill.subject === 'sansu' ? '📐 算数' : '🗾 社会'}
+                              </span>
+                              <strong style={{ fontSize: '13px' }}>{skill.title}</strong>
+                            </div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                              忘却メーター定着度: <strong>{skill.retention}%</strong>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => toggleSkillExpand(skill.id)}
+                            style={{
+                              background: isExpanded ? '#dbeafe' : '#f0fdf4',
+                              color: isExpanded ? '#1e40af' : '#166534',
+                              border: `1px solid ${isExpanded ? '#bfdbfe' : '#bbf7d0'}`,
+                              borderRadius: '8px',
+                              padding: '6px 12px',
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                            }}
+                            data-testid={`toggle-advice-btn-${skill.id}`}
+                          >
+                            {isExpanded ? '▲ ガイドを閉じる' : '💡 急所・指導ヒントを見る'}
+                          </button>
+                        </div>
+
+                        {/* 保護者向け 急所・指導処方箋（アコーディオン展開） */}
+                        {isExpanded && (
+                          <div
+                            style={{
+                              background: '#f8fafc',
+                              border: '1px solid #e2e8f0',
+                              borderRadius: '8px',
+                              padding: '12px',
+                              fontSize: '12px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '8px',
+                            }}
+                            data-testid={`advice-content-${skill.id}`}
+                          >
+                            {/* 急所ポイント */}
+                            <div>
+                              <div style={{ fontWeight: 'bold', color: '#1e40af', marginBottom: '2px' }}>
+                                💡 お子さんのつまずき急所:
+                              </div>
+                              <div style={{ color: '#334155', lineHeight: '1.4' }}>
+                                {enhancement?.flashCard.examPoint || skill.nextGoalHint || '基本の考え方をしっかり整理させましょう。'}
+                              </div>
+                            </div>
+
+                            {/* 家庭での声かけ・解法のコツ */}
+                            {enhancement?.flashCard.tip && (
+                              <div>
+                                <div style={{ fontWeight: 'bold', color: '#047857', marginBottom: '2px' }}>
+                                  🗣️ 家庭での声かけ・解法のコツ:
+                                </div>
+                                <div style={{ color: '#334155', lineHeight: '1.4' }}>
+                                  {enhancement.flashCard.tip}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* 出題例と答え */}
+                            {enhancement?.flashCard.question && (
+                              <div style={{ background: '#ffffff', border: '1px dashed #cbd5e1', borderRadius: '6px', padding: '8px 10px' }}>
+                                <div style={{ fontWeight: 'bold', color: '#475569', marginBottom: '2px' }}>
+                                  📝 出題される問題の例:
+                                </div>
+                                <div style={{ color: '#0f172a', fontWeight: '500', marginBottom: '4px' }}>
+                                  {enhancement.flashCard.question}
+                                </div>
+                                <div style={{ fontSize: '11px', color: '#059669', fontWeight: 'bold' }}>
+                                  ✅ 正解: {enhancement.flashCard.answer}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* お子さんにやらせたい場合の連携ボタン */}
+                            {onStartWeaknessQuiz && (
+                              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+                                <button
+                                  onClick={() => {
+                                    sound.playPop();
+                                    // 保護者カルテは閉じずに、お子さんに解かせる暗記カードを前面に開く
+                                    onStartWeaknessQuiz(skill.id);
+                                  }}
+                                  style={{
+                                    background: '#2563eb',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    padding: '7px 14px',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    boxShadow: '0 2px 6px rgba(37, 99, 235, 0.25)',
+                                  }}
+                                  data-testid={`start-quiz-btn-${skill.id}`}
+                                >
+                                  📱 お子さんにこの単元を解かせる（サクッと暗記カードを起動）
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
