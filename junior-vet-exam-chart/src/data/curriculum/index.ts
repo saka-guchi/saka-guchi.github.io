@@ -162,7 +162,7 @@ function buildCurriculumQuestions(): SampleQuestion[] {
       correctAnswer: p.correctAnswer,
       hints: hints as any,
       explanation: {
-        resultSummary: `正解は【${p.correctAnswer}】です。`,
+        resultSummary: '',
         keyTakeaway: sInfo.title,
         reasoning: '基礎解法・知識をしっかり頭に定着させましょう。',
       },
@@ -194,8 +194,8 @@ function buildCurriculumQuestions(): SampleQuestion[] {
       correctAnswer: t.correctAnswer,
       hints: hints as any,
       explanation: {
-        resultSummary: `正解は【${t.correctAnswer}】です。`,
-        keyTakeaway: t.expectedReasoning || sInfo.title,
+        resultSummary: '',
+        keyTakeaway: sInfo.title,
         reasoning: t.expectedReasoning || '条件の違いに着目して考えましょう。',
       },
       figureUrl: t.figureId ? `./figures/${t.figureId}.webp` : undefined,
@@ -226,8 +226,8 @@ function buildCurriculumQuestions(): SampleQuestion[] {
       correctAnswer: integ.correctAnswer,
       hints: hints as any,
       explanation: {
-        resultSummary: `正解は【${integ.correctAnswer}】です。`,
-        keyTakeaway: '複数テーマの複合的な理解が必要です。',
+        resultSummary: '',
+        keyTakeaway: sInfo.title,
         reasoning: '各分野の性質を正確につなげて判断しましょう。',
       },
       figureUrl: integ.figureId ? `./figures/${integ.figureId}.webp` : undefined,

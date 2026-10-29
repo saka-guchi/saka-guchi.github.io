@@ -21,7 +21,7 @@ export const HomePage: React.FC = () => {
   const { startDailySession } = useAppStore();
   const [earnedStampIds, setEarnedStampIds] = useState<string[]>([]);
   const [showStampModal, setShowStampModal] = useState(false);
-  const [openedStampId, setOpenedStampId] = useState<string | null>(null);
+  const [openedStampIds, setOpenedStampIds] = useState<string[]>([]);
   const [showLevelHelpModal, setShowLevelHelpModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showParentModal, setShowParentModal] = useState(false);
@@ -218,7 +218,8 @@ export const HomePage: React.FC = () => {
           <div className={styles.todayCardContent} data-testid="card-breakdown">
             <div className={styles.badgeRow}>
               <span className={styles.badgeToday}>🩺 今日のカルテ学習</span>
-              <span className={styles.estimatedTime}>⏱️ 目安: たった5分</span>
+              <span style={{ color: 'var(--border)', margin: '0 2px' }}>|</span>
+              <span className={styles.estimatedTime}>⏱️ 所要目安: 約5分</span>
             </div>
             <h2 className={styles.todayHeading} style={{ margin: '2px 0' }}>
               今日のオススメ 10問をといて、動物を元気にしよう！
@@ -227,34 +228,44 @@ export const HomePage: React.FC = () => {
               理科・算数・社会の3教科すべてに対応！忘れないように毎日少しずつ解くのが記憶のコツだよ。
             </p>
 
-            {/* 科目選択タブ */}
-            <div className={styles.categoryFilterRow} style={{ marginTop: '10px', marginBottom: '8px' }}>
-              {[
-                { id: 'all', label: '🌟 全教科ミックス' },
-                { id: 'rika', label: '🧪 理科' },
-                { id: 'sansu', label: '📐 算数' },
-                { id: 'shakai', label: '🗾 社会' },
-              ].map(sub => (
-                <button
-                  key={sub.id}
-                  className={`${styles.categoryFilterBtn} ${selectedStudySubject === sub.id ? styles.categoryFilterBtnActive : ''}`}
-                  onClick={() => {
-                    sound.playPop();
-                    setSelectedStudySubject(sub.id as any);
-                  }}
-                  type="button"
-                >
-                  {sub.label}
-                </button>
-              ))}
+            {/* 科目選択セグメントコントロール（操作できるスイッチとして明確化） */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px', marginBottom: '6px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text)' }}>
+                出題教科:
+              </span>
+              <div className={styles.categoryFilterRow} role="tablist" aria-label="出題教科の選択">
+                {[
+                  { id: 'all', label: '🌟 全教科ミックス' },
+                  { id: 'rika', label: '🧪 理科' },
+                  { id: 'sansu', label: '📐 算数' },
+                  { id: 'shakai', label: '🗾 社会' },
+                ].map(sub => (
+                  <button
+                    key={sub.id}
+                    className={`${styles.categoryFilterBtn} ${selectedStudySubject === sub.id ? styles.categoryFilterBtnActive : ''}`}
+                    onClick={() => {
+                      sound.playPop();
+                      setSelectedStudySubject(sub.id as any);
+                    }}
+                    type="button"
+                    role="tab"
+                    aria-selected={selectedStudySubject === sub.id}
+                  >
+                    {sub.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* 今日の10問内訳メニュー（わかりやすいタグ） */}
+            {/* 今日の10問内訳（ボタンではなく情報テキストとして表示） */}
             <div className={styles.todayMenuRow}>
-              <span className={styles.todayMenuPill}>🔄 復習：3問</span>
-              <span className={styles.todayMenuPill}>✏️ やり直し：2問</span>
-              <span className={styles.todayMenuPill}>🌱 新知識：2問</span>
-              <span className={styles.todayMenuPill}>⭐ 応用問題：3問</span>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-subtle)', marginRight: '4px' }}>
+                📋 内訳:
+              </span>
+              <span className={styles.todayMenuPill}>🔄 復習 3問</span>
+              <span className={styles.todayMenuPill}>✏️ やり直し 2問</span>
+              <span className={styles.todayMenuPill}>🌱 新知識 2問</span>
+              <span className={styles.todayMenuPill}>⭐ 応用 3問</span>
             </div>
           </div>
 
@@ -465,10 +476,10 @@ export const HomePage: React.FC = () => {
                           sound.playPop();
                           setFlashCardSkillId(skill.id);
                         }}
-                        title="30秒で重要ポイントを復習して記憶メーターをアップ！"
+                        title="重要ポイントをサクッと復習して記憶メーターをアップ！"
                         data-testid={`quick-flash-btn-${skill.id}`}
                       >
-                        <span>📇 30秒暗記カード</span>
+                        <span>📇 サクッと暗記カード</span>
                         <span className={styles.btnArrow}>❯</span>
                       </button>
                     </div>
@@ -534,10 +545,10 @@ export const HomePage: React.FC = () => {
                           sound.playPop();
                           setFlashCardSkillId(skill.id);
                         }}
-                        title="30秒で重要ポイントを復習して記憶メーターをアップ！"
+                        title="重要ポイントをサクッと復習して記憶メーターをアップ！"
                         data-testid={`quick-flash-btn-mastered-${skill.id}`}
                       >
-                        <span>📇 30秒暗記カード</span>
+                        <span>📇 サクッと暗記カード</span>
                         <span className={styles.btnArrow}>❯</span>
                       </button>
                     </div>
@@ -709,7 +720,7 @@ export const HomePage: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
               {ANIMAL_STAMPS.map(stamp => {
                 const isEarned = earnedStampIds.includes(stamp.id);
-                const isOpened = openedStampId === stamp.id;
+                const isOpened = openedStampIds.includes(stamp.id);
 
                 return (
                   <div
@@ -718,7 +729,8 @@ export const HomePage: React.FC = () => {
                       if (isEarned) {
                         sound.playAnimalHappy();
                         fireConfetti({ count: 20 });
-                        setOpenedStampId(prev => (prev === stamp.id ? null : stamp.id));
+                        // 1度クリックした動物は開きっぱなしを維持（他の動物をクリックしても閉じない）
+                        setOpenedStampIds(prev => (prev.includes(stamp.id) ? prev : [...prev, stamp.id]));
                       } else {
                         sound.playPop();
                       }

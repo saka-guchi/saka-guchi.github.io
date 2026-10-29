@@ -88,18 +88,12 @@ describe('Screen Flow Integration Tests', () => {
     expect(screen.getByTestId('explanation-panel')).toBeInTheDocument();
     expect(screen.getByTestId('result-banner')).toBeInTheDocument();
 
-    // 7-2. 問題を解いた後でもヒントを振り返ることができる
+    // 7-2. 問題を解いた後でもヒントを振り返ることができる（表記統一）
     expect(screen.getByTestId('reviewed-hints-section')).toBeInTheDocument();
-    expect(screen.getByText('出題ヒントの振り返り')).toBeInTheDocument();
+    expect(screen.getByText('ヒントの振り返り')).toBeInTheDocument();
 
-    // 7-3. 回答後でもヒントボタンを押してヒントボックスを表示できる
-    const hintBtn = screen.queryByTestId('show-hint-btn');
-    if (hintBtn) {
-      fireEvent.click(hintBtn);
-      const hintBox = screen.getByTestId('hint-box');
-      expect(hintBox).toBeInTheDocument();
-      expect(hintBox).toHaveTextContent('ヒント 1:');
-    }
+    // 7-3. 回答後は重複する黄色背景のヒント枠が消え、振り返りセクションに集約される
+    expect(screen.queryByTestId('hint-box')).not.toBeInTheDocument();
 
     // 8. 「次へ」ボタン
     const nextBtn = screen.getByTestId('next-question-btn');

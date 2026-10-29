@@ -2,6 +2,58 @@
   min-height: 100vh;
   background: var(--bg);
   display: flex;
+  flex-direction: column;
+}
+
+.header {
+  height: 72px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.iconBtn {
+  width: var(--tap-min-size);
+  height: var(--tap-min-size);
+  border-radius: 50%;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+
+.iconBtn:hover {
+  background: var(--border);
+  transform: scale(1.05);
+}
+
+.iconBtn:active {
+  transform: scale(0.95);
+}
+
+.headerTitle {
+  font: var(--font-heading);
+  color: var(--text);
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.main {
+  flex: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;

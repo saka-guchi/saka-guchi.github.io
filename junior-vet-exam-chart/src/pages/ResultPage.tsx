@@ -6,6 +6,16 @@ import { getFormatBadge } from '../components/formats/QuestionRenderer';
 import { db } from '../db';
 import styles from './ResultPage.module.css';
 
+// 教科ラベルのフォーマットヘルパー（小学生向け世界観の統一）
+function getSubjectLabel(subject?: string): string {
+  switch (subject) {
+    case 'rika': return '🧪 理科';
+    case 'sansu': return '📐 算数';
+    case 'shakai': return '🗾 社会';
+    default: return subject || '総合';
+  }
+}
+
 // 回答値・正解値のフォーマットヘルパー
 function formatAnswerDisplay(question: any, answer: any): string {
   if (answer === null || answer === undefined || answer === '') {
@@ -13,9 +23,13 @@ function formatAnswerDisplay(question: any, answer: any): string {
   }
 
   // 選択式 (delayed_choice, multiple_choice, why_choice, next_step)
-  if (question.data?.choices) {
-    const choice = question.data.choices.find((c: any) => c.id === answer);
-    if (choice) return choice.text;
+  const choices = question.choices || question.data?.choices;
+  if (choices && Array.isArray(choices)) {
+    const choice = choices.find((c: any) => c.id === answer);
+    if (choice) {
+      const label = choice.label ? `${choice.label}. ` : '';
+      return `${label}${choice.text}`;
+    }
   }
 
   // 図表タップ (diagram_touch)
@@ -55,16 +69,19 @@ function formatAnswerDisplay(question: any, answer: any): string {
 
 // 間違えた問題振り返りカード
 const MistakeReviewCard: React.FC<{ record: SessionAnswerRecord; index: number }> = ({ record, index }) => {
-  const [openDetail, setOpenDetail] = useState(false);
   const q = record.question;
   const badge = getFormatBadge(q.format);
   const formattedUserAnswer = formatAnswerDisplay(q, record.userAnswer);
   const formattedCorrectAnswer = formatAnswerDisplay(q, q.correctAnswer);
 
+  const keyTakeaway = q.explanation?.keyTakeaway;
+  const reasoning = q.explanation?.reasoning;
+  const isReasoningDuplicate = !reasoning || reasoning === keyTakeaway;
+
   return (
     <div className={styles.mistakeCard} data-testid={`mistake-card-${index}`}>
       <div className={styles.mistakeCardHeader}>
-        <span className={styles.badgeSubject}>{q.subject || '総合'}</span>
+        <span className={styles.badgeSubject}>{getSubjectLabel(q.subject)}</span>
         <span className={styles.badgeSkill}>🩺 {q.skillTitle}</span>
         <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
           {badge.icon} {badge.label}
@@ -87,39 +104,18 @@ const MistakeReviewCard: React.FC<{ record: SessionAnswerRecord; index: number }
       {q.explanation && (
         <div className={styles.explanationBox}>
           <div className={styles.explanationLabel}>💡 考え方・覚えること</div>
-          <div style={{ fontWeight: 600, marginBottom: '4px' }}>{q.explanation.keyTakeaway}</div>
-          <div style={{ color: 'var(--text-subtle)' }}>{q.explanation.reasoning}</div>
+          {keyTakeaway && (
+            <div style={{ fontWeight: 600, marginBottom: '4px' }}>{keyTakeaway}</div>
+          )}
+          {!isReasoningDuplicate && (
+            <div style={{ color: 'var(--text-subtle)', lineHeight: '1.5' }}>{reasoning}</div>
+          )}
 
           {q.hints && q.hints.length > 0 && (
             <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed var(--border)' }}>
               <span style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '12px' }}>
-                出題ヒント: {q.hints.map(h => h.text).join(' / ')}
+                ヒント: {q.hints.map(h => h.text).join(' / ')}
               </span>
-            </div>
-          )}
-
-          {q.explanation.resultSummary && (
-            <div style={{ marginTop: '8px' }}>
-              <button
-                type="button"
-                onClick={() => setOpenDetail(!openDetail)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--primary)',
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                  fontSize: '12px',
-                  padding: 0,
-                }}
-              >
-                {openDetail ? '▲ 詳しい解説を閉じる' : '▼ 詳しい解説を見る'}
-              </button>
-              {openDetail && (
-                <div style={{ marginTop: '6px', fontSize: '12px', color: 'var(--text-subtle)', lineHeight: '1.5' }}>
-                  {q.explanation.resultSummary}
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -202,12 +198,28 @@ export const ResultPage: React.FC = () => {
 
   return (
     <div className={styles.container} data-testid="result-page">
-      <div className={styles.card}>
-        <div className={styles.badgeSuccess}>🎉 本日の学習完了！</div>
-        <h1 className={styles.title}>よくがんばりました！</h1>
-        <p className={styles.subtitle}>
-          今日のカルテが更新され、動物たちが元気になりました！
-        </p>
+      {/* 画面共通ヘッダー（左上にホームへ戻るボタンを常時配置） */}
+      <header className={styles.header} data-testid="result-header">
+        <button
+          className={styles.iconBtn}
+          onClick={handleGoHome}
+          aria-label="ホームへ戻る"
+          title="ホームへ戻る"
+          data-testid="result-top-back-btn"
+        >
+          ←
+        </button>
+        <h1 className={styles.headerTitle}>本日の学習カルテ</h1>
+        <div style={{ width: '48px' }} />
+      </header>
+
+      <main className={styles.main}>
+        <div className={styles.card}>
+          <div className={styles.badgeSuccess}>🎉 本日の学習完了！</div>
+          <h2 className={styles.title}>よくがんばりました！</h2>
+          <p className={styles.subtitle}>
+            今日のカルテが更新され、動物たちが元気になりました！
+          </p>
 
         {/* 動物スタンプ獲得カード */}
         {earnedStamp && (
@@ -333,6 +345,7 @@ export const ResultPage: React.FC = () => {
           </button>
         </div>
       </div>
+      </main>
     </div>
   );
 };

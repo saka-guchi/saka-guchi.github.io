@@ -87,16 +87,16 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(screen.getByText('つるかめ算と消去算の条件整理')).toBeInTheDocument();
   });
 
-  it('opens and flips 30-second flashcard modal', () => {
+  it('opens and flips quick flashcard modal', () => {
     render(<App />);
 
-    // 「30秒暗記カード」ボタンをクリック
-    const flashBtns = screen.getAllByText(/30秒暗記カード/);
+    // 「サクッと暗記カード」ボタンをクリック
+    const flashBtns = screen.getAllByText(/暗記カード/);
     fireEvent.click(flashBtns[0]);
 
     // モーダルが表示される
     expect(screen.getByTestId('flashcard-modal')).toBeInTheDocument();
-    expect(screen.getByText('30秒フラッシュ暗記カード')).toBeInTheDocument();
+    expect(screen.getByText('サクッと暗記カード')).toBeInTheDocument();
 
     // 科目バッジが「🧪 理科」であり、高校分野の「生物」ではないこと
     expect(screen.getByTestId('flashcard-subject-badge')).toHaveTextContent('🧪 理科');
@@ -124,7 +124,8 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(screen.getByText('3日れんぞく！')).toBeInTheDocument();
   });
 
-  it('toggles cheer message and vet fact on stamp click in animal stamp album', () => {
+  it('keeps opened stamp message open when clicked again or when another stamp is clicked', () => {
+    localStorage.setItem('junior_vet_earned_stamps', JSON.stringify(['stamp-dog-shiba', 'stamp-cat-mike']));
     render(<App />);
     // スタンプ帳ボタンをクリック
     const stampAlbumBtn = screen.getByTestId('open-stamp-book-btn');
@@ -133,19 +134,25 @@ describe('UI Redesign & New Features Integration Tests', () => {
     // シール帳モーダルが開く
     expect(screen.getByText('🐾 みならい獣医さんの動物シール帳')).toBeInTheDocument();
 
-    // 獲得済みスタンプ（テスト初期状態では1番目 stamp-dog-shiba などが獲得済み）
-    // クリック前は「👆 タップするとメッセージと豆知識が飛び出すよ！」が表示されている
-    const promptNotice = screen.getAllByText('👆 タップするとメッセージと豆知識が飛び出すよ！')[0];
-    expect(promptNotice).toBeInTheDocument();
-    expect(screen.queryByTestId('stamp-cheer-stamp-dog-shiba')).not.toBeInTheDocument();
-
-    // スタンプをクリック
+    // 獲得済みスタンプ1（stamp-dog-shiba）
     const dogStamp = screen.getByTestId('animal-stamp-stamp-dog-shiba');
     fireEvent.click(dogStamp);
 
     // クリック後にメッセージと豆知識が飛び出す！
     expect(screen.getByTestId('stamp-cheer-stamp-dog-shiba')).toBeInTheDocument();
     expect(screen.getByTestId('stamp-fact-stamp-dog-shiba')).toBeInTheDocument();
+
+    // 再度クリックしても閉じずに「開きっぱなし」が維持されること！
+    fireEvent.click(dogStamp);
+    expect(screen.getByTestId('stamp-cheer-stamp-dog-shiba')).toBeInTheDocument();
+
+    // 別の獲得済みスタンプ2（stamp-cat-mike）をクリック
+    const catStamp = screen.getByTestId('animal-stamp-stamp-cat-mike');
+    fireEvent.click(catStamp);
+
+    // スタンプ2が開くだけでなく、スタンプ1も閉じずに「両方開きっぱなし」になっていること！
+    expect(screen.getByTestId('stamp-cheer-stamp-dog-shiba')).toBeInTheDocument();
+    expect(screen.getByTestId('stamp-cheer-stamp-cat-mike')).toBeInTheDocument();
   });
 
   it('opens exam history modal from HomePage', () => {

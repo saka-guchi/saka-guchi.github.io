@@ -123,6 +123,15 @@ export const DoctorCertificateModal: React.FC<DoctorCertificateModalProps> = ({
   return (
     <div className={styles.overlay} onClick={onClose} data-testid="doctor-certificate-modal">
       <div className={styles.certificateWrapper} onClick={e => e.stopPropagation()}>
+        <button
+          className={styles.closeCornerBtn}
+          onClick={onClose}
+          aria-label="認定証を閉じる"
+          title="とじる"
+          data-testid="cert-close-corner-btn"
+        >
+          ✕
+        </button>
         <div className={styles.ribbonTop}>★ 過去問 100点満点クリア認定 ★</div>
 
         <h1 className={styles.certTitle}>合格ドクター認定証</h1>

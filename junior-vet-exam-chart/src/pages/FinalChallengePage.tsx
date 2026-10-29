@@ -735,11 +735,29 @@ export const FinalChallengePage: React.FC = () => {
               maxHeight: '90vh',
               overflowY: 'auto',
               padding: '24px',
+              position: 'relative',
             }}
           >
-            <h2 style={{ font: 'var(--font-heading)', borderBottom: '2px solid var(--primary)', paddingBottom: '8px' }}>
-              記述問題の自己判定（第13章仕様）
-            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid var(--primary)', paddingBottom: '8px' }}>
+              <h2 style={{ font: 'var(--font-heading)', margin: 0 }}>
+                記述問題の自己判定（第13章仕様）
+              </h2>
+              <button
+                onClick={() => setShowScoringModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  color: 'var(--text-subtle)',
+                  padding: '4px 8px',
+                }}
+                aria-label="閉じる"
+                data-testid="scoring-modal-close-btn"
+              >
+                ✕
+              </button>
+            </div>
             <p style={{ color: 'var(--text-subtle)', marginTop: '8px', fontSize: '14px' }}>
               紙やノートに書いた解答と模範解答を見比べ、要素ごとに「書けた／書けなかった」を選択してください。すべての要素を満たしている場合に正解となります。
             </p>

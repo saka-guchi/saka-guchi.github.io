@@ -273,18 +273,14 @@
 .badgeRow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .badgeToday {
-  background: var(--primary-weak);
-  border: 1px solid var(--primary);
   color: var(--primary);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
-  padding: 4px 12px;
-  border-radius: var(--radius-pill);
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -292,12 +288,8 @@
 
 .estimatedTime {
   font-size: 12px;
-  font-weight: 800;
-  color: var(--success-text);
-  background: var(--success-weak);
-  border: 1px solid var(--success);
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
+  font-weight: 700;
+  color: var(--text-subtle);
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -319,23 +311,23 @@
 
 .todayMenuRow {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
   flex-wrap: wrap;
   margin: 6px 0;
 }
 
 .todayMenuPill {
-  background: var(--surface);
+  background: var(--surface-subtle);
   border: 1px solid var(--border);
-  padding: 6px 12px;
-  border-radius: var(--radius-pill);
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--text);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-subtle);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .textLinkBtn {
@@ -516,28 +508,38 @@
   color: #ffffff;
 }
 
-/* 分野切り替えタブフィルター */
+/* 分野切り替えタブフィルター（セグメントコントロール風アフォーダンス） */
 .categoryFilterRow {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface-subtle);
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  gap: 4px;
 }
 
 .categoryFilterBtn {
-  padding: 4px 12px;
+  padding: 6px 14px;
   border-radius: var(--radius-pill);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
-  border: 1px solid var(--border);
-  background: var(--surface-subtle);
+  border: none;
+  background: transparent;
   color: var(--text-subtle);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.categoryFilterBtn:hover {
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .categoryFilterBtnActive {
   background: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
-  box-shadow: 0 2px 6px var(--primary-glow);
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 /* テーマリスト */

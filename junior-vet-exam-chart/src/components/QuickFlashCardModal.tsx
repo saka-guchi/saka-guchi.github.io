@@ -84,7 +84,7 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
             <span style={{ fontSize: '20px' }}>⚡</span>
             <div>
               <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 'bold', color: 'var(--text)' }}>
-                30秒フラッシュ暗記カード
+                サクッと暗記カード
               </h3>
               <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
                 カードをタップして裏返す（{currentIndex + 1} / {keys.length} テーマ）
