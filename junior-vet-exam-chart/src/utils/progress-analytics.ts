@@ -138,3 +138,77 @@ export async function recordDailyStudyCompleted(): Promise<number> {
   }
   return streak;
 }
+
+export interface TodayStudyStats {
+  questionCount: number;
+  studyMinutes: number;
+  accuracy: number;
+  streakDays: number;
+  totalAttempts: number;
+  totalMinutes: number;
+}
+
+/**
+ * 本日の学習量（推定時間、解答数、正答率、連続日数、累計）を集計する
+ */
+export async function getTodayStudyStats(): Promise<TodayStudyStats> {
+  try {
+    const todayJst = getJstDateString(new Date());
+
+    const [sessions, attempts, streakDays] = await Promise.all([
+      db.dailySessions.toArray(),
+      db.attempts.toArray(),
+      calculateStreakDays(),
+    ]);
+
+    // 今日のセッション
+    const todaySession = sessions.find(s => s.date === todayJst);
+    const sessionCount = todaySession?.questionIds?.length || 0;
+
+    // 今日のattempts
+    const todayAttempts = attempts.filter(a => a.timestamp && getJstDateString(new Date(a.timestamp)) === todayJst);
+    const attemptCount = todayAttempts.length;
+
+    const questionCount = Math.max(sessionCount, attemptCount);
+
+    // 正答率
+    let accuracy = 0;
+    if (todayAttempts.length > 0) {
+      const correct = todayAttempts.filter(a => a.isCorrect).length;
+      accuracy = Math.round((correct / todayAttempts.length) * 100);
+    } else if (todaySession?.results && todaySession.results.length > 0) {
+      const correct = todaySession.results.filter(r => r.isCorrect).length;
+      accuracy = Math.round((correct / todaySession.results.length) * 100);
+    }
+
+    // 今日の学習時間（分）: 実測値または目安（10問で約5分）
+    let studyMinutes = 0;
+    if (questionCount > 0) {
+      const measuredMs = todayAttempts.reduce((acc, a) => acc + (a.responseTimeMs || 30000), 0);
+      studyMinutes = Math.max(1, Math.round(measuredMs / 60000));
+    }
+
+    // 累計
+    const totalAttempts = attempts.length;
+    const totalMs = attempts.reduce((acc, a) => acc + (a.responseTimeMs || 30000), 0);
+    const totalMinutes = Math.max(0, Math.round(totalMs / 60000));
+
+    return {
+      questionCount,
+      studyMinutes,
+      accuracy,
+      streakDays,
+      totalAttempts,
+      totalMinutes,
+    };
+  } catch {
+    return {
+      questionCount: 0,
+      studyMinutes: 0,
+      accuracy: 0,
+      streakDays: 0,
+      totalAttempts: 0,
+      totalMinutes: 0,
+    };
+  }
+}

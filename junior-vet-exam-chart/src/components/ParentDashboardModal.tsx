@@ -3,6 +3,7 @@ import { db } from '../db';
 import { ALL_PROGRESS_SKILLS } from '../data/all-skills';
 import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
 import { getMemoryRetention } from '../utils/memory-retention';
+import { getTodayStudyStats, type TodayStudyStats } from '../utils/progress-analytics';
 import { ANIMAL_STAMPS, getEarnedStampIds } from '../data/animal-stamps';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
@@ -29,6 +30,16 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   const [dailyCounts, setDailyCounts] = useState<DailyCount[]>([]);
   const [totalAttempts, setTotalAttempts] = useState<number>(0);
   const [totalCorrect, setTotalCorrect] = useState<number>(0);
+
+  // 本日の学習量（時間、解答数、正答率、連続日数、累計）
+  const [todayStats, setTodayStats] = useState<TodayStudyStats>({
+    questionCount: 0,
+    studyMinutes: 0,
+    accuracy: 0,
+    streakDays: 0,
+    totalAttempts: 0,
+    totalMinutes: 0,
+  });
 
   // 親子のお約束メモ（localStorage永続化）
   const [rewardGoal, setRewardGoal] = useState<string>(() => {
@@ -79,13 +90,16 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
 
         // その日のセッションから問題数を算出
         const s = sessions.find(session => session.date === fullDate);
-        const count = s ? (s.questionIds?.length || 10) : (i === 0 ? 10 : i === 1 ? 8 : i === 2 ? 10 : 0);
+        const count = s ? (s.questionIds?.length || 0) : 0;
 
         last14Days.push({ dateStr, fullDate, count });
       }
 
       setDailyCounts(last14Days);
     });
+
+    // 4. 今日の学習データ集計
+    getTodayStudyStats().then(setTodayStats);
   }, []);
 
   // 教科別マスター進度
@@ -270,36 +284,50 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
           {/* ================= タブ1: グラフ可視化 ================= */}
           {activeTab === 'charts' && (
             <>
-              {/* サマリーカード 4枚 */}
+              {/* サマリーカード 4枚（本日の学習実績を最優先表示） */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+                {/* 1. 今日の学習時間（最重要・緑系） */}
+                <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: '12px', padding: '12px', textAlign: 'center', boxShadow: '0 2px 6px rgba(34, 197, 94, 0.08)' }}>
+                  <div style={{ fontSize: '11px', color: '#166534', fontWeight: 'bold' }}>⏱️ 本日の学習時間</div>
+                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#15803d', margin: '4px 0' }} data-testid="today-study-minutes">
+                    {todayStats.studyMinutes > 0 ? `約 ${todayStats.studyMinutes} 分` : '0 分'}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#166534' }}>
+                    {todayStats.studyMinutes >= 5 ? '目標5分クリア！💮' : todayStats.studyMinutes > 0 ? '毎日コツコツ継続中！' : '本日の学習はこれから'}
+                  </div>
+                </div>
+
+                {/* 2. 今日の解答数（最重要・青系） */}
+                <div style={{ background: '#eff6ff', border: '1.5px solid #93c5fd', borderRadius: '12px', padding: '12px', textAlign: 'center', boxShadow: '0 2px 6px rgba(59, 130, 246, 0.08)' }}>
+                  <div style={{ fontSize: '11px', color: '#1e40af', fontWeight: 'bold' }}>📝 本日の解答数</div>
+                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#1d4ed8', margin: '4px 0' }} data-testid="today-question-count">
+                    {todayStats.questionCount} 問
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#1e40af' }}>
+                    {todayStats.questionCount > 0 ? `正答率: ${todayStats.accuracy}%` : '目安: 1日10問'}
+                  </div>
+                </div>
+
+                {/* 3. 連続学習日数（習慣化・黄系） */}
                 <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
                   <div style={{ fontSize: '11px', color: '#92400e', fontWeight: 'bold' }}>🔥 連続学習日数</div>
-                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#b45309', margin: '4px 0' }}>3 日</div>
-                  <div style={{ fontSize: '10px', color: '#78350f' }}>毎日の習慣が定着中！</div>
-                </div>
-
-                <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '11px', color: '#1e40af', fontWeight: 'bold' }}>📝 累計解答数</div>
-                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#2563eb', margin: '4px 0' }}>
-                    {totalAttempts > 0 ? totalAttempts : 45} 問
+                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#b45309', margin: '4px 0' }} data-testid="parent-streak-days">
+                    {todayStats.streakDays} 日
                   </div>
-                  <div style={{ fontSize: '10px', color: '#1d4ed8' }}>
-                    正答率: {totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 84}%
+                  <div style={{ fontSize: '10px', color: '#78350f' }}>
+                    {todayStats.streakDays > 0 ? '毎日の習慣が定着中！' : '今日からスタート！'}
                   </div>
                 </div>
 
-                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '11px', color: '#166534', fontWeight: 'bold' }}>⏱️ 推定総学習時間</div>
-                  <div style={{ fontSize: '22px', fontWeight: '900', color: '#16a34a', margin: '4px 0' }}>約 25 分</div>
-                  <div style={{ fontSize: '10px', color: '#15803d' }}>たった5分の積み重ね</div>
-                </div>
-
+                {/* 4. 累計学習実績＆動物（優先度を下げて1枚に統合・ピンク系） */}
                 <div style={{ background: '#fdf2f8', border: '1px solid #fbcfe8', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '11px', color: '#9d174d', fontWeight: 'bold' }}>🐾 元気にした動物</div>
+                  <div style={{ fontSize: '11px', color: '#9d174d', fontWeight: 'bold' }}>🏆 累計学習実績</div>
                   <div style={{ fontSize: '22px', fontWeight: '900', color: '#db2777', margin: '4px 0' }}>
-                    {earnedStamps.length} / {ANIMAL_STAMPS.length} 匹
+                    {todayStats.totalAttempts} 問
                   </div>
-                  <div style={{ fontSize: '10px', color: '#be185d' }}>シール帳にコレクション</div>
+                  <div style={{ fontSize: '10px', color: '#be185d' }}>
+                    総時間 約{todayStats.totalMinutes}分 / 動物 {earnedStamps.length}匹
+                  </div>
                 </div>
               </div>
 

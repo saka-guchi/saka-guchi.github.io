@@ -32,11 +32,11 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     expect(screen.getByTestId('parent-tab-advice')).toBeInTheDocument();
     expect(screen.getByTestId('parent-tab-print')).toBeInTheDocument();
 
-    // 統計サマリーカード
+    // 統計サマリーカード（本日の学習時間・本日の解答数が最優先）
+    expect(screen.getByText(/本日の学習時間/)).toBeInTheDocument();
+    expect(screen.getByText(/本日の解答数/)).toBeInTheDocument();
     expect(screen.getByText(/連続学習日数/)).toBeInTheDocument();
-    expect(screen.getByText(/累計解答数/)).toBeInTheDocument();
-    expect(screen.getByText(/推定総学習時間/)).toBeInTheDocument();
-    expect(screen.getByText(/元気にした動物/)).toBeInTheDocument();
+    expect(screen.getByText(/累計学習実績/)).toBeInTheDocument();
 
     // 閉じるボタン
     const closeBtn = screen.getByLabelText('閉じる');
