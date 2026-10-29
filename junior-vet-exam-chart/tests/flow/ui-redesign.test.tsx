@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { App } from '../../src/App';
 import { DoctorCertificateModal } from '../../src/components/DoctorCertificateModal';
@@ -118,10 +118,17 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(screen.queryByTestId('flashcard-modal')).not.toBeInTheDocument();
   });
 
-  it('displays mentor cat message and streak counter', () => {
+  it('displays mentor cat message and dynamic streak and completion percentage', async () => {
+    localStorage.setItem('junior_vet_study_streak', '3');
     render(<App />);
     expect(screen.getByText(/ナース猫のミケちゃん:/)).toBeInTheDocument();
-    expect(screen.getByText('3日れんぞく！')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('streak-badge')).toHaveTextContent('3日れんぞく！');
+    });
+    const completionEl = screen.getByTestId('completion-percent');
+    expect(completionEl).toBeInTheDocument();
+    // 固定値のダミーではなく、各単元の定着度平均値が数値%としてレンダリングされる
+    expect(completionEl.textContent).toMatch(/^\d+%$/);
   });
 
   it('keeps opened stamp message open when clicked again or when another stamp is clicked', () => {

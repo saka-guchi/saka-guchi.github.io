@@ -4,6 +4,7 @@ import { useAppStore, type SessionAnswerRecord } from '../store/appStore';
 import { awardDailyStudyStamp, type AnimalStamp } from '../data/animal-stamps';
 import { getFormatBadge } from '../components/formats/QuestionRenderer';
 import { db } from '../db';
+import { recordDailyStudyCompleted } from '../utils/progress-analytics';
 import styles from './ResultPage.module.css';
 
 // 教科ラベルのフォーマットヘルパー（小学生向け世界観の統一）
@@ -180,6 +181,9 @@ export const ResultPage: React.FC = () => {
       }));
       db.attempts.bulkAdd(attemptsToAdd).catch(() => {});
     }
+
+    // 3. 今日の学習完了を記録し連続学習日数（ストリーク）を更新
+    recordDailyStudyCompleted().catch(() => {});
   }, []);
 
   const total = currentSessionQuestions.length || 10;

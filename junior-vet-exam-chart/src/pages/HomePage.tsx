@@ -9,6 +9,7 @@ import { QuickFlashCardModal } from '../components/QuickFlashCardModal';
 import { FinalExamHistoryModal } from '../components/FinalExamHistoryModal';
 import { ParentDashboardModal } from '../components/ParentDashboardModal';
 import { getMemoryRetention } from '../utils/memory-retention';
+import { calculateExamChartCompletion, calculateStreakDays } from '../utils/progress-analytics';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
 import { APP_VERSION, BUILD_TIMESTAMP } from '../version';
@@ -35,10 +36,43 @@ export const HomePage: React.FC = () => {
   const [selectedStudySubject, setSelectedStudySubject] = useState<'all' | 'rika' | 'sansu' | 'shakai'>('all');
   const [, setRetentionTick] = useState(0);
 
+  // 合格カルテ完成度（%）と連続学習日数（ストリーク）の動的計算
+  const [completionPercent, setCompletionPercent] = useState<number>(() => calculateExamChartCompletion());
+  const [studyStreak, setStudyStreak] = useState<number>(0);
+
   useEffect(() => {
-    const handleRetentionUpdate = () => setRetentionTick(t => t + 1);
+    let isMounted = true;
+
+    // 記憶定着度更新時・ストリーク更新時の同期リスナー
+    const handleRetentionUpdate = () => {
+      if (!isMounted) return;
+      setRetentionTick(t => t + 1);
+      setCompletionPercent(calculateExamChartCompletion());
+    };
+    const handleStreakUpdate = (e: any) => {
+      if (!isMounted) return;
+      if (typeof e.detail?.streak === 'number') {
+        setStudyStreak(e.detail.streak);
+      } else {
+        calculateStreakDays().then(val => {
+          if (isMounted) setStudyStreak(val);
+        });
+      }
+    };
+
     window.addEventListener('memory-retention-updated', handleRetentionUpdate);
-    return () => window.removeEventListener('memory-retention-updated', handleRetentionUpdate);
+    window.addEventListener('study-streak-updated', handleStreakUpdate);
+
+    // 初期マウント時のストリーク計算
+    calculateStreakDays().then(val => {
+      if (isMounted) setStudyStreak(val);
+    });
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('memory-retention-updated', handleRetentionUpdate);
+      window.removeEventListener('study-streak-updated', handleStreakUpdate);
+    };
   }, []);
 
   useEffect(() => {
@@ -137,17 +171,17 @@ export const HomePage: React.FC = () => {
 
         <div className={styles.headerRight}>
           {/* 連続学習ストリーク（ゲーミフィケーション） */}
-          <div className={styles.streakBadge} title="連続学習日数">
-            <span>🔥</span>
-            <span>3日れんぞく！</span>
+          <div className={styles.streakBadge} title="連続学習日数" data-testid="streak-badge">
+            <span>{studyStreak > 0 ? '🔥' : '🌱'}</span>
+            <span>{studyStreak > 0 ? `${studyStreak}日れんぞく！` : '今日からスタート！'}</span>
           </div>
 
           <div className={styles.progressLabel}>
             <span>合格カルテ完成度</span>
-            <strong>35%</strong>
+            <strong data-testid="completion-percent">{completionPercent}%</strong>
           </div>
           <div className={styles.progressBarBg} aria-label="攻略度進捗バー">
-            <div className={styles.progressBarFill} style={{ width: '35%' }} />
+            <div className={styles.progressBarFill} style={{ width: `${completionPercent}%` }} />
           </div>
 
           {/* 右上操作コントロール群 */}
