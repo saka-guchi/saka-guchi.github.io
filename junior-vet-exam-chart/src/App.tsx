@@ -6,6 +6,7 @@ import { ResultPage } from './pages/ResultPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { FinalChallengePage } from './pages/FinalChallengePage';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { AppUpdateBanner } from './components/AppUpdateBanner';
 import { ensureBuiltinPackLoaded } from './db';
 
 export const App: React.FC = () => {
@@ -20,6 +21,7 @@ export const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <HashRouter>
+        <AppUpdateBanner />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/study" element={<StudyPage />} />

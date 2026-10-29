@@ -4,6 +4,7 @@ import { useAppStore } from '../store/appStore';
 import JSZip from 'jszip';
 import { db } from '../db';
 import { APP_VERSION, BUILD_TIMESTAMP, clearCacheAndReload } from '../version';
+import { checkForAppUpdate, applyAppUpdate, type UpdateCheckResult } from '../utils/version-checker';
 import styles from './SettingsPage.module.css';
 
 export const SettingsPage: React.FC = () => {
@@ -13,6 +14,16 @@ export const SettingsPage: React.FC = () => {
   const [backupStatus, setBackupStatus] = useState<string | null>(null);
   const [resetStep, setResetStep] = useState(0);
   const [isClearingCache, setIsClearingCache] = useState(false);
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [checkResult, setCheckResult] = useState<UpdateCheckResult | null>(null);
+
+  const handleCheckUpdate = async () => {
+    setIsCheckingUpdate(true);
+    setCheckResult(null);
+    const res = await checkForAppUpdate();
+    setCheckResult(res);
+    setIsCheckingUpdate(false);
+  };
 
   // 教材パックZIPの読み込み
   const handleZipUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -368,21 +379,96 @@ export const SettingsPage: React.FC = () => {
             </div>
 
             <p style={{ fontSize: '12px', color: 'var(--text-subtle)', margin: '0 0 12px 0', lineHeight: '1.5' }}>
-              💡 アップデートしたはずの画面が反映されない場合は、ブラウザのキャッシュまたはService Workerが古いデータを保持している可能性があります。下のボタンを押すとキャッシュを完全に削除して最新版を取得します。
+              💡 アプリはネットワーク接続時に最新バージョンがないか自動確認します。手動で確認したい場合や、画面の更新が反映されない場合は下のボタンをご利用ください。
             </p>
 
-            <button
-              className={styles.actionBtn}
-              onClick={async () => {
-                setIsClearingCache(true);
-                await clearCacheAndReload();
-              }}
-              disabled={isClearingCache}
-              data-testid="clear-cache-btn"
-              style={{ background: 'var(--primary)', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '13px' }}
-            >
-              {isClearingCache ? '⏳ キャッシュ削除＆リロード中...' : '🧹 キャッシュを削除して最新版に更新'}
-            </button>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <button
+                className={styles.actionBtn}
+                onClick={handleCheckUpdate}
+                disabled={isCheckingUpdate}
+                data-testid="settings-check-update-btn"
+                style={{ background: 'var(--surface)', color: 'var(--primary)', border: '1.5px solid var(--primary)', fontWeight: 'bold', fontSize: '13px' }}
+              >
+                {isCheckingUpdate ? '⏳ 最新版を確認中...' : '🔄 新規バージョンをチェック'}
+              </button>
+
+              <button
+                className={styles.actionBtn}
+                onClick={async () => {
+                  setIsClearingCache(true);
+                  await clearCacheAndReload();
+                }}
+                disabled={isClearingCache}
+                data-testid="clear-cache-btn"
+                style={{ background: 'var(--primary)', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '13px' }}
+              >
+                {isClearingCache ? '⏳ キャッシュ削除＆リロード中...' : '🧹 キャッシュを削除して最新版に更新'}
+              </button>
+            </div>
+
+            {checkResult && (
+              <div
+                style={{
+                  marginTop: '12px',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  background: checkResult.hasUpdate
+                    ? '#fdf4ff'
+                    : !checkResult.isOnline
+                    ? '#fffbeb'
+                    : '#f0fdf4',
+                  color: checkResult.hasUpdate
+                    ? '#86198f'
+                    : !checkResult.isOnline
+                    ? '#b45309'
+                    : '#166534',
+                  border: checkResult.hasUpdate
+                    ? '1.5px solid #d946ef'
+                    : !checkResult.isOnline
+                    ? '1px solid #fde68a'
+                    : '1px solid #bbf7d0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '8px',
+                  flexWrap: 'wrap',
+                }}
+                data-testid="settings-update-result-box"
+              >
+                <div>
+                  {checkResult.hasUpdate ? (
+                    <span>🚀 新しいバージョン（v{checkResult.latestVersion}）が見つかりました！</span>
+                  ) : !checkResult.isOnline ? (
+                    <span>⚠️ オフラインのため確認できませんでした。インターネット接続をご確認ください。</span>
+                  ) : (
+                    <span>✅ 現在お使いのバージョンは最新です（v{checkResult.currentVersion}）。</span>
+                  )}
+                </div>
+
+                {checkResult.hasUpdate && (
+                  <button
+                    onClick={() => applyAppUpdate()}
+                    style={{
+                      background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '6px 14px',
+                      borderRadius: '999px',
+                      cursor: 'pointer',
+                      fontWeight: '800',
+                      fontSize: '12px',
+                      boxShadow: '0 2px 8px rgba(219, 39, 119, 0.3)',
+                    }}
+                    data-testid="settings-apply-update-btn"
+                  >
+                    今すぐバージョンアップ ❯
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </section>
 

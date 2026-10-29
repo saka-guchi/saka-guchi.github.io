@@ -13,6 +13,7 @@ import { calculateExamChartCompletion, calculateStreakDays } from '../utils/prog
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
 import { APP_VERSION, BUILD_TIMESTAMP } from '../version';
+import { checkForAppUpdate } from '../utils/version-checker';
 import styles from './HomePage.module.css';
 
 type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
@@ -40,6 +41,22 @@ export const HomePage: React.FC = () => {
   // 合格カルテ完成度（%）と連続学習日数（ストリーク）の動的計算
   const [completionPercent, setCompletionPercent] = useState<number>(() => calculateExamChartCompletion());
   const [studyStreak, setStudyStreak] = useState<number>(0);
+  const [manualCheckStatus, setManualCheckStatus] = useState<string | null>(null);
+
+  const handleManualUpdateCheck = async () => {
+    sound.playPop();
+    setManualCheckStatus('checking');
+    const res = await checkForAppUpdate();
+    if (res.hasUpdate) {
+      setManualCheckStatus('update-available');
+    } else if (!res.isOnline) {
+      setManualCheckStatus('offline');
+      setTimeout(() => setManualCheckStatus(null), 3000);
+    } else {
+      setManualCheckStatus('latest');
+      setTimeout(() => setManualCheckStatus(null), 3000);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -727,8 +744,38 @@ export const HomePage: React.FC = () => {
       </main>
 
       {/* フッター: バージョン表記と設定へのリンク */}
-      <footer style={{ textAlign: 'center', padding: '16px 0 24px', fontSize: '12px', color: 'var(--text-subtle)' }} data-testid="home-footer-version">
+      <footer style={{ textAlign: 'center', padding: '16px 0 24px', fontSize: '12px', color: 'var(--text-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }} data-testid="home-footer-version">
         <span>みならい獣医さんの中学受験カルテ v{APP_VERSION} ({BUILD_TIMESTAMP})</span>
+
+        {/* 手動バージョン更新チェックボタン */}
+        <button
+          onClick={handleManualUpdateCheck}
+          disabled={manualCheckStatus === 'checking'}
+          style={{
+            background: manualCheckStatus === 'update-available' ? '#fdf4ff' : 'var(--surface-subtle)',
+            border: manualCheckStatus === 'update-available' ? '1.5px solid #d946ef' : '1px solid var(--border)',
+            borderRadius: '999px',
+            padding: '3px 10px',
+            color: manualCheckStatus === 'update-available' ? '#86198f' : 'var(--primary)',
+            cursor: 'pointer',
+            fontSize: '11px',
+            fontWeight: '800',
+            transition: 'all 0.2s ease',
+          }}
+          title="最新バージョンがないかサーバーを確認します"
+          data-testid="manual-update-check-btn"
+        >
+          {manualCheckStatus === 'checking'
+            ? '🔄 確認中...'
+            : manualCheckStatus === 'update-available'
+            ? '🚀 新バージョンあり！'
+            : manualCheckStatus === 'latest'
+            ? '✅ 最新版です'
+            : manualCheckStatus === 'offline'
+            ? '⚠️ オフライン'
+            : '🔄 更新をチェック'}
+        </button>
+
         <button
           onClick={() => {
             sound.playPop();
@@ -740,7 +787,6 @@ export const HomePage: React.FC = () => {
             color: '#c2410c',
             textDecoration: 'underline',
             cursor: 'pointer',
-            marginLeft: '8px',
             fontSize: '12px',
             fontWeight: 'bold',
           }}
@@ -759,7 +805,6 @@ export const HomePage: React.FC = () => {
             color: 'var(--primary)',
             textDecoration: 'underline',
             cursor: 'pointer',
-            marginLeft: '8px',
             fontSize: '12px',
           }}
         >

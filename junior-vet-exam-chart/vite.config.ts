@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import fs from 'node:fs';
+import path from 'node:path';
 import pkg from './package.json';
 
 // 日本標準時（JST: UTC+9）でタイムスタンプを生成（GitHub Actions等のUTCサーバーでも日本時間で記録）
@@ -20,6 +22,21 @@ const getJstTimestamp = () => {
 };
 const buildTimestamp = getJstTimestamp();
 
+// public/version.json を最新バージョン・ビルド日時で同期
+try {
+  const publicDir = path.resolve(__dirname, 'public');
+  if (!fs.existsSync(publicDir)) {
+    fs.mkdirSync(publicDir, { recursive: true });
+  }
+  fs.writeFileSync(
+    path.resolve(publicDir, 'version.json'),
+    JSON.stringify({ version: pkg.version, buildTimestamp }, null, 2),
+    'utf-8'
+  );
+} catch (e) {
+  console.warn('version.json sync warning:', e);
+}
+
 export default defineConfig({
   base: process.env.VITE_BASE_PATH || './',
   define: {
@@ -34,6 +51,12 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
+        runtimeCaching: [
+          {
+            urlPattern: /version\.json$/,
+            handler: 'NetworkOnly',
+          },
+        ],
       },
       includeAssets: [
         'favicon.svg',
