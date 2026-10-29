@@ -85,6 +85,17 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     const printButton = screen.getByTestId('print-worksheet-btn');
     fireEvent.click(printButton);
     expect(window.print).toHaveBeenCalled();
+
+    // 印刷専用ワークシートの存在確認
+    const worksheet = screen.getByTestId('print-weakness-worksheet');
+    expect(worksheet).toBeInTheDocument();
+    expect(worksheet).toHaveTextContent('🩺 みならい獣医さんの中学受験カルテ 【A4弱点集中 克服チェックシート】');
+    expect(worksheet).toHaveTextContent('【第1問】');
+    expect(worksheet).toHaveTextContent('【第2問】');
+    expect(worksheet).toHaveTextContent('【第3問】');
+    expect(worksheet).toHaveTextContent('💡 急所ポイント＆解法のコツ:');
+    expect(worksheet).toHaveTextContent('保護者確認印');
+    expect(worksheet).toHaveTextContent('問1 答え:');
   });
 
   it('triggers onStartWeaknessQuiz callback when weakness challenge button is clicked', async () => {

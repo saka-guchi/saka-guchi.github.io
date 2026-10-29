@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../db';
 import { ALL_PROGRESS_SKILLS } from '../data/all-skills';
+import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
 import { getMemoryRetention } from '../utils/memory-retention';
 import { ANIMAL_STAMPS, getEarnedStampIds } from '../data/animal-stamps';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
 import type { FinalChallengeResult } from '../types';
+import styles from './ParentDashboardModal.module.css';
 
 interface ParentDashboardModalProps {
   onClose: () => void;
@@ -91,6 +93,22 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
     .sort((a, b) => a.retention - b.retention)
     .slice(0, 3);
 
+  // A4弱点克服チェックシート用データ（TOP3単元）
+  const worksheetItems = weakestSkills.map((skill, idx) => {
+    const enhancement = THEME_ENHANCEMENTS[skill.id];
+    return {
+      number: idx + 1,
+      skillId: skill.id,
+      subjectLabel: skill.subject === 'rika' ? '🧪 理科' : skill.subject === 'sansu' ? '📐 算数' : '🗾 社会',
+      title: skill.title,
+      tip: enhancement?.flashCard.tip || skill.nextGoalHint || '基本の考え方をしっかり整理しよう。',
+      examPoint: enhancement?.flashCard.examPoint || '',
+      question: enhancement?.flashCard.question || `【${skill.title}】の重要ポイントを説明し、解法の道筋を書きなさい。`,
+      answer: enhancement?.flashCard.answer || '基本解説を参照',
+      retention: skill.retention,
+    };
+  });
+
   // 動物シール
   const earnedStamps = getEarnedStampIds();
 
@@ -124,21 +142,23 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   const maxDailyCount = Math.max(15, ...dailyCounts.map(d => d.count));
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0, 0, 0, 0.65)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1100,
-        padding: '16px',
-        backdropFilter: 'blur(3px)',
-      }}
-      onClick={onClose}
-      data-testid="parent-dashboard-modal"
-    >
+    <>
+      <div
+        className={styles.screenOnlyModal}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.65)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1100,
+          padding: '16px',
+          backdropFilter: 'blur(3px)',
+        }}
+        onClick={onClose}
+        data-testid="parent-dashboard-modal"
+      >
       <div
         style={{
           background: 'var(--surface, #ffffff)',
@@ -681,6 +701,81 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
         </div>
       </div>
     </div>
+
+    {/* A4弱点集中 克服チェックシート（印刷・PDF出力専用） */}
+    <div className={styles.printOnlyWorksheet} data-testid="print-weakness-worksheet">
+      <header className={styles.sheetHeader}>
+        <div className={styles.sheetTitleRow}>
+          <div>
+            <h1 className={styles.sheetMainTitle}>
+              🩺 みならい獣医さんの中学受験カルテ 【A4弱点集中 克服チェックシート】
+            </h1>
+            <p className={styles.sheetSubTitle}>
+              〜 入試本番と同じように「紙と鉛筆」で書く！急所ポイントを声に出して読んでから挑戦しよう 〜
+            </p>
+          </div>
+        </div>
+        <div className={styles.sheetMetaBox}>
+          <div className={styles.metaField}>
+            実施日：<span className={styles.metaLine} style={{ minWidth: '90px' }}></span>
+          </div>
+          <div className={styles.metaField}>
+            なまえ：<span className={styles.metaLine} style={{ minWidth: '130px' }}></span>
+          </div>
+          <div className={styles.stampBox}>
+            💮 保護者確認印
+          </div>
+        </div>
+      </header>
+
+      <main className={styles.questionsContainer}>
+        {worksheetItems.map((item) => (
+          <div key={item.skillId} className={styles.questionBlock}>
+            <div className={styles.questionHeader}>
+              <div className={styles.questionBadgeTitle}>
+                <span className={styles.subjectBadge}>{item.subjectLabel}</span>
+                <span className={styles.questionTitle}>
+                  【第{item.number}問】 {item.title}
+                </span>
+              </div>
+              <span className={styles.retentionBadge}>忘却メーター: {item.retention}%</span>
+            </div>
+
+            <div className={styles.tipBox}>
+              <span className={styles.tipLabel}>💡 急所ポイント＆解法のコツ:</span>
+              {item.tip} {item.examPoint ? `(${item.examPoint})` : ''}
+            </div>
+
+            <div className={styles.promptText}>
+              <strong>［設問］</strong> {item.question}
+            </div>
+
+            <div className={styles.workingArea}>
+              <div className={styles.workingAreaLabel}>【計算・考え方メモ欄】</div>
+            </div>
+
+            <div className={styles.answerRow}>
+              <span>【答え】</span>
+              <span className={styles.answerBoxLine}></span>
+            </div>
+          </div>
+        ))}
+      </main>
+
+      <footer className={styles.sheetFooter}>
+        <div style={{ fontSize: '7.5pt', color: '#64748b', marginBottom: '4px', textAlign: 'center' }}>
+          🐾 間違えた問題はもう一度アプリで復習しよう！継続した積み重ねが合格への近道です。
+        </div>
+        <div className={styles.answerKeyRow}>
+          {worksheetItems.map((item) => (
+            <div key={item.skillId} className={styles.answerKeyItem}>
+              <strong>問{item.number} 答え:</strong> {item.answer}
+            </div>
+          ))}
+        </div>
+      </footer>
+    </div>
+  </>
   );
 };
 
