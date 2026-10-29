@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 import { ANIMAL_STAMPS, getEarnedStampIds } from '../data/animal-stamps';
-import { getMasteryLevelInfo } from '../utils/mastery-helper';
+import { getMasteryLevelInfo, getSkillStage, getNextGoalHint } from '../utils/mastery-helper';
 import { ALL_PROGRESS_SKILLS, type ComprehensiveSkillProgressItem } from '../data/all-skills';
 import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
 import { QuickFlashCardModal } from '../components/QuickFlashCardModal';
@@ -19,7 +19,7 @@ type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { startDailySession } = useAppStore();
+  const { startDailySession, startSkillFocusSession } = useAppStore();
   const [earnedStampIds, setEarnedStampIds] = useState<string[]>([]);
   const [showStampModal, setShowStampModal] = useState(false);
   const [openedStampIds, setOpenedStampIds] = useState<string[]>([]);
@@ -35,6 +35,7 @@ export const HomePage: React.FC = () => {
   const [selectedSkillSubject, setSelectedSkillSubject] = useState<'all' | 'rika' | 'sansu' | 'shakai'>('all');
   const [selectedStudySubject, setSelectedStudySubject] = useState<'all' | 'rika' | 'sansu' | 'shakai'>('all');
   const [, setRetentionTick] = useState(0);
+  const [, setSkillStagesTick] = useState(0);
 
   // 合格カルテ完成度（%）と連続学習日数（ストリーク）の動的計算
   const [completionPercent, setCompletionPercent] = useState<number>(() => calculateExamChartCompletion());
@@ -43,10 +44,15 @@ export const HomePage: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
 
-    // 記憶定着度更新時・ストリーク更新時の同期リスナー
+    // 記憶定着度更新時・ストリーク更新時・スキルステージ更新時の同期リスナー
     const handleRetentionUpdate = () => {
       if (!isMounted) return;
       setRetentionTick(t => t + 1);
+      setCompletionPercent(calculateExamChartCompletion());
+    };
+    const handleSkillStageUpdate = () => {
+      if (!isMounted) return;
+      setSkillStagesTick(t => t + 1);
       setCompletionPercent(calculateExamChartCompletion());
     };
     const handleStreakUpdate = (e: any) => {
@@ -61,6 +67,7 @@ export const HomePage: React.FC = () => {
     };
 
     window.addEventListener('memory-retention-updated', handleRetentionUpdate);
+    window.addEventListener('skill-stage-updated', handleSkillStageUpdate);
     window.addEventListener('study-streak-updated', handleStreakUpdate);
 
     // 初期マウント時のストリーク計算
@@ -71,6 +78,7 @@ export const HomePage: React.FC = () => {
     return () => {
       isMounted = false;
       window.removeEventListener('memory-retention-updated', handleRetentionUpdate);
+      window.removeEventListener('skill-stage-updated', handleSkillStageUpdate);
       window.removeEventListener('study-streak-updated', handleStreakUpdate);
     };
   }, []);
@@ -138,8 +146,21 @@ export const HomePage: React.FC = () => {
     setShowStampModal(true);
   };
 
+  // 全スキルの動的ステージ反映
+  const enrichedSkills: ComprehensiveSkillProgressItem[] = ALL_PROGRESS_SKILLS.map(skill => {
+    const stage = getSkillStage(skill.id, skill.stage);
+    const isMastered = stage === 'M4' || stage === 'M5';
+    const nextGoalHint = getNextGoalHint(stage);
+    return {
+      ...skill,
+      stage,
+      isMastered,
+      nextGoalHint,
+    };
+  });
+
   // 科目別フィルター（小学生向け科目タブ：すべて・理科・算数・社会）
-  const filteredSkills = ALL_PROGRESS_SKILLS.filter(skill => {
+  const filteredSkills = enrichedSkills.filter(skill => {
     if (selectedSkillSubject === 'all') return true;
     return skill.subject === selectedSkillSubject;
   });
@@ -148,9 +169,9 @@ export const HomePage: React.FC = () => {
   const remainingCount = filteredSkills.length - masteredCount;
 
   // 各教科のスキル数カウント
-  const rikaCount = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'rika').length;
-  const sansuCount = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'sansu').length;
-  const shakaiCount = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'shakai').length;
+  const rikaCount = enrichedSkills.filter(s => s.subject === 'rika').length;
+  const sansuCount = enrichedSkills.filter(s => s.subject === 'sansu').length;
+  const shakaiCount = enrichedSkills.filter(s => s.subject === 'shakai').length;
 
   const themeIcons: Record<ThemeType, string> = {
     default: '🩺 クリニック',
@@ -504,18 +525,33 @@ export const HomePage: React.FC = () => {
                         <strong data-testid={`retention-score-${skill.id}`}>{retention}%</strong>
                       </div>
 
-                      <button
-                        className={styles.quickFlashBtn}
-                        onClick={() => {
-                          sound.playPop();
-                          setFlashCardSkillId(skill.id);
-                        }}
-                        title="重要ポイントをサクッと復習して記憶メーターをアップ！"
-                        data-testid={`quick-flash-btn-${skill.id}`}
-                      >
-                        <span>📇 サクッと暗記カード</span>
-                        <span className={styles.btnArrow}>❯</span>
-                      </button>
+                      <div className={styles.skillActionGroup}>
+                        <button
+                          className={styles.focusStudyBtn}
+                          onClick={() => {
+                            sound.playChime();
+                            startSkillFocusSession(skill.id);
+                            navigate('/study');
+                          }}
+                          title="この単元の問題を集中的に解いてレベルアップ！"
+                          data-testid={`focus-study-btn-${skill.id}`}
+                        >
+                          <span>🎯 この単元を特訓してLvアップ！</span>
+                          <span className={styles.btnArrow}>❯</span>
+                        </button>
+
+                        <button
+                          className={styles.quickFlashBtnSecondary}
+                          onClick={() => {
+                            sound.playPop();
+                            setFlashCardSkillId(skill.id);
+                          }}
+                          title="重要ポイントをサクッと復習して記憶メーターをアップ！"
+                          data-testid={`quick-flash-btn-${skill.id}`}
+                        >
+                          <span>📇 暗記カード</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -573,18 +609,33 @@ export const HomePage: React.FC = () => {
                         <strong data-testid={`retention-score-${skill.id}`}>{retention}%</strong>
                       </div>
 
-                      <button
-                        className={styles.quickFlashBtn}
-                        onClick={() => {
-                          sound.playPop();
-                          setFlashCardSkillId(skill.id);
-                        }}
-                        title="重要ポイントをサクッと復習して記憶メーターをアップ！"
-                        data-testid={`quick-flash-btn-mastered-${skill.id}`}
-                      >
-                        <span>📇 サクッと暗記カード</span>
-                        <span className={styles.btnArrow}>❯</span>
-                      </button>
+                      <div className={styles.skillActionGroup}>
+                        <button
+                          className={styles.focusStudyBtn}
+                          onClick={() => {
+                            sound.playChime();
+                            startSkillFocusSession(skill.id);
+                            navigate('/study');
+                          }}
+                          title="この単元の問題を復習して全快をキープ！"
+                          data-testid={`focus-study-btn-mastered-${skill.id}`}
+                        >
+                          <span>🎯 この単元を復習</span>
+                          <span className={styles.btnArrow}>❯</span>
+                        </button>
+
+                        <button
+                          className={styles.quickFlashBtnSecondary}
+                          onClick={() => {
+                            sound.playPop();
+                            setFlashCardSkillId(skill.id);
+                          }}
+                          title="重要ポイントをサクッと復習して記憶メーターをアップ！"
+                          data-testid={`quick-flash-btn-mastered-${skill.id}`}
+                        >
+                          <span>📇 暗記カード</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -1038,6 +1089,12 @@ export const HomePage: React.FC = () => {
         <QuickFlashCardModal
           initialSkillId={flashCardSkillId}
           onClose={() => setFlashCardSkillId(null)}
+          onStartFocusSession={(skillId) => {
+            setFlashCardSkillId(null);
+            setShowParentModal(false);
+            startSkillFocusSession(skillId);
+            navigate('/study');
+          }}
         />
       )}
     </div>

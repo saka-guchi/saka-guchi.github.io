@@ -9,12 +9,14 @@ interface QuickFlashCardModalProps {
   initialSkillId?: string;
   onClose: () => void;
   onRetentionUpdated?: () => void;
+  onStartFocusSession?: (skillId: string) => void;
 }
 
 export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
   initialSkillId,
   onClose,
   onRetentionUpdated,
+  onStartFocusSession,
 }) => {
   const keys = Object.keys(THEME_ENHANCEMENTS);
   const initialIndex = initialSkillId ? Math.max(0, keys.indexOf(initialSkillId)) : 0;
@@ -174,24 +176,50 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
                 </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <button
-                  onClick={handleMastered}
-                  style={{
-                    padding: '8px 20px',
-                    borderRadius: 'var(--radius-pill)',
-                    background: '#10b981',
-                    color: '#ffffff',
-                    fontWeight: 'bold',
-                    fontSize: '13px',
-                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-                    cursor: 'pointer',
-                    border: 'none',
-                  }}
-                  data-testid="flashcard-remembered-btn"
-                >
-                  🎉 思い出せた！（記憶メーターUP）
-                </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <button
+                    onClick={handleMastered}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: 'var(--radius-pill)',
+                      background: '#10b981',
+                      color: '#ffffff',
+                      fontWeight: 'bold',
+                      fontSize: '12px',
+                      boxShadow: '0 3px 8px rgba(16, 185, 129, 0.3)',
+                      cursor: 'pointer',
+                      border: 'none',
+                    }}
+                    data-testid="flashcard-remembered-btn"
+                  >
+                    🎉 思い出せた！（記憶メーターUP）
+                  </button>
+
+                  {onStartFocusSession && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        sound.playChime();
+                        onStartFocusSession(item.skillId);
+                      }}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 'var(--radius-pill)',
+                        background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
+                        color: '#ffffff',
+                        fontWeight: 'bold',
+                        fontSize: '12px',
+                        boxShadow: '0 3px 8px rgba(219, 39, 119, 0.35)',
+                        cursor: 'pointer',
+                        border: 'none',
+                      }}
+                      data-testid="flashcard-start-focus-btn"
+                    >
+                      🎯 今すぐLvアップ問題に挑戦！ ❯
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

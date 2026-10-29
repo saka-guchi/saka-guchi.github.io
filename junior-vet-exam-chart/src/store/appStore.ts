@@ -2,12 +2,23 @@ import { create } from 'zustand';
 import type { Settings, Subject } from '../types';
 import { SAMPLE_QUESTIONS, type SampleQuestion } from '../data/sample-data';
 import { ALL_CURRICULUM_QUESTIONS } from '../data/curriculum';
+import { ALL_PROGRESS_SKILLS } from '../data/all-skills';
+import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
+import { promoteSkillStage } from '../utils/mastery-helper';
 
 export interface SessionAnswerRecord {
   question: SampleQuestion;
   userAnswer: any;
   isCorrect: boolean;
   directRecall: boolean;
+}
+
+export interface PromotedSkillResult {
+  skillId: string;
+  skillTitle: string;
+  prevStage: string;
+  newStage: string;
+  isMastered: boolean;
 }
 
 interface AppState {
@@ -27,8 +38,13 @@ interface AppState {
   correctCount: number;
   sessionResults: SessionAnswerRecord[];
 
+  // 単元特訓・昇格セッション
+  currentFocusSkillId: string | null;
+  promotedSkillInfo: PromotedSkillResult | null;
+
   // セッション操作
   startDailySession: (subject?: Subject) => void;
+  startSkillFocusSession: (skillId: string) => void;
   startSampleSession: () => void;
   revealChoices: () => void;
   showHint: () => void;
@@ -78,6 +94,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   correctCount: 0,
   sessionResults: [],
 
+  currentFocusSkillId: null,
+  promotedSkillInfo: null,
+
   startDailySession: (subject) => {
     let pool = ALL_CURRICULUM_QUESTIONS;
     if (subject) {
@@ -87,7 +106,71 @@ export const useAppStore = create<AppState>((set, get) => ({
     const questions = [...pool].sort(() => 0.5 - Math.random()).slice(0, count);
 
     set({
+      currentFocusSkillId: null,
+      promotedSkillInfo: null,
       currentSessionQuestions: questions,
+      currentIndex: 0,
+      recallPhase: true,
+      hintLevel: 0,
+      currentAnswered: false,
+      currentUserAnswer: null,
+      currentIsCorrect: null,
+      directRecallCount: 0,
+      correctCount: 0,
+      sessionResults: [],
+    });
+  },
+
+  startSkillFocusSession: (skillId) => {
+    const skill = ALL_PROGRESS_SKILLS.find(s => s.id === skillId);
+    const enhancement = THEME_ENHANCEMENTS[skillId];
+
+    // そのスキルに合致する問題を抽出
+    let matched = ALL_CURRICULUM_QUESTIONS.filter(
+      q => q.skillId === skillId || (skill && q.skillTitle === skill.title)
+    );
+
+    // もし合致問題がなければ、該当科目の問題からフォールバック
+    if (matched.length === 0 && skill) {
+      matched = ALL_CURRICULUM_QUESTIONS.filter(q => q.subject === skill.subject);
+    }
+
+    // 単元特訓用に3問〜5問を構成
+    let focusQuestions: SampleQuestion[] = [...matched].slice(0, 5);
+
+    // もし問題プールが空の場合、単元データから特訓問題を生成
+    if (focusQuestions.length === 0 && skill) {
+      focusQuestions = [{
+        id: `focus-${skillId}-1`,
+        subject: skill.subject,
+        format: 'multiple_choice',
+        prompt: enhancement?.flashCard.question || `【${skill.title}】の重要ポイントとして正しいものはどれですか？`,
+        category: skill.category,
+        skillTitle: skill.title,
+        skillId: skill.id,
+        choices: [
+          { id: 'c1', label: 'ア', text: enhancement?.flashCard.answer || '正しい解法・知識', isCorrect: true },
+          { id: 'c2', label: 'イ', text: '誤った説明・逆の組み合わせ', isCorrect: false },
+          { id: 'c3', label: 'ウ', text: '無関係な条件', isCorrect: false },
+          { id: 'c4', label: 'エ', text: '逆の手順', isCorrect: false },
+        ],
+        correctAnswer: 'c1',
+        hints: [
+          { level: 1, text: enhancement?.flashCard.tip || '基本原理を思い出そう。' },
+          { level: 2, text: enhancement?.flashCard.examPoint || '急所ポイントに着目しよう。' },
+        ],
+        explanation: {
+          resultSummary: '正解です！',
+          keyTakeaway: skill.title,
+          reasoning: enhancement?.flashCard.examPoint || '急所を正確に押さえましょう。',
+        },
+      }];
+    }
+
+    set({
+      currentFocusSkillId: skillId,
+      promotedSkillInfo: null,
+      currentSessionQuestions: focusQuestions,
       currentIndex: 0,
       recallPhase: true,
       hintLevel: 0,
@@ -137,6 +220,16 @@ export const useAppStore = create<AppState>((set, get) => ({
       const newResults = [...state.sessionResults];
       newResults[state.currentIndex] = newRecord;
 
+      let promotedSkillInfo = state.promotedSkillInfo;
+      if (state.currentFocusSkillId && isCorrect && !promotedSkillInfo) {
+        const skill = ALL_PROGRESS_SKILLS.find(s => s.id === state.currentFocusSkillId);
+        const skillTitle = skill?.title || currentQ?.skillTitle || '重点単元';
+        const promo = promoteSkillStage(state.currentFocusSkillId, skillTitle);
+        if (promo) {
+          promotedSkillInfo = promo;
+        }
+      }
+
       return {
         currentAnswered: true,
         currentUserAnswer: answer,
@@ -145,6 +238,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         directRecallCount: directRecall ? state.directRecallCount + 1 : state.directRecallCount,
         correctCount: isCorrect ? state.correctCount + 1 : state.correctCount,
         sessionResults: newResults,
+        promotedSkillInfo,
       };
     });
   },
@@ -175,6 +269,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       currentUserAnswer: null,
       currentIsCorrect: null,
       sessionResults: [],
+      currentFocusSkillId: null,
+      promotedSkillInfo: null,
     });
   },
 }));

@@ -1,3 +1,6 @@
+import { db } from '../db';
+import type { MasteryStage } from '../types';
+
 export interface MasteryLevelInfo {
   stage: string;
   label: string;          // 例: '🌱 みならい助手 (Lv.1)'
@@ -5,6 +8,113 @@ export interface MasteryLevelInfo {
   badgeColor: string;
   badgeBg: string;
   description: string;
+}
+
+const STAGE_STORAGE_PREFIX = 'junior_vet_skill_stage_';
+
+/**
+ * スキルの現在の習得レベル（ステージ M0〜M6）を動的に取得する
+ */
+export function getSkillStage(skillId: string, defaultStage: MasteryStage = 'M2'): MasteryStage {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const saved = localStorage.getItem(`${STAGE_STORAGE_PREFIX}${skillId}`);
+      if (saved && ['M0', 'M1', 'M2', 'M3', 'M4', 'M5', 'M6'].includes(saved)) {
+        return saved as MasteryStage;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return defaultStage;
+}
+
+/**
+ * スキルの習得レベル（ステージ）を更新・永続化する
+ */
+export function setSkillStage(skillId: string, stage: MasteryStage): void {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(`${STAGE_STORAGE_PREFIX}${skillId}`, stage);
+    }
+
+    // IndexedDB にも非同期同期
+    db.masteries.put({
+      skillId,
+      stage,
+      score: stage === 'M5' ? 100 : stage === 'M4' ? 95 : stage === 'M3' ? 80 : stage === 'M2' ? 60 : 40,
+      lastUpdated: Date.now(),
+      consecutiveDirectRecallCount: 0,
+      whyChoiceSuccessCount: 0,
+      transferSuccessCount: 0,
+      differentContextSuccessCount: 0,
+    }).catch(() => {});
+
+    // ホーム画面等の関連表示へ即時同期
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('skill-stage-updated', {
+        detail: {
+          skillId,
+          stage,
+          isMastered: stage === 'M4' || stage === 'M5' || stage === 'M6',
+        },
+      }));
+    }
+  } catch {
+    // ignore
+  }
+}
+
+/**
+ * スキルを1段階レベルアップ（昇格）させる
+ */
+export function promoteSkillStage(
+  skillId: string,
+  skillTitle: string = '重点単元',
+  fallbackDefaultStage: MasteryStage = 'M2'
+): { skillId: string; skillTitle: string; prevStage: string; newStage: string; isMastered: boolean } {
+  const current = getSkillStage(skillId, fallbackDefaultStage);
+  let next: MasteryStage = current;
+
+  switch (current) {
+    case 'M0': next = 'M1'; break;
+    case 'M1': next = 'M2'; break;
+    case 'M2': next = 'M3'; break;
+    case 'M3': next = 'M4'; break;
+    case 'M4': next = 'M5'; break;
+    default: next = 'M4'; break;
+  }
+
+  setSkillStage(skillId, next);
+  const isMastered = (next as string) === 'M4' || (next as string) === 'M5' || (next as string) === 'M6';
+  return {
+    skillId,
+    skillTitle,
+    prevStage: current,
+    newStage: next,
+    isMastered,
+  };
+}
+
+/**
+ * ステージに応じた次のレベルアップ目標ヒントを動的に生成する
+ */
+export function getNextGoalHint(stage: string): string {
+  switch (stage) {
+    case 'M0':
+    case 'M1':
+      return '選択肢なしでパッと思い出せるとLv.2へ！';
+    case 'M2':
+      return '「なぜそうなるか」理由問題に正解でLv.3へ！';
+    case 'M3':
+      return '場面が変わった応用問題に正解でLv.4マスター！';
+    case 'M4':
+    case 'M5':
+    case 'M6':
+      return 'マスター達成済み！カギ獲得完了🎉';
+    default:
+      return '問題を解いて定着させよう！';
+  }
 }
 
 export function getMasteryLevelInfo(stage: string): MasteryLevelInfo {

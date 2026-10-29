@@ -127,7 +127,14 @@ const MistakeReviewCard: React.FC<{ record: SessionAnswerRecord; index: number }
 
 export const ResultPage: React.FC = () => {
   const navigate = useNavigate();
-  const { currentSessionQuestions, correctCount, directRecallCount, sessionResults, resetSession } = useAppStore();
+  const {
+    currentSessionQuestions,
+    correctCount,
+    directRecallCount,
+    sessionResults,
+    promotedSkillInfo,
+    resetSession,
+  } = useAppStore();
   const [earnedStamp, setEarnedStamp] = useState<AnimalStamp | null>(null);
 
   useEffect(() => {
@@ -224,6 +231,30 @@ export const ResultPage: React.FC = () => {
           <p className={styles.subtitle}>
             今日のカルテが更新され、動物たちが元気になりました！
           </p>
+
+        {/* 単元特訓レベルアップ祝賀バナー */}
+        {promotedSkillInfo && (
+          <div
+            style={{
+              margin: '16px 0',
+              padding: '16px 20px',
+              background: 'linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%)',
+              border: '2px solid #d946ef',
+              borderRadius: '16px',
+              textAlign: 'center',
+              boxShadow: '0 4px 14px rgba(217, 70, 239, 0.2)',
+            }}
+            data-testid="promoted-skill-banner"
+          >
+            <div style={{ fontSize: '28px', marginBottom: '4px' }}>🆙 ⭐ 🎉</div>
+            <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#86198f' }}>
+              【{promotedSkillInfo.skillTitle}】がレベルアップ！
+            </div>
+            <div style={{ fontSize: '14px', color: '#a21caf', marginTop: '4px' }}>
+              ステージが <strong>{promotedSkillInfo.prevStage}</strong> から <strong>{promotedSkillInfo.newStage}</strong> へ成長しました！
+            </div>
+          </div>
+        )}
 
         {/* 動物スタンプ獲得カード */}
         {earnedStamp && (
