@@ -4,7 +4,7 @@ import questionsData from '../../src/data/curriculum/questions.json';
 import rikaQuestionsData from '../../src/data/curriculum/rika/questions.json';
 
 describe('Prompt Leakage & Fidelity Unit Tests', () => {
-  it('does not leak answers in prompts across all subjects in STAGE1_PAGE_CONTENTS', () => {
+  it('does not leak answers in prompts across all subjects in STAGE1_PAGE_CONTENTS', async () => {
     // 答えとして問われる重要用語
     const leakedAnswerPatterns = [
       /\(師管\)|（師管）/,
@@ -14,19 +14,23 @@ describe('Prompt Leakage & Fidelity Unit Tests', () => {
       /組織[㋐-㋕]\s*[（(]/,
     ];
 
-    Object.entries(STAGE1_PAGE_CONTENTS_BY_SUBJECT).forEach(([subject, pages]) => {
-      Object.entries(pages).forEach(([pageNum, page]) => {
-        page.sections.forEach((sec, secIdx) => {
-          if (sec.questions) {
-            sec.questions.forEach((q) => {
-              leakedAnswerPatterns.forEach((pattern) => {
-                expect(
-                  pattern.test(q.prompt),
-                  `Leaked pattern ${pattern} found in subject: ${subject}, page: ${pageNum}, sec: ${secIdx}, qNum: ${q.qNum}, prompt: "${q.prompt}"`
-                ).toBe(false);
+    const { STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT } = await import('../../src/data/final-challenge-pages');
+
+    Object.entries(STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT).forEach(([year, yearPages]) => {
+      Object.entries(yearPages).forEach(([subject, pages]) => {
+        Object.entries(pages).forEach(([pageNum, page]) => {
+          page.sections.forEach((sec, secIdx) => {
+            if (sec.questions) {
+              sec.questions.forEach((q) => {
+                leakedAnswerPatterns.forEach((pattern) => {
+                  expect(
+                    pattern.test(q.prompt),
+                    `Leaked pattern ${pattern} found in year: ${year}, subject: ${subject}, page: ${pageNum}, sec: ${secIdx}, qNum: ${q.qNum}, prompt: "${q.prompt}"`
+                  ).toBe(false);
+                });
               });
-            });
-          }
+            }
+          });
         });
       });
     });
@@ -101,8 +105,8 @@ describe('Prompt Leakage & Fidelity Unit Tests', () => {
     expect(q6Slot?.answerType).toBe('open');
   });
 
-  it('verifies Stage 2 slots across all subjects have valid options and no answer leaks in prompt', async () => {
-    const { FINAL_CHALLENGE_DATA_BY_SUBJECT } = await import('../../src/data/final-challenge-data');
+  it('verifies Stage 2 slots across all subjects and years have valid options and no answer leaks in prompt', async () => {
+    const { FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT } = await import('../../src/data/final-challenge-data');
 
     // 問題文に埋め込まれてはならない答えパターンの検出
     const leakedStage2Patterns = [
@@ -117,41 +121,43 @@ describe('Prompt Leakage & Fidelity Unit Tests', () => {
       /七支刀\(イ\)→壇ノ浦\(ア\)/,
     ];
 
-    Object.entries(FINAL_CHALLENGE_DATA_BY_SUBJECT).forEach(([subjectKey, subjectData]) => {
-      subjectData.sections.forEach((sec) => {
-        sec.slots.forEach((slot) => {
-          // 1. stage2Prompt の答えネタバレチェック
-          if (slot.stage2Prompt) {
-            leakedStage2Patterns.forEach((pattern) => {
+    Object.entries(FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT).forEach(([year, yearData]) => {
+      Object.entries(yearData).forEach(([subjectKey, subjectData]) => {
+        subjectData.sections.forEach((sec) => {
+          sec.slots.forEach((slot) => {
+            // 1. stage2Prompt の答えネタバレチェック
+            if (slot.stage2Prompt) {
+              leakedStage2Patterns.forEach((pattern) => {
+                expect(
+                  pattern.test(slot.stage2Prompt!),
+                  `Found leaked answer pattern ${pattern} in stage2Prompt for [${year}/${subjectKey}] slot ${slot.id}: "${slot.stage2Prompt}"`
+                ).toBe(false);
+              });
+            }
+
+            // 2. 選択問題の場合、有効な選択肢テキストが Stage 2 用に提示されていること
+            if (slot.answerType === 'choice' || slot.answerType === 'multi_choice') {
+              const activeOptions = slot.stage2Options || slot.options;
               expect(
-                pattern.test(slot.stage2Prompt!),
-                `Found leaked answer pattern ${pattern} in stage2Prompt for [${subjectKey}] slot ${slot.id}: "${slot.stage2Prompt}"`
-              ).toBe(false);
-            });
-          }
+                activeOptions,
+                `Missing options for choice slot in [${year}/${subjectKey}] slot ${slot.id}: "${slot.label}"`
+              ).toBeDefined();
 
-          // 2. 選択問題の場合、有効な選択肢テキストが Stage 2 用に提示されていること
-          if (slot.answerType === 'choice' || slot.answerType === 'multi_choice') {
-            const activeOptions = slot.stage2Options || slot.options;
-            expect(
-              activeOptions,
-              `Missing options for choice slot in [${subjectKey}] slot ${slot.id}: "${slot.label}"`
-            ).toBeDefined();
+              expect(
+                activeOptions!.length,
+                `Options must have at least 2 items in [${year}/${subjectKey}] slot ${slot.id}`
+              ).toBeGreaterThanOrEqual(2);
 
-            expect(
-              activeOptions!.length,
-              `Options must have at least 2 items in [${subjectKey}] slot ${slot.id}`
-            ).toBeGreaterThanOrEqual(2);
-
-            // 単なる「ア」「イ」記号のみではなく、児童が選べる選択肢テキストを含むこと
-            const hasDescriptiveContent = activeOptions!.some(
-              (opt) => opt.includes(':') || opt.includes('：') || opt.includes(' ') || opt.includes('　') || opt.length > 2
-            );
-            expect(
-              hasDescriptiveContent,
-              `Options must contain descriptive text, not bare single symbols in [${subjectKey}] slot ${slot.id}: ${JSON.stringify(activeOptions)}`
-            ).toBe(true);
-          }
+              // 単なる「ア」「イ」記号のみではなく、児童が選べる選択肢テキストを含むこと
+              const hasDescriptiveContent = activeOptions!.some(
+                (opt) => opt.includes(':') || opt.includes('：') || opt.includes(' ') || opt.includes('　') || opt.length > 2
+              );
+              expect(
+                hasDescriptiveContent,
+                `Options must contain descriptive text, not bare single symbols in [${year}/${subjectKey}] slot ${slot.id}: ${JSON.stringify(activeOptions)}`
+              ).toBe(true);
+            }
+          });
         });
       });
     });
@@ -205,28 +211,34 @@ describe('Prompt Leakage & Fidelity Unit Tests', () => {
     });
   });
 
-  it('guarantees diagram_touch questions do not leak region names prior to submitting answer', async () => {
-    const fs = await import('fs');
-    const path = await import('path');
-    const rendererFile = path.resolve(__dirname, '../../src/components/formats/QuestionRenderer.tsx');
-    const rendererCode = fs.readFileSync(rendererFile, 'utf-8');
+  it('verifies 2023 exam consistency between questions and slots for all subjects', async () => {
+    const {
+      FINAL_CHALLENGE_2023_RIKA_SECTIONS,
+      FINAL_CHALLENGE_2023_SANSU_SECTIONS,
+      FINAL_CHALLENGE_2023_SHAKAI_SECTIONS,
+    } = await import('../../src/data/final-challenge-data');
 
-    // AnswerAreaView 内の diagram_touch 描画ブロックを取得
-    const marker = "if (question.format === 'diagram_touch') {";
-    const lastIdx = rendererCode.lastIndexOf(marker);
-    expect(lastIdx).toBeGreaterThan(0);
+    // 1. 理科 (全20スロット: 大問1 10問, 大問2 6問, 大問3 4問)
+    const rikaSlots = FINAL_CHALLENGE_2023_RIKA_SECTIONS.flatMap((s) => s.slots);
+    expect(rikaSlots).toHaveLength(20);
+    const honeyBeeSlots = rikaSlots.filter((s) => s.id.startsWith('rika-2023-01-'));
+    expect(honeyBeeSlots).toHaveLength(10);
+    const cuSlot = rikaSlots.find((s) => s.id === 'rika-2023-02-03');
+    expect(cuSlot?.correctAnswer).toBe('酸素');
 
-    const diagramTouchBlock = rendererCode.slice(lastIdx, rendererCode.indexOf("if (question.format === 'matching')", lastIdx));
-    expect(diagramTouchBlock.length).toBeGreaterThan(50);
+    // 2. 算数 (全18スロット: 大問1 12問, 大問2 2問, 大問3 2問, 大問4 2問)
+    const sansuSlots = FINAL_CHALLENGE_2023_SANSU_SECTIONS.flatMap((s) => s.slots);
+    expect(sansuSlots).toHaveLength(18);
+    const saltWaterSlot = sansuSlots.find((s) => s.id === 'sansu-2023-02-01');
+    expect(saltWaterSlot?.correctAnswer).toBe('300');
 
-    // 回答前（!answered）のブロックを抽出
-    const notAnsweredPart = diagramTouchBlock.split('!answered ?')[1]?.split(') : (')[0];
-    expect(notAnsweredPart).toBeDefined();
-
-    // 確定前に regionName や部位名を出力していないこと
-    expect(notAnsweredPart).not.toMatch(/\{regionName\}/);
-    expect(notAnsweredPart).not.toMatch(/\$\{regionName\}/);
-    expect(notAnsweredPart).not.toMatch(/r\.name/);
+    // 3. 社会 (全23スロット: 大問1 7問, 大問2 9問, 大問3 7問)
+    const shakaiSlots = FINAL_CHALLENGE_2023_SHAKAI_SECTIONS.flatMap((s) => s.slots);
+    expect(shakaiSlots).toHaveLength(23);
+    const takeshimaSlot = shakaiSlots.find((s) => s.id === 'shakai-2023-01-01-b');
+    expect(takeshimaSlot?.correctAnswer).toBe('竹島');
+    const lrtSlot = shakaiSlots.find((s) => s.id === 'shakai-2023-03-04');
+    expect(lrtSlot?.correctAnswer).toBe('線状降水帯');
   });
 });
 

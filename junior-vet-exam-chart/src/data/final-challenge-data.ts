@@ -932,7 +932,7 @@ export const FINAL_CHALLENGE_SHAKAI_SECTIONS: ChallengeSection[] = [
   },
 ];
 
-// 教科別データマップ
+// 教科別データマップ (2024年度)
 export const FINAL_CHALLENGE_DATA_BY_SUBJECT: Record<
   Subject,
   {
@@ -967,3 +967,34 @@ export const FINAL_CHALLENGE_DATA_BY_SUBJECT: Record<
 };
 
 export const TOTAL_PAGES = 7;
+
+// 2023年度データの再エクスポート
+export {
+  FINAL_CHALLENGE_2023_RIKA_SECTIONS,
+  FINAL_CHALLENGE_2023_SANSU_SECTIONS,
+  FINAL_CHALLENGE_2023_SHAKAI_SECTIONS,
+  FINAL_CHALLENGE_2023_DATA_BY_SUBJECT,
+} from './final-challenge-2023-data';
+
+import { FINAL_CHALLENGE_2023_DATA_BY_SUBJECT } from './final-challenge-2023-data';
+
+export type ExamYear = 2024 | 2023;
+export const SUPPORTED_EXAM_YEARS: ExamYear[] = [2024, 2023];
+
+export const FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT: Record<
+  ExamYear,
+  Record<
+    Subject,
+    {
+      subjectLabel: string;
+      icon: string;
+      sections: ChallengeSection[];
+      totalPages: number;
+      timeLimitMinutes: number;
+    }
+  >
+> = {
+  2024: FINAL_CHALLENGE_DATA_BY_SUBJECT,
+  2023: FINAL_CHALLENGE_2023_DATA_BY_SUBJECT,
+};
+

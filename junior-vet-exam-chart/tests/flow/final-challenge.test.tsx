@@ -214,5 +214,43 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
       expect(screen.getByText('合格ドクター認定試験 採点カルテ・成績表')).toBeInTheDocument();
     });
   });
+
+  it('switches exam year between 2024 and 2023, updating exam paper and answer slots', () => {
+    render(
+      <MemoryRouter>
+        <FinalChallengePage />
+      </MemoryRouter>
+    );
+
+    // 初期状態は2024年度・理科（7ページ）
+    expect(screen.getByTestId('year-tab-2024')).toBeInTheDocument();
+    expect(screen.getByTestId('year-tab-2023')).toBeInTheDocument();
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 7');
+
+    // 2023年度へ切り替え
+    fireEvent.click(screen.getByTestId('year-tab-2023'));
+
+    // 理科2023年度（5ページ、20スロット）へ更新されること
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 5');
+    const sheetArea = screen.getByTestId('challenge-answer-sheet');
+    expect(sheetArea).toHaveTextContent('大問 1: ミツバチの社会生活と日齢分業・完全変態');
+    expect(sheetArea).toHaveTextContent('全 20 欄');
+    expect(screen.getByTestId('slot-rika-2023-01-01-1')).toBeInTheDocument();
+    expect(screen.getByTestId('slot-rika-2023-01-02')).toBeInTheDocument();
+
+    // 算数へ切り替え（2023年度: 8ページ、18スロット）
+    fireEvent.click(screen.getByTestId('subject-tab-sansu'));
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 8');
+    expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 18 欄');
+    expect(screen.getByTestId('slot-sansu-2023-01-01')).toBeInTheDocument();
+    expect(screen.getByTestId('slot-sansu-2023-02-01')).toBeInTheDocument();
+
+    // 社会へ切り替え（2023年度: 10ページ、23スロット）
+    fireEvent.click(screen.getByTestId('subject-tab-shakai'));
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 10');
+    expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 23 欄');
+    expect(screen.getByTestId('slot-shakai-2023-01-01-a')).toBeInTheDocument();
+    expect(screen.getByTestId('slot-shakai-2023-01-01-b')).toBeInTheDocument();
+  });
 });
 

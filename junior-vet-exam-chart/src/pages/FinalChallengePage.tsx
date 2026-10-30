@@ -6,10 +6,14 @@ import {
   FINAL_CHALLENGE_DATA_BY_SUBJECT,
   FINAL_CHALLENGE_SECTIONS,
   TOTAL_PAGES,
+  SUPPORTED_EXAM_YEARS,
+  FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT,
+  type ExamYear,
 } from '../data/final-challenge-data';
 import {
   STAGE1_PAGE_CONTENTS,
   STAGE1_PAGE_CONTENTS_BY_SUBJECT,
+  STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT,
 } from '../data/final-challenge-pages';
 import { BUILTIN_YASUDA_PACK } from '../data/curriculum';
 import { DoctorCertificateModal } from '../components/DoctorCertificateModal';
@@ -19,14 +23,21 @@ import styles from './FinalChallengePage.module.css';
 
 export const FinalChallengePage: React.FC = () => {
   const navigate = useNavigate();
+  const [currentYear, setCurrentYear] = useState<ExamYear>(2024);
   const [currentSubject, setCurrentSubject] = useState<Subject>('rika');
   const [stage, setStage] = useState<1 | 2>(1);
+
   // 教科ごとの残り時間（秒）: 理科30分、算数50分、社会30分（各教科独立して保持し、切り替え時も経過時間を維持）
-  const [subjectTimes, setSubjectTimes] = useState<Record<Subject, number>>({
-    rika: FINAL_CHALLENGE_DATA_BY_SUBJECT.rika.timeLimitMinutes * 60,
-    sansu: FINAL_CHALLENGE_DATA_BY_SUBJECT.sansu.timeLimitMinutes * 60,
-    shakai: FINAL_CHALLENGE_DATA_BY_SUBJECT.shakai.timeLimitMinutes * 60,
-  });
+  const getInitialTimes = (yr: ExamYear): Record<Subject, number> => {
+    const data = FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[yr];
+    return {
+      rika: data.rika.timeLimitMinutes * 60,
+      sansu: data.sansu.timeLimitMinutes * 60,
+      shakai: data.shakai.timeLimitMinutes * 60,
+    };
+  };
+
+  const [subjectTimes, setSubjectTimes] = useState<Record<Subject, number>>(getInitialTimes(2024));
   const [showTimeUpModal, setShowTimeUpModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // p.1 (表紙) から開始
   const [zoom, setZoom] = useState(100);
@@ -49,7 +60,8 @@ export const FinalChallengePage: React.FC = () => {
     totalQuestions: number;
   } | null>(null);
 
-  const currentSubjectData = FINAL_CHALLENGE_DATA_BY_SUBJECT[currentSubject] || FINAL_CHALLENGE_DATA_BY_SUBJECT.rika;
+  const currentYearData = FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[currentYear] || FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[2024];
+  const currentSubjectData = currentYearData[currentSubject] || currentYearData.rika;
   const currentSections = currentSubjectData.sections;
   const currentTotalPages = currentSubjectData.totalPages;
 
@@ -61,6 +73,17 @@ export const FinalChallengePage: React.FC = () => {
       }
     });
   }, []);
+
+  // 年度切り替え
+  const handleYearChange = (newYear: ExamYear) => {
+    if (newYear === currentYear) return;
+    sound.playPop();
+    setCurrentYear(newYear);
+    setCurrentPage(1);
+    setAnswers({});
+    setRubricChecks({});
+    setSubjectTimes(getInitialTimes(newYear));
+  };
 
   // 科目切り替え（各教科の残り時間は保持されるためリセットされません）
   const handleSubjectChange = (newSubject: Subject) => {
@@ -141,7 +164,7 @@ export const FinalChallengePage: React.FC = () => {
     const score = Math.round((correctCount / totalQuestions) * 100);
     const passed = score >= 80;
 
-    const examPrefix = storedPack?.examId ? `${storedPack.examId}-${currentSubject}` : `yasuda-2024-${currentSubject}`;
+    const examPrefix = storedPack?.examId ? `${storedPack.examId}-${currentSubject}` : `yasuda-${currentYear}-${currentSubject}`;
     await db.finalChallengeResults.add({
       examId: examPrefix,
       stage,
@@ -175,15 +198,21 @@ export const FinalChallengePage: React.FC = () => {
 
   // 現在ページの画像（インポート済みの場合またはpublicフォールバック）
   const padPage = String(currentPage).padStart(3, '0');
-  const pageImageKey = `images/pages/${currentSubject}/mondai_p${padPage}.webp`;
-  const pageImageAltKey = `images/pages/${currentSubject}/mondai_p${padPage}.png`;
-  const publicFallback = `${import.meta.env.BASE_URL}pages/${currentSubject}/mondai_p${padPage}.webp`;
+  const pageImageKey = `images/pages/${currentYear}/${currentSubject}/mondai_p${padPage}.webp`;
+  const pageImageAltKey = `images/pages/${currentYear}/${currentSubject}/mondai_p${padPage}.png`;
+  const publicFallback =
+    currentYear === 2024
+      ? `${import.meta.env.BASE_URL}pages/${currentSubject}/mondai_p${padPage}.webp`
+      : `${import.meta.env.BASE_URL}pages/2023/${currentSubject}/mondai_p${padPage}.webp`;
   const pageImageData =
     storedPack?.images?.[pageImageKey] ||
     storedPack?.images?.[pageImageAltKey] ||
     publicFallback;
 
-  const subjectContents = STAGE1_PAGE_CONTENTS_BY_SUBJECT[currentSubject] || STAGE1_PAGE_CONTENTS;
+  const subjectContents =
+    STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT[currentYear]?.[currentSubject] ||
+    STAGE1_PAGE_CONTENTS_BY_SUBJECT[currentSubject] ||
+    STAGE1_PAGE_CONTENTS;
   const currentPageContent = subjectContents[currentPage];
 
   const currentTimeLeft = subjectTimes[currentSubject] ?? 0;
@@ -193,7 +222,7 @@ export const FinalChallengePage: React.FC = () => {
   return (
     <div className={styles.container} data-testid="final-challenge-page">
       <header className={styles.header}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <button
             className={styles.iconBtn}
             onClick={() => navigate('/')}
@@ -203,10 +232,25 @@ export const FinalChallengePage: React.FC = () => {
             ←
           </button>
 
+          {/* 年度切り替えセグメントコントロール */}
+          <div className={styles.subjectTabs} data-testid="challenge-year-tabs" style={{ background: '#f1f5f9' }}>
+            {SUPPORTED_EXAM_YEARS.map(yr => (
+              <button
+                key={yr}
+                className={`${styles.subjectTab} ${currentYear === yr ? styles.activeSubjectTab : ''}`}
+                onClick={() => handleYearChange(yr)}
+                data-testid={`year-tab-${yr}`}
+                style={{ padding: '6px 14px', fontSize: '13px' }}
+              >
+                📅 {yr}年度
+              </button>
+            ))}
+          </div>
+
           {/* 教科切り替えタブ */}
           <div className={styles.subjectTabs} data-testid="challenge-subject-tabs">
             {(['rika', 'sansu', 'shakai'] as Subject[]).map(sub => {
-              const info = FINAL_CHALLENGE_DATA_BY_SUBJECT[sub];
+              const info = currentYearData[sub];
               return (
                 <button
                   key={sub}
@@ -538,7 +582,7 @@ export const FinalChallengePage: React.FC = () => {
                   {currentPage === 1 && (
                     <div style={{ marginTop: '20px', lineHeight: '2' }}>
                       <p>
-                        本テストは、2024年度過去問（{currentSubjectData.subjectLabel}）と<strong>Skill構成・難易度・問われ方が同等</strong>で、題材や数値を変更した<strong>同等未見問題</strong>です。
+                        本テストは、{currentYear}年度過去問（{currentSubjectData.subjectLabel}）と<strong>Skill構成・難易度・問われ方が同等</strong>で、題材や数値を変更した<strong>同等未見問題</strong>です。
                       </p>
                       <p>
                         右側の解答用紙にすべての答えを記入してください。80点以上で合格、満点を達成すると「Master (M6)」に認定されます。
@@ -848,8 +892,8 @@ export const FinalChallengePage: React.FC = () => {
           }}
           examTitle={
             stage === 1
-              ? `2024年度 ${currentSubjectData.subjectLabel} 過去問`
-              : `Stage 2 ${currentSubjectData.subjectLabel} 同等未見問題`
+              ? `${currentYear}年度 ${currentSubjectData.subjectLabel} 過去問`
+              : `Stage 2 ${currentSubjectData.subjectLabel} (${currentYear}年度同等) 未見問題`
           }
           isPerfectScore={lastExamResult?.score === 100}
           hasMasterBadge={hasMasterBadge}

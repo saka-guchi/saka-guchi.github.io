@@ -591,4 +591,32 @@ export const STAGE1_PAGE_CONTENTS_BY_SUBJECT: Record<string, Record<number, Page
   shakai: STAGE1_PAGE_CONTENTS_SHAKAI,
 };
 
+// 2023年度ページコンテンツの再エクスポート
+export {
+  STAGE1_PAGE_CONTENTS_2023_RIKA,
+  STAGE1_PAGE_CONTENTS_2023_SANSU,
+  STAGE1_PAGE_CONTENTS_2023_SHAKAI,
+} from './final-challenge-2023-pages';
+
+import {
+  STAGE1_PAGE_CONTENTS_2023_RIKA,
+  STAGE1_PAGE_CONTENTS_2023_SANSU,
+  STAGE1_PAGE_CONTENTS_2023_SHAKAI,
+} from './final-challenge-2023-pages';
+
+export const STAGE1_PAGE_CONTENTS_2023_BY_SUBJECT: Record<string, Record<number, PageContent>> = {
+  rika: STAGE1_PAGE_CONTENTS_2023_RIKA,
+  sansu: STAGE1_PAGE_CONTENTS_2023_SANSU,
+  shakai: STAGE1_PAGE_CONTENTS_2023_SHAKAI,
+};
+
+export const STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT: Record<
+  number,
+  Record<string, Record<number, PageContent>>
+> = {
+  2024: STAGE1_PAGE_CONTENTS_BY_SUBJECT,
+  2023: STAGE1_PAGE_CONTENTS_2023_BY_SUBJECT,
+};
+
+
 

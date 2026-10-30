@@ -195,6 +195,7 @@ export const FinalExamHistoryModal: React.FC<FinalExamHistoryModalProps> = ({ on
                   {history.map(item => {
                     const sub = getSubjectInfo(item.examId);
                     const isPerfect = item.score === 100;
+                    const yearLabel = item.examId.includes('2023') ? '2023年度' : '2024年度';
 
                     return (
                       <div
@@ -217,6 +218,18 @@ export const FinalExamHistoryModal: React.FC<FinalExamHistoryModalProps> = ({ on
                           </span>
                           <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span
+                                style={{
+                                  fontSize: '11px',
+                                  fontWeight: 'bold',
+                                  padding: '1px 6px',
+                                  borderRadius: '6px',
+                                  background: '#f1f5f9',
+                                  color: '#475569',
+                                }}
+                              >
+                                {yearLabel}
+                              </span>
                               <span
                                 style={{
                                   fontSize: '12px',
@@ -293,13 +306,15 @@ export const FinalExamHistoryModal: React.FC<FinalExamHistoryModalProps> = ({ on
         const s1Passed = history.some(h => h.examId === examId && h.stage === 1 && h.passed);
         const s2Passed = history.some(h => h.examId === examId && h.stage === 2 && h.passed);
         const hasMasterBadge = s1Passed && s2Passed;
+        const certYear = examId.includes('2023') ? '2023年度' : '2024年度';
+
         return (
           <DoctorCertificateModal
             onClose={() => setSelectedCertResult(null)}
             examTitle={
               selectedCertResult.stage === 1
-                ? `2024年度 ${getSubjectInfo(selectedCertResult.examId).label} 過去問`
-                : `Stage 2 ${getSubjectInfo(selectedCertResult.examId).label} 同等未見問題`
+                ? `${certYear} ${getSubjectInfo(selectedCertResult.examId).label} 過去問`
+                : `Stage 2 ${getSubjectInfo(selectedCertResult.examId).label} (${certYear}同等) 未見問題`
             }
             isPerfectScore={selectedCertResult.score === 100}
             hasMasterBadge={hasMasterBadge}
