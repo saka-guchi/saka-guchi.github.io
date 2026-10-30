@@ -298,14 +298,6 @@
   color: var(--text-subtle);
 }
 
-.reportBtn {
-  font: var(--font-caption);
-  color: var(--text-subtle);
-  text-decoration: underline;
-  padding: 8px 0;
-  text-align: center;
-}
-
 /* 下部操作エリア */
 .bottomBar {
   height: 80px;

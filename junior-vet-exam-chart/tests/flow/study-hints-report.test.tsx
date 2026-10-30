@@ -94,7 +94,7 @@ describe('StudyPage Hints and Report Feature', () => {
     expect(reviewedSection).toHaveTextContent('ヒント2の内容です。');
   });
 
-  it('opens report modal and sends report when clicking "この問題はおかしい"', async () => {
+  it('does not display question report button (direct user communication policy)', async () => {
     const q = SAMPLE_QUESTIONS[0];
     useAppStore.setState({
       currentSessionQuestions: [q as any],
@@ -110,31 +110,9 @@ describe('StudyPage Hints and Report Feature', () => {
       </BrowserRouter>
     );
 
-    // 「この問題はおかしい」ボタンをクリック
-    const reportBtn = screen.getByTestId('report-question-btn');
-    fireEvent.click(reportBtn);
-
-    // モーダルが開く
-    expect(screen.getByTestId('question-report-modal')).toBeInTheDocument();
-    expect(screen.getByText('この問題について報告する')).toBeInTheDocument();
-
-    // コメントを入力
-    const textarea = screen.getByTestId('report-comment-input');
-    fireEvent.change(textarea, { target: { value: '図のラベルが一部見切れています' } });
-
-    // 「報告を送る」ボタンをクリック
-    const sendBtn = screen.getByTestId('send-report-btn');
-    fireEvent.click(sendBtn);
-
-    // 成功メッセージが表示される
-    expect(screen.getByTestId('report-success-message')).toBeInTheDocument();
-    expect(screen.getByText('ご報告ありがとうございます！')).toBeInTheDocument();
-
-    // localStorageに保存されていること
-    const reports = JSON.parse(localStorage.getItem('junior_vet_question_reports') || '[]');
-    expect(reports.length).toBe(1);
-    expect(reports[0].questionId).toBe(q.id);
-    expect(reports[0].comment).toBe('図のラベルが一部見切れています');
+    // 不要な報告リンクが表示されないこと
+    expect(screen.queryByTestId('report-question-btn')).not.toBeInTheDocument();
+    expect(screen.queryByText('この問題はおかしい')).not.toBeInTheDocument();
   });
 });
 
