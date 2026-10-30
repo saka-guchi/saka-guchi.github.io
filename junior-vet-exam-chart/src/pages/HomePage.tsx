@@ -397,13 +397,13 @@ export const HomePage: React.FC = () => {
           </button>
         </section>
 
-        {/* ゾーン3: 下段2カラム（全37テーマのカルテ進度 と 獣医師認定試験） */}
+        {/* ゾーン3: 下段2カラム（全テーマのカルテ進度 と 獣医師認定試験） */}
         <div className={styles.bottomCardsGrid}>
-          {/* 左カラム: 🩺 受験カルテ進度（全37テーマ） */}
+          {/* 左カラム: 🩺 受験カルテ進度（全テーマ） */}
           <div className={styles.card} data-testid="card-weakness">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 className={styles.cardTitle} style={{ margin: 0 }}>
-                🩺 受験カルテ進度（全37テーマ）
+                🩺 受験カルテ進度（全{ALL_PROGRESS_SKILLS.length}テーマ）
               </h3>
               <button
                 className={styles.helpLinkBtn}

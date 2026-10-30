@@ -206,6 +206,48 @@ export const SANSU_PROGRESS_SKILLS: ComprehensiveSkillProgressItem[] = [
     patientIcon: '🐵',
     patientName: 'サルのモン吉',
   },
+  {
+    id: 'skill-sansu-2023-saltwater-mix',
+    subject: 'sansu',
+    subjectLabel: '算数',
+    title: '食塩水の加水と濃度逆算（取り違え算）',
+    category: '割合と比',
+    levelType: 'core',
+    levelTypeName: '大問コア',
+    stage: 'M3',
+    isMastered: false,
+    nextGoalHint: '食塩の総量が変わらない条件に注目して天秤法を使おう！',
+    patientIcon: '🐧',
+    patientName: 'ペンギンのソルティ',
+  },
+  {
+    id: 'skill-sansu-2023-divisor-iteration',
+    subject: 'sansu',
+    subjectLabel: '算数',
+    title: '約数の個数の漸化操作と平方数',
+    category: '数の性質',
+    levelType: 'core',
+    levelTypeName: '大問コア',
+    stage: 'M2',
+    isMastered: false,
+    nextGoalHint: '約数が3個の数は素数の2乗（4, 9, 25, 49）！',
+    patientIcon: '🦊',
+    patientName: 'キツネのコン太（数論名人）',
+  },
+  {
+    id: 'skill-sansu-2023-tetrahedron-cut',
+    subject: 'sansu',
+    subjectLabel: '算数',
+    title: '立方体の切断と正四面体の体積',
+    category: '立体図形',
+    levelType: 'core',
+    levelTypeName: '大問コア',
+    stage: 'M2',
+    isMastered: false,
+    nextGoalHint: '立方体の頂点を結んで正四面体の体積を計算しよう！',
+    patientIcon: '🐻',
+    patientName: 'コグマのジオ先生',
+  },
 ];
 
 // 社会の全14スキル進度データ
@@ -406,35 +448,126 @@ export const SHAKAI_PROGRESS_SKILLS: ComprehensiveSkillProgressItem[] = [
     patientIcon: '🦅',
     patientName: 'ワシのワシントン裁判長',
   },
+  {
+    id: 'skill-shakai-2023-shimane-territory',
+    subject: 'shakai',
+    subjectLabel: '社会',
+    title: '島根県・石見銀山と日本の領土（竹島）',
+    category: '日本の諸地域',
+    levelType: 'core',
+    levelTypeName: '大問コア',
+    stage: 'M3',
+    isMastered: false,
+    nextGoalHint: '世界遺産の鉱山と島根県の地形・産業統計を覚えよう！',
+    patientIcon: '🐢',
+    patientName: 'ウミガメのトット調査員',
+  },
+  {
+    id: 'skill-shakai-2023-disaster-reconstruction',
+    subject: 'shakai',
+    subjectLabel: '社会',
+    title: '関東大震災100年と帝都復興事業（都市防災）',
+    category: '近現代史と防災',
+    levelType: 'core',
+    levelTypeName: '大問コア',
+    stage: 'M2',
+    isMastered: false,
+    nextGoalHint: '大火災を防ぐための道路拡幅・公園整備の重要性を学ぼう！',
+    patientIcon: '🦝',
+    patientName: 'タヌキのポン太親方',
+  },
+  {
+    id: 'skill-shakai-2023-regional-transit-lrt',
+    subject: 'shakai',
+    subjectLabel: '社会',
+    title: '地域交通再生（BRT・LRT）と高齢化社会',
+    category: '現代社会と地方自治',
+    levelType: 'core',
+    levelTypeName: '大問コア',
+    stage: 'M2',
+    isMastered: false,
+    nextGoalHint: '免許返納に伴う移動課題とBRT・LRTの役割を整理しよう！',
+    patientIcon: '🕊️',
+    patientName: 'ツバメのツバサ駅長',
+  },
+];
+
+// 2023年度 理科新規スキル進度データ
+export const RIKA_2023_PROGRESS_SKILLS: ComprehensiveSkillProgressItem[] = [
+  {
+    id: 'skill-rika-2023-bee-division',
+    subject: 'rika',
+    subjectLabel: '理科',
+    title: 'ミツバチの日齢分業と完全変態',
+    category: '昆虫の生態',
+    levelType: 'core',
+    levelTypeName: '大問コア',
+    stage: 'M3',
+    isMastered: false,
+    nextGoalHint: '卵・幼虫・さなぎ・成虫の変態と、巣の内外の役割分担を整理！',
+    patientIcon: '🐝',
+    patientName: 'ミツバチのマヤ隊長',
+  },
+  {
+    id: 'skill-rika-2023-copper-oxidation',
+    subject: 'rika',
+    subjectLabel: '理科',
+    title: '銅の加熱実験と定比例の法則',
+    category: '化学変化と金属',
+    levelType: 'core',
+    levelTypeName: '大問コア',
+    stage: 'M3',
+    isMastered: false,
+    nextGoalHint: '銅:酸素＝4:1の質量比をマスターしよう！',
+    patientIcon: '🐿️',
+    patientName: 'リスのプルースト助手',
+  },
+  {
+    id: 'skill-rika-2023-electromagnetic-induction',
+    subject: 'rika',
+    subjectLabel: '理科',
+    title: '電磁誘導とうず電流（IH調理器の仕組み）',
+    category: '電流と磁界',
+    levelType: 'core',
+    levelTypeName: '大問コア',
+    stage: 'M2',
+    isMastered: false,
+    nextGoalHint: '磁石の動きと磁界の変化で電流を起こす原理を理解しよう！',
+    patientIcon: '🦉',
+    patientName: 'フクロウのコイル博士',
+  },
 ];
 
 // 理科スキルのラッパー
-export const RIKA_PROGRESS_SKILLS: ComprehensiveSkillProgressItem[] = RIKA_EXAM_SKILLS.map(s => {
-  const iconMap: Record<string, { icon: string; name: string }> = {
-    'skill-rika-plant-dicot-monocot': { icon: '🐿️', name: 'シマリスのチッチ' },
-    'skill-rika-gas-co2': { icon: '🦉', name: 'フクロウのホッホ先生' },
-    'skill-rika-physics-density-floating': { icon: '🦭', name: 'アザラシのゴマちゃん' },
-    'skill-rika-plant-vascular': { icon: '🐰', name: 'ウサギのロップくん' },
-    'skill-rika-physics-buoyancy-principle': { icon: '🦦', name: 'カワウソのカイくん' },
-    'skill-rika-env-greenhouse': { icon: '🐧', name: 'ペンギンのペンペン' },
-    'skill-rika-plant-root-hair': { icon: '🐭', name: 'ハツカネズミのチュウ太' },
-    'skill-rika-env-ocean-acidification': { icon: '🐢', name: 'ウミガメのタメさん' },
-    'skill-rika-physics-galileo-thermometer': { icon: '🐻', name: 'シロクマのポーラ' },
-    // 旧キー互換用
-    'skill-rika-gas-properties-collecting': { icon: '🐧', name: 'ペンギンのペンペン' },
-    'skill-rika-earth-carbon-cycle': { icon: '🐢', name: 'ウミガメのタメさん' },
-  };
-  const patient = iconMap[s.id] || { icon: '🐾', name: '患者どうぶつ' };
-  return {
-    ...s,
-    subject: 'rika' as Subject,
-    subjectLabel: '理科',
-    patientIcon: patient.icon,
-    patientName: patient.name,
-  };
-});
+export const RIKA_PROGRESS_SKILLS: ComprehensiveSkillProgressItem[] = [
+  ...RIKA_EXAM_SKILLS.map(s => {
+    const iconMap: Record<string, { icon: string; name: string }> = {
+      'skill-rika-plant-dicot-monocot': { icon: '🐿️', name: 'シマリスのチッチ' },
+      'skill-rika-gas-co2': { icon: '🦉', name: 'フクロウのホッホ先生' },
+      'skill-rika-physics-density-floating': { icon: '🦭', name: 'アザラシのゴマちゃん' },
+      'skill-rika-plant-vascular': { icon: '🐰', name: 'ウサギのロップくん' },
+      'skill-rika-physics-buoyancy-principle': { icon: '🦦', name: 'カワウソのカイくん' },
+      'skill-rika-env-greenhouse': { icon: '🐧', name: 'ペンギンのペンペン' },
+      'skill-rika-plant-root-hair': { icon: '🐭', name: 'ハツカネズミのチュウ太' },
+      'skill-rika-env-ocean-acidification': { icon: '🐢', name: 'ウミガメのタメさん' },
+      'skill-rika-physics-galileo-thermometer': { icon: '🐻', name: 'シロクマのポーラ' },
+      // 旧キー互換用
+      'skill-rika-gas-properties-collecting': { icon: '🐧', name: 'ペンギンのペンペン' },
+      'skill-rika-earth-carbon-cycle': { icon: '🐢', name: 'ウミガメのタメさん' },
+    };
+    const patient = iconMap[s.id] || { icon: '🐾', name: '患者どうぶつ' };
+    return {
+      ...s,
+      subject: 'rika' as Subject,
+      subjectLabel: '理科',
+      patientIcon: patient.icon,
+      patientName: patient.name,
+    };
+  }),
+  ...RIKA_2023_PROGRESS_SKILLS,
+];
 
-// 全37スキルの統合リスト
+// 全46スキルの統合リスト
 export const ALL_PROGRESS_SKILLS: ComprehensiveSkillProgressItem[] = [
   ...RIKA_PROGRESS_SKILLS,
   ...SANSU_PROGRESS_SKILLS,

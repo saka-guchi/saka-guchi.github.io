@@ -613,3 +613,4 @@ export const STAGE1_PAGE_CONTENTS_2023_SHAKAI: Record<number, PageContent> = {
     ],
   },
 };
+

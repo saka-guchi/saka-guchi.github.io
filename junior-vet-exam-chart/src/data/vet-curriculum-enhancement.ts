@@ -1,4 +1,4 @@
-// 中学受験全37テーマ（理科・算数・社会）に対応する「動物カルテ・ストーリー」と「クイック暗記カード」
+// 中学受験全46テーマ（理科・算数・社会）に対応する「動物カルテ・ストーリー」と「クイック暗記カード」
 import type { Subject } from '../types';
 
 export interface ThemeEnhancement {
@@ -847,6 +847,202 @@ export const THEME_ENHANCEMENTS: Record<string, ThemeEnhancement> = {
       answer: '「違憲審査権（いけんしんさけん）」！ 最高裁判所は「憲法の番人」と呼ばれる。',
       tip: 'モンテスキューが唱えた三権分立（国会＝立法、内閣＝行政、裁判所＝司法）！',
       examPoint: '裁判所の独立を守るため、弾劾裁判所（国会が設置）以外の罷免が制限されます。',
+    },
+  },
+
+  // ==================== 2023年度新規テーマ（9テーマ） ====================
+  // 理科
+  'skill-rika-2023-bee-division': {
+    skillId: 'skill-rika-2023-bee-division',
+    subject: 'rika',
+    subjectLabel: '🧪 理科',
+    topicCategory: '昆虫の生態と分業',
+    fieldColor: '#10b981',
+    fieldBg: '#ecfdf5',
+    patientAnimal: {
+      icon: '🐝',
+      name: 'ミツバチのマヤ隊長',
+      role: 'ハチの巣コロニー隊長',
+      symptom: '「巣の中の育児・掃除から、外での花蜜集めまで！日齢分業カルテを確認してね！」',
+    },
+    memoryRetention: 85,
+    flashCard: {
+      question: 'ミツバチの成長（変態）と、羽化してからの仕事の変化は？',
+      answer: '完全変態（卵→幼虫→さなぎ→成虫）！ 若いときは「巣の内側（掃除・育児）」、年をとると「巣の外側（蜜集め）」！',
+      tip: '外は敵に襲われる危険があるため、命がけの外回り仕事は年上のハチが担当するんだよ。',
+      examPoint: '完全変態の仲間（カブトムシ、チョウ、ハチ、アリ、ハエ、カ）も一緒に狙われます。',
+    },
+  },
+  'skill-rika-2023-copper-oxidation': {
+    skillId: 'skill-rika-2023-copper-oxidation',
+    subject: 'rika',
+    subjectLabel: '🧪 理科',
+    topicCategory: '化学変化と金属',
+    fieldColor: '#8b5cf6',
+    fieldBg: '#f5f3ff',
+    patientAnimal: {
+      icon: '🐿️',
+      name: 'リスのプルースト助手',
+      role: '金属ラボの計量名人',
+      symptom: '「銅の粉末をステンレス皿で加熱したよ！結びつく酸素の重さカルテを計算しよう！」',
+    },
+    memoryRetention: 80,
+    flashCard: {
+      question: '銅と化合する酸素の質量の比（定比例の法則）は？',
+      answer: '銅 : 酸素 : 酸化銅 ＝ 4 : 1 : 5 ！',
+      tip: '銅4gを完全に加熱すると、酸化銅が5g（酸素が1g結びつく）になるよ！',
+      examPoint: 'マグネシウム（Mg:O=3:2）との対比計算や、不十分な加熱での未反応の銅の重さ計算が頻出です。',
+    },
+  },
+  'skill-rika-2023-electromagnetic-induction': {
+    skillId: 'skill-rika-2023-electromagnetic-induction',
+    subject: 'rika',
+    subjectLabel: '🧪 理科',
+    topicCategory: '電流と電磁誘導',
+    fieldColor: '#0ea5e9',
+    fieldBg: '#f0f9ff',
+    patientAnimal: {
+      icon: '🦉',
+      name: 'フクロウのコイル博士',
+      role: '電磁エネルギー研究室長',
+      symptom: '「IH調理器のトッププレートの下にはコイルがあるのじゃ！電磁誘導のカルテを解き明かそう！」',
+    },
+    memoryRetention: 75,
+    flashCard: {
+      question: 'コイルの近くで磁石を動かしたときに電流が流れる現象と、その電流の名前は？',
+      answer: '現象＝「電磁誘導（でんじゆうどう）」 ／ 流れる電流＝「誘導電流（ゆうどうでんりゅう）」！',
+      tip: 'IH調理器は、交流による磁界の変化で金属鍋の底にうず電流を発生させて発熱させているよ。',
+      examPoint: '磁石を早く動かす・磁石を強くする・コイルの巻き数を増やすと誘導電流が大きくなります。',
+    },
+  },
+
+  // 算数
+  'skill-sansu-2023-saltwater-mix': {
+    skillId: 'skill-sansu-2023-saltwater-mix',
+    subject: 'sansu',
+    subjectLabel: '📐 算数',
+    topicCategory: '割合と食塩水',
+    fieldColor: '#0284c7',
+    fieldBg: '#f0f9ff',
+    patientAnimal: {
+      icon: '🐧',
+      name: 'ペンギンのソルティ',
+      role: '海洋ミネラル調合師',
+      symptom: '「水と食塩を混ぜたり、加水して濃度を合わせるよ！食塩の重さ不変カルテを活用しよう！」',
+    },
+    memoryRetention: 85,
+    flashCard: {
+      question: '食塩水に水を加えるとき、変わらないものは何？',
+      answer: '溶けている「食塩（溶質）の重さ」！',
+      tip: '食塩の重さ ＝ 食塩水の重さ × 濃度（％）÷ 100 ！ 天秤法や面積図でも解けるよ。',
+      examPoint: '取り違え算や蒸発・加水問題では「食塩の量が一定」に着目して式を立てるのが鉄則です。',
+    },
+  },
+  'skill-sansu-2023-divisor-iteration': {
+    skillId: 'skill-sansu-2023-divisor-iteration',
+    subject: 'sansu',
+    subjectLabel: '📐 算数',
+    topicCategory: '数の性質と約数',
+    fieldColor: '#0284c7',
+    fieldBg: '#f0f9ff',
+    patientAnimal: {
+      icon: '🦊',
+      name: 'キツネのコン太',
+      role: '数論パズル名人',
+      symptom: '「約数の個数を数えて、それを新しい数にしていく操作じゃ！平方数のカルテを攻略しよう！」',
+    },
+    memoryRetention: 80,
+    flashCard: {
+      question: '約数の個数が奇数個になるのはどんな数？ また「3個」になるのは？',
+      answer: '奇数個＝「平方数（同じ数を2回かけた数）」 ／ 3個＝「素数の2乗（4, 9, 25, 49…）」！',
+      tip: '通常、約数はペア（例: 1×12, 2×6, 3×4）で偶数個だが、3×3のように同じ数の掛け算があると奇数個になる！',
+      examPoint: '約数の個数の規則性・操作の繰り返し問題では、素数（2個）や平方数（奇数個）が着眼点です。',
+    },
+  },
+  'skill-sansu-2023-tetrahedron-cut': {
+    skillId: 'skill-sansu-2023-tetrahedron-cut',
+    subject: 'sansu',
+    subjectLabel: '📐 算数',
+    topicCategory: '立体図形の切断',
+    fieldColor: '#0284c7',
+    fieldBg: '#f0f9ff',
+    patientAnimal: {
+      icon: '🐻',
+      name: 'コグマのジオ先生',
+      role: '空間図形エンジニア',
+      symptom: '「立方体の頂点を交互に結ぶと正四面体ができるよ！すき間の三角すいを取り除くカルテ！」',
+    },
+    memoryRetention: 75,
+    flashCard: {
+      question: '1辺aの立方体から、4隅の合同な三角すいを取り除くと何ができる？ 体積比は？',
+      answer: '「正四面体」ができる！ 正四面体の体積 ＝ 立方体の体積の 1/3 ！',
+      tip: '取り除く4隅の三角すい1つの体積は、底面がa×a÷2、高さaで 1/2×a×a×a÷3 = 1/6！ 4つで 4/6 = 2/3 引くので残りは 1/3。',
+      examPoint: '立方体の切断・正四面体の体積比・展開図の組み合わせは難関校の超頻出テーマです。',
+    },
+  },
+
+  // 社会
+  'skill-shakai-2023-shimane-territory': {
+    skillId: 'skill-shakai-2023-shimane-territory',
+    subject: 'shakai',
+    subjectLabel: '🗾 社会',
+    topicCategory: '日本の諸地域と領土',
+    fieldColor: '#f97316',
+    fieldBg: '#fff7ed',
+    patientAnimal: {
+      icon: '🐢',
+      name: 'ウミガメのトット調査員',
+      role: '島根・海洋境界レンジャー',
+      symptom: '「島根県の石見銀山と竹島の歴史カルテ！日本海に位置する隠岐諸島も学ぼう！」',
+    },
+    memoryRetention: 85,
+    flashCard: {
+      question: '島根県にある世界遺産の銀山と、島根県に属する日本固有の領土の島は？',
+      answer: '「石見銀山（いわみぎんざん）」 と 「竹島（たけしま）」！',
+      tip: '江戸時代初期に世界の銀の約3分の1を日本が産出し、その中心が石見銀山！ 竹島は1905年に島根県に編入。',
+      examPoint: '日本の領土問題（北方領土＝北海道、竹島＝島根県、尖閣諸島＝沖縄県に所属）のセット把握が必須です。',
+    },
+  },
+  'skill-shakai-2023-disaster-reconstruction': {
+    skillId: 'skill-shakai-2023-disaster-reconstruction',
+    subject: 'shakai',
+    subjectLabel: '🗾 社会',
+    topicCategory: '近現代史と都市防災',
+    fieldColor: '#f97316',
+    fieldBg: '#fff7ed',
+    patientAnimal: {
+      icon: '🦝',
+      name: 'タヌキのポン太親方',
+      role: '帝都復興まちづくり隊長',
+      symptom: '「1923年の関東大震災から100年！火災を防ぐ広い道路や公園を作ったカルテじゃ！」',
+    },
+    memoryRetention: 80,
+    flashCard: {
+      question: '1923年に関東大震災が発生した日付と、復興を指揮した後藤新平が整備したものは？',
+      answer: '「9月1日（防災の日）」！ 延焼を防ぐ「広大な幹線道路（昭和通り等）」や「避難公園（隅田公園等）」！',
+      tip: '関東大震災の被害の大半は昼時の火気使用と強風による「大火災」でした。',
+      examPoint: '大震災直後に第2次山本権兵衛内閣が成立したことや、復興橋梁・防火地帯整備が時事・歴史で問われます。',
+    },
+  },
+  'skill-shakai-2023-regional-transit-lrt': {
+    skillId: 'skill-shakai-2023-regional-transit-lrt',
+    subject: 'shakai',
+    subjectLabel: '🗾 社会',
+    topicCategory: '現代社会と地域交通',
+    fieldColor: '#f97316',
+    fieldBg: '#fff7ed',
+    patientAnimal: {
+      icon: '🕊️',
+      name: 'ツバメのツバサ駅長',
+      role: '次世代交通ナビゲーター',
+      symptom: '「お年寄りの移動や環境に優しい交通！宇都宮市等で走るLRTのカルテを運行しよう！」',
+    },
+    memoryRetention: 75,
+    flashCard: {
+      question: '低床で乗り降りがしやすく、環境に優しい次世代型路面電車の略称は？',
+      answer: '「LRT（Light Rail Transit：次世代型路面電車）」！',
+      tip: '宇都宮市（栃木県）などで開業！専用レーンを走るバス高速輸送システムは「BRT」と呼びます。',
+      examPoint: '高齢化に伴う運転免許返納問題や、過疎地域の地域交通確保（デマンド交通・モビリティ）と関連づけて出題。',
     },
   },
 };

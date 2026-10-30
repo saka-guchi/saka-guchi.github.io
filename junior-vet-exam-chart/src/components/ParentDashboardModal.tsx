@@ -405,10 +405,10 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                 </div>
               </div>
 
-              {/* 3教科の理解度・マスター進度（37テーマ） */}
+              {/* 3教科の理解度・マスター進度（全テーマ） */}
               <div style={{ background: 'var(--surface-subtle)', borderRadius: '14px', padding: '16px', border: '1px solid var(--border)' }}>
                 <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--text)', fontWeight: 'bold' }}>
-                  📊 3教科のマスター進度（全37テーマ）
+                  📊 3教科のマスター進度（全{ALL_PROGRESS_SKILLS.length}テーマ）
                 </h4>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

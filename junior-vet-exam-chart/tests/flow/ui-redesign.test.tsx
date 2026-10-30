@@ -62,27 +62,27 @@ describe('UI Redesign & New Features Integration Tests', () => {
   it('filters topics by subject tabs (Science, Math, Social Studies)', () => {
     render(<App />);
 
-    // 初期状態では全37テーマ表示
-    expect(screen.getByText('🌟 すべて (37)')).toBeInTheDocument();
+    // 初期状態では全46テーマ表示
+    expect(screen.getByText('🌟 すべて (46)')).toBeInTheDocument();
 
-    // 「🧪 理科 (9)」をクリック
-    const rikaBtn = screen.getByText('🧪 理科 (9)');
+    // 「🧪 理科 (12)」をクリック
+    const rikaBtn = screen.getByText('🧪 理科 (12)');
     fireEvent.click(rikaBtn);
 
     // 理科のテーマが表示され、算数のテーマが表示されていないことを確認
     expect(screen.getByText('維管束の配置（内道外師）')).toBeInTheDocument();
     expect(screen.queryByText('つるかめ算と消去算の条件整理')).not.toBeInTheDocument();
 
-    // 「📐 算数 (14)」をクリック
-    const sansuBtn = screen.getByText('📐 算数 (14)');
+    // 「📐 算数 (17)」をクリック
+    const sansuBtn = screen.getByText('📐 算数 (17)');
     fireEvent.click(sansuBtn);
 
     // 算数のテーマが表示され、理科のテーマが表示されていないことを確認
     expect(screen.getByText('つるかめ算と消去算の条件整理')).toBeInTheDocument();
     expect(screen.queryByText('維管束の配置（内道外師）')).not.toBeInTheDocument();
 
-    // 「🌟 すべて (37)」に戻す
-    fireEvent.click(screen.getByText('🌟 すべて (37)'));
+    // 「🌟 すべて (46)」に戻す
+    fireEvent.click(screen.getByText('🌟 すべて (46)'));
     expect(screen.getByText('維管束の配置（内道外師）')).toBeInTheDocument();
     expect(screen.getByText('つるかめ算と消去算の条件整理')).toBeInTheDocument();
   });
