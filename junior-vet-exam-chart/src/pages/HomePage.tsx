@@ -15,6 +15,7 @@ import { fireConfetti } from '../utils/confetti';
 import { APP_VERSION, BUILD_TIMESTAMP } from '../version';
 import { checkForAppUpdate } from '../utils/version-checker';
 import { getDaysUntilExam } from '../utils/countdown-helper';
+import { AnimatedVetPet } from '../components/AnimatedVetPet';
 import styles from './HomePage.module.css';
 
 type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
@@ -206,8 +207,11 @@ export const HomePage: React.FC = () => {
       {/* ヘッダー */}
       <header className={styles.header} data-testid="header">
         <div className={styles.headerLeft}>
-          <div className={styles.subTitle}>🐾 めざせ！未来のどうぶつのお医者さん</div>
-          <h1 className={styles.mainTitle}>みならい獣医さんの中学受験カルテ</h1>
+          <AnimatedVetPet size={48} />
+          <div className={styles.titleGroup}>
+            <div className={styles.subTitle}>🐾 めざせ！未来のどうぶつのお医者さん</div>
+            <h1 className={styles.mainTitle}>みならい獣医さんの中学受験カルテ</h1>
+          </div>
         </div>
 
         <div className={styles.headerRight}>

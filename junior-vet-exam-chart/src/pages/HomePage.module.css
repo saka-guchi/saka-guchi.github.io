@@ -26,6 +26,12 @@
 
 .headerLeft {
   display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titleGroup {
+  display: flex;
   flex-direction: column;
   gap: 2px;
 }

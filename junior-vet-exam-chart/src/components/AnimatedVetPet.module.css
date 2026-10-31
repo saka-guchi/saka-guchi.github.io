@@ -1,0 +1,208 @@
+.petContainer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.petContainer:hover {
+  transform: scale(1.08) translateY(-2px);
+}
+
+.petContainer:active {
+  transform: scale(0.95) translateY(1px);
+}
+
+.petSvg {
+  width: 48px;
+  height: 48px;
+  overflow: visible;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* 呼吸アニメーション（全体がふんわり呼吸） */
+.bodyGroup {
+  animation: breathe 3s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes breathe {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-1.5px) scale(1.02, 1.03);
+  }
+}
+
+/* お耳のピクピク動き */
+.leftEar {
+  transform-origin: 18px 22px;
+  animation: twitchLeft 4.5s ease-in-out infinite;
+}
+
+.rightEar {
+  transform-origin: 36px 22px;
+  animation: twitchRight 4.5s ease-in-out infinite 0.3s;
+}
+
+@keyframes twitchLeft {
+  0%, 88%, 100% {
+    transform: rotate(0deg);
+  }
+  90% {
+    transform: rotate(-10deg);
+  }
+  94% {
+    transform: rotate(4deg);
+  }
+  97% {
+    transform: rotate(-4deg);
+  }
+}
+
+@keyframes twitchRight {
+  0%, 88%, 100% {
+    transform: rotate(0deg);
+  }
+  91% {
+    transform: rotate(10deg);
+  }
+  95% {
+    transform: rotate(-4deg);
+  }
+  98% {
+    transform: rotate(4deg);
+  }
+}
+
+/* まばたきアニメーション */
+.eyes {
+  transform-origin: center;
+  animation: blink 4s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 94%, 98%, 100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+
+/* おててのフリフリ */
+.paw {
+  transform-origin: 14px 44px;
+  animation: wavePaw 3.6s ease-in-out infinite;
+}
+
+@keyframes wavePaw {
+  0%, 80%, 100% {
+    transform: rotate(0deg);
+  }
+  85% {
+    transform: rotate(-14deg) translateY(-1px);
+  }
+  90% {
+    transform: rotate(8deg);
+  }
+  95% {
+    transform: rotate(-8deg);
+  }
+}
+
+/* 聴診器のゆらゆら */
+.stethoscopePiece {
+  transform-origin: 27px 42px;
+  animation: swingStethoscope 3s ease-in-out infinite;
+}
+
+@keyframes swingStethoscope {
+  0%, 100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+/* クリック時のハートエフェクト */
+.floatingHeart {
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  font-size: 14px;
+  pointer-events: none;
+  animation: floatUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes floatUp {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.6);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-6px) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scale(1);
+  }
+}
+
+/* 小さな応援ふきだし */
+.cheerBubble {
+  position: absolute;
+  top: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 30;
+  animation: popBubble 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.cheerBubble::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 6px solid var(--primary);
+}
+
+@keyframes popBubble {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  85% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px) scale(0.9);
+  }
+}
+
