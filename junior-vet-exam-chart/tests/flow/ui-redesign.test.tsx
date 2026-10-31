@@ -59,11 +59,14 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(soundBtn).toHaveTextContent('🔔');
   });
 
-  it('filters topics by subject tabs (Science, Math, Social Studies)', () => {
+  it('filters topics by subject tabs (Science, Math, Social Studies, Japanese)', () => {
     render(<App />);
 
-    // 初期状態では全46テーマ表示
-    expect(screen.getByText('🌟 すべて (46)')).toBeInTheDocument();
+    // 初期状態では全56テーマ（国語10テーマ追加）表示
+    expect(screen.getByText('🌟 すべて (56)')).toBeInTheDocument();
+
+    // 国語ボタンが存在することを確認
+    expect(screen.getByText('📖 国語 (10)')).toBeInTheDocument();
 
     // 「🧪 理科 (12)」をクリック
     const rikaBtn = screen.getByText('🧪 理科 (12)');
@@ -81,10 +84,17 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(screen.getByText('つるかめ算と消去算の条件整理')).toBeInTheDocument();
     expect(screen.queryByText('維管束の配置（内道外師）')).not.toBeInTheDocument();
 
-    // 「🌟 すべて (46)」に戻す
-    fireEvent.click(screen.getByText('🌟 すべて (46)'));
+    // 「📖 国語 (10)」をクリック
+    const kokugoBtn = screen.getByText('📖 国語 (10)');
+    fireEvent.click(kokugoBtn);
+    expect(screen.getByText('漢字の書き取りと部首・同音異義語')).toBeInTheDocument();
+    expect(screen.queryByText('つるかめ算と消去算の条件整理')).not.toBeInTheDocument();
+
+    // 「🌟 すべて (56)」に戻す
+    fireEvent.click(screen.getByText('🌟 すべて (56)'));
     expect(screen.getByText('維管束の配置（内道外師）')).toBeInTheDocument();
     expect(screen.getByText('つるかめ算と消去算の条件整理')).toBeInTheDocument();
+    expect(screen.getByText('漢字の書き取りと部首・同音異義語')).toBeInTheDocument();
   });
 
   it('opens and flips quick flashcard modal', () => {

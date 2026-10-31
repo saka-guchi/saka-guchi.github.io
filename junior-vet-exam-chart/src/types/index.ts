@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export type Subject = 'rika' | 'shakai' | 'sansu';
+export type Subject = 'rika' | 'shakai' | 'sansu' | 'kokugo';
 
 export interface Exam {
   id: string; // e.g. yasuda-2024

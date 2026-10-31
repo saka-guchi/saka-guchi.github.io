@@ -21,6 +21,21 @@
   --accent-purple: #8B5CF6;
   --accent-purple-weak: #F5F3FF;
 
+  /* 教科別テーマカラー */
+  --subject-rika: #059669;
+  --subject-rika-bg: #ecfdf5;
+  --subject-rika-border: #a7f3d0;
+  --subject-sansu: #2563eb;
+  --subject-sansu-bg: #eff6ff;
+  --subject-sansu-border: #bfdbfe;
+  --subject-shakai: #d97706;
+  --subject-shakai-bg: #fffbeb;
+  --subject-shakai-border: #fde68a;
+  --subject-kokugo: #e11d48;
+  --subject-kokugo-bg: #fff1f2;
+  --subject-kokugo-border: #fecdd3;
+  --subject-kokugo-dark: #9f1239;
+
   --success: #10B981;
   --success-weak: #ECFDF5;
   --success-text: #059669;

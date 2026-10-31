@@ -13,6 +13,7 @@ function getSubjectLabel(subject?: string): string {
     case 'rika': return '🧪 理科';
     case 'sansu': return '📐 算数';
     case 'shakai': return '🗾 社会';
+    case 'kokugo': return '📖 国語';
     default: return subject || '総合';
   }
 }

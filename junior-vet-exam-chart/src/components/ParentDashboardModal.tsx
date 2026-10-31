@@ -110,10 +110,12 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   const rikaSkills = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'rika');
   const sansuSkills = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'sansu');
   const shakaiSkills = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'shakai');
+  const kokugoSkills = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'kokugo');
 
   const rikaMastered = rikaSkills.filter(s => s.isMastered).length;
   const sansuMastered = sansuSkills.filter(s => s.isMastered).length;
   const shakaiMastered = shakaiSkills.filter(s => s.isMastered).length;
+  const kokugoMastered = kokugoSkills.filter(s => s.isMastered).length;
 
   // 弱点テーマTOP3（記憶定着メーターが低い順）
   const weakestSkills = [...ALL_PROGRESS_SKILLS]
@@ -127,7 +129,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
     return {
       number: idx + 1,
       skillId: skill.id,
-      subjectLabel: skill.subject === 'rika' ? '🧪 理科' : skill.subject === 'sansu' ? '📐 算数' : '🗾 社会',
+      subjectLabel: skill.subject === 'rika' ? '🧪 理科' : skill.subject === 'sansu' ? '📐 算数' : skill.subject === 'shakai' ? '🗾 社会' : '📖 国語',
       title: skill.title,
       tip: enhancement?.flashCard.tip || skill.nextGoalHint || '基本の考え方をしっかり整理しよう。',
       examPoint: enhancement?.flashCard.examPoint || '',
@@ -435,10 +437,10 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                 </div>
               </div>
 
-              {/* 3教科の理解度・マスター進度（全テーマ） */}
+              {/* 4教科の理解度・マスター進度（全テーマ） */}
               <div style={{ background: 'var(--surface-subtle)', borderRadius: '14px', padding: '16px', border: '1px solid var(--border)' }}>
                 <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--text)', fontWeight: 'bold' }}>
-                  📊 3教科のマスター進度（全{ALL_PROGRESS_SKILLS.length}テーマ）
+                  📊 4教科のマスター進度（全{ALL_PROGRESS_SKILLS.length}テーマ）
                 </h4>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -446,6 +448,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                     { label: '🧪 理科', count: rikaSkills.length, mastered: rikaMastered, color: '#ec4899', bg: '#fdf2f8' },
                     { label: '📐 算数', count: sansuSkills.length, mastered: sansuMastered, color: '#3b82f6', bg: '#eff6ff' },
                     { label: '🗾 社会', count: shakaiSkills.length, mastered: shakaiMastered, color: '#10b981', bg: '#f0fdf4' },
+                    { label: '📖 国語', count: kokugoSkills.length, mastered: kokugoMastered, color: '#e11d48', bg: '#fff1f2' },
                   ].map(sub => {
                     const percent = Math.round((sub.mastered / sub.count) * 100);
                     return (

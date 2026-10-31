@@ -585,10 +585,15 @@ export const STAGE1_PAGE_CONTENTS_SHAKAI: Record<number, PageContent> = {
   },
 };
 
+import { STAGE1_2022_KOKUGO_PAGE_CONTENTS } from './final-challenge-2022-kokugo-pages';
+
+export { STAGE1_2022_KOKUGO_PAGE_CONTENTS } from './final-challenge-2022-kokugo-pages';
+
 export const STAGE1_PAGE_CONTENTS_BY_SUBJECT: Record<string, Record<number, PageContent>> = {
   rika: STAGE1_PAGE_CONTENTS,
   sansu: STAGE1_PAGE_CONTENTS_SANSU,
   shakai: STAGE1_PAGE_CONTENTS_SHAKAI,
+  kokugo: STAGE1_2022_KOKUGO_PAGE_CONTENTS,
 };
 
 // 2023年度ページコンテンツの再エクスポート
@@ -608,6 +613,14 @@ export const STAGE1_PAGE_CONTENTS_2023_BY_SUBJECT: Record<string, Record<number,
   rika: STAGE1_PAGE_CONTENTS_2023_RIKA,
   sansu: STAGE1_PAGE_CONTENTS_2023_SANSU,
   shakai: STAGE1_PAGE_CONTENTS_2023_SHAKAI,
+  kokugo: STAGE1_2022_KOKUGO_PAGE_CONTENTS,
+};
+
+export const STAGE1_PAGE_CONTENTS_2022_BY_SUBJECT: Record<string, Record<number, PageContent>> = {
+  rika: STAGE1_PAGE_CONTENTS,
+  sansu: STAGE1_PAGE_CONTENTS_SANSU,
+  shakai: STAGE1_PAGE_CONTENTS_SHAKAI,
+  kokugo: STAGE1_2022_KOKUGO_PAGE_CONTENTS,
 };
 
 export const STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT: Record<
@@ -616,6 +629,7 @@ export const STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT: Record<
 > = {
   2024: STAGE1_PAGE_CONTENTS_BY_SUBJECT,
   2023: STAGE1_PAGE_CONTENTS_2023_BY_SUBJECT,
+  2022: STAGE1_PAGE_CONTENTS_2022_BY_SUBJECT,
 };
 
 

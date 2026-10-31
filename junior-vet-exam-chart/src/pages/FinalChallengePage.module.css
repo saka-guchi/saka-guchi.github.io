@@ -290,6 +290,152 @@
   transform: translateY(0);
 }
 
+/* 国語専用UI・読解アシスト */
+.readerToolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: var(--radius-pill);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.readerToolBtn {
+  background: white;
+  border: 1px solid #fda4af;
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #be123c;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.readerToolBtn:hover {
+  background: #ffe4e6;
+}
+
+.readerToolBtnActive {
+  background: #e11d48;
+  color: white;
+  border-color: #be123c;
+}
+
+.kanjiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.kanjiItem {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.2s;
+}
+
+.kanjiItem:focus-within {
+  border-color: #e11d48;
+  box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.15);
+}
+
+.charCounter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  margin-top: 4px;
+  align-self: flex-start;
+}
+
+.charCounterNormal {
+  background: #f1f5f9;
+  color: var(--text-subtle);
+}
+
+.charCounterFit {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.charCounterOver {
+  background: #fee2e2;
+  color: #b91c1c;
+  animation: counterShake 0.4s ease;
+}
+
+@keyframes counterShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+.jumpUnderlineBtn {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #be123c;
+  border-radius: var(--radius-pill);
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  transition: all 0.15s ease;
+}
+
+.jumpUnderlineBtn:hover {
+  background: #ffe4e6;
+  border-color: #f43f5e;
+  transform: translateY(-1px);
+}
+
+/* 本文内の傍線部マーク */
+:global(.kokugo-underline) {
+  background: #fef08a;
+  border-bottom: 2.5px solid #ca8a04;
+  padding: 1px 4px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+:global(.kokugo-underline:hover) {
+  background: #fde047;
+}
+
+:global(.kokugo-underline-pulse) {
+  background: #f43f5e !important;
+  color: white !important;
+  animation: underlinePulse 1.2s ease 2;
+}
+
+:global(.kokugo-bracket) {
+  background: #e0e7ff;
+  border-bottom: 2px solid #6366f1;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+@keyframes underlinePulse {
+  0%, 100% { background: #fef08a; color: inherit; }
+  50% { background: #f43f5e; color: white; }
+}
+
 @media (max-width: 768px) {
   .main {
     grid-template-columns: 1fr;

@@ -33,8 +33,8 @@ export const HomePage: React.FC = () => {
   // テーマ・サウンド状態
   const [currentTheme, setCurrentTheme] = useState<ThemeType>('default');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
-  const [selectedSkillSubject, setSelectedSkillSubject] = useState<'all' | 'rika' | 'sansu' | 'shakai'>('all');
-  const [selectedStudySubject, setSelectedStudySubject] = useState<'all' | 'rika' | 'sansu' | 'shakai'>('all');
+  const [selectedSkillSubject, setSelectedSkillSubject] = useState<'all' | 'rika' | 'sansu' | 'shakai' | 'kokugo'>('all');
+  const [selectedStudySubject, setSelectedStudySubject] = useState<'all' | 'rika' | 'sansu' | 'shakai' | 'kokugo'>('all');
   const [, setRetentionTick] = useState(0);
   const [, setSkillStagesTick] = useState(0);
 
@@ -189,6 +189,7 @@ export const HomePage: React.FC = () => {
   const rikaCount = enrichedSkills.filter(s => s.subject === 'rika').length;
   const sansuCount = enrichedSkills.filter(s => s.subject === 'sansu').length;
   const shakaiCount = enrichedSkills.filter(s => s.subject === 'shakai').length;
+  const kokugoCount = enrichedSkills.filter(s => s.subject === 'kokugo').length;
 
   const themeIcons: Record<ThemeType, string> = {
     default: '🩺 クリニック',
@@ -297,7 +298,7 @@ export const HomePage: React.FC = () => {
               今日のオススメ 10問をといて、動物を元気にしよう！
             </h2>
             <p className={styles.todaySubText} style={{ margin: 0 }}>
-              理科・算数・社会の3教科すべてに対応！忘れないように毎日少しずつ解くのが記憶のコツだよ。
+              理科・算数・社会・国語の4教科すべてに対応！忘れないように毎日少しずつ解くのが記憶のコツだよ。
             </p>
 
             {/* 科目選択セグメントコントロール（操作できるスイッチとして明確化） */}
@@ -311,6 +312,7 @@ export const HomePage: React.FC = () => {
                   { id: 'rika', label: '🧪 理科' },
                   { id: 'sansu', label: '📐 算数' },
                   { id: 'shakai', label: '🗾 社会' },
+                  { id: 'kokugo', label: '📖 国語' },
                 ].map(sub => (
                   <button
                     key={sub.id}
@@ -353,7 +355,9 @@ export const HomePage: React.FC = () => {
                 ? '理科 10問をスタート！ 🧪'
                 : selectedStudySubject === 'sansu'
                 ? '算数 10問をスタート！ 📐'
-                : '社会 10問をスタート！ 🗾'}
+                : selectedStudySubject === 'shakai'
+                ? '社会 10問をスタート！ 🗾'
+                : '国語 10問をスタート！ 📖'}
             </button>
           </div>
         </section>
@@ -473,6 +477,7 @@ export const HomePage: React.FC = () => {
                 { id: 'rika', label: `🧪 理科 (${rikaCount})` },
                 { id: 'sansu', label: `📐 算数 (${sansuCount})` },
                 { id: 'shakai', label: `🗾 社会 (${shakaiCount})` },
+                { id: 'kokugo', label: `📖 国語 (${kokugoCount})` },
               ].map(cat => (
                 <button
                   key={cat.id}

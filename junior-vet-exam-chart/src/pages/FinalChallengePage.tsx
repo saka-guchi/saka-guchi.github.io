@@ -4,6 +4,7 @@ import { db, type StoredPack } from '../db';
 import type { Subject } from '../types';
 import {
   FINAL_CHALLENGE_DATA_BY_SUBJECT,
+  FINAL_CHALLENGE_2022_DATA_BY_SUBJECT,
   FINAL_CHALLENGE_SECTIONS,
   TOTAL_PAGES,
   SUPPORTED_EXAM_YEARS,
@@ -27,13 +28,14 @@ export const FinalChallengePage: React.FC = () => {
   const [currentSubject, setCurrentSubject] = useState<Subject>('rika');
   const [stage, setStage] = useState<1 | 2>(1);
 
-  // 教科ごとの残り時間（秒）: 理科30分、算数50分、社会30分（各教科独立して保持し、切り替え時も経過時間を維持）
+  // 教科ごとの残り時間（秒）: 理科30分、算数50分、社会30分、国語50分（各教科独立して保持し、切り替え時も経過時間を維持）
   const getInitialTimes = (yr: ExamYear): Record<Subject, number> => {
     const data = FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[yr];
     return {
       rika: data.rika.timeLimitMinutes * 60,
       sansu: data.sansu.timeLimitMinutes * 60,
       shakai: data.shakai.timeLimitMinutes * 60,
+      kokugo: (data.kokugo?.timeLimitMinutes || 50) * 60,
     };
   };
 
@@ -53,6 +55,9 @@ export const FinalChallengePage: React.FC = () => {
   const [hasMasterBadge, setHasMasterBadge] = useState(false);
   const [showExamResultModal, setShowExamResultModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [kokugoFont, setKokugoFont] = useState<'mincho' | 'gothic'>('mincho');
+  const [kokugoFontSize, setKokugoFontSize] = useState<'normal' | 'large'>('normal');
+  const [kokugoLineHeight, setKokugoLineHeight] = useState<'normal' | 'loose'>('loose');
   const [lastExamResult, setLastExamResult] = useState<{
     score: number;
     passed: boolean;
@@ -203,11 +208,56 @@ export const FinalChallengePage: React.FC = () => {
   const publicFallback =
     currentYear === 2024
       ? `${import.meta.env.BASE_URL}pages/${currentSubject}/mondai_p${padPage}.webp`
-      : `${import.meta.env.BASE_URL}pages/2023/${currentSubject}/mondai_p${padPage}.webp`;
+      : currentYear === 2023
+      ? `${import.meta.env.BASE_URL}pages/2023/${currentSubject}/mondai_p${padPage}.webp`
+      : `${import.meta.env.BASE_URL}pages/2022/${currentSubject}/mondai_p${padPage}.webp`;
   const pageImageData =
     storedPack?.images?.[pageImageKey] ||
     storedPack?.images?.[pageImageAltKey] ||
     publicFallback;
+
+  // 傍線部ジャンプ用マップ（スロット番号・傍線部番号とページ番号の対応）
+  const kokugoUnderlinePages: Record<string, { page: number; elementId: string }> = {
+    'kokugo-2022-02-02-1': { page: 2, elementId: 'kokugo-underline-1' },
+    'kokugo-2022-02-02-2': { page: 6, elementId: 'kokugo-underline-5' },
+    'kokugo-2022-02-03': { page: 3, elementId: 'kokugo-underline-2' },
+    'kokugo-2022-02-04': { page: 4, elementId: 'kokugo-underline-3' },
+    'kokugo-2022-02-05': { page: 5, elementId: 'kokugo-underline-4' },
+    'kokugo-2022-02-06': { page: 6, elementId: 'kokugo-underline-5' },
+    'kokugo-2022-02-07': { page: 6, elementId: 'kokugo-underline-6' },
+    'kokugo-2022-03-01': { page: 9, elementId: 'kokugo-underline-7' },
+    'kokugo-2022-03-02': { page: 10, elementId: 'kokugo-underline-8' },
+    'kokugo-2022-03-03': { page: 11, elementId: 'kokugo-underline-9' },
+    'kokugo-2022-03-04-a': { page: 11, elementId: 'kokugo-underline-10' },
+    'kokugo-2022-03-04-b': { page: 11, elementId: 'kokugo-underline-10' },
+    'kokugo-2022-03-05': { page: 12, elementId: 'kokugo-underline-11' },
+    'kokugo-2022-03-06': { page: 12, elementId: 'kokugo-underline-12' },
+  };
+
+  const handleJumpToUnderline = (slotId: string) => {
+    sound.playPop();
+    const target = kokugoUnderlinePages[slotId];
+    if (!target) return;
+
+    if (viewMode !== 'text') {
+      setViewMode('text');
+    }
+
+    if (currentPage !== target.page) {
+      setCurrentPage(target.page);
+    }
+
+    setTimeout(() => {
+      const el = document.getElementById(target.elementId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('kokugo-underline-pulse');
+        setTimeout(() => {
+          el.classList.remove('kokugo-underline-pulse');
+        }, 2500);
+      }
+    }, 120);
+  };
 
   const subjectContents =
     STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT[currentYear]?.[currentSubject] ||
@@ -249,8 +299,8 @@ export const FinalChallengePage: React.FC = () => {
 
           {/* 教科切り替えタブ */}
           <div className={styles.subjectTabs} data-testid="challenge-subject-tabs">
-            {(['rika', 'sansu', 'shakai'] as Subject[]).map(sub => {
-              const info = currentYearData[sub];
+            {(['rika', 'sansu', 'shakai', 'kokugo'] as Subject[]).map(sub => {
+              const info = currentYearData[sub] || FINAL_CHALLENGE_2022_DATA_BY_SUBJECT[sub];
               return (
                 <button
                   key={sub}
@@ -442,6 +492,43 @@ export const FinalChallengePage: React.FC = () => {
                       教材パックインポート
                     </button>
                   </div>
+                  {/* 国語読解アシストバー */}
+                  {currentSubject === 'kokugo' && (
+                    <div className={styles.readerToolbar}>
+                      <span style={{ fontSize: '11px', fontWeight: 800, color: '#be123c', marginRight: '4px' }}>
+                        📖 読解アシスト:
+                      </span>
+                      <button
+                        type="button"
+                        className={`${styles.readerToolBtn} ${kokugoFont === 'mincho' ? styles.readerToolBtnActive : ''}`}
+                        onClick={() => { sound.playPop(); setKokugoFont('mincho'); }}
+                      >
+                        明朝体（入試風）
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.readerToolBtn} ${kokugoFont === 'gothic' ? styles.readerToolBtnActive : ''}`}
+                        onClick={() => { sound.playPop(); setKokugoFont('gothic'); }}
+                      >
+                        ゴシック体
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.readerToolBtn} ${kokugoFontSize === 'large' ? styles.readerToolBtnActive : ''}`}
+                        onClick={() => { sound.playPop(); setKokugoFontSize(f => f === 'large' ? 'normal' : 'large'); }}
+                      >
+                        {kokugoFontSize === 'large' ? '文字: 標準' : '文字: やや大'}
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.readerToolBtn} ${kokugoLineHeight === 'loose' ? styles.readerToolBtnActive : ''}`}
+                        onClick={() => { sound.playPop(); setKokugoLineHeight(l => l === 'loose' ? 'normal' : 'loose'); }}
+                      >
+                        {kokugoLineHeight === 'loose' ? '行間: 標準' : '行間: ゆったり'}
+                      </button>
+                    </div>
+                  )}
+
                   <div
                     style={{
                       padding: '24px',
@@ -449,11 +536,15 @@ export const FinalChallengePage: React.FC = () => {
                       borderRadius: '8px',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                       minHeight: '520px',
+                      fontFamily: currentSubject === 'kokugo' && kokugoFont === 'mincho'
+                        ? '"Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", serif'
+                        : 'inherit',
+                      fontSize: currentSubject === 'kokugo' && kokugoFontSize === 'large' ? '17px' : '15px',
                     }}
                   >
                     <h3
                       style={{
-                        borderBottom: '2px solid var(--primary)',
+                        borderBottom: `2px solid ${currentSubject === 'kokugo' ? '#e11d48' : 'var(--primary)'}`,
                         paddingBottom: '8px',
                         color: 'var(--text)',
                       }}
@@ -469,13 +560,25 @@ export const FinalChallengePage: React.FC = () => {
                     {currentPageContent?.sections.map((sec, sIdx) => (
                       <div key={sIdx} style={{ marginTop: '18px' }}>
                         {sec.sectionTitle && (
-                          <h4 style={{ color: 'var(--primary)', marginBottom: '6px' }}>
+                          <h4 style={{ color: currentSubject === 'kokugo' ? '#be123c' : 'var(--primary)', marginBottom: '6px' }}>
                             {sec.sectionTitle}
                           </h4>
                         )}
-                        <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8', color: 'var(--text)' }}>
-                          {sec.bodyText}
-                        </p>
+                        {currentSubject === 'kokugo' && sec.bodyText.includes('<mark') ? (
+                          <div
+                            dangerouslySetInnerHTML={{ __html: sec.bodyText }}
+                            style={{
+                              whiteSpace: 'pre-wrap',
+                              lineHeight: kokugoLineHeight === 'loose' ? '2.1' : '1.8',
+                              color: 'var(--text)',
+                              letterSpacing: '0.04em',
+                            }}
+                          />
+                        ) : (
+                          <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8', color: 'var(--text)' }}>
+                            {sec.bodyText}
+                          </p>
+                        )}
 
                         {sec.figures && (
                           <div
@@ -686,56 +789,151 @@ export const FinalChallengePage: React.FC = () => {
                   </div>
                 )}
 
-                {/* その他の設問 */}
-                {sec.slots
-                  .filter(s => !(currentSubject === 'rika' && sec.sectionNumber === 1 && s.questionNumber === '1'))
-                  .map(slot => (
-                    <div key={slot.id} className={styles.slotItem} style={{ marginBottom: '10px' }}>
-                      <label style={{ fontWeight: 'bold' }}>大問{sec.sectionNumber} {slot.label}:</label>
-
-                      {slot.answerType === 'open' ? (
-                        <textarea
-                          placeholder="ノートや紙に記述後、提出時に自己採点要素を確認します"
-                          className={styles.textArea}
-                          value={answers[slot.id] || ''}
-                          onChange={e => handleInputChange(slot.id, e.target.value)}
-                          data-testid={`slot-${slot.id}`}
-                        />
-                      ) : slot.answerType === 'numeric' ? (
-                        <input
-                          type="number"
-                          placeholder="数値を入力"
-                          className={styles.textInput}
-                          value={answers[slot.id] || ''}
-                          onChange={e => handleInputChange(slot.id, e.target.value)}
-                          data-testid={`slot-${slot.id}`}
-                        />
-                      ) : (slot.stage2Options || slot.options) ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {/* 国語大問1の漢字10問（書き取り・読み）は専用グリッドでスッキリ配置 */}
+                {currentSubject === 'kokugo' && sec.sectionNumber === 1 && (
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#be123c', marginBottom: '6px' }}>
+                      ✏️ 漢字の書き取り（①〜⑤）と読み（⑥〜⑩）
+                    </div>
+                    <div className={styles.kanjiGrid}>
+                      {sec.slots.map(slot => (
+                        <div key={slot.id} className={styles.kanjiItem}>
+                          <label style={{ fontWeight: 'bold', fontSize: '12px', color: 'var(--text)' }}>
+                            {slot.label}
+                          </label>
                           <input
                             type="text"
-                            placeholder="記号（例: ア、または ①、③）"
+                            placeholder={slot.id.endsWith('01') || slot.id.endsWith('02') || slot.id.endsWith('03') || slot.id.endsWith('04') || slot.id.endsWith('05') ? '漢字を入力' : 'ひらがなで入力'}
                             className={styles.textInput}
+                            style={{ height: '38px', fontSize: '14px' }}
                             value={answers[slot.id] || ''}
                             onChange={e => handleInputChange(slot.id, e.target.value)}
                             data-testid={`slot-${slot.id}`}
                           />
-                          <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                            選択肢: {((stage === 2 && slot.stage2Options) ? slot.stage2Options : (slot.options || [])).join(' / ')}
-                          </div>
                         </div>
-                      ) : (
-                        <input
-                          type="text"
-                          placeholder="語句を入力"
-                          className={styles.textInput}
-                          value={answers[slot.id] || ''}
-                          onChange={e => handleInputChange(slot.id, e.target.value)}
-                          data-testid={`slot-${slot.id}`}
-                        />
-                      )}
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                )}
+
+                {/* その他の設問 */}
+                {sec.slots
+                  .filter(s => !(currentSubject === 'rika' && sec.sectionNumber === 1 && s.questionNumber === '1'))
+                  .filter(s => !(currentSubject === 'kokugo' && sec.sectionNumber === 1))
+                  .map(slot => {
+                    const currentAns = answers[slot.id] || '';
+                    const ansLen = currentAns.length;
+                    // 文字数制限の検出（例: "50字以内" -> 50, "80字以内" -> 80, "30字以内" -> 30, "18字" -> 18, "66字" -> 66, "33字" -> 33）
+                    const limitMatch = slot.label.match(/(\d+)字/) || (slot.stage2Prompt && slot.stage2Prompt.match(/(\d+)字/));
+                    const charLimit = limitMatch ? parseInt(limitMatch[1], 10) : null;
+                    const isOverLimit = charLimit ? ansLen > charLimit : false;
+                    const isFit = charLimit ? (ansLen > 0 && ansLen <= charLimit) : false;
+                    const hasJump = Boolean(kokugoUnderlinePages[slot.id]);
+
+                    return (
+                      <div key={slot.id} className={styles.slotItem} style={{ marginBottom: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
+                          <label style={{ fontWeight: 'bold' }}>
+                            大問{sec.sectionNumber} {slot.label}:
+                          </label>
+                          {hasJump && (
+                            <button
+                              type="button"
+                              className={styles.jumpUnderlineBtn}
+                              onClick={() => handleJumpToUnderline(slot.id)}
+                              title="問題用紙の該当する傍線部へジャンプします"
+                              data-testid={`jump-btn-${slot.id}`}
+                            >
+                              📍 傍線部を見る
+                            </button>
+                          )}
+                        </div>
+
+                        {slot.answerType === 'open' ? (
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <textarea
+                              placeholder={
+                                currentSubject === 'kokugo'
+                                  ? '記述の答えを入力（提出時に採点要素・キーワード判定が確認できます）'
+                                  : 'ノートや紙に記述後、提出時に自己採点要素を確認します'
+                              }
+                              className={styles.textArea}
+                              style={{ height: currentSubject === 'kokugo' ? '90px' : '70px' }}
+                              value={currentAns}
+                              onChange={e => handleInputChange(slot.id, e.target.value)}
+                              data-testid={`slot-${slot.id}`}
+                            />
+                            {charLimit && (
+                              <div
+                                className={`${styles.charCounter} ${
+                                  isOverLimit
+                                    ? styles.charCounterOver
+                                    : isFit
+                                    ? styles.charCounterFit
+                                    : styles.charCounterNormal
+                                }`}
+                              >
+                                <span>✏️ 文字数: {ansLen} / {charLimit} 字</span>
+                                {isOverLimit && <span>⚠️ 字数超過！</span>}
+                              </div>
+                            )}
+                          </div>
+                        ) : slot.answerType === 'numeric' ? (
+                          <input
+                            type="number"
+                            placeholder="数値を入力"
+                            className={styles.textInput}
+                            value={currentAns}
+                            onChange={e => handleInputChange(slot.id, e.target.value)}
+                            data-testid={`slot-${slot.id}`}
+                          />
+                        ) : (slot.stage2Options || slot.options) ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <input
+                              type="text"
+                              placeholder="記号（例: ア、または ①、③）"
+                              className={styles.textInput}
+                              value={currentAns}
+                              onChange={e => handleInputChange(slot.id, e.target.value)}
+                              data-testid={`slot-${slot.id}`}
+                            />
+                            <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
+                              選択肢: {((stage === 2 && slot.stage2Options) ? slot.stage2Options : (slot.options || [])).join(' / ')}
+                            </div>
+                          </div>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <input
+                              type="text"
+                              placeholder={
+                                slot.label.includes('最初と最後')
+                                  ? '最初5字〜最後5字（例: 最初の五字〜最後の五字）'
+                                  : '語句を入力'
+                              }
+                              className={styles.textInput}
+                              value={currentAns}
+                              onChange={e => handleInputChange(slot.id, e.target.value)}
+                              data-testid={`slot-${slot.id}`}
+                            />
+                            {charLimit && (
+                              <div
+                                className={`${styles.charCounter} ${
+                                  isOverLimit
+                                    ? styles.charCounterOver
+                                    : isFit
+                                    ? styles.charCounterFit
+                                    : styles.charCounterNormal
+                                }`}
+                              >
+                                <span>✏️ 文字数: {ansLen} / {charLimit} 字</span>
+                                {isOverLimit && <span>⚠️ 字数超過！</span>}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
               </div>
             ))}
           </div>

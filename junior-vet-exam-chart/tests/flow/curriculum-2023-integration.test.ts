@@ -7,16 +7,18 @@ import { CURRICULUM_2023_QUESTIONS } from '../../src/data/curriculum-2023-questi
 import { useAppStore } from '../../src/store/appStore';
 
 describe('2023 Exam Curriculum & Animal Stamps Integration Tests', () => {
-  it('guarantees all 46 themes are registered and balanced across 3 subjects', () => {
-    expect(ALL_PROGRESS_SKILLS.length).toBe(46);
+  it('guarantees all 56 themes are registered and balanced across 4 subjects', () => {
+    expect(ALL_PROGRESS_SKILLS.length).toBe(56);
 
     const rikaSkills = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'rika');
     const sansuSkills = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'sansu');
     const shakaiSkills = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'shakai');
+    const kokugoSkills = ALL_PROGRESS_SKILLS.filter(s => s.subject === 'kokugo');
 
     expect(rikaSkills.length).toBe(12);
     expect(sansuSkills.length).toBe(17);
     expect(shakaiSkills.length).toBe(17);
+    expect(kokugoSkills.length).toBe(10);
   });
 
   it('guarantees every theme in ALL_PROGRESS_SKILLS has a valid enhancement config', () => {

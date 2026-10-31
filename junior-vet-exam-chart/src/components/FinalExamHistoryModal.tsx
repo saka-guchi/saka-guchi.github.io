@@ -22,6 +22,7 @@ export const FinalExamHistoryModal: React.FC<FinalExamHistoryModalProps> = ({ on
   }, []);
 
   const getSubjectInfo = (examId: string) => {
+    if (examId.includes('kokugo')) return { label: '国語', icon: '📖', color: '#e11d48' };
     if (examId.includes('sansu')) return { label: '算数', icon: '📐', color: '#3b82f6' };
     if (examId.includes('shakai')) return { label: '社会', icon: '🗾', color: '#10b981' };
     return { label: '理科', icon: '🧪', color: '#ec4899' };
@@ -43,10 +44,17 @@ export const FinalExamHistoryModal: React.FC<FinalExamHistoryModalProps> = ({ on
     rika: { best: 0, passed: false },
     sansu: { best: 0, passed: false },
     shakai: { best: 0, passed: false },
+    kokugo: { best: 0, passed: false },
   };
 
   history.forEach(r => {
-    const subKey = r.examId.includes('sansu') ? 'sansu' : r.examId.includes('shakai') ? 'shakai' : 'rika';
+    const subKey = r.examId.includes('kokugo')
+      ? 'kokugo'
+      : r.examId.includes('sansu')
+      ? 'sansu'
+      : r.examId.includes('shakai')
+      ? 'shakai'
+      : 'rika';
     if (r.score > bestScores[subKey].best) {
       bestScores[subKey].best = r.score;
     }
@@ -130,11 +138,11 @@ export const FinalExamHistoryModal: React.FC<FinalExamHistoryModalProps> = ({ on
 
           {/* コンテンツエリア */}
           <div style={{ padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* 3教科最高得点サマリーカード */}
+            {/* 4教科最高得点サマリーカード */}
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
                 gap: '10px',
               }}
             >
@@ -142,6 +150,7 @@ export const FinalExamHistoryModal: React.FC<FinalExamHistoryModalProps> = ({ on
                 { key: 'rika', label: '理科', icon: '🧪', color: '#ec4899' },
                 { key: 'sansu', label: '算数', icon: '📐', color: '#3b82f6' },
                 { key: 'shakai', label: '社会', icon: '🗾', color: '#10b981' },
+                { key: 'kokugo', label: '国語', icon: '📖', color: '#e11d48' },
               ].map(sub => {
                 const data = bestScores[sub.key];
                 return (

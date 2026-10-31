@@ -1048,4 +1048,11 @@ export const FINAL_CHALLENGE_2023_DATA_BY_SUBJECT: Record<
     totalPages: 10,
     timeLimitMinutes: 30,
   },
+  kokugo: {
+    subjectLabel: '国語',
+    icon: '📖',
+    sections: [],
+    totalPages: 14,
+    timeLimitMinutes: 50,
+  },
 };
