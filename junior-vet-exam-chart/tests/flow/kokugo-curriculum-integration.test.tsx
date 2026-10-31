@@ -135,12 +135,16 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
     expect(questionChoices).toHaveTextContent(/ウ 読み手が感じる疑問/);
     expect(questionChoices).toHaveTextContent(/エ 読み手に語りかけるような文体/);
 
-    // 解答用紙側（右側）にワンタップ選択ボタン（ア・イ・ウ・エ）が存在し、タップで反映されること
+    // 解答用紙側（右側）にワンタップ選択ボタン（ア・イ・ウ・エ）が存在し、手動入力inputは無くボタンのみで解答できること
     const quickBtnU = screen.getByTestId('quick-btn-kokugo-2022-03-07-ウ');
     expect(quickBtnU).toBeInTheDocument();
     fireEvent.click(quickBtnU);
 
-    const slotInput = screen.getByTestId('slot-kokugo-2022-03-07') as HTMLInputElement;
-    expect(slotInput.value).toBe('ウ');
+    // 選択されたボタンが押下状態になり、選択中表示が出ること
+    expect(quickBtnU).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText('✓ 選択中: 【ウ】')).toBeInTheDocument();
+
+    const slotContainer = screen.getByTestId('slot-kokugo-2022-03-07');
+    expect(slotContainer).toHaveAttribute('data-value', 'ウ');
   });
 });

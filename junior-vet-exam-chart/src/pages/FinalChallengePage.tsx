@@ -927,46 +927,59 @@ export const FinalChallengePage: React.FC = () => {
                             data-testid={`slot-${slot.id}`}
                           />
                         ) : (slot.stage2Options || slot.options) ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div
+                            style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+                            data-testid={`slot-${slot.id}`}
+                            data-value={currentAns}
+                          >
                             {(() => {
                               const opts = (stage === 2 && slot.stage2Options) ? slot.stage2Options : (slot.options || []);
                               const symbolList = opts.map(o => o.trim().slice(0, 1)).filter(s => s.length > 0);
                               return (
-                                <>
-                                  {symbolList.length > 0 && (
-                                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                                      {symbolList.map(sym => (
-                                        <button
-                                          key={sym}
-                                          type="button"
-                                          onClick={() => handleInputChange(slot.id, sym)}
-                                          style={{
-                                            padding: '6px 14px',
-                                            borderRadius: '6px',
-                                            border: currentAns === sym ? '2px solid var(--primary)' : '1px solid var(--border)',
-                                            background: currentAns === sym ? 'var(--primary-weak)' : 'var(--surface)',
-                                            color: currentAns === sym ? 'var(--primary)' : 'var(--text)',
-                                            fontWeight: currentAns === sym ? 700 : 500,
-                                            cursor: 'pointer',
-                                            fontSize: '14px',
-                                            transition: 'all 120ms ease',
-                                          }}
-                                          data-testid={`quick-btn-${slot.id}-${sym}`}
-                                        >
-                                          {sym}
-                                        </button>
-                                      ))}
-                                    </div>
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                  {symbolList.map(sym => {
+                                    const isSelected = currentAns === sym;
+                                    return (
+                                      <button
+                                        key={sym}
+                                        type="button"
+                                        onClick={() => {
+                                          handleInputChange(slot.id, isSelected ? '' : sym);
+                                        }}
+                                        style={{
+                                          minWidth: '44px',
+                                          height: '42px',
+                                          padding: '6px 16px',
+                                          borderRadius: '8px',
+                                          border: isSelected ? '2px solid var(--primary)' : '1px solid var(--border)',
+                                          background: isSelected ? 'var(--primary)' : 'var(--surface)',
+                                          color: isSelected ? '#ffffff' : 'var(--text)',
+                                          fontWeight: isSelected ? 700 : 600,
+                                          cursor: 'pointer',
+                                          fontSize: '16px',
+                                          boxShadow: isSelected ? '0 2px 6px rgba(37,99,235,0.3)' : '0 1px 2px rgba(0,0,0,0.05)',
+                                          transition: 'all 120ms ease',
+                                        }}
+                                        data-testid={`quick-btn-${slot.id}-${sym}`}
+                                        aria-pressed={isSelected}
+                                      >
+                                        {sym}
+                                      </button>
+                                    );
+                                  })}
+                                  {currentAns && (
+                                    <span
+                                      style={{
+                                        fontSize: '13px',
+                                        color: 'var(--primary)',
+                                        fontWeight: 700,
+                                        marginLeft: '4px',
+                                      }}
+                                    >
+                                      ✓ 選択中: 【{currentAns}】
+                                    </span>
                                   )}
-                                  <input
-                                    type="text"
-                                    placeholder="記号（例: ア、または ①、③）"
-                                    className={styles.textInput}
-                                    value={currentAns}
-                                    onChange={e => handleInputChange(slot.id, e.target.value)}
-                                    data-testid={`slot-${slot.id}`}
-                                  />
-                                </>
+                                </div>
                               );
                             })()}
                           </div>
