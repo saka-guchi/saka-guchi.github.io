@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { StudyPage } from '../../src/pages/StudyPage';
 import { useAppStore } from '../../src/store/appStore';
 import { SAMPLE_QUESTIONS } from '../../src/data/sample-data';
+import { getQuestionReports } from '../../src/utils/question-reports';
 
 describe('StudyPage Hints and Report Feature', () => {
   beforeEach(() => {
@@ -94,7 +95,7 @@ describe('StudyPage Hints and Report Feature', () => {
     expect(reviewedSection).toHaveTextContent('ヒント2の内容です。');
   });
 
-  it('does not display question report button (direct user communication policy)', async () => {
+  it('allows child to report question issue and persists it to question-reports', async () => {
     const q = SAMPLE_QUESTIONS[0];
     useAppStore.setState({
       currentSessionQuestions: [q as any],
@@ -110,9 +111,40 @@ describe('StudyPage Hints and Report Feature', () => {
       </BrowserRouter>
     );
 
-    // 不要な報告リンクが表示されないこと
-    expect(screen.queryByTestId('report-question-btn')).not.toBeInTheDocument();
-    expect(screen.queryByText('この問題はおかしい')).not.toBeInTheDocument();
+    // ヘッダーの「💬 おうちの人に相談」ボタンが存在すること
+    const consultBtn = screen.getByTestId('header-report-btn');
+    expect(consultBtn).toBeInTheDocument();
+    fireEvent.click(consultBtn);
+
+    // モーダルが開く
+    const modal = screen.getByTestId('question-report-modal');
+    expect(modal).toBeInTheDocument();
+    expect(modal).toHaveTextContent('おうちの人に相談・チェック依頼');
+
+    // 理由「正解・解答がちがう気がする」を選択
+    const wrongAnswerOption = screen.getByTestId('report-reason-answer_error');
+    fireEvent.click(wrongAnswerOption);
+
+    // コメントを入力
+    const commentInput = screen.getByTestId('report-comment-input');
+    fireEvent.change(commentInput, { target: { value: '答えの選択肢が逆になっている気がするよ' } });
+
+    // 「保護者カルテに送る」ボタンをクリック
+    const submitBtn = screen.getByTestId('send-report-btn');
+    fireEvent.click(submitBtn);
+
+    // 送信完了フィードバックの表示
+    await waitFor(() => {
+      expect(screen.getByText('保護者カルテに届けました！')).toBeInTheDocument();
+    });
+
+    // 登録されたデータを検証
+    const savedReports = getQuestionReports();
+    expect(savedReports).toHaveLength(1);
+    expect(savedReports[0].questionId).toBe(q.id);
+    expect(savedReports[0].reason).toBe('answer_error');
+    expect(savedReports[0].comment).toBe('答えの選択肢が逆になっている気がするよ');
+    expect(savedReports[0].resolved).toBe(false);
   });
 });
 

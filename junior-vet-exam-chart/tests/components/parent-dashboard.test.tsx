@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ParentDashboardModal } from '../../src/components/ParentDashboardModal';
 import { HomePage } from '../../src/pages/HomePage';
 import { db } from '../../src/db';
+import { addQuestionReport, getQuestionReports } from '../../src/utils/question-reports';
 
 // window.print のモック
 Object.defineProperty(window, 'print', {
@@ -27,10 +28,11 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     // タイトル
     expect(screen.getByRole('heading', { name: '保護者カルテ' })).toBeInTheDocument();
 
-    // 3つのタブ
+    // 4つのタブ
     expect(screen.getByTestId('parent-tab-charts')).toBeInTheDocument();
     expect(screen.getByTestId('parent-tab-advice')).toBeInTheDocument();
     expect(screen.getByTestId('parent-tab-print')).toBeInTheDocument();
+    expect(screen.getByTestId('parent-tab-reports')).toBeInTheDocument();
 
     // 統計サマリーカード（本日の学習時間・本日の解答数が最優先）
     expect(screen.getByText(/本日の学習時間/)).toBeInTheDocument();
@@ -192,5 +194,56 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
       expect(screen.queryByTestId('flashcard-modal')).not.toBeInTheDocument();
       expect(screen.getByRole('heading', { name: '保護者カルテ' })).toBeInTheDocument();
     });
+  });
+
+  it('displays question reports in reports tab and allows resolving and inspecting the question', async () => {
+    // レポートデータを事前に投入
+    addQuestionReport({
+      questionId: 'q-sample-1',
+      subject: 'rika',
+      skillTitle: '昆虫の変態（完全変態と不完全変態）',
+      prompt: 'チョウやカブトムシのように、さなぎの時期がある育ち方を何というか。',
+      reason: 'wrong_answer',
+      reasonLabel: '🎯 正解・解答が違っている気がする',
+      comment: '選択肢の解説と答えが合っていません',
+    });
+
+    const onInspect = vi.fn();
+    render(<ParentDashboardModal onClose={() => {}} onInspectQuestion={onInspect} />);
+
+    // タブに未対応件数「(1)」が表示されていること
+    const reportsTab = screen.getByTestId('parent-tab-reports');
+    expect(reportsTab).toHaveTextContent('🛠️ 修正依頼 (1)');
+
+    // タブを切り替え
+    fireEvent.click(reportsTab);
+
+    // 依頼カードが表示されていること
+    const saved = getQuestionReports();
+    const targetReport = saved[0];
+    const reportCard = screen.getByTestId(`report-card-${targetReport.id}`);
+    expect(reportCard).toBeInTheDocument();
+    expect(reportCard).toHaveTextContent('昆虫の変態（完全変態と不完全変態）');
+    expect(reportCard).toHaveTextContent('🎯 正解・解答が違っている気がする');
+    expect(reportCard).toHaveTextContent('選択肢の解説と答えが合っていません');
+    expect(reportCard).toHaveTextContent('チョウやカブトムシのように、さなぎの時期がある育ち方を何というか。');
+
+    // 「🔍 この問題を直接解いて確認」ボタンをクリック
+    const inspectBtn = screen.getByTestId(`inspect-question-btn-${targetReport.id}`);
+    fireEvent.click(inspectBtn);
+    expect(onInspect).toHaveBeenCalledWith('q-sample-1');
+
+    // 「対応済みにする」トグルをクリック
+    const toggleBtn = screen.getByTestId(`toggle-resolved-btn-${targetReport.id}`);
+    expect(toggleBtn).toHaveTextContent('✓ 解決済みにする');
+    fireEvent.click(toggleBtn);
+
+    // 解決済みに更新されること
+    await waitFor(() => {
+      expect(screen.getByTestId(`toggle-resolved-btn-${targetReport.id}`)).toHaveTextContent('未対応に戻す');
+    });
+
+    const updated = getQuestionReports();
+    expect(updated[0].resolved).toBe(true);
   });
 });

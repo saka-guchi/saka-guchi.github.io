@@ -8,11 +8,13 @@ import { ANIMAL_STAMPS, getEarnedStampIds } from '../data/animal-stamps';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
 import type { FinalChallengeResult } from '../types';
+import { getQuestionReports, toggleReportResolved, deleteQuestionReport, type QuestionReportItem } from '../utils/question-reports';
 import styles from './ParentDashboardModal.module.css';
 
 interface ParentDashboardModalProps {
   onClose: () => void;
   onStartWeaknessQuiz?: (skillId: string) => void;
+  onInspectQuestion?: (questionId: string) => void;
 }
 
 interface DailyCount {
@@ -24,8 +26,10 @@ interface DailyCount {
 export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   onClose,
   onStartWeaknessQuiz,
+  onInspectQuestion,
 }) => {
-  const [activeTab, setActiveTab] = useState<'charts' | 'advice' | 'print'>('charts');
+  const [activeTab, setActiveTab] = useState<'charts' | 'advice' | 'print' | 'reports'>('charts');
+  const [reports, setReports] = useState<QuestionReportItem[]>(() => getQuestionReports());
   const [examResults, setExamResults] = useState<FinalChallengeResult[]>([]);
   const [dailyCounts, setDailyCounts] = useState<DailyCount[]>([]);
   const [totalAttempts, setTotalAttempts] = useState<number>(0);
@@ -249,34 +253,60 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
             gap: '8px',
           }}
         >
-          {[
-            { id: 'charts', label: '📈 学習・成績グラフ', icon: '📊' },
-            { id: 'advice', label: '🐱 ほめ言葉＆お約束', icon: '💬' },
-            { id: 'print', label: '🖨️ 弱点処方箋＆A4印刷', icon: '📝' },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                sound.playPop();
-                setActiveTab(tab.id as any);
-              }}
-              style={{
-                padding: '10px 16px',
-                border: 'none',
-                background: activeTab === tab.id ? 'var(--surface, #ffffff)' : 'transparent',
-                borderTopLeftRadius: '10px',
-                borderTopRightRadius: '10px',
-                fontWeight: 'bold',
-                fontSize: '13px',
-                color: activeTab === tab.id ? 'var(--primary)' : 'var(--text-subtle)',
-                borderBottom: activeTab === tab.id ? '2px solid var(--primary)' : 'none',
-                cursor: 'pointer',
-              }}
-              data-testid={`parent-tab-${tab.id}`}
-            >
-              {tab.label}
-            </button>
-          ))}
+          {(() => {
+            const unresolvedCount = reports.filter(r => !r.resolved).length;
+            return [
+              { id: 'charts', label: '📈 学習・成績グラフ', badge: 0 },
+              { id: 'advice', label: '🐱 ほめ言葉＆お約束', badge: 0 },
+              { id: 'print', label: '🖨️ 弱点処方箋＆A4印刷', badge: 0 },
+              {
+                id: 'reports',
+                label: `🛠️ 修正依頼${unresolvedCount > 0 ? ` (${unresolvedCount})` : ''}`,
+                badge: unresolvedCount,
+              },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  sound.playPop();
+                  setActiveTab(tab.id as any);
+                }}
+                style={{
+                  padding: '10px 16px',
+                  border: 'none',
+                  background: activeTab === tab.id ? 'var(--surface, #ffffff)' : 'transparent',
+                  borderTopLeftRadius: '10px',
+                  borderTopRightRadius: '10px',
+                  fontWeight: 'bold',
+                  fontSize: '13px',
+                  color: activeTab === tab.id ? 'var(--primary)' : 'var(--text-subtle)',
+                  borderBottom: activeTab === tab.id ? '2px solid var(--primary)' : 'none',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+                data-testid={`parent-tab-${tab.id}`}
+              >
+                <span>{tab.label}</span>
+                {tab.badge > 0 && (
+                  <span
+                    style={{
+                      background: '#ef4444',
+                      color: 'white',
+                      fontSize: '10px',
+                      fontWeight: 800,
+                      padding: '1px 6px',
+                      borderRadius: '10px',
+                      lineHeight: '1.2',
+                    }}
+                  >
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            ));
+          })()}
         </div>
 
         {/* コンテンツエリア */}
@@ -832,6 +862,285 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                 </button>
               </div>
             </>
+          )}
+
+          {/* ================= タブ4: 問題修正依頼一覧 ================= */}
+          {activeTab === 'reports' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} data-testid="parent-reports-tab">
+              <div
+                style={{
+                  background: 'var(--surface-subtle)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '12px',
+                  padding: '14px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text)' }}>
+                    🛠️ お子様からの問題チェック・修正依頼一覧
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                    お子様が学習中に「おかしいかも？」と指摘した問題がここに届きます。ワンタップで直接該当問題を解いて確認できます。
+                  </div>
+                </div>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    padding: '4px 10px',
+                    borderRadius: 'var(--radius-pill)',
+                    background: reports.filter(r => !r.resolved).length > 0 ? '#fee2e2' : 'var(--surface)',
+                    color: reports.filter(r => !r.resolved).length > 0 ? '#b91c1c' : 'var(--text-subtle)',
+                    border: '1px solid var(--border)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  未対応: {reports.filter(r => !r.resolved).length} 件 / 全 {reports.length} 件
+                </span>
+              </div>
+
+              {reports.length === 0 ? (
+                <div
+                  style={{
+                    background: 'var(--surface)',
+                    border: '1px dashed var(--border)',
+                    borderRadius: '16px',
+                    padding: '40px 20px',
+                    textAlign: 'center',
+                  }}
+                  data-testid="no-reports-message"
+                >
+                  <div style={{ fontSize: '40px', marginBottom: '8px' }}>🐾</div>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text)', marginBottom: '4px' }}>
+                    現在、問題や解答の指摘はありません
+                  </div>
+                  <p style={{ fontSize: '12px', color: 'var(--text-subtle)', margin: 0 }}>
+                    お子様が学習画面で「おうちの人に相談」ボタンを押すと、ここにメモが届きます。
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {reports.map(item => {
+                    const formattedDate = new Intl.DateTimeFormat('ja-JP', {
+                      timeZone: 'Asia/Tokyo',
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    }).format(new Date(item.reportedAt));
+
+                    return (
+                      <div
+                        key={item.id}
+                        style={{
+                          background: item.resolved ? 'var(--surface-subtle)' : 'var(--surface)',
+                          border: item.resolved ? '1px solid var(--border)' : '1.5px solid #fda4af',
+                          borderRadius: '14px',
+                          padding: '16px',
+                          boxShadow: item.resolved ? 'none' : '0 4px 12px rgba(244, 63, 94, 0.08)',
+                          opacity: item.resolved ? 0.8 : 1,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '10px',
+                        }}
+                        data-testid={`report-card-${item.id}`}
+                      >
+                        {/* ヘッダー行 */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span
+                              style={{
+                                fontSize: '11px',
+                                fontWeight: 800,
+                                padding: '2px 8px',
+                                borderRadius: '6px',
+                                background:
+                                  item.subject === 'rika' ? '#ecfdf5' : item.subject === 'sansu' ? '#eff6ff' : '#fff7ed',
+                                color:
+                                  item.subject === 'rika' ? '#065f46' : item.subject === 'sansu' ? '#1e40af' : '#9a3412',
+                                border: '1px solid var(--border)',
+                              }}
+                            >
+                              {item.subject === 'rika' ? '🧪 理科' : item.subject === 'sansu' ? '📐 算数' : '🗾 社会'}
+                            </span>
+                            <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text)' }}>
+                              {item.skillTitle || item.category || '学習問題'}
+                            </span>
+                          </div>
+
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              padding: '2px 8px',
+                              borderRadius: 'var(--radius-pill)',
+                              background: item.resolved ? '#ecfdf5' : '#fee2e2',
+                              color: item.resolved ? '#047857' : '#b91c1c',
+                              border: `1px solid ${item.resolved ? '#a7f3d0' : '#fecdd3'}`,
+                            }}
+                          >
+                            {item.resolved ? '✅ 確認・対応済み' : '⚠️ 未確認'}
+                          </span>
+                        </div>
+
+                        {/* 指摘理由 ＆ 日時 */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}>
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              background: '#fdf2f8',
+                              color: '#9d174d',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              border: '1px solid #fbcfe8',
+                            }}
+                          >
+                            {item.reasonLabel}
+                          </span>
+                          <span style={{ color: 'var(--text-subtle)', fontSize: '11px' }}>
+                            {formattedDate}（日本時間）
+                          </span>
+                        </div>
+
+                        {/* お子様のメモ（吹き出し風） */}
+                        {item.comment && (
+                          <div
+                            style={{
+                              background: '#f8fafc',
+                              border: '1px solid #e2e8f0',
+                              borderRadius: '8px',
+                              padding: '8px 12px',
+                              fontSize: '12px',
+                              color: 'var(--text)',
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: '6px',
+                            }}
+                          >
+                            <span style={{ fontSize: '14px' }}>💬</span>
+                            <div>
+                              <div style={{ fontSize: '10px', color: 'var(--text-subtle)', fontWeight: 700 }}>お子様からのメモ:</div>
+                              <div style={{ marginTop: '2px' }}>{item.comment}</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 設問プレビュー */}
+                        <div
+                          style={{
+                            background: 'var(--surface-subtle)',
+                            border: '1px solid var(--border)',
+                            borderRadius: '8px',
+                            padding: '8px 12px',
+                            fontSize: '11px',
+                            color: 'var(--text-subtle)',
+                            lineHeight: '1.4',
+                          }}
+                        >
+                          <strong style={{ color: 'var(--text)' }}>設問: </strong>
+                          {item.prompt.length > 80 ? `${item.prompt.slice(0, 80)}...` : item.prompt}
+                        </div>
+
+                        {/* アクションバー */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            paddingTop: '6px',
+                            borderTop: '1px solid var(--border-subtle)',
+                            gap: '8px',
+                            flexWrap: 'wrap',
+                          }}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => {
+                              sound.playChime();
+                              onClose();
+                              if (onInspectQuestion) {
+                                onInspectQuestion(item.questionId);
+                              }
+                            }}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '6px 14px',
+                              background: 'var(--primary)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '8px',
+                              fontSize: '12px',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              boxShadow: '0 2px 6px rgba(37, 99, 235, 0.2)',
+                            }}
+                            title="この問題を保護者自身が解いて内容・解答を確認する"
+                            data-testid={`inspect-question-btn-${item.id}`}
+                          >
+                            <span>🔍</span>
+                            <span>この問題を直接開いて解く（確認）</span>
+                            <span style={{ fontSize: '10px' }}>❯</span>
+                          </button>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                sound.playPop();
+                                const updated = toggleReportResolved(item.id);
+                                setReports(updated);
+                              }}
+                              style={{
+                                padding: '5px 10px',
+                                background: item.resolved ? 'var(--surface)' : '#ecfdf5',
+                                border: `1px solid ${item.resolved ? 'var(--border)' : '#a7f3d0'}`,
+                                borderRadius: '6px',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                color: item.resolved ? 'var(--text-subtle)' : '#065f46',
+                                cursor: 'pointer',
+                              }}
+                              data-testid={`toggle-resolved-btn-${item.id}`}
+                            >
+                              {item.resolved ? '未対応に戻す' : '✓ 解決済みにする'}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                sound.playPop();
+                                const updated = deleteQuestionReport(item.id);
+                                setReports(updated);
+                              }}
+                              style={{
+                                padding: '5px 8px',
+                                background: 'transparent',
+                                border: 'none',
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                color: 'var(--text-subtle)',
+                              }}
+                              title="この依頼を削除"
+                              aria-label="削除"
+                              data-testid={`delete-report-btn-${item.id}`}
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

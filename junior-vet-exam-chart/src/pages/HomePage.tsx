@@ -20,7 +20,7 @@ type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { startDailySession, startSkillFocusSession } = useAppStore();
+  const { startDailySession, startSkillFocusSession, startSingleQuestionSession } = useAppStore();
   const [earnedStampIds, setEarnedStampIds] = useState<string[]>([]);
   const [showStampModal, setShowStampModal] = useState(false);
   const [openedStampIds, setOpenedStampIds] = useState<string[]>([]);
@@ -1125,6 +1125,11 @@ export const HomePage: React.FC = () => {
           onStartWeaknessQuiz={(skillId) => {
             // 保護者カルテは開いたまま維持し、前面に暗記カードを表示する（閉じたら保護者カルテに戻る）
             setFlashCardSkillId(skillId);
+          }}
+          onInspectQuestion={(questionId) => {
+            setShowParentModal(false);
+            startSingleQuestionSession(questionId);
+            navigate('/study');
           }}
         />
       )}

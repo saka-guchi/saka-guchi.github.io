@@ -2,6 +2,7 @@ import type { StoredPack } from '../../db';
 import type { SampleQuestion } from '../sample-data';
 import { SAMPLE_QUESTIONS } from '../sample-data';
 import { CURRICULUM_2023_QUESTIONS } from '../curriculum-2023-questions';
+import { FOCUS_CURRICULUM_QUESTIONS } from '../focus-curriculum-questions';
 
 // 理科
 import rikaQuestions from './rika/questions.json';
@@ -119,9 +120,9 @@ export const BUILTIN_YASUDA_PACK: StoredPack = {
   importedAt: Date.now(),
 };
 
-// 演習問題、応用問題、統合問題、過去問（2023年度含む）を SampleQuestion 形式に正規化して結合
+// 演習問題、応用問題、統合問題、過去問（2023年度含む）、全テーマ特訓問題を SampleQuestion 形式に正規化して結合
 function buildCurriculumQuestions(): SampleQuestion[] {
-  const list: SampleQuestion[] = [...SAMPLE_QUESTIONS, ...CURRICULUM_2023_QUESTIONS];
+  const list: SampleQuestion[] = [...SAMPLE_QUESTIONS, ...CURRICULUM_2023_QUESTIONS, ...FOCUS_CURRICULUM_QUESTIONS];
 
   const allPractice = [
     ...rikaPractice.map(p => ({ ...p, subject: 'rika' as const })),

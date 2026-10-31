@@ -4,6 +4,7 @@ import React from 'react';
 import { App } from '../../src/App';
 import { useAppStore } from '../../src/store/appStore';
 import { getSkillStage, setSkillStage, promoteSkillStage } from '../../src/utils/mastery-helper';
+import { ALL_PROGRESS_SKILLS } from '../../src/data/all-skills';
 
 describe('Skill Focus & Level Promotion Flow', () => {
   beforeEach(() => {
@@ -70,5 +71,37 @@ describe('Skill Focus & Level Promotion Flow', () => {
       expect(screen.queryByTestId('flashcard-modal')).not.toBeInTheDocument();
       expect(screen.getByTestId('study-page')).toBeInTheDocument();
     });
+  });
+
+  it('guarantees unique and relevant questions for all 46 skills without falling back to a fixed question (especially shakai and sansu)', () => {
+    const store = useAppStore.getState();
+
+    // 1. 特に不具合のあった社会の各単元が、それぞれ固有の問題になることを検証
+    const shakaiSuburbanId = 'skill-shakai-suburban-forced-agriculture';
+    store.startSkillFocusSession(shakaiSuburbanId);
+    let questions = useAppStore.getState().currentSessionQuestions;
+    expect(questions.length).toBeGreaterThan(0);
+    expect(questions[0].skillId).toBe(shakaiSuburbanId);
+    expect(questions[0].choices?.some(c => c.text.includes('促成栽培'))).toBe(true);
+
+    const shakaiWajuId = 'skill-shakai-waju-flood';
+    store.startSkillFocusSession(shakaiWajuId);
+    questions = useAppStore.getState().currentSessionQuestions;
+    expect(questions.length).toBeGreaterThan(0);
+    expect(questions[0].skillId).toBe(shakaiWajuId);
+    expect(questions[0].choices?.some(c => c.text.includes('輪中'))).toBe(true);
+    // 近郊農業の問題と同じになっていないこと
+    expect(questions[0].id).not.toBe('curriculum-2023-shakai-shimane-1');
+    expect(questions[0].id).not.toBe('focus-shakai-suburban-forced-agriculture');
+
+    // 2. 全46スキルすべてについて、該当単元と100%一致する問題が出題されることを検証
+    for (const skill of ALL_PROGRESS_SKILLS) {
+      store.startSkillFocusSession(skill.id);
+      const sessionQs = useAppStore.getState().currentSessionQuestions;
+      expect(sessionQs.length).toBeGreaterThan(0);
+      const firstQ = sessionQs[0];
+      const matches = firstQ.skillId === skill.id || firstQ.skillTitle === skill.title;
+      expect(matches).toBe(true);
+    }
   });
 });

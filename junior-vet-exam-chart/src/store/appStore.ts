@@ -45,6 +45,7 @@ interface AppState {
   // セッション操作
   startDailySession: (subject?: Subject) => void;
   startSkillFocusSession: (skillId: string) => void;
+  startSingleQuestionSession: (questionId: string) => void;
   startSampleSession: () => void;
   revealChoices: () => void;
   showHint: () => void;
@@ -125,34 +126,33 @@ export const useAppStore = create<AppState>((set, get) => ({
     const skill = ALL_PROGRESS_SKILLS.find(s => s.id === skillId);
     const enhancement = THEME_ENHANCEMENTS[skillId];
 
-    // そのスキルに合致する問題を抽出
-    let matched = ALL_CURRICULUM_QUESTIONS.filter(
+    // そのスキルに合致する問題のみを抽出（他単元の問題が混ざる科目フォールバックは厳禁）
+    const matched = ALL_CURRICULUM_QUESTIONS.filter(
       q => q.skillId === skillId || (skill && q.skillTitle === skill.title)
     );
 
-    // もし合致問題がなければ、該当科目の問題からフォールバック
-    if (matched.length === 0 && skill) {
-      matched = ALL_CURRICULUM_QUESTIONS.filter(q => q.subject === skill.subject);
-    }
-
-    // 単元特訓用に3問〜5問を構成
+    // 単元特訓用に最大5問を構成
     let focusQuestions: SampleQuestion[] = [...matched].slice(0, 5);
 
-    // もし問題プールが空の場合、単元データから特訓問題を生成
+    // もし問題プールに未登録の場合、単元データから特訓問題を安全に生成
     if (focusQuestions.length === 0 && skill) {
+      const otherAnswers = Object.values(THEME_ENHANCEMENTS)
+        .filter(e => e.subject === skill.subject && e.skillId !== skillId)
+        .map(e => e.flashCard.answer);
+
       focusQuestions = [{
         id: `focus-${skillId}-1`,
         subject: skill.subject,
         format: 'multiple_choice',
-        prompt: enhancement?.flashCard.question || `【${skill.title}】の重要ポイントとして正しいものはどれですか？`,
+        prompt: enhancement?.flashCard.question || `【${skill.title}】の重要ポイントとして最も適切なものはどれですか？`,
         category: skill.category,
         skillTitle: skill.title,
         skillId: skill.id,
         choices: [
-          { id: 'c1', label: 'ア', text: enhancement?.flashCard.answer || '正しい解法・知識', isCorrect: true },
-          { id: 'c2', label: 'イ', text: '誤った説明・逆の組み合わせ', isCorrect: false },
-          { id: 'c3', label: 'ウ', text: '無関係な条件', isCorrect: false },
-          { id: 'c4', label: 'エ', text: '逆の手順', isCorrect: false },
+          { id: 'c1', label: 'ア', text: enhancement?.flashCard.answer || skill.title, isCorrect: true },
+          { id: 'c2', label: 'イ', text: otherAnswers[0] || '誤った組み合わせ', isCorrect: false },
+          { id: 'c3', label: 'ウ', text: otherAnswers[1] || '無関係な条件', isCorrect: false },
+          { id: 'c4', label: 'エ', text: otherAnswers[2] || '反対の手順', isCorrect: false },
         ],
         correctAnswer: 'c1',
         hints: [
@@ -173,6 +173,26 @@ export const useAppStore = create<AppState>((set, get) => ({
       currentSessionQuestions: focusQuestions,
       currentIndex: 0,
       recallPhase: true,
+      hintLevel: 0,
+      currentAnswered: false,
+      currentUserAnswer: null,
+      currentIsCorrect: null,
+      directRecallCount: 0,
+      correctCount: 0,
+      sessionResults: [],
+    });
+  },
+
+  startSingleQuestionSession: (questionId) => {
+    const question = ALL_CURRICULUM_QUESTIONS.find(q => q.id === questionId);
+    if (!question) return;
+
+    set({
+      currentFocusSkillId: question.skillId || null,
+      promotedSkillInfo: null,
+      currentSessionQuestions: [question],
+      currentIndex: 0,
+      recallPhase: false, // 保護者等の確認時は最初から選択肢を表示してスムーズに確認可能
       hintLevel: 0,
       currentAnswered: false,
       currentUserAnswer: null,
