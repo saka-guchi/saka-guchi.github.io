@@ -107,4 +107,40 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
     expect(jumpBtn).toBeInTheDocument();
     fireEvent.click(jumpBtn);
   });
+
+  it('問題用紙（左側）に問7などの選択問題の選択肢（ア〜エ）が提示され、解答用紙でワンタップ入力できること', async () => {
+    render(
+      <BrowserRouter>
+        <FinalChallengePage />
+      </BrowserRouter>
+    );
+
+    // 国語タブをクリック
+    fireEvent.click(screen.getByTestId('subject-tab-kokugo'));
+
+    // 14ページ（大問3 問7）へ移動
+    const nextBtn = screen.getByTestId('next-page-btn');
+    for (let i = 1; i < 14; i++) {
+      fireEvent.click(nextBtn);
+    }
+
+    // ページ14のタイトルが表示されていること
+    expect(screen.getByText(/三、大問 3 設問（問7）/)).toBeInTheDocument();
+
+    // 【最重要】問題用紙エリアに問7の選択肢ア〜エが表示されていること
+    const questionChoices = screen.getByTestId('question-choices-問7');
+    expect(questionChoices).toBeInTheDocument();
+    expect(questionChoices).toHaveTextContent(/ア 比喩や倒置法/);
+    expect(questionChoices).toHaveTextContent(/イ 一般的な見方/);
+    expect(questionChoices).toHaveTextContent(/ウ 読み手が感じる疑問/);
+    expect(questionChoices).toHaveTextContent(/エ 読み手に語りかけるような文体/);
+
+    // 解答用紙側（右側）にワンタップ選択ボタン（ア・イ・ウ・エ）が存在し、タップで反映されること
+    const quickBtnU = screen.getByTestId('quick-btn-kokugo-2022-03-07-ウ');
+    expect(quickBtnU).toBeInTheDocument();
+    fireEvent.click(quickBtnU);
+
+    const slotInput = screen.getByTestId('slot-kokugo-2022-03-07') as HTMLInputElement;
+    expect(slotInput.value).toBe('ウ');
+  });
 });

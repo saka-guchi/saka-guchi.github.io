@@ -627,20 +627,59 @@ export const FinalChallengePage: React.FC = () => {
 
                         {sec.questions && (
                           <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                            {sec.questions.map(q => (
-                              <div
-                                key={q.qNum}
-                                style={{
-                                  padding: '12px 14px',
-                                  background: 'var(--surface-subtle)',
-                                  borderRadius: '6px',
-                                  borderLeft: '4px solid var(--primary)',
-                                }}
-                              >
-                                <strong>【{q.qNum}】</strong>
-                                <p style={{ whiteSpace: 'pre-wrap', marginTop: '4px' }}>{q.prompt}</p>
-                              </div>
-                            ))}
+                            {sec.questions.map(q => {
+                              const choicesToDisplay = (q.choices && q.choices.length > 0)
+                                ? q.choices
+                                : currentSections
+                                    .flatMap(s => s.slots)
+                                    .find(slot => slot.pageNumber === currentPage && (slot.label.includes(q.qNum) || slot.questionNumber === q.qNum.replace(/[^0-9]/g, '')))?.options;
+
+                              return (
+                                <div
+                                  key={q.qNum}
+                                  style={{
+                                    padding: '14px 16px',
+                                    background: 'var(--surface-subtle)',
+                                    borderRadius: '8px',
+                                    borderLeft: '4px solid var(--primary)',
+                                  }}
+                                  data-testid={`question-card-${q.qNum}`}
+                                >
+                                  <strong style={{ fontSize: '15px', color: 'var(--text)' }}>【{q.qNum}】</strong>
+                                  <p style={{ whiteSpace: 'pre-wrap', marginTop: '6px', lineHeight: '1.7', fontSize: '15px' }}>{q.prompt}</p>
+
+                                  {choicesToDisplay && choicesToDisplay.length > 0 && (
+                                    <div
+                                      style={{
+                                        marginTop: '12px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '8px',
+                                      }}
+                                      data-testid={`question-choices-${q.qNum}`}
+                                    >
+                                      {choicesToDisplay.map((choiceText, cIdx) => (
+                                        <div
+                                          key={cIdx}
+                                          style={{
+                                            padding: '10px 14px',
+                                            background: 'var(--surface)',
+                                            border: '1px solid var(--border)',
+                                            borderRadius: '6px',
+                                            fontSize: '14px',
+                                            lineHeight: '1.6',
+                                            color: 'var(--text)',
+                                            boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                                          }}
+                                        >
+                                          {choiceText}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
@@ -888,18 +927,48 @@ export const FinalChallengePage: React.FC = () => {
                             data-testid={`slot-${slot.id}`}
                           />
                         ) : (slot.stage2Options || slot.options) ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <input
-                              type="text"
-                              placeholder="記号（例: ア、または ①、③）"
-                              className={styles.textInput}
-                              value={currentAns}
-                              onChange={e => handleInputChange(slot.id, e.target.value)}
-                              data-testid={`slot-${slot.id}`}
-                            />
-                            <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                              選択肢: {((stage === 2 && slot.stage2Options) ? slot.stage2Options : (slot.options || [])).join(' / ')}
-                            </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {(() => {
+                              const opts = (stage === 2 && slot.stage2Options) ? slot.stage2Options : (slot.options || []);
+                              const symbolList = opts.map(o => o.trim().slice(0, 1)).filter(s => s.length > 0);
+                              return (
+                                <>
+                                  {symbolList.length > 0 && (
+                                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                      {symbolList.map(sym => (
+                                        <button
+                                          key={sym}
+                                          type="button"
+                                          onClick={() => handleInputChange(slot.id, sym)}
+                                          style={{
+                                            padding: '6px 14px',
+                                            borderRadius: '6px',
+                                            border: currentAns === sym ? '2px solid var(--primary)' : '1px solid var(--border)',
+                                            background: currentAns === sym ? 'var(--primary-weak)' : 'var(--surface)',
+                                            color: currentAns === sym ? 'var(--primary)' : 'var(--text)',
+                                            fontWeight: currentAns === sym ? 700 : 500,
+                                            cursor: 'pointer',
+                                            fontSize: '14px',
+                                            transition: 'all 120ms ease',
+                                          }}
+                                          data-testid={`quick-btn-${slot.id}-${sym}`}
+                                        >
+                                          {sym}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                  <input
+                                    type="text"
+                                    placeholder="記号（例: ア、または ①、③）"
+                                    className={styles.textInput}
+                                    value={currentAns}
+                                    onChange={e => handleInputChange(slot.id, e.target.value)}
+                                    data-testid={`slot-${slot.id}`}
+                                  />
+                                </>
+                              );
+                            })()}
                           </div>
                         ) : (
                           <div style={{ display: 'flex', flexDirection: 'column' }}>
