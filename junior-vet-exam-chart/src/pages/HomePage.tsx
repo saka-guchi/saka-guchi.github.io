@@ -16,6 +16,9 @@ import { APP_VERSION, BUILD_TIMESTAMP } from '../version';
 import { checkForAppUpdate } from '../utils/version-checker';
 import { getDaysUntilExam } from '../utils/countdown-helper';
 import { AnimatedVetPet } from '../components/AnimatedVetPet';
+import { ReferenceBookQuizModal } from '../components/ReferenceBookQuizModal';
+import { REFERENCE_BOOKS } from '../data/extra-history-80';
+import { getRefBookProgress } from '../utils/reference-book-store';
 import styles from './HomePage.module.css';
 
 type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
@@ -32,6 +35,8 @@ export const HomePage: React.FC = () => {
   const [showParentModal, setShowParentModal] = useState(false);
   const [showAllAnimalsModal, setShowAllAnimalsModal] = useState(false);
   const [flashCardSkillId, setFlashCardSkillId] = useState<string | null>(null);
+  const [activeRefBookId, setActiveRefBookId] = useState<string | null>(null);
+  const [refBookTick, setRefBookTick] = useState<number>(0);
 
   // テーマ・サウンド状態
   const [currentTheme, setCurrentTheme] = useState<ThemeType>('default');
@@ -302,81 +307,144 @@ export const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* ゾーン1: 今日の学習カード（Bento Grid Hero） */}
-        <section className={styles.todayCard} data-testid="today-study-card">
-          <div className={styles.todayCardContent} data-testid="card-breakdown">
-            <div className={styles.badgeRow}>
-              <span className={styles.badgeToday}>🩺 今日のカルテ学習</span>
-              <span style={{ color: 'var(--border)', margin: '0 2px' }}>|</span>
-              <span className={styles.estimatedTime}>⏱️ 所要目安: 約5分</span>
-            </div>
-            <h2 className={styles.todayHeading} style={{ margin: '2px 0' }}>
-              今日のオススメ 10問をといて、動物を元気にしよう！
-            </h2>
-            <p className={styles.todaySubText} style={{ margin: 0 }}>
-              理科・算数・社会・国語の4教科すべてに対応！忘れないように毎日少しずつ解くのが記憶のコツだよ。
-            </p>
+        {/* ゾーン1: 上段2カラム（今日のカルテ学習 と 番外クエスト参考書道場） */}
+        <div className={styles.topCardsGrid}>
+          {/* 左カラム: 今日のカルテ学習 */}
+          <section className={styles.todayCard} data-testid="today-study-card">
+            <div className={styles.todayCardContent} data-testid="card-breakdown">
+              <div className={styles.badgeRow}>
+                <span className={styles.badgeToday}>🩺 今日のカルテ学習</span>
+                <span style={{ color: 'var(--border)', margin: '0 2px' }}>|</span>
+                <span className={styles.estimatedTime}>⏱️ 目安: 約5分</span>
+              </div>
+              <h2 className={styles.todayHeading} style={{ margin: '2px 0', fontSize: '20px' }}>
+                今日のオススメ 10問をといて、動物を元気にしよう！
+              </h2>
+              <p className={styles.todaySubText} style={{ margin: 0, fontSize: '13px' }}>
+                理科・算数・社会・国語の4教科すべてに対応！毎日少しずつ解くのが記憶のコツだよ。
+              </p>
 
-            {/* 科目選択セグメントコントロール（操作できるスイッチとして明確化） */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px', marginBottom: '6px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text)' }}>
-                出題教科:
-              </span>
-              <div className={styles.categoryFilterRow} role="tablist" aria-label="出題教科の選択">
-                {[
-                  { id: 'all', label: '🌟 全教科ミックス' },
-                  { id: 'rika', label: '🧪 理科' },
-                  { id: 'sansu', label: '📐 算数' },
-                  { id: 'shakai', label: '🗾 社会' },
-                  { id: 'kokugo', label: '📖 国語' },
-                ].map(sub => (
-                  <button
-                    key={sub.id}
-                    className={`${styles.categoryFilterBtn} ${selectedStudySubject === sub.id ? styles.categoryFilterBtnActive : ''}`}
-                    onClick={() => {
-                      sound.playPop();
-                      setSelectedStudySubject(sub.id as any);
-                    }}
-                    type="button"
-                    role="tab"
-                    aria-selected={selectedStudySubject === sub.id}
-                  >
-                    {sub.label}
-                  </button>
-                ))}
+              {/* 科目選択セグメントコントロール */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text)' }}>
+                  出題教科:
+                </span>
+                <div className={styles.categoryFilterRow} role="tablist" aria-label="出題教科の選択">
+                  {[
+                    { id: 'all', label: '🌟 全教科' },
+                    { id: 'rika', label: '🧪 理科' },
+                    { id: 'sansu', label: '📐 算数' },
+                    { id: 'shakai', label: '🗾 社会' },
+                    { id: 'kokugo', label: '📖 国語' },
+                  ].map(sub => (
+                    <button
+                      key={sub.id}
+                      className={`${styles.categoryFilterBtn} ${selectedStudySubject === sub.id ? styles.categoryFilterBtnActive : ''}`}
+                      onClick={() => {
+                        sound.playPop();
+                        setSelectedStudySubject(sub.id as any);
+                      }}
+                      type="button"
+                      role="tab"
+                      aria-selected={selectedStudySubject === sub.id}
+                    >
+                      {sub.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 今日の10問内訳 */}
+              <div className={styles.todayMenuRow}>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-subtle)', marginRight: '4px' }}>
+                  📋 内訳:
+                </span>
+                <span className={styles.todayMenuPill}>🔄 復習 3</span>
+                <span className={styles.todayMenuPill}>✏️ やり直し 2</span>
+                <span className={styles.todayMenuPill}>🌱 新知識 2</span>
+                <span className={styles.todayMenuPill}>⭐ 応用 3</span>
               </div>
             </div>
 
-            {/* 今日の10問内訳（ボタンではなく情報テキストとして表示） */}
-            <div className={styles.todayMenuRow}>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-subtle)', marginRight: '4px' }}>
-                📋 内訳:
-              </span>
-              <span className={styles.todayMenuPill}>🔄 復習 3問</span>
-              <span className={styles.todayMenuPill}>✏️ やり直し 2問</span>
-              <span className={styles.todayMenuPill}>🌱 新知識 2問</span>
-              <span className={styles.todayMenuPill}>⭐ 応用 3問</span>
+            <div className={styles.todayActions}>
+              <button
+                className={styles.startBtn}
+                onClick={handleStartToday}
+                data-testid="start-study-btn"
+              >
+                {selectedStudySubject === 'all'
+                  ? '全教科オススメ10問をスタート！ 🐾'
+                  : selectedStudySubject === 'rika'
+                  ? '理科 10問をスタート！ 🧪'
+                  : selectedStudySubject === 'sansu'
+                  ? '算数 10問をスタート！ 📐'
+                  : selectedStudySubject === 'shakai'
+                  ? '社会 10問をスタート！ 🗾'
+                  : '国語 10問をスタート！ 📖'}
+              </button>
             </div>
-          </div>
+          </section>
 
-          <div className={styles.todayActions}>
-            <button
-              className={styles.startBtn}
-              onClick={handleStartToday}
-              data-testid="start-study-btn"
-            >
-              {selectedStudySubject === 'all'
-                ? '全教科オススメ10問をスタート！ 🐾'
-                : selectedStudySubject === 'rika'
-                ? '理科 10問をスタート！ 🧪'
-                : selectedStudySubject === 'sansu'
-                ? '算数 10問をスタート！ 📐'
-                : selectedStudySubject === 'shakai'
-                ? '社会 10問をスタート！ 🗾'
-                : '国語 10問をスタート！ 📖'}
-            </button>
-          </div>
-        </section>
+          {/* 右カラム: 番外クエスト（名作参考書マスター） */}
+          <section className={styles.extraStudyCard} data-testid="section-extra-study">
+            <div className={styles.extraHeaderRow}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span className={styles.extraBadgeQuest}>🎒 番外クエスト</span>
+                <span style={{ color: 'var(--border)', margin: '0 2px' }}>|</span>
+                <span className={styles.extraSubjectBadge}>出題教科：🗾 社会</span>
+              </div>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#3b82f6', background: '#eff6ff', padding: '2px 8px', borderRadius: '10px' }}>
+                人気参考書マスター ⚡
+              </span>
+            </div>
+
+            <div>
+              <h2 className={styles.extraHeading}>
+                📕 中学入試 即答キーワードで覚える歴史人物80
+              </h2>
+              <p className={styles.extraSubText} style={{ marginTop: '4px' }}>
+                入試頻出の重要人物80人を完全網羅！即答キーワード＆名門中入試問題でサクサクスピード攻略しよう！
+              </p>
+            </div>
+
+            {/* 学習進捗・達成度 */}
+            {(() => {
+              const histProg = getRefBookProgress('history-80');
+              const book = REFERENCE_BOOKS[0];
+              return (
+                <div className={styles.extraProgressRow} data-testid="extra-history-progress">
+                  <span className={styles.extraProgressLabel}>
+                    🏆 マスター状況:
+                  </span>
+                  <span className={styles.extraProgressValue}>
+                    {histProg.masteredIds.length} / {book.availableQuestionsCount} 人 達成
+                  </span>
+                  {histProg.clearedSessionsCount > 0 && (
+                    <span style={{ color: '#059669', fontWeight: 'bold', marginLeft: 'auto' }}>
+                      （クリア {histProg.clearedSessionsCount} 回）
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
+
+            <div className={styles.extraActions}>
+              <button
+                className={styles.extraStartBtn}
+                onClick={() => {
+                  sound.playPop();
+                  setActiveRefBookId('history-80');
+                }}
+                data-testid="start-extra-book-btn"
+              >
+                ⚡ 歴史人物80 特訓スタート！（10問） ❯
+              </button>
+              <div className={styles.extraUpcomingHint}>
+                📚 理科・算数の名作参考書クエストも今後続々追加予定！
+              </div>
+            </div>
+          </section>
+        </div>
 
         {/* ゾーン2: 元気にした動物スタンプ帳（ドットノイズ解消・高コントラスト） */}
         <section className={styles.stampSection}>
@@ -1166,6 +1234,15 @@ export const HomePage: React.FC = () => {
             startSkillFocusSession(skillId);
             navigate('/study');
           }}
+        />
+      )}
+
+      {/* 番外クエスト・名作参考書特訓モーダル */}
+      {activeRefBookId && (
+        <ReferenceBookQuizModal
+          bookId={activeRefBookId}
+          onClose={() => setActiveRefBookId(null)}
+          onUpdate={() => setRefBookTick(t => t + 1)}
         />
       )}
     </div>
