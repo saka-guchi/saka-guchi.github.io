@@ -14,13 +14,15 @@ import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
 import { APP_VERSION, BUILD_TIMESTAMP } from '../version';
 import { checkForAppUpdate } from '../utils/version-checker';
+import { getDaysUntilExam } from '../utils/countdown-helper';
 import styles from './HomePage.module.css';
 
 type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { startDailySession, startSkillFocusSession, startSingleQuestionSession } = useAppStore();
+  const { settings, startDailySession, startSkillFocusSession, startSingleQuestionSession } = useAppStore();
+  const daysUntilExam = getDaysUntilExam(settings.targetExamDate);
   const [earnedStampIds, setEarnedStampIds] = useState<string[]>([]);
   const [showStampModal, setShowStampModal] = useState(false);
   const [openedStampIds, setOpenedStampIds] = useState<string[]>([]);
@@ -209,6 +211,16 @@ export const HomePage: React.FC = () => {
         </div>
 
         <div className={styles.headerRight}>
+          {/* 受験カウントダウン */}
+          <div
+            className={styles.countdownBadge}
+            title={`2027年2月1日の受験本番まであと${daysUntilExam}日！一歩ずつマスターしていこう🐾`}
+            data-testid="exam-countdown-badge"
+          >
+            <span>🎯</span>
+            <span>2027/2/1 本番まで あと <strong className={styles.countdownNumber}>{daysUntilExam}</strong> 日！</span>
+          </div>
+
           {/* 連続学習ストリーク（ゲーミフィケーション） */}
           <div className={styles.streakBadge} title="連続学習日数" data-testid="streak-badge">
             <span>{studyStreak > 0 ? '🔥' : '🌱'}</span>

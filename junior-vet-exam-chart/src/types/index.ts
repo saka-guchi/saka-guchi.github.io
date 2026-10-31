@@ -287,6 +287,7 @@ export interface Settings {
   fontSize: 'standard' | 'large' | 'larger';
   colorVisionSupport: boolean;
   dailyQuestionCount: 5 | 10 | 15;
+  targetExamDate?: string; // 受験日 (YYYY-MM-DD, デフォルト: '2027-02-01')
 }
 
 export interface ContentPackManifest {

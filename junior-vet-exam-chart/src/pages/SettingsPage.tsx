@@ -4,6 +4,7 @@ import { useAppStore } from '../store/appStore';
 import { db } from '../db';
 import { APP_VERSION, BUILD_TIMESTAMP, clearCacheAndReload } from '../version';
 import { checkForAppUpdate, applyAppUpdate, type UpdateCheckResult } from '../utils/version-checker';
+import { getDaysUntilExam } from '../utils/countdown-helper';
 import styles from './SettingsPage.module.css';
 
 export const SettingsPage: React.FC = () => {
@@ -197,6 +198,25 @@ export const SettingsPage: React.FC = () => {
               <option value="10">10 秒</option>
               <option value="0">0 秒（すぐに選択肢）</option>
             </select>
+          </div>
+
+          <div className={styles.settingRow}>
+            <div>
+              <strong>🎯 目標受験日</strong>
+              <div className={styles.subLabel}>入試本番までのカウントダウン基準日</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="date"
+                value={settings.targetExamDate || '2027-02-01'}
+                onChange={e => updateSettings({ targetExamDate: e.target.value })}
+                className={styles.selectInput}
+                data-testid="target-exam-date-input"
+              />
+              <span style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                あと {getDaysUntilExam(settings.targetExamDate)} 日！
+              </span>
+            </div>
           </div>
 
           <div className={styles.settingRow}>

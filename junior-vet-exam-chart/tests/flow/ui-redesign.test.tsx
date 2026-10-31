@@ -134,6 +134,7 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(screen.getByText(/ナース猫のミケちゃん:/)).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByTestId('streak-badge')).toHaveTextContent('3日れんぞく！');
+      expect(screen.getByTestId('exam-countdown-badge')).toHaveTextContent(/2027\/2\/1 本番まで あと \d+ 日！/);
     });
     const completionEl = screen.getByTestId('completion-percent');
     expect(completionEl).toBeInTheDocument();

@@ -61,6 +61,7 @@ const defaultSettings: Settings = {
   fontSize: 'standard',
   colorVisionSupport: false,
   dailyQuestionCount: 10,
+  targetExamDate: '2027-02-01',
 };
 
 export const useAppStore = create<AppState>((set, get) => ({
