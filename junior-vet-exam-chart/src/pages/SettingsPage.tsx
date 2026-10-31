@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
-import JSZip from 'jszip';
 import { db } from '../db';
 import { APP_VERSION, BUILD_TIMESTAMP, clearCacheAndReload } from '../version';
 import { checkForAppUpdate, applyAppUpdate, type UpdateCheckResult } from '../utils/version-checker';
@@ -10,7 +9,6 @@ import styles from './SettingsPage.module.css';
 export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { settings, updateSettings } = useAppStore();
-  const [packStatus, setPackStatus] = useState<string | null>(null);
   const [backupStatus, setBackupStatus] = useState<string | null>(null);
   const [resetStep, setResetStep] = useState(0);
   const [isClearingCache, setIsClearingCache] = useState(false);
@@ -23,84 +21,6 @@ export const SettingsPage: React.FC = () => {
     const res = await checkForAppUpdate();
     setCheckResult(res);
     setIsCheckingUpdate(false);
-  };
-
-  // 教材パックZIPの読み込み
-  const handleZipUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 200 * 1024 * 1024) {
-      setPackStatus('エラー: ファイルサイズが200MBを超えています。');
-      return;
-    }
-
-    try {
-      setPackStatus('教材パックを解析中...');
-      const zip = await JSZip.loadAsync(file);
-
-      // manifest.json 検証
-      const manifestFile = zip.file('manifest.json');
-      if (!manifestFile) {
-        setPackStatus('エラー: manifest.json が見つかりません。');
-        return;
-      }
-
-      const manifestText = await manifestFile.async('text');
-      const manifest = JSON.parse(manifestText);
-
-      // 各JSONファイルの読み込み
-      const readJson = async (filename: string) => {
-        const file = zip.file(`data/${filename}`);
-        return file ? JSON.parse(await file.async('text')) : [];
-      };
-
-      const questions = await readJson('questions.json');
-      const skills = await readJson('skills.json');
-      const practice = await readJson('practice.json');
-      const transfer = await readJson('transfer.json');
-      const integrated = await readJson('integrated.json');
-      const stage2 = await readJson('stage2.json');
-      const figures = await readJson('figures.json');
-
-      // 画像ファイルの読み込み (WebP/PNG -> base64 DataURL)
-      const images: Record<string, string> = {};
-      const imageFiles = Object.keys(zip.files).filter(
-        p => p.startsWith('images/') && !zip.files[p].dir
-      );
-      for (const p of imageFiles) {
-        const file = zip.file(p);
-        if (file) {
-          const base64 = await file.async('base64');
-          const ext = p.endsWith('.png') ? 'png' : 'webp';
-          images[p] = `data:image/${ext};base64,${base64}`;
-        }
-      }
-
-      // IndexedDBに保存
-      await db.contentPacks.put({
-        examId: manifest.examId,
-        manifest,
-        questions,
-        answers: [],
-        figures,
-        skills,
-        skillDependencies: [],
-        practice,
-        transfer,
-        integrated,
-        stage2,
-        regions: [],
-        images,
-        importedAt: Date.now(),
-      });
-
-      setPackStatus(
-        `読み込み成功！ パック: ${manifest.packId} (設問: ${questions.length}問, Stage2: ${stage2.length}問, 画像: ${Object.keys(images).length}枚)`
-      );
-    } catch (err: any) {
-      setPackStatus(`読み込み失敗: ${err.message || 'データ形式が不正です'}`);
-    }
   };
 
   // 学習履歴の書き出し（バックアップ保存）
@@ -322,45 +242,6 @@ export const SettingsPage: React.FC = () => {
               className={styles.toggleCheckbox}
             />
           </div>
-        </section>
-
-        {/* 教材パック情報 */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>📚 収録教材パック</h2>
-          <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '16px', marginTop: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '24px' }}>📦</span>
-              <strong>2024年度 安田学園中学校 入試【理科・算数・社会】</strong>
-              <span style={{ background: '#22C55E', color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '10px' }}>3教科収録済み</span>
-            </div>
-            <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#4B5563', lineHeight: '1.5' }}>
-              全問（理科22問・算数16問・社会25問 計63問、全37スキル、Stage2全63問、原本スキャン画像、図版・解説）がアプリ本体に内蔵されています。
-            </p>
-            <button
-              className={styles.actionBtn}
-              onClick={async () => {
-                const { ensureBuiltinPackLoaded } = await import('../db');
-                await ensureBuiltinPackLoaded(true);
-                setPackStatus('教材データを最新の内容に再同期しました！');
-              }}
-              style={{ fontSize: '13px', padding: '8px 14px' }}
-            >
-              🔄 教材データを再同期
-            </button>
-          </div>
-
-          {packStatus && (
-            <div
-              className={styles.statusBox}
-              style={{
-                color: 'var(--success)',
-                marginTop: '10px',
-              }}
-              data-testid="pack-status-box"
-            >
-              {packStatus}
-            </div>
-          )}
         </section>
 
         {/* アプリ・バージョン情報 */}

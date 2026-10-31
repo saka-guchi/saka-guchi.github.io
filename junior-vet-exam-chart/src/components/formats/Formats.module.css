@@ -22,6 +22,21 @@
   margin-bottom: 12px;
 }
 
+.sourceTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  border-radius: var(--radius-pill);
+  font: var(--font-label);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-size: 12px;
+}
+
 .categoryTag {
   display: inline-block;
   padding: 4px 10px;

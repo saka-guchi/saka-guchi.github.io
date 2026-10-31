@@ -168,5 +168,15 @@ describe('QuestionRenderer Component Tests (10 Formats)', () => {
     fireEvent.click(screen.getByTestId('self-check-correct'));
     expect(handleAnswer).toHaveBeenCalledWith('correct', true);
   });
+
+  // 11. Source Attribution Badge
+  it('renders source attribution badge for exam fidelity and student motivation', () => {
+    const q = SAMPLE_QUESTIONS[0];
+    render(<QuestionRenderer question={q} onAnswer={vi.fn()} answered={false} userAnswer={null} />);
+
+    const sourceTag = screen.getByTestId('question-source-tag');
+    expect(sourceTag).toBeInTheDocument();
+    expect(sourceTag).toHaveTextContent(/安田学園中学校/);
+  });
 });
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { SampleQuestion } from '../../data/sample-data';
+import { getQuestionSource } from '../../utils/source-helper';
 import styles from './Formats.module.css';
 
 // --- 左側: 問題エリア（問題文、図表など） ---
@@ -78,6 +79,7 @@ export const QuestionPromptView: React.FC<QuestionPromptViewProps> = ({
   answered,
 }) => {
   const badgeInfo = getFormatBadge(question.format);
+  const sourceText = getQuestionSource(question);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // SVG 内のタップ可能要素にイベントリスナーを登録
@@ -144,6 +146,13 @@ export const QuestionPromptView: React.FC<QuestionPromptViewProps> = ({
   return (
     <div className={styles.promptCard} data-testid="question-prompt-card">
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '12px' }}>
+        <span
+          className={styles.sourceTag}
+          data-testid="question-source-tag"
+          title={`この問題の出題元: ${sourceText}`}
+        >
+          🏫 {sourceText}
+        </span>
         <span className={styles.categoryTag}>{question.category}</span>
         <span
           className={`${styles.formatBadge} ${badgeInfo.className}`}

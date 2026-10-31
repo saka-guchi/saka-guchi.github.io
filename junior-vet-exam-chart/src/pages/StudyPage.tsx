@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 import { QuestionPromptView, AnswerAreaView, ActionState } from '../components/formats/QuestionRenderer';
+import { getQuestionSource } from '../utils/source-helper';
 import { sound } from '../utils/sound-effects';
 import { addQuestionReport } from '../utils/question-reports';
 import styles from './StudyPage.module.css';
@@ -384,6 +385,22 @@ export const StudyPage: React.FC = () => {
                     <div className={styles.explSection}>
                       <div className={styles.explLabel}>考え方</div>
                       <div className={styles.reasoningText}>{currentQ.explanation.reasoning}</div>
+                    </div>
+
+                    <div
+                      style={{
+                        paddingTop: '8px',
+                        borderTop: '1px solid var(--border)',
+                        fontSize: '12px',
+                        color: 'var(--text-subtle)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                      data-testid="study-source-credit"
+                    >
+                      <span>🏫</span>
+                      <span>問題の出典：<strong>{getQuestionSource(currentQ)}</strong></span>
                     </div>
 
                     {/* 回答後のヒント振り返りセクション（表記を「ヒントの振り返り」に統一） */}

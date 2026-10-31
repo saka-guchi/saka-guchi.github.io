@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppStore, type SessionAnswerRecord } from '../store/appStore';
 import { awardDailyStudyStamp, type AnimalStamp } from '../data/animal-stamps';
 import { getFormatBadge } from '../components/formats/QuestionRenderer';
+import { getQuestionSource } from '../utils/source-helper';
 import { db } from '../db';
 import { recordDailyStudyCompleted } from '../utils/progress-analytics';
 import styles from './ResultPage.module.css';
@@ -83,6 +84,20 @@ const MistakeReviewCard: React.FC<{ record: SessionAnswerRecord; index: number }
   return (
     <div className={styles.mistakeCard} data-testid={`mistake-card-${index}`}>
       <div className={styles.mistakeCardHeader}>
+        <span
+          style={{
+            fontSize: '11px',
+            fontWeight: 700,
+            color: '#1d4ed8',
+            background: '#eff6ff',
+            border: '1px solid #bfdbfe',
+            padding: '2px 8px',
+            borderRadius: '9999px',
+          }}
+          data-testid="mistake-source-badge"
+        >
+          🏫 {getQuestionSource(q)}
+        </span>
         <span className={styles.badgeSubject}>{getSubjectLabel(q.subject)}</span>
         <span className={styles.badgeSkill}>🩺 {q.skillTitle}</span>
         <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>

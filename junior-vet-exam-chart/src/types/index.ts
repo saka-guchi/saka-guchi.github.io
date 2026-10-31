@@ -78,6 +78,7 @@ export interface Question {
   questionNumber: string; // 小問
   partNumber?: string; // 枝問
   pageNumber: number;
+  source?: string;
   prompt: string;
   choices?: Choice[];
   correctAnswer: string | string[];

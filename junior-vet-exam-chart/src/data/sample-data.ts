@@ -8,6 +8,7 @@ export interface SampleQuestion {
   category: string;
   skillTitle: string;
   skillId?: string;
+  source?: string;
   figureUrl?: string;
   choices?: { id: string; label: string; text: string; isCorrect: boolean }[];
   correctAnswer: any;
