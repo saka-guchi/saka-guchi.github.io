@@ -31,6 +31,9 @@ describe('Skill Focus & Level Promotion Flow', () => {
   it('navigates to study when clicking "🎯 この単元を特訓してLvアップ！" button on HomePage', async () => {
     render(<App />);
 
+    // 未達成テーマのアコーディオンを開く
+    fireEvent.click(screen.getByTestId('toggle-unmastered-skills-btn'));
+
     // 「維管束の配置」の特訓ボタンを取得
     const focusBtn = screen.getByTestId('focus-study-btn-skill-rika-plant-vascular');
     expect(focusBtn).toBeInTheDocument();
@@ -50,6 +53,9 @@ describe('Skill Focus & Level Promotion Flow', () => {
 
   it('allows starting focus study directly from the back of the flashcard', async () => {
     render(<App />);
+
+    // 未達成テーマのアコーディオンを開く
+    fireEvent.click(screen.getByTestId('toggle-unmastered-skills-btn'));
 
     // 暗記カードを開く
     const flashBtn = screen.getByTestId('quick-flash-btn-skill-rika-plant-vascular');

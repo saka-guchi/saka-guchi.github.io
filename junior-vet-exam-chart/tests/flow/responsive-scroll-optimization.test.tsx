@@ -90,5 +90,28 @@ describe('スマホ・タブレット向けスクロールレスUI/UX 結合テ�
       const examCard = screen.getByTestId('card-final-challenge');
       expect(examCard.className).not.toContain('cardHiddenOnMobile');
     });
+
+    it('未達成テーマ（レベルアップをめざすテーマ）がデフォルトで折りたたまれており、クリックで開閉できる', () => {
+      render(
+        <MemoryRouter>
+          <HomePage />
+        </MemoryRouter>
+      );
+
+      const toggleBtn = screen.getByTestId('toggle-unmastered-skills-btn');
+      expect(toggleBtn).toBeInTheDocument();
+      expect(toggleBtn).toHaveTextContent(/レベルアップをめざすテーマ/);
+
+      // 初期状態では折りたたまれており、未マスターのスキル行が表示されていないこと
+      expect(screen.queryByTestId('focus-study-btn-skill-rika-plant-vascular')).not.toBeInTheDocument();
+
+      // トグルボタンをクリックして開く
+      fireEvent.click(toggleBtn);
+      expect(screen.getByTestId('focus-study-btn-skill-rika-plant-vascular')).toBeInTheDocument();
+
+      // もう一度クリックして閉じる
+      fireEvent.click(toggleBtn);
+      expect(screen.queryByTestId('focus-study-btn-skill-rika-plant-vascular')).not.toBeInTheDocument();
+    });
   });
 });

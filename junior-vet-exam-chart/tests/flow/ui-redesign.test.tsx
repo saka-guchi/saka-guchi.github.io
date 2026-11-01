@@ -62,6 +62,9 @@ describe('UI Redesign & New Features Integration Tests', () => {
   it('filters topics by subject tabs (Science, Math, Social Studies, Japanese)', () => {
     render(<App />);
 
+    // 未達成テーマのアコーディオンを開く
+    fireEvent.click(screen.getByTestId('toggle-unmastered-skills-btn'));
+
     // 初期状態では全56テーマ（国語10テーマ追加）表示
     expect(screen.getByText('🌟 すべて (56)')).toBeInTheDocument();
 
@@ -99,6 +102,9 @@ describe('UI Redesign & New Features Integration Tests', () => {
 
   it('opens and flips quick flashcard modal', () => {
     render(<App />);
+
+    // 未達成テーマのアコーディオンを開く
+    fireEvent.click(screen.getByTestId('toggle-unmastered-skills-btn'));
 
     // 「サクッと暗記カード」ボタンをクリック
     const flashBtns = screen.getAllByText(/暗記カード/);

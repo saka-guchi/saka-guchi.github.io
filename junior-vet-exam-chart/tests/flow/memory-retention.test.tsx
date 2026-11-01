@@ -51,6 +51,9 @@ describe('Memory Retention Meter Boost Flow', () => {
       </MemoryRouter>
     );
 
+    // 未達成テーマのアコーディオンを開く
+    fireEvent.click(screen.getByTestId('toggle-unmastered-skills-btn'));
+
     // ホーム画面の該当スキルのメーターが更新された数値で表示されていること
     const retentionDisplay = screen.getByTestId(`retention-score-${skillId}`);
     expect(retentionDisplay).toHaveTextContent(`${getMemoryRetention(skillId)}%`);

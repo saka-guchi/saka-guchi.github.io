@@ -59,6 +59,8 @@ export const HomePage: React.FC = () => {
   const [mobileBottomTab, setMobileBottomTab] = useState<'progress' | 'exam'>('progress');
   // カルテ進度内のマスター達成テーマの開閉（スマホでの過剰スクロール防止）
   const [showMasteredSkills, setShowMasteredSkills] = useState(false);
+  // レベルアップをめざすテーマの開閉（デフォルト折りたたみ）
+  const [showUnmasteredSkills, setShowUnmasteredSkills] = useState(false);
   const [, setRetentionTick] = useState(0);
   const [, setSkillStagesTick] = useState(0);
 
@@ -800,13 +802,23 @@ export const HomePage: React.FC = () => {
 
             {/* テーマリスト */}
             <div className={styles.allSkillsContainer}>
-              {/* 未達成テーマ */}
+              {/* 未達成テーマ（過剰スクロール防止のためアコーディオン開閉・デフォルト閉） */}
               {filteredSkills.filter(s => !s.isMastered).length > 0 && (
-                <div style={{ fontSize: '12px', fontWeight: '800', color: 'var(--warning-text)', marginTop: '4px' }}>
-                  ✏️ レベルアップをめざすテーマ（あと {remainingCount} つ）
-                </div>
+                <button
+                  type="button"
+                  className={styles.unmasteredAccordionBtn}
+                  onClick={() => {
+                    sound.playPop();
+                    setShowUnmasteredSkills(!showUnmasteredSkills);
+                  }}
+                  data-testid="toggle-unmastered-skills-btn"
+                  title="レベルアップをめざすテーマの表示/非表示を切り替え"
+                >
+                  <span>✏️ レベルアップをめざすテーマ（あと {remainingCount} つ）</span>
+                  <span style={{ fontSize: '12px' }}>{showUnmasteredSkills ? '▲ とじる' : '▼ ひらく（特訓する）'}</span>
+                </button>
               )}
-              {filteredSkills.filter(s => !s.isMastered).map(skill => {
+              {showUnmasteredSkills && filteredSkills.filter(s => !s.isMastered).map(skill => {
                 const info = getMasteryLevelInfo(skill.stage);
                 const enhance = THEME_ENHANCEMENTS[skill.id];
                 const patientIcon = enhance?.patientAnimal?.icon || skill.patientIcon || '🐾';

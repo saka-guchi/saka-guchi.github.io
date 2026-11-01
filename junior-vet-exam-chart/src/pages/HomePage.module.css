@@ -34,6 +34,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .subTitle {
@@ -44,6 +45,7 @@
   align-items: center;
   gap: 4px;
   letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .mainTitle {
@@ -52,12 +54,14 @@
   color: var(--text);
   line-height: 1.2;
   letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 .headerRight {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 /* ストリーク（連続学習日数）バッジ */
@@ -73,6 +77,8 @@
   font-weight: 800;
   color: var(--warning-text);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* 受験カウントダウンバッジ */
@@ -89,6 +95,7 @@
   color: #92400e;
   box-shadow: 0 2px 6px rgba(180, 83, 9, 0.08);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .countdownNumber {
@@ -110,6 +117,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .progressGroup:hover {
@@ -703,6 +712,28 @@
   background: #dcfce7;
 }
 
+.unmasteredAccordionBtn {
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 800;
+  color: #92400e;
+  cursor: pointer;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  transition: all 0.2s ease;
+}
+
+.unmasteredAccordionBtn:hover {
+  background: #fef3c7;
+}
+
 .quickExamJumpBtn {
   display: inline-flex;
   align-items: center;
@@ -760,18 +791,20 @@
 
 /* 分野切り替えタブフィルター（セグメントコントロール風アフォーダンス） */
 .categoryFilterRow {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   background: var(--surface-subtle);
   padding: 4px;
-  border-radius: var(--radius-pill);
+  border-radius: 12px;
   border: 1px solid var(--border);
   gap: 4px;
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .categoryFilterBtn {
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 800;
   border: none;
@@ -779,6 +812,12 @@
   color: var(--text-subtle);
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.4;
 }
 
 .categoryFilterBtn:hover {
@@ -1175,22 +1214,114 @@
 }
 
 /* レスポンシブ対応 */
+@media (max-width: 1100px) {
+  .header {
+    height: auto;
+    padding: 10px 16px;
+    gap: 10px;
+  }
+  .mainTitle {
+    font-size: 17px;
+  }
+  .countdownBadge {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  .countdownNumber {
+    font-size: 14px;
+  }
+  .progressBarBg {
+    width: 100px;
+  }
+  .headerRight {
+    gap: 8px;
+  }
+}
+
 @media (max-width: 768px) {
   .header {
     height: auto;
-    padding: 12px 16px;
+    padding: 10px 12px;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .headerLeft {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .mainTitle {
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .subTitle {
+    font-size: 11px;
   }
   .headerRight {
     width: 100%;
-    justify-content: space-between;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    padding-bottom: 2px;
+  }
+  .countdownBadge {
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+  .countdownNumber {
+    font-size: 13px;
+  }
+  .streakBadge {
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+  .progressGroup {
+    padding: 3px 8px;
+    border-radius: 8px;
+    gap: 6px;
+  }
+  .progressBarBg {
+    width: 70px;
+    height: 8px;
+  }
+  .progressLabel {
+    font-size: 10px;
+  }
+  .progressLabel strong {
+    font-size: 13px;
+  }
+  .parentBadgeBtn {
+    height: 32px;
+    padding: 0 10px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+  .controlBtn {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+  .headerControls {
+    gap: 4px;
+  }
+  .categoryFilterRow {
+    gap: 4px;
+    padding: 3px;
+    border-radius: 8px;
+  }
+  .categoryFilterBtn {
+    padding: 5px 8px;
+    font-size: 11px;
+    border-radius: 6px;
   }
   .todayCard {
     flex-direction: column;
     align-items: stretch;
-    padding: 20px;
+    padding: 16px;
   }
   .todayActions {
     width: 100%;
@@ -1201,6 +1332,7 @@
   .stampSection {
     flex-direction: column;
     align-items: stretch;
+    padding: 16px;
   }
   .stampBookBtn {
     width: 100%;
