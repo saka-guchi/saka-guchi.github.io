@@ -68,7 +68,7 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
     // 記憶メーターを +20% 上昇して永続保存！
     const nextVal = boostMemoryRetention(item.skillId, 20);
     setRetention(nextVal);
-    setBoostMessage(`🔥 記憶メーター +20% UP！（現在 ${nextVal}%）`);
+    setBoostMessage(`🔥 記憶キープ +20% UP！（現在 ${nextVal}%）`);
     onRetentionUpdated?.();
 
     // 1秒後に次のカードへ進む
@@ -86,10 +86,10 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
             <span style={{ fontSize: '20px' }}>⚡</span>
             <div>
               <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 'bold', color: 'var(--text)' }}>
-                サクッと暗記カード
+                トリアージ・カード
               </h3>
               <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                カードをタップして裏返す（{currentIndex + 1} / {keys.length} テーマ）
+                カードをタップして裏返す（{currentIndex + 1} / {keys.length} 症例）
               </div>
             </div>
           </div>
@@ -121,7 +121,7 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
                   {item.subjectLabel}
                 </span>
                 <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                  記憶定着メーター: <strong data-testid="flashcard-retention-val">{retention}%</strong>
+                  🌱 記憶キープ: <strong data-testid="flashcard-retention-val">{retention}%</strong>
                 </span>
               </div>
 
@@ -193,7 +193,7 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
                     }}
                     data-testid="flashcard-remembered-btn"
                   >
-                    🎉 思い出せた！（記憶メーターUP）
+                    🎉 思い出せた！（記憶キープUP）
                   </button>
 
                   {onStartFocusSession && (
@@ -216,7 +216,7 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
                       }}
                       data-testid="flashcard-start-focus-btn"
                     >
-                      🎯 今すぐLvアップ問題に挑戦！ ❯
+                      🎯 この症例を特訓してLvアップ！ ❯
                     </button>
                   )}
                 </div>
@@ -232,14 +232,14 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
             onClick={handlePrev}
             disabled={currentIndex === 0}
           >
-            ← 前のテーマ
+            ← 前の症例
           </button>
           <button
             className={styles.navBtn}
             onClick={handleNext}
             disabled={currentIndex === keys.length - 1}
           >
-            次のテーマ →
+            次の症例 →
           </button>
         </div>
       </div>

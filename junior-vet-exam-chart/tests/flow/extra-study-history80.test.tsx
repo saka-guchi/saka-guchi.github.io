@@ -5,34 +5,46 @@ import { MemoryRouter } from 'react-router-dom';
 import { HomePage } from '../../src/pages/HomePage';
 import { HISTORY_80_FIGURES } from '../../src/data/extra-history-80';
 
-describe('番外クエスト（名作参考書：歴史人物80）UI/UX 結合テスト', () => {
+describe('知識の処方箋（名作参考書：歴史人物80）UI/UX 結合テスト', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
   });
 
-  it('ホーム画面上段が2カラムになり、今日のカルテ学習と番外クエストカードが両方表示される', () => {
+  it('ホーム画面上段が2カラムになり、本日の回診と知識の処方箋カードが両方表示される', () => {
     render(
       <MemoryRouter>
         <HomePage />
       </MemoryRouter>
     );
 
-    // 左カラム: 今日のカルテ学習
+    // 左カラム: 本日の回診
     expect(screen.getByTestId('today-study-card')).toBeInTheDocument();
-    expect(screen.getByText(/今日のカルテ学習/)).toBeInTheDocument();
+    expect(screen.getByText('🩺 本日の回診')).toBeInTheDocument();
     expect(screen.getByTestId('start-study-btn')).toBeInTheDocument();
 
-    // 右カラム: 番外クエスト
+    // 右カラム: 知識の処方箋
     const extraCard = screen.getByTestId('section-extra-study');
     expect(extraCard).toBeInTheDocument();
-    expect(screen.getByText('🎒 番外クエスト')).toBeInTheDocument();
+    expect(screen.getByText('💊 知識の処方箋')).toBeInTheDocument();
     expect(screen.getByText('出題教科：🗾 社会')).toBeInTheDocument();
     expect(screen.getByText(/中学入試 即答キーワードで覚える歴史人物80/)).toBeInTheDocument();
     expect(screen.getByTestId('start-extra-book-btn')).toBeInTheDocument();
+
+    // 歴史人物80の母数が36人ではなく正真正銘の「80 人」と表示されていること
+    const progressRow = screen.getByTestId('extra-history-progress');
+    expect(progressRow).toHaveTextContent(/0 \/ 80 人 達成/);
   });
 
-  it('「⚡ 歴史人物80 特訓スタート！」をクリックするとクイズモーダルが開き、即答キーワード・学校名・4択が表示される', async () => {
+  it('全80人の歴史人物データが重複なく完全収録されていること', () => {
+    expect(HISTORY_80_FIGURES.length).toBe(80);
+    const idSet = new Set(HISTORY_80_FIGURES.map(f => f.id));
+    expect(idSet.size).toBe(80);
+    const nameSet = new Set(HISTORY_80_FIGURES.map(f => f.name));
+    expect(nameSet.size).toBe(80);
+  });
+
+  it('「💊 歴史人物80 処方問題を解く！」をクリックするとクイズモーダルが開き、即答キーワード・学校名・4択が表示される', async () => {
     render(
       <MemoryRouter>
         <HomePage />

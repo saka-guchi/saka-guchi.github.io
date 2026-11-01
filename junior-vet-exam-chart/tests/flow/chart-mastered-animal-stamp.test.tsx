@@ -5,13 +5,13 @@ import { MemoryRouter } from 'react-router-dom';
 import { HomePage } from '../../src/pages/HomePage';
 import { setSkillStage } from '../../src/utils/mastery-helper';
 
-describe('受験カルテ進度マスター（全快）キャラクターのスタンプ帳連動 結合テスト', () => {
+describe('症例スタディマスター（全快）キャラクターのカルテ連動 結合テスト', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
   });
 
-  it('ホーム画面のスタンプ帳エリアでカルテ全快プレビューへ切り替えられる', async () => {
+  it('ホーム画面のカルテエリアで症例全快プレビューへ切り替えられる', async () => {
     // ウサギのロップくん（維管束の配置）を M4（マスター）に設定
     setSkillStage('skill-rika-plant-vascular', 'M4');
 
@@ -21,11 +21,11 @@ describe('受験カルテ進度マスター（全快）キャラクターのス�
       </MemoryRouter>
     );
 
-    // スタンプヘッダーにカルテ全快数が含まれていること
-    expect(screen.getByText(/元気にした動物スタンプ帳/)).toBeInTheDocument();
-    expect(screen.getByText(/カルテ全快:/)).toBeInTheDocument();
+    // カルテヘッダーに症例全快数が含まれていること
+    expect(screen.getByText(/元気にした動物たちのカルテ/)).toBeInTheDocument();
+    expect(screen.getByText(/症例全快:/)).toBeInTheDocument();
 
-    // プレビュータブ（カルテ全快）をクリック
+    // プレビュータブ（症例全快）をクリック
     const chartTab = screen.getByTestId('preview-tab-chart');
     expect(chartTab).toBeInTheDocument();
     fireEvent.click(chartTab);
@@ -36,7 +36,7 @@ describe('受験カルテ進度マスター（全快）キャラクターのス�
     expect(lopSlot).toHaveTextContent('🐰');
   });
 
-  it('スタンプ帳モーダルで「カルテ全快ドクタースタンプ」タブを開き、ウサギのロップくんの全快メッセージと豆知識が飛び出す', async () => {
+  it('カルテモーダルで「症例全快ドクターカルテ」タブを開き、ウサギのロップくんの全快メッセージと豆知識が飛び出す', async () => {
     // ウサギのロップくん（skill-rika-plant-vascular）を全快マスターに設定
     setSkillStage('skill-rika-plant-vascular', 'M4');
 
@@ -46,7 +46,7 @@ describe('受験カルテ進度マスター（全快）キャラクターのス�
       </MemoryRouter>
     );
 
-    // スタンプ帳を開く
+    // カルテを開く
     const openBtn = screen.getByTestId('open-stamp-book-btn');
     fireEvent.click(openBtn);
 
@@ -56,7 +56,7 @@ describe('受験カルテ進度マスター（全快）キャラクターのス�
     expect(dailyTab).toBeInTheDocument();
     expect(chartTab).toBeInTheDocument();
 
-    // カルテ全快タブをクリック
+    // 症例全快タブをクリック
     fireEvent.click(chartTab);
 
     // カルテ全快グリッドが表示されること
@@ -97,7 +97,7 @@ describe('受験カルテ進度マスター（全快）キャラクターのス�
       </MemoryRouter>
     );
 
-    // スタンプ帳を開く
+    // カルテを開く
     fireEvent.click(screen.getByTestId('open-stamp-book-btn'));
     fireEvent.click(screen.getByTestId('stamp-tab-chart'));
 
@@ -111,7 +111,7 @@ describe('受験カルテ進度マスター（全快）キャラクターのス�
     // 特訓ボタンが存在すること
     const trainBtn = screen.getByTestId('train-from-stamp-skill-sansu-tsurukame-elimination');
     expect(trainBtn).toBeInTheDocument();
-    expect(trainBtn).toHaveTextContent('この単元を特訓して全快にする');
+    expect(trainBtn).toHaveTextContent('この症例を特訓して全快にする');
 
     // 特訓ボタンをクリックするとモーダルが閉じて特訓へ進むこと
     fireEvent.click(trainBtn);

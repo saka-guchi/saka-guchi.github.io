@@ -222,7 +222,7 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
         ) : (
           /* リザルト画面 */
           <div className={styles.resultContainer}>
-            <div className={styles.resultBadge}>🎉 番外特訓クエスト 達成！</div>
+            <div className={styles.resultBadge}>🎉 知識の処方箋 10問完了！</div>
             <h2 className={styles.resultScore}>
               10問中 <span className={styles.scoreHighlight}>{correctCount}</span> 問 正解！
             </h2>

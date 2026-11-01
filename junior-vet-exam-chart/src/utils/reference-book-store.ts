@@ -1,4 +1,4 @@
-// 番外参考書クエストの学習進捗・クリア履歴管理
+// 知識の処方箋（名作参考書）の学習進捗・クリア履歴管理
 
 const STORAGE_KEY_PREFIX = 'junior_vet_refbook_';
 

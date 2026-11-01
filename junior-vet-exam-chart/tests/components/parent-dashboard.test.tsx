@@ -26,7 +26,7 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     render(<ParentDashboardModal onClose={handleClose} />);
 
     // タイトル
-    expect(screen.getByRole('heading', { name: '保護者カルテ' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '指導医ログ' })).toBeInTheDocument();
 
     // 4つのタブ
     expect(screen.getByTestId('parent-tab-charts')).toBeInTheDocument();
@@ -119,8 +119,8 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     expect(screen.getByText(/家庭での声かけ・解法のコツ:/)).toBeInTheDocument();
     expect(screen.getByText(/出題される問題の例:/)).toBeInTheDocument();
 
-    // 「お子さんにこの単元を解かせる」ボタンをクリック
-    const startQuizBtn = screen.getByRole('button', { name: /お子さんにこの単元を解かせる/ });
+    // 「お子さんにこの症例を解かせる」ボタンをクリック
+    const startQuizBtn = screen.getByRole('button', { name: /お子さんにこの症例を解かせる/ });
     fireEvent.click(startQuizBtn);
 
     // 暗記カード開始コールバックが呼ばれ、かつ保護者カルテは閉じない（handleCloseは呼ばれない）
@@ -140,7 +140,7 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     fireEvent.click(headerBtn);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: '保護者カルテ' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: '指導医ログ' })).toBeInTheDocument();
     });
 
     // 閉じる
@@ -148,7 +148,7 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     fireEvent.click(closeBtn);
 
     await waitFor(() => {
-      expect(screen.queryByRole('heading', { name: '保護者カルテ' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: '指導医ログ' })).not.toBeInTheDocument();
     });
   });
 
@@ -159,11 +159,11 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
       </BrowserRouter>
     );
 
-    // 保護者カルテを開く
+    // 指導医ログを開く
     const headerBtn = screen.getByTestId('header-parent-btn');
     fireEvent.click(headerBtn);
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: '保護者カルテ' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: '指導医ログ' })).toBeInTheDocument();
     });
 
     // タブ3へ移動
@@ -174,14 +174,14 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     const guideBtns = screen.getAllByRole('button', { name: /急所・指導ヒントを見る/ });
     fireEvent.click(guideBtns[0]);
 
-    // お子さんに解かせる（暗記カード起動）
-    const startQuizBtn = screen.getByRole('button', { name: /お子さんにこの単元を解かせる/ });
+    // お子さんに解かせる（トリアージ・カード起動）
+    const startQuizBtn = screen.getByRole('button', { name: /お子さんにこの症例を解かせる/ });
     fireEvent.click(startQuizBtn);
 
-    // 暗記カードが前面に表示され、かつ保護者カルテも背後で維持されている
+    // 暗記カードが前面に表示され、かつ指導医ログも背後で維持されている
     await waitFor(() => {
       expect(screen.getByTestId('flashcard-modal')).toBeInTheDocument();
-      expect(screen.getByRole('heading', { name: '保護者カルテ' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: '指導医ログ' })).toBeInTheDocument();
     });
 
     // 暗記カード内の「✕」閉じるボタンをクリック
@@ -189,10 +189,10 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     const flashCardCloseBtn = within(flashcardModal).getByLabelText('閉じる');
     fireEvent.click(flashCardCloseBtn);
 
-    // 暗記カードは閉じ、保護者カルテは開いたまま維持される（トップ画面に抜けない）
+    // 暗記カードは閉じ、指導医ログは開いたまま維持される（トップ画面に抜けない）
     await waitFor(() => {
       expect(screen.queryByTestId('flashcard-modal')).not.toBeInTheDocument();
-      expect(screen.getByRole('heading', { name: '保護者カルテ' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: '指導医ログ' })).toBeInTheDocument();
     });
   });
 

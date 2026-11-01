@@ -119,7 +119,7 @@ describe('StudyPage Hints and Report Feature', () => {
     // モーダルが開く
     const modal = screen.getByTestId('question-report-modal');
     expect(modal).toBeInTheDocument();
-    expect(modal).toHaveTextContent('おうちの人に相談・チェック依頼');
+    expect(modal).toHaveTextContent('指導医に相談・チェック依頼');
 
     // 理由「正解・解答がちがう気がする」を選択
     const wrongAnswerOption = screen.getByTestId('report-reason-answer_error');
@@ -135,7 +135,7 @@ describe('StudyPage Hints and Report Feature', () => {
 
     // 送信完了フィードバックの表示
     await waitFor(() => {
-      expect(screen.getByText('保護者カルテに届けました！')).toBeInTheDocument();
+      expect(screen.getByText('指導医ログに届けました！')).toBeInTheDocument();
     });
 
     // 登録されたデータを検証

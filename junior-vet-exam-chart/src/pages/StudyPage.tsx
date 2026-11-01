@@ -201,11 +201,11 @@ export const StudyPage: React.FC = () => {
                 borderRadius: 'var(--radius-pill)',
                 transition: 'background 150ms ease',
               }}
-              title="問題や答えについておうちの人（保護者カルテ）に相談メモを送る"
+              title="問題や答えについて指導医（保護者の方）に相談メモを送る"
               data-testid="header-report-btn"
             >
               <span>💬</span>
-              <span>おうちの人に相談</span>
+              <span>指導医に相談</span>
             </button>
           </div>
 
@@ -701,10 +701,10 @@ export const StudyPage: React.FC = () => {
               <div style={{ textAlign: 'center', padding: '20px 0' }} data-testid="report-success-message">
                 <div style={{ fontSize: '48px', marginBottom: '12px' }}>🐾</div>
                 <h3 style={{ font: 'var(--font-heading)', color: 'var(--success)', margin: '0 0 8px' }}>
-                  保護者カルテに届けました！
+                  指導医ログに届けました！
                 </h3>
                 <p style={{ font: 'var(--font-body)', color: 'var(--text-subtle)', margin: 0, lineHeight: '1.6' }}>
-                  おうちの人が確認できるようにメモを残したよ。<br />
+                  指導医の先生が確認できるようにメモを残したよ。<br />
                   あとで一緒にチェックしよう！引き続きがんばろう🐾
                 </p>
               </div>
@@ -713,12 +713,12 @@ export const StudyPage: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                   <span style={{ fontSize: '28px' }}>🩺</span>
                   <h3 style={{ font: 'var(--font-heading)', margin: 0, color: 'var(--text)' }}>
-                    おうちの人に相談・チェック依頼
+                    指導医に相談・チェック依頼
                   </h3>
                 </div>
                 <p style={{ fontSize: '13px', color: 'var(--text-subtle)', margin: '0 0 16px', lineHeight: '1.5' }}>
                   問題や答え、図におかしいところがあれば教えてね。<br />
-                  トップページの「保護者カルテ」にメモが届きます。
+                  トップページの「指導医ログ」にメモが届きます。
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
@@ -820,7 +820,7 @@ export const StudyPage: React.FC = () => {
                     onClick={handleSendReport}
                     data-testid="send-report-btn"
                   >
-                    保護者カルテに送る 📨
+                    指導医ログに送る 📨
                   </button>
                 </div>
               </>

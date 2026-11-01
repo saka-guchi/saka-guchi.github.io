@@ -65,19 +65,13 @@ describe('UI Redesign & New Features Integration Tests', () => {
     // 未達成テーマのアコーディオンを開く
     fireEvent.click(screen.getByTestId('toggle-unmastered-skills-btn'));
 
-    // 初期状態では全56テーマ（国語10テーマ追加）表示
-    expect(screen.getByText('🌟 すべて (56)')).toBeInTheDocument();
+    // 初期状態では「理科 (12)」がデフォルト選択され、理科のテーマが表示
+    expect(screen.getByText('🧪 理科 (12)')).toBeInTheDocument();
+    expect(screen.getByText('維管束の配置（内道外師）')).toBeInTheDocument();
+    expect(screen.queryByText('つるかめ算と消去算の条件整理')).not.toBeInTheDocument();
 
     // 国語ボタンが存在することを確認
     expect(screen.getByText('📖 国語 (10)')).toBeInTheDocument();
-
-    // 「🧪 理科 (12)」をクリック
-    const rikaBtn = screen.getByText('🧪 理科 (12)');
-    fireEvent.click(rikaBtn);
-
-    // 理科のテーマが表示され、算数のテーマが表示されていないことを確認
-    expect(screen.getByText('維管束の配置（内道外師）')).toBeInTheDocument();
-    expect(screen.queryByText('つるかめ算と消去算の条件整理')).not.toBeInTheDocument();
 
     // 「📐 算数 (17)」をクリック
     const sansuBtn = screen.getByText('📐 算数 (17)');
@@ -93,26 +87,23 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(screen.getByText('漢字の書き取りと部首・同音異義語')).toBeInTheDocument();
     expect(screen.queryByText('つるかめ算と消去算の条件整理')).not.toBeInTheDocument();
 
-    // 「🌟 すべて (56)」に戻す
-    fireEvent.click(screen.getByText('🌟 すべて (56)'));
+    // 再度「🧪 理科 (12)」をクリックして理科に戻る
+    const rikaBtn = screen.getByText('🧪 理科 (12)');
+    fireEvent.click(rikaBtn);
     expect(screen.getByText('維管束の配置（内道外師）')).toBeInTheDocument();
-    expect(screen.getByText('つるかめ算と消去算の条件整理')).toBeInTheDocument();
-    expect(screen.getByText('漢字の書き取りと部首・同音異義語')).toBeInTheDocument();
+    expect(screen.queryByText('つるかめ算と消去算の条件整理')).not.toBeInTheDocument();
   });
 
-  it('opens and flips quick flashcard modal', () => {
+  it('opens and flips triage flashcard modal', () => {
     render(<App />);
 
-    // 未達成テーマのアコーディオンを開く
-    fireEvent.click(screen.getByTestId('toggle-unmastered-skills-btn'));
-
-    // 「サクッと暗記カード」ボタンをクリック
-    const flashBtns = screen.getAllByText(/暗記カード/);
-    fireEvent.click(flashBtns[0]);
+    // 「トリアージ・カード」ボタンをクリック
+    const triageBtn = screen.getByTestId('launch-triage-card-btn');
+    fireEvent.click(triageBtn);
 
     // モーダルが表示される
     expect(screen.getByTestId('flashcard-modal')).toBeInTheDocument();
-    expect(screen.getByText('サクッと暗記カード')).toBeInTheDocument();
+    expect(screen.getByText('トリアージ・カード')).toBeInTheDocument();
 
     // 科目バッジが「🧪 理科」であり、高校分野の「生物」ではないこと
     expect(screen.getByTestId('flashcard-subject-badge')).toHaveTextContent('🧪 理科');
@@ -155,8 +146,8 @@ describe('UI Redesign & New Features Integration Tests', () => {
     const stampAlbumBtn = screen.getByTestId('open-stamp-book-btn');
     fireEvent.click(stampAlbumBtn);
 
-    // シール帳モーダルが開く
-    expect(screen.getByText('🐾 みならい獣医さんの動物シール帳')).toBeInTheDocument();
+    // カルテモーダルが開く
+    expect(screen.getByText('🐾 元気にした動物たちのカルテ')).toBeInTheDocument();
 
     // 獲得済みスタンプ1（stamp-dog-shiba）
     const dogStamp = screen.getByTestId('animal-stamp-stamp-dog-shiba');

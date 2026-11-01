@@ -216,13 +216,13 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '28px' }}>👨‍👩‍👧</span>
+            <span style={{ fontSize: '28px' }}>👨‍⚕️</span>
             <div>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--text)' }}>
-                保護者カルテ
+                指導医ログ
               </h3>
               <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                お子さんの学習量・理解度の推移・ほめ言葉ヒント・A4弱点印刷
+                見習い獣医さんの学習量・理解度の推移・ほめ言葉ヒント・A4弱点印刷
               </div>
             </div>
           </div>
@@ -819,7 +819,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                                   }}
                                   data-testid={`start-quiz-btn-${skill.id}`}
                                 >
-                                  📱 お子さんにこの単元を解かせる（サクッと暗記カードを起動）
+                                  📱 お子さんにこの症例を解かせる（トリアージ・カードを起動）
                                 </button>
                               </div>
                             )}

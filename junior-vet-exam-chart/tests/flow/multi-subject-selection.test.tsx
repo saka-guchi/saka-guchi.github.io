@@ -11,7 +11,7 @@ describe('今日のカルテ学習 出題教科の複数選択（マルチセレ
     vi.clearAllMocks();
   });
 
-  it('初期状態では全教科が選択されており、「全教科オススメ10問をスタート！ 🐾」と表示される', () => {
+  it('初期状態では全教科が選択されており、「全教科の本日の回診をスタート！ 🐾」と表示される', () => {
     render(
       <MemoryRouter>
         <HomePage />
@@ -27,10 +27,10 @@ describe('今日のカルテ学習 出題教科の複数選択（マルチセレ
     expect(screen.getByText('🌟 全教科ミックス')).toBeInTheDocument();
 
     const startBtn = screen.getByTestId('start-study-btn');
-    expect(startBtn).toHaveTextContent('全教科オススメ10問をスタート！ 🐾');
+    expect(startBtn).toHaveTextContent('全教科の本日の回診をスタート！ 🐾');
   });
 
-  it('理科と社会をタップして複数選択した際、ボタンが「理科・社会 10問をスタート！ 🧪🗾」に変化し、ストアに複数科目が渡される', () => {
+  it('理科と社会をタップして複数選択した際、ボタンが「理科・社会の本日の回診をスタート！ 🧪🗾」に変化し、ストアに複数科目が渡される', () => {
     render(
       <MemoryRouter>
         <HomePage />
@@ -44,12 +44,12 @@ describe('今日のカルテ学習 出題教科の複数選択（マルチセレ
     // 全教科選択状態から「理科」をタップ -> 理科のみ選択へ
     fireEvent.click(rikaBtn);
     expect(screen.getByText('🎯 1教科を選択中')).toBeInTheDocument();
-    expect(startBtn).toHaveTextContent('理科 10問をスタート！ 🧪');
+    expect(startBtn).toHaveTextContent('理科の本日の回診をスタート！ 🧪');
 
     // 続けて「社会」をタップ -> 理科＋社会の複数選択へ
     fireEvent.click(shakaiBtn);
     expect(screen.getByText('🎯 2教科を選択中')).toBeInTheDocument();
-    expect(startBtn).toHaveTextContent('理科・社会 10問をスタート！ 🧪🗾');
+    expect(startBtn).toHaveTextContent('理科・社会の本日の回診をスタート！ 🧪🗾');
 
     // スタートボタンをクリック
     fireEvent.click(startBtn);
@@ -75,12 +75,12 @@ describe('今日のカルテ学習 出題教科の複数選択（マルチセレ
 
     // 算数のみに絞り込み
     fireEvent.click(sansuBtn);
-    expect(startBtn).toHaveTextContent('算数 10問をスタート！ 📐');
+    expect(startBtn).toHaveTextContent('算数の本日の回診をスタート！ 📐');
 
     // 「🌟 全教科」をタップして復帰
     fireEvent.click(allBtn);
     expect(allBtn).toHaveTextContent(/✓ 🌟 全教科/);
-    expect(startBtn).toHaveTextContent('全教科オススメ10問をスタート！ 🐾');
+    expect(startBtn).toHaveTextContent('全教科の本日の回診をスタート！ 🐾');
   });
 });
 

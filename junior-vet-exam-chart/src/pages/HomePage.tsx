@@ -45,13 +45,14 @@ export const HomePage: React.FC = () => {
   const [showParentModal, setShowParentModal] = useState(false);
   const [showAllAnimalsModal, setShowAllAnimalsModal] = useState(false);
   const [flashCardSkillId, setFlashCardSkillId] = useState<string | null>(null);
+  const [activePatientSkillId, setActivePatientSkillId] = useState<string | null>(null);
   const [activeRefBookId, setActiveRefBookId] = useState<string | null>(null);
   const [refBookTick, setRefBookTick] = useState<number>(0);
 
   // テーマ・サウンド状態
   const [currentTheme, setCurrentTheme] = useState<ThemeType>('default');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
-  const [selectedSkillSubject, setSelectedSkillSubject] = useState<'all' | 'rika' | 'sansu' | 'shakai' | 'kokugo'>('all');
+  const [selectedSkillSubject, setSelectedSkillSubject] = useState<'rika' | 'sansu' | 'shakai' | 'kokugo'>('rika');
   // 今日の学習の出題教科（複数選択可能。初期値は全4教科）
   const ALL_STUDY_SUBJECTS: Subject[] = ['rika', 'sansu', 'shakai', 'kokugo'];
   const [selectedStudySubjects, setSelectedStudySubjects] = useState<Subject[]>(['rika', 'sansu', 'shakai', 'kokugo']);
@@ -206,7 +207,7 @@ export const HomePage: React.FC = () => {
 
   const getStartButtonLabel = () => {
     if (isAllSubjectsSelected) {
-      return '全教科オススメ10問をスタート！ 🐾';
+      return '全教科の本日の回診をスタート！ 🐾';
     }
     const subjectNames: Record<Subject, { label: string; icon: string }> = {
       rika: { label: '理科', icon: '🧪' },
@@ -218,7 +219,7 @@ export const HomePage: React.FC = () => {
     const sortedSelected = ALL_STUDY_SUBJECTS.filter(s => selectedStudySubjects.includes(s));
     const labels = sortedSelected.map(s => subjectNames[s]?.label || s).join('・');
     const icons = sortedSelected.map(s => subjectNames[s]?.icon || '').join('');
-    return `${labels} 10問をスタート！ ${icons || '🐾'}`;
+    return `${labels}の本日の回診をスタート！ ${icons || '🐾'}`;
   };
 
   const handleStartToday = () => {
@@ -235,6 +236,16 @@ export const HomePage: React.FC = () => {
       sound.playPop();
     }
     setShowStampModal(true);
+  };
+
+  const getSubjectBadgeText = (subject: Subject) => {
+    switch (subject) {
+      case 'rika': return '出題教科：🧪 理科';
+      case 'sansu': return '出題教科：📐 算数';
+      case 'shakai': return '出題教科：🗾 社会';
+      case 'kokugo': return '出題教科：📖 国語';
+      default: return '出題教科';
+    }
   };
 
   // 全スキルの動的ステージ反映
@@ -264,9 +275,8 @@ export const HomePage: React.FC = () => {
     return { icon, name, role, symptom, examPoint };
   };
 
-  // 科目別フィルター（小学生向け科目タブ：すべて・理科・算数・社会）
+  // 科目別フィルター（小学生向け科目タブ：理科・算数・社会・国語）
   const filteredSkills = enrichedSkills.filter(skill => {
-    if (selectedSkillSubject === 'all') return true;
     return skill.subject === selectedSkillSubject;
   });
 
@@ -342,19 +352,19 @@ export const HomePage: React.FC = () => {
 
           {/* 右上操作コントロール群 */}
           <div className={styles.headerControls}>
-            {/* 保護者カルテボタン */}
+            {/* 指導医ログボタン */}
             <button
               className={styles.parentBadgeBtn}
               onClick={() => {
                 sound.playPop();
                 setShowParentModal(true);
               }}
-              title="保護者カルテ（学習進度グラフ・ほめ言葉ヒント・A4弱点印刷）"
-              aria-label="保護者カルテ"
+              title="指導医ログ（学習進度グラフ・ほめ言葉ヒント・A4弱点印刷）"
+              aria-label="指導医ログ"
               data-testid="header-parent-btn"
             >
-              <span style={{ fontSize: '15px' }}>👨‍👩‍👧</span>
-              <span>保護者カルテ</span>
+              <span style={{ fontSize: '15px' }}>👨‍⚕️</span>
+              <span>指導医ログ</span>
             </button>
 
             {/* テーマ着せ替えボタン */}
@@ -399,26 +409,23 @@ export const HomePage: React.FC = () => {
         <section className={styles.mentorBar}>
           <div className={styles.mentorAvatar}>🐱</div>
           <div className={styles.mentorSpeech} style={{ flex: 1 }}>
-            <strong>ナース猫のミケちゃん:</strong>「おかえりなさい、先生！今日は【{nextStamp.name}】が元気をなくして待っているよ。10問カルテをといて、とびっきりの笑顔にしてあげよう！」
+            <strong>ナース猫のミケちゃん:</strong>「おかえりなさい、先生！今日は【{nextStamp.name}】が元気をなくして待っているよ。本日の回診をといて、とびっきりの笑顔にしてあげよう！」
           </div>
         </section>
 
-        {/* ゾーン1: 上段2カラム（今日のカルテ学習 と 番外クエスト参考書道場） */}
+        {/* ゾーン1: 上段2カラム（本日の回診 と 知識の処方箋） */}
         <div className={styles.topCardsGrid}>
-          {/* 左カラム: 今日のカルテ学習 */}
+          {/* 左カラム: 本日の回診 */}
           <section className={styles.todayCard} data-testid="today-study-card">
             <div className={styles.todayCardContent} data-testid="card-breakdown">
               <div className={styles.badgeRow}>
-                <span className={styles.badgeToday}>🩺 今日のカルテ学習</span>
+                <span className={styles.badgeToday}>🩺 本日の回診</span>
                 <span style={{ color: 'var(--border)', margin: '0 2px' }}>|</span>
                 <span className={styles.estimatedTime}>⏱️ 目安: 約5分</span>
               </div>
               <h2 className={styles.todayHeading} style={{ margin: '2px 0', fontSize: '20px' }}>
-                今日のオススメ 10問をといて、動物を元気にしよう！
+                本日の回診をといて、動物を元気にしよう！
               </h2>
-              <p className={styles.todaySubText} style={{ margin: 0, fontSize: '13px' }}>
-                理科・算数・社会・国語の4教科すべてに対応！毎日少しずつ解くのが記憶のコツだよ。
-              </p>
 
               {/* 出題教科セグメントコントロール（複数選択対応・トグルUI） */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '8px', marginBottom: '4px' }}>
@@ -488,16 +495,16 @@ export const HomePage: React.FC = () => {
             </div>
           </section>
 
-          {/* 右カラム: 番外クエスト（名作参考書マスター） */}
+          {/* 右カラム: 知識の処方箋（名作参考書マスター） */}
           <section className={styles.extraStudyCard} data-testid="section-extra-study">
             <div className={styles.extraHeaderRow}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span className={styles.extraBadgeQuest}>🎒 番外クエスト</span>
+                <span className={styles.extraBadgeQuest}>💊 知識の処方箋</span>
                 <span style={{ color: 'var(--border)', margin: '0 2px' }}>|</span>
                 <span className={styles.extraSubjectBadge}>出題教科：🗾 社会</span>
               </div>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: '#3b82f6', background: '#eff6ff', padding: '2px 8px', borderRadius: '10px' }}>
-                人気参考書マスター ⚡
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#0284c7', background: '#e0f2fe', padding: '2px 8px', borderRadius: '10px' }}>
+                名作参考書から調合 🧪
               </span>
             </div>
 
@@ -506,7 +513,7 @@ export const HomePage: React.FC = () => {
                 📕 中学入試 即答キーワードで覚える歴史人物80
               </h2>
               <p className={styles.extraSubText} style={{ marginTop: '4px' }}>
-                入試頻出の重要人物80人を完全網羅！即答キーワード＆名門中入試問題でサクサクスピード攻略しよう！
+                歴史の知識不足を補う特効薬を処方！入試頻出の80人を「即答キーワード」と実戦入試問題でサクッと処方・マスターしよう！
               </p>
             </div>
 
@@ -517,14 +524,14 @@ export const HomePage: React.FC = () => {
               return (
                 <div className={styles.extraProgressRow} data-testid="extra-history-progress">
                   <span className={styles.extraProgressLabel}>
-                    🏆 マスター状況:
+                    💊 処方・マスター状況:
                   </span>
                   <span className={styles.extraProgressValue}>
                     {histProg.masteredIds.length} / {book.availableQuestionsCount} 人 達成
                   </span>
                   {histProg.clearedSessionsCount > 0 && (
                     <span style={{ color: '#059669', fontWeight: 'bold', marginLeft: 'auto' }}>
-                      （クリア {histProg.clearedSessionsCount} 回）
+                      （服用完了 {histProg.clearedSessionsCount} 回）
                     </span>
                   )}
                 </div>
@@ -540,36 +547,36 @@ export const HomePage: React.FC = () => {
                 }}
                 data-testid="start-extra-book-btn"
               >
-                ⚡ 歴史人物80 特訓スタート！（10問） ❯
+                💊 歴史人物80 処方問題を解く！（10問） ❯
               </button>
               <div className={styles.extraUpcomingHint}>
-                📚 理科・算数の名作参考書クエストも今後続々追加予定！
+                💊 理科・算数の名作参考書からの特効処方箋も今後続々調合予定！
               </div>
             </div>
           </section>
         </div>
 
-        {/* ゾーン2: 元気にした動物スタンプ帳（ドットノイズ解消・高コントラスト） */}
+        {/* ゾーン2: 元気にした動物たちのカルテ（ドットノイズ解消・高コントラスト） */}
         <section className={styles.stampSection}>
           <div className={styles.stampLeft}>
             <div>
               <div className={styles.stampHeaderTitle}>
-                🐾 元気にした動物スタンプ帳（毎日: {earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹 ＋ カルテ全快: {allMasteredSkills.length} / {enrichedSkills.length} 匹）
+                🐾 元気にした動物たちのカルテ（本日の回診: {earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹 ＋ 症例全快: {allMasteredSkills.length} / {enrichedSkills.length} 匹）
               </div>
               <div className={styles.stampNextHint}>
-                👉 今日の10問で【{nextStamp.icon} {nextStamp.name}】、カルテ特訓（Lv.4マスター）で【患者動物たち】が全快スタンプになるよ！
+                👉 本日の回診で【{nextStamp.icon} {nextStamp.name}】、症例特訓（Lv.4マスター）で【患者動物たち】が全快カルテになるよ！
               </div>
             </div>
 
             {/* スロット切り替えミニトグル */}
-            <div className={styles.stampPreviewToggleRow} role="tablist" aria-label="スタンプスロット切り替え">
+            <div className={styles.stampPreviewToggleRow} role="tablist" aria-label="カルテスロット切り替え">
               <button
                 type="button"
                 className={`${styles.stampPreviewTabBtn} ${stampPreviewType === 'daily' ? styles.stampPreviewTabBtnActive : ''}`}
                 onClick={() => setStampPreviewType('daily')}
                 data-testid="preview-tab-daily"
               >
-                📅 毎日の学習（{earnedStampIds.length} / {ANIMAL_STAMPS.length}）
+                📅 本日の回診（{earnedStampIds.length} / {ANIMAL_STAMPS.length}）
               </button>
               <button
                 type="button"
@@ -577,7 +584,7 @@ export const HomePage: React.FC = () => {
                 onClick={() => setStampPreviewType('chart')}
                 data-testid="preview-tab-chart"
               >
-                🩺 カルテ全快（{allMasteredSkills.length} / {enrichedSkills.length}）
+                🩺 症例全快（{allMasteredSkills.length} / {enrichedSkills.length}）
               </button>
             </div>
 
@@ -624,7 +631,7 @@ export const HomePage: React.FC = () => {
                         }
                         setShowStampModal(true);
                       }}
-                      title={isEarned ? `${details.name}: 全快！クリックで豆知識` : `${details.name}（${skill.title}）: カルテ特訓で全快させよう！`}
+                      title={isEarned ? `${details.name}: 全快！クリックで豆知識` : `${details.name}（${skill.title}）: 症例特訓で全快させよう！`}
                       data-testid={`preview-chart-stamp-${skill.id}`}
                     >
                       {isEarned ? details.icon : '🔒'}
@@ -641,7 +648,7 @@ export const HomePage: React.FC = () => {
                       sound.playPop();
                       setShowStampModal(true);
                     }}
-                    title="スタンプ帳ですべての全快動物を見る"
+                    title="カルテですべての全快動物を見る"
                   >
                     +{enrichedSkills.length - 16}
                   </button>
@@ -657,12 +664,12 @@ export const HomePage: React.FC = () => {
             }}
             data-testid="open-stamp-book-btn"
           >
-            📖 スタンプ帳をひらく
+            📋 カルテをひらく
           </button>
         </section>
 
         {/* スマホ専用下段ビュー切り替えタブ（スクロール不要で認定試験に瞬時に移動可能） */}
-        <div className={styles.mobileTabSwitcher} role="tablist" aria-label="カルテ進度と認定試験の切り替え">
+        <div className={styles.mobileTabSwitcher} role="tablist" aria-label="症例スタディと認定試験の切り替え">
           <button
             type="button"
             className={`${styles.mobileTabBtn} ${mobileBottomTab === 'progress' ? styles.mobileTabBtnActive : ''}`}
@@ -672,7 +679,7 @@ export const HomePage: React.FC = () => {
             }}
             data-testid="mobile-tab-progress"
           >
-            🩺 カルテ進度 ({filteredSkills.length})
+            🩺 症例スタディ ({filteredSkills.length})
           </button>
           <button
             type="button"
@@ -687,49 +694,17 @@ export const HomePage: React.FC = () => {
           </button>
         </div>
 
-        {/* ゾーン3: 下段2カラム（全テーマのカルテ進度 と 獣医師認定試験） */}
+        {/* ゾーン3: 下段2カラム（全テーマの症例スタディ と 獣医師認定試験） */}
         <div className={styles.bottomCardsGrid}>
-          {/* 左カラム: 🩺 受験カルテ進度（全テーマ） */}
+          {/* 左カラム: 🩺 症例スタディ（全テーマ） */}
           <div
             className={`${styles.card} ${mobileBottomTab !== 'progress' ? styles.cardHiddenOnMobile : ''}`}
             data-testid="card-weakness"
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
               <h3 className={styles.cardTitle} style={{ margin: 0 }}>
-                🩺 受験カルテ進度（全{ALL_PROGRESS_SKILLS.length}テーマ）
+                🩺 症例スタディ（全{ALL_PROGRESS_SKILLS.length}テーマ）
               </h3>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <button
-                  type="button"
-                  className={styles.quickExamJumpBtn}
-                  onClick={() => {
-                    sound.playPop();
-                    setMobileBottomTab('exam');
-                    const examEl = document.querySelector('[data-testid="card-final-challenge"]');
-                    if (examEl && typeof examEl.scrollIntoView === 'function') {
-                      examEl.scrollIntoView({ behavior: 'smooth' });
-                    }
-                  }}
-                  data-testid="quick-jump-exam-btn"
-                  title="合格ドクター認定試験へ瞬時にジャンプ"
-                >
-                  🏆 認定試験へ ❯
-                </button>
-                <button
-                  className={styles.helpLinkBtn}
-                  onClick={() => {
-                    sound.playPop();
-                    setShowLevelHelpModal(true);
-                  }}
-                  title="Lvについて知る"
-                >
-                  ❓ Lvってなに？
-                </button>
-              </div>
-            </div>
-
-            <div style={{ fontSize: '13px', color: 'var(--text-subtle)', margin: '2px 0 4px 0' }}>
-              マスター達成（⭐Lv.4以上）：<strong style={{ color: 'var(--primary)' }}>{masteredCount} / {filteredSkills.length} テーマ</strong>
             </div>
 
             {/* 合格のカギ（Lv.4マスター）の進度と集め方の説明（カルテ領域に配置） */}
@@ -739,11 +714,11 @@ export const HomePage: React.FC = () => {
                   🔑 合格のカギ: {masteredCount} / {filteredSkills.length} 個
                 </strong>
                 <span style={{ fontSize: '11px', color: '#b45309', fontWeight: 'bold' }}>
-                  {selectedSkillSubject === 'all' ? '全教科' : selectedSkillSubject === 'rika' ? '理科' : selectedSkillSubject === 'sansu' ? '算数' : '社会'}
+                  {selectedSkillSubject === 'rika' ? '理科' : selectedSkillSubject === 'sansu' ? '算数' : selectedSkillSubject === 'shakai' ? '社会' : '国語'}
                 </span>
               </div>
               <div style={{ fontSize: '12px', color: '#78350f', marginTop: '4px', lineHeight: '1.5' }}>
-                【集め方】下のカルテでテーマを学習し、<strong>【⭐Lv.4 マスター】</strong>にすると手に入ります。
+                【集め方】下の症例スタディでテーマを学習し、<strong>【⭐Lv.4 マスター】</strong>にすると手に入ります。
               </div>
               <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #fcd34d', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '11px', color: '#92400e', fontWeight: 'bold' }}>
@@ -777,27 +752,41 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
-            {/* 小学生向け科目別フィルター */}
-            <div className={styles.categoryFilterRow} data-testid="skill-subject-filter-row">
-              {[
-                { id: 'all', label: `🌟 すべて (${ALL_PROGRESS_SKILLS.length})` },
-                { id: 'rika', label: `🧪 理科 (${rikaCount})` },
-                { id: 'sansu', label: `📐 算数 (${sansuCount})` },
-                { id: 'shakai', label: `🗾 社会 (${shakaiCount})` },
-                { id: 'kokugo', label: `📖 国語 (${kokugoCount})` },
-              ].map(cat => (
-                <button
-                  key={cat.id}
-                  className={`${styles.categoryFilterBtn} ${selectedSkillSubject === cat.id ? styles.categoryFilterBtnActive : ''}`}
-                  onClick={() => {
-                    sound.playPop();
-                    setSelectedSkillSubject(cat.id as any);
-                  }}
-                  data-testid={`skill-subject-btn-${cat.id}`}
-                >
-                  {cat.label}
-                </button>
-              ))}
+            {/* 小学生向け科目別フィルター ＆ トリアージ・カード導線 */}
+            <div className={styles.skillFilterHeaderRow}>
+              <div className={styles.categoryFilterRow} data-testid="skill-subject-filter-row">
+                {[
+                  { id: 'rika', label: `🧪 理科 (${rikaCount})` },
+                  { id: 'sansu', label: `📐 算数 (${sansuCount})` },
+                  { id: 'shakai', label: `🗾 社会 (${shakaiCount})` },
+                  { id: 'kokugo', label: `📖 国語 (${kokugoCount})` },
+                ].map(cat => (
+                  <button
+                    key={cat.id}
+                    className={`${styles.categoryFilterBtn} ${selectedSkillSubject === cat.id ? styles.categoryFilterBtnActive : ''}`}
+                    onClick={() => {
+                      sound.playPop();
+                      setSelectedSkillSubject(cat.id as any);
+                    }}
+                    data-testid={`skill-subject-btn-${cat.id}`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                className={styles.triageCardLaunchBtn}
+                onClick={() => {
+                  sound.playPop();
+                  const firstSkillOfSubject = ALL_PROGRESS_SKILLS.find(s => s.subject === selectedSkillSubject);
+                  setFlashCardSkillId(firstSkillOfSubject?.id || ALL_PROGRESS_SKILLS[0].id);
+                }}
+                title="全症例の急所・重症度をサクッと確認できるフラッシュカード"
+                data-testid="launch-triage-card-btn"
+              >
+                <span>📇 トリアージ・カード ❯</span>
+              </button>
             </div>
 
             {/* テーマリスト */}
@@ -829,29 +818,48 @@ export const HomePage: React.FC = () => {
                   <div key={skill.id} className={styles.skillRowMini}>
                     <div className={styles.skillRowTop}>
                       <div className={styles.skillTitleArea}>
-                        <span className={styles.patientIcon}>{patientIcon}</span>
-                        <div>
-                          <div className={styles.skillTitle}>{skill.title}</div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>
-                            患者: <strong>{patientName}</strong>（{skill.subjectLabel}）
+                        <div
+                          className={styles.patientIconWrap}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            sound.playPop();
+                            setActivePatientSkillId(prev => prev === skill.id ? null : skill.id);
+                          }}
+                          title={`患者: ${patientName}`}
+                          role="button"
+                          tabIndex={0}
+                        >
+                          <span className={styles.patientIcon}>{patientIcon}</span>
+                          <div className={`${styles.patientTooltip} ${activePatientSkillId === skill.id ? styles.patientTooltipVisible : ''}`}>
+                            患者: {patientName}
                           </div>
                         </div>
+                        <div className={styles.skillTitle}>{skill.title}</div>
                       </div>
-                      <span
-                        className={styles.levelBadge}
-                        style={{ color: info.badgeColor, background: info.badgeBg }}
-                      >
-                        {info.shortLabel}
-                      </span>
-                    </div>
-
-                    <div className={styles.skillHint}>
-                      👉 {skill.nextGoalHint}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                        <span className={styles.extraSubjectBadge}>
+                          {getSubjectBadgeText(skill.subject)}
+                        </span>
+                        <span
+                          className={styles.levelBadge}
+                          style={{ color: info.badgeColor, background: info.badgeBg, cursor: 'pointer' }}
+                          onClick={() => {
+                            sound.playPop();
+                            setShowLevelHelpModal(true);
+                          }}
+                          title={`${info.shortLabel}（クリックでLvの説明とレベルアップ方法を表示）`}
+                          data-testid={`level-badge-${skill.id}`}
+                          role="button"
+                          tabIndex={0}
+                        >
+                          {info.shortLabel}
+                        </span>
+                      </div>
                     </div>
 
                     <div className={styles.skillMetaRow}>
                       <div className={styles.memoryBarWrap} title="忘却曲線に基づく記憶定着ゲージ">
-                        <span>記憶メーター:</span>
+                        <span>🌱 記憶キープ:</span>
                         <div className={styles.memoryBar}>
                           <div
                             className={styles.memoryBarFill}
@@ -872,23 +880,11 @@ export const HomePage: React.FC = () => {
                             startSkillFocusSession(skill.id);
                             navigate('/study');
                           }}
-                          title="この単元の問題を集中的に解いてレベルアップ！"
+                          title="この症例の問題を集中的に解いてレベルアップ！"
                           data-testid={`focus-study-btn-${skill.id}`}
                         >
-                          <span>🎯 この単元を特訓してLvアップ！</span>
+                          <span>🎯 この症例を特訓してLvアップ！</span>
                           <span className={styles.btnArrow}>❯</span>
-                        </button>
-
-                        <button
-                          className={styles.quickFlashBtnSecondary}
-                          onClick={() => {
-                            sound.playPop();
-                            setFlashCardSkillId(skill.id);
-                          }}
-                          title="重要ポイントをサクッと復習して記憶メーターをアップ！"
-                          data-testid={`quick-flash-btn-${skill.id}`}
-                        >
-                          <span>📇 暗記カード</span>
                         </button>
                       </div>
                     </div>
@@ -923,29 +919,48 @@ export const HomePage: React.FC = () => {
                   <div key={skill.id} className={`${styles.skillRowMini} ${styles.skillRowMiniMastered}`}>
                     <div className={styles.skillRowTop}>
                       <div className={styles.skillTitleArea}>
-                        <span className={styles.patientIcon}>{patientIcon}</span>
-                        <div>
-                          <div className={styles.skillTitle}>{skill.title}</div>
-                          <div style={{ fontSize: '11px', color: 'var(--success-text)' }}>
-                            患者: <strong>{patientName}（全快！）</strong>（{skill.subjectLabel}）
+                        <div
+                          className={styles.patientIconWrap}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            sound.playPop();
+                            setActivePatientSkillId(prev => prev === skill.id ? null : skill.id);
+                          }}
+                          title={`患者: ${patientName}（全快！）`}
+                          role="button"
+                          tabIndex={0}
+                        >
+                          <span className={styles.patientIcon}>{patientIcon}</span>
+                          <div className={`${styles.patientTooltip} ${activePatientSkillId === skill.id ? styles.patientTooltipVisible : ''}`}>
+                            患者: {patientName}（全快！）
                           </div>
                         </div>
+                        <div className={styles.skillTitle}>{skill.title}</div>
                       </div>
-                      <span
-                        className={styles.levelBadge}
-                        style={{ color: info.badgeColor, background: info.badgeBg }}
-                      >
-                        {info.shortLabel}
-                      </span>
-                    </div>
-
-                    <div className={styles.skillHintMastered}>
-                      🎉 {skill.nextGoalHint}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                        <span className={styles.extraSubjectBadge}>
+                          {getSubjectBadgeText(skill.subject)}
+                        </span>
+                        <span
+                          className={styles.levelBadge}
+                          style={{ color: info.badgeColor, background: info.badgeBg, cursor: 'pointer' }}
+                          onClick={() => {
+                            sound.playPop();
+                            setShowLevelHelpModal(true);
+                          }}
+                          title={`${info.shortLabel}（クリックでLvの説明とレベルアップ方法を表示）`}
+                          data-testid={`level-badge-${skill.id}`}
+                          role="button"
+                          tabIndex={0}
+                        >
+                          {info.shortLabel}
+                        </span>
+                      </div>
                     </div>
 
                     <div className={styles.skillMetaRow}>
                       <div className={styles.memoryBarWrap} title="忘却曲線に基づく記憶定着ゲージ">
-                        <span>記憶メーター:</span>
+                        <span>🌱 記憶キープ:</span>
                         <div className={styles.memoryBar}>
                           <div
                             className={styles.memoryBarFill}
@@ -966,23 +981,11 @@ export const HomePage: React.FC = () => {
                             startSkillFocusSession(skill.id);
                             navigate('/study');
                           }}
-                          title="この単元の問題を復習して全快をキープ！"
+                          title="この症例の問題を復習して全快をキープ！"
                           data-testid={`focus-study-btn-mastered-${skill.id}`}
                         >
-                          <span>🎯 この単元を復習</span>
+                          <span>🎯 この症例を復習</span>
                           <span className={styles.btnArrow}>❯</span>
-                        </button>
-
-                        <button
-                          className={styles.quickFlashBtnSecondary}
-                          onClick={() => {
-                            sound.playPop();
-                            setFlashCardSkillId(skill.id);
-                          }}
-                          title="重要ポイントをサクッと復習して記憶メーターをアップ！"
-                          data-testid={`quick-flash-btn-mastered-${skill.id}`}
-                        >
-                          <span>📇 暗記カード</span>
                         </button>
                       </div>
                     </div>
@@ -1127,7 +1130,7 @@ export const HomePage: React.FC = () => {
           }}
           data-testid="footer-parent-btn"
         >
-          👨‍👩‍👧 保護者カルテ
+          👨‍⚕️ 指導医ログ
         </button>
         <button
           onClick={() => {
@@ -1147,19 +1150,19 @@ export const HomePage: React.FC = () => {
         </button>
       </footer>
 
-      {/* 動物スタンプ帳モーダル */}
+      {/* 動物カルテモーダル */}
       {showStampModal && (
         <div className={styles.modalOverlay} onClick={() => setShowStampModal(false)}>
           <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '22px' }}>📖</span>
+                <span style={{ fontSize: '22px' }}>📋</span>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: 'var(--text)' }}>
-                    🐾 みならい獣医さんの動物シール帳
+                    🐾 元気にした動物たちのカルテ
                   </h3>
                   <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                    集めた動物たちをクリックすると、メッセージや豆知識が飛び出すよ！
+                    全快した動物たちをクリックすると、カルテのメッセージや豆知識が飛び出すよ！
                   </div>
                 </div>
               </div>
@@ -1174,7 +1177,7 @@ export const HomePage: React.FC = () => {
               </button>
             </div>
 
-            {/* スタンプ帳モーダル内タブ切り替え */}
+            {/* カルテモーダル内タブ切り替え */}
             <div className={styles.stampModalTabs} role="tablist">
               <button
                 type="button"
@@ -1185,7 +1188,7 @@ export const HomePage: React.FC = () => {
                 }}
                 data-testid="stamp-tab-daily"
               >
-                📅 毎日の学習スタンプ（{earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹）
+                📅 本日の回診カルテ（{earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹）
               </button>
               <button
                 type="button"
@@ -1196,7 +1199,7 @@ export const HomePage: React.FC = () => {
                 }}
                 data-testid="stamp-tab-chart"
               >
-                🩺 カルテ全快ドクタースタンプ（{allMasteredSkills.length} / {enrichedSkills.length} 匹）
+                🩺 症例全快ドクターカルテ（{allMasteredSkills.length} / {enrichedSkills.length} 匹）
               </button>
             </div>
 
@@ -1444,7 +1447,7 @@ export const HomePage: React.FC = () => {
                           ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
                               <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>
-                                💡 カルテ特訓で【⭐Lv.4 マスター】を達成すると全快スタンプが手に入るよ！
+                                💡 症例特訓で【⭐Lv.4 マスター】を達成すると全快カルテが手に入るよ！
                               </div>
                               <button
                                 type="button"
@@ -1469,7 +1472,7 @@ export const HomePage: React.FC = () => {
                                 }}
                                 data-testid={`train-from-stamp-${skill.id}`}
                               >
-                                🎯 この単元を特訓して全快にする ❯
+                                🎯 この症例を特訓して全快にする ❯
                               </button>
                             </div>
                           )}
@@ -1550,10 +1553,10 @@ export const HomePage: React.FC = () => {
                   <span style={{ fontSize: '26px' }}>🎯</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text)' }}>
-                      ① 単元の「特訓問題」を解いて正解する（大幅UP！）
+                      ① 症例の「特訓問題」を解いて正解する（大幅UP！）
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>
-                      カルテの「🎯 この単元を特訓してLvアップ！」で正解すると、記憶メーターが一気に80%〜100%（全快）へ上がります。
+                      症例スタディの「🎯 この症例を特訓してLvアップ！」で正解すると、記憶キープ度が一気に80%〜100%（全快）へ上がります。
                     </div>
                   </div>
                 </div>
@@ -1573,10 +1576,10 @@ export const HomePage: React.FC = () => {
                   <span style={{ fontSize: '26px' }}>📇</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text)' }}>
-                      ② 「暗記カード」をサクッとめくって復習する（急速チャージ！）
+                      ② 「トリアージ・カード」をサクッとめくって復習する（急速チャージ！）
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>
-                      時間がないときは「📇 暗記カード」で急所ポイントを思い出すだけで、記憶メーターが即座に回復します。
+                      時間がないときは「📇 トリアージ・カード」で急所ポイントを思い出すだけで、記憶キープ度が即座に回復します。
                     </div>
                   </div>
                 </div>
@@ -1596,7 +1599,7 @@ export const HomePage: React.FC = () => {
                   <span style={{ fontSize: '26px' }}>🐾</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text)' }}>
-                      ③ 「今日のオススメ10問」を毎日解く（100%キープ！）
+                      ③ 「本日の回診」を毎日解く（100%キープ！）
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>
                       忘却曲線で減りかけた単元が自動で優先出題されるので、毎日1回解くだけで100%をずっとキープできます！
@@ -1653,7 +1656,7 @@ export const HomePage: React.FC = () => {
                   }}
                   data-testid="jump-to-weakness-btn"
                 >
-                  🎯 カルテ進度で記憶メーターを100%にする ❯
+                  🎯 症例スタディで記憶メーターを100%にする ❯
                 </button>
               </div>
             </div>
@@ -1688,14 +1691,50 @@ export const HomePage: React.FC = () => {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }} data-testid="level-help-list">
               {[
-                { stage: 'M1', lv: 'Lv.1', name: '🌱 みならい助手', desc: '選択肢を見れば正解を選べるレベル！まずはここからスタート。' },
-                { stage: 'M2', lv: 'Lv.2', name: '🌿 てごたえあり', desc: '選択肢を見る前に、頭の中で「答えはこれだ！」と思い出せるレベル！' },
-                { stage: 'M3', lv: 'Lv.3', name: '🍀 なっとく理由', desc: '「なぜそうなるのか」の理由や、解く手順までしっかり説明できるレベル！' },
-                { stage: 'M4', lv: 'Lv.4', name: '⭐ カルテマスター', desc: '数字や問題の場面が変わった【初めて見る応用問題】でも自力で解けるレベル！' },
-                { stage: 'M5', lv: 'Lv.5', name: '👑 かんぺき定着', desc: '1日後や3日後に復習しても忘れていない、本物の実力がついた証拠！' },
-                { stage: 'M6', lv: 'Lv.6', name: '🏆 合格ドクター', desc: '本番形式のテストで満点を達成！未来の獣医さんへの第一歩です！' },
+                {
+                  stage: 'M1',
+                  lv: 'Lv.1',
+                  name: '🌱 みならい助手',
+                  desc: '選択肢を見れば正解を選べるレベル！まずはここからスタート。',
+                  howToUp: '💡 選択肢なしでパッと思い出せると【Lv.2】へアップ！',
+                },
+                {
+                  stage: 'M2',
+                  lv: 'Lv.2',
+                  name: '🌿 てごたえあり',
+                  desc: '選択肢を見る前に、頭の中で「答えはこれだ！」と思い出せるレベル！',
+                  howToUp: '💡 「なぜそうなるか」理由・手順問題に正解で【Lv.3】へアップ！',
+                },
+                {
+                  stage: 'M3',
+                  lv: 'Lv.3',
+                  name: '🍀 なっとく理由',
+                  desc: '「なぜそうなるのか」の理由や、解く手順までしっかり説明できるレベル！',
+                  howToUp: '💡 場面が変わった応用問題に正解で【⭐Lv.4マスター】達成！🔑合格のカギを獲得！',
+                },
+                {
+                  stage: 'M4',
+                  lv: 'Lv.4',
+                  name: '⭐ カルテマスター',
+                  desc: '数字や問題の場面が変わった【初めて見る応用問題】でも自力で解けるレベル！🔑合格のカギ獲得済み。',
+                  howToUp: '💡 1日後・3日後の復習で記憶メーターを高くキープすると【Lv.5】へ！',
+                },
+                {
+                  stage: 'M5',
+                  lv: 'Lv.5',
+                  name: '👑 かんぺき定着',
+                  desc: '1日後や3日後に復習しても忘れていない、本物の実力がついた証拠！',
+                  howToUp: '💡 本番形式の「合格ドクター認定試験」で満点をとると最高峰【Lv.6】へ！',
+                },
+                {
+                  stage: 'M6',
+                  lv: 'Lv.6',
+                  name: '🏆 合格ドクター',
+                  desc: '本番形式のテストで満点を達成！未来の獣医さんへの第一歩です！',
+                  howToUp: '🎉 全問制覇マスター達成！本番入試でも自信を持って挑もう！',
+                },
               ].map(item => (
                 <div
                   key={item.stage}
@@ -1705,12 +1744,16 @@ export const HomePage: React.FC = () => {
                     background: 'var(--surface-subtle)',
                     border: '1px solid var(--border)',
                   }}
+                  data-testid={`level-help-item-${item.stage}`}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                     <span style={{ fontSize: '13px', fontWeight: '900', color: 'var(--primary)' }}>{item.lv}</span>
                     <span style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text)' }}>{item.name}</span>
                   </div>
                   <div style={{ fontSize: '12px', color: 'var(--text-subtle)', lineHeight: '1.5' }}>{item.desc}</div>
+                  <div style={{ fontSize: '11px', color: '#0369a1', fontWeight: 700, marginTop: '6px', background: '#f0f9ff', border: '1px solid #bae6fd', padding: '5px 8px', borderRadius: '6px', lineHeight: '1.4' }}>
+                    {item.howToUp}
+                  </div>
                 </div>
               ))}
             </div>
@@ -1863,7 +1906,7 @@ export const HomePage: React.FC = () => {
         />
       )}
 
-      {/* 番外クエスト・名作参考書特訓モーダル */}
+      {/* 知識の処方箋・名作参考書特訓モーダル */}
       {activeRefBookId && (
         <ReferenceBookQuizModal
           bookId={activeRefBookId}

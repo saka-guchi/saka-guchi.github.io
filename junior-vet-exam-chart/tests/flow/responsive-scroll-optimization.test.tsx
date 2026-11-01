@@ -14,8 +14,8 @@ describe('スマホ・タブレット向けスクロールレスUI/UX 結合テ�
 
   describe('学習画面（StudyPage）のスクロール改善', () => {
     it('回答確定後にインラインの「次へ進む ❯」ボタンが出現し、固定バーまでスクロールしなくても即座に次へ進める', () => {
-      // 1問セッションを開始
-      useAppStore.getState().startDailySession(['rika']);
+      // 選択式問題が含まれる特訓セッションを開始
+      useAppStore.getState().startSkillFocusSession('skill-rika-2023-bee-division');
 
       render(
         <MemoryRouter>
@@ -48,8 +48,8 @@ describe('スマホ・タブレット向けスクロールレスUI/UX 結合テ�
     });
   });
 
-  describe('ホーム画面（HomePage）のカルテ進度・認定試験スクロール改善', () => {
-    it('スマホ用タブ切り替え（カルテ進度 / 認定試験）で認定試験へスクロールゼロで切り替えられる', () => {
+  describe('ホーム画面（HomePage）の症例スタディ・認定試験スクロール改善', () => {
+    it('スマホ用タブ切り替え（症例スタディ / 認定試験）で認定試験へスクロールゼロで切り替えられる', () => {
       render(
         <MemoryRouter>
           <HomePage />
@@ -75,20 +75,24 @@ describe('スマホ・タブレット向けスクロールレスUI/UX 結合テ�
       expect(weaknessCard.className).toContain('cardHiddenOnMobile');
     });
 
-    it('カルテ進度ボックスの「🏆 認定試験へ ❯」ボタンを押すと認定試験へクイックジャンプできる', () => {
+    it('各テーマ右上のLvバッジをクリックするとLvってなに？モーダルが表示され、レベルアップ方法が確認できる', () => {
       render(
         <MemoryRouter>
           <HomePage />
         </MemoryRouter>
       );
 
-      const quickJumpBtn = screen.getByTestId('quick-jump-exam-btn');
-      expect(quickJumpBtn).toBeInTheDocument();
+      // 未達成テーマのアコーディオンを開く
+      fireEvent.click(screen.getByTestId('toggle-unmastered-skills-btn'));
 
-      fireEvent.click(quickJumpBtn);
+      // 最初のテーマのLvバッジを取得してクリック
+      const lvBadge = screen.getByTestId('level-badge-skill-rika-plant-vascular');
+      expect(lvBadge).toBeInTheDocument();
+      fireEvent.click(lvBadge);
 
-      const examCard = screen.getByTestId('card-final-challenge');
-      expect(examCard.className).not.toContain('cardHiddenOnMobile');
+      // モーダルが開き、レベルアップ方法が明記されていること
+      expect(screen.getByText('知識のレベル（Lv）ってなに？')).toBeInTheDocument();
+      expect(screen.getByText(/場面が変わった応用問題に正解で/)).toBeInTheDocument();
     });
 
     it('未達成テーマ（レベルアップをめざすテーマ）がデフォルトで折りたたまれており、クリックで開閉できる', () => {
@@ -112,6 +116,35 @@ describe('スマホ・タブレット向けスクロールレスUI/UX 結合テ�
       // もう一度クリックして閉じる
       fireEvent.click(toggleBtn);
       expect(screen.queryByTestId('focus-study-btn-skill-rika-plant-vascular')).not.toBeInTheDocument();
+    });
+
+    it('各テーマの動物アイコンをクリックまたはホバーすると患者名が表示され、右上に「出題教科」バッジが表示される', () => {
+      render(
+        <MemoryRouter>
+          <HomePage />
+        </MemoryRouter>
+      );
+
+      // 未達成テーマを開く
+      fireEvent.click(screen.getByTestId('toggle-unmastered-skills-btn'));
+
+      // 「出題教科：🧪 理科」バッジが右上に表示されていること
+      const subjectBadges = screen.getAllByText('出題教科：🧪 理科');
+      expect(subjectBadges.length).toBeGreaterThan(0);
+
+      // 動物アイコンのロール要素（button）を取得
+      const patientIconWraps = screen.getAllByRole('button', { name: /患者:/ });
+      expect(patientIconWraps.length).toBeGreaterThan(0);
+
+      // 初期状態では吹き出しに _patientTooltipVisible_ クラスが付いていない
+      const tooltips = document.querySelectorAll('._patientTooltip_733e29, [class*="patientTooltip"]');
+      expect(tooltips.length).toBeGreaterThan(0);
+      expect(tooltips[0].className).not.toContain('patientTooltipVisible');
+
+      // アイコンクリックで対象のツールチップに patientTooltipVisible クラスが付与される
+      const firstPatientIcon = patientIconWraps[0];
+      fireEvent.click(firstPatientIcon);
+      expect(tooltips[0].className).toContain('patientTooltipVisible');
     });
   });
 });
