@@ -15,16 +15,33 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
     return REFERENCE_BOOKS.find(b => b.id === bookId) || REFERENCE_BOOKS[0];
   }, [bookId]);
 
-  // セッション用に10問シャッフル抽出
+  const [sessionKey, setSessionKey] = useState(0);
+
+  // セッション用に10問シャッフル抽出し、各問題の選択肢（ア〜エ）も確実にランダムシャッフル
   const sessionQuestions = useMemo(() => {
-    const list = [...HISTORY_80_FIGURES];
-    // シャッフル
+    const list = HISTORY_80_FIGURES.map(fig => {
+      // 選択肢の配列をシャッフル（正解位置が「ア」固定になるのを防ぐ）
+      const shuffledChoices = [...fig.question.choices];
+      for (let i = shuffledChoices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledChoices[i], shuffledChoices[j]] = [shuffledChoices[j], shuffledChoices[i]];
+      }
+      return {
+        ...fig,
+        question: {
+          ...fig.question,
+          choices: shuffledChoices,
+        },
+      };
+    });
+
+    // 出題する10問もシャッフル
     for (let i = list.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [list[i], list[j]] = [list[j], list[i]];
     }
     return list.slice(0, 10);
-  }, []);
+  }, [bookId, sessionKey]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -235,6 +252,7 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
                 className={styles.retryBtn}
                 onClick={() => {
                   sound.playPop();
+                  setSessionKey(k => k + 1);
                   setCurrentIndex(0);
                   setSelectedAnswer(null);
                   setIsAnswered(false);

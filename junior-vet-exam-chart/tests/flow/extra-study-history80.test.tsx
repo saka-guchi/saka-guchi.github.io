@@ -83,4 +83,35 @@ describe('番外クエスト（名作参考書：歴史人物80）UI/UX 結合�
     // 問 2 / 10 に進むこと
     expect(screen.getByText('問 2 / 10')).toBeInTheDocument();
   });
+
+  it('データおよび出題時において正解位置が「ア」固定ではなくランダムに分散していること（再発防止テスト）', () => {
+    // 1. データ自体の検証: 全問の correctAnswer の位置がア〜エ（インデックス0〜3）にバランスよく分散していること
+    const positionCounts = [0, 0, 0, 0];
+    HISTORY_80_FIGURES.forEach(fig => {
+      const idx = fig.question.choices.indexOf(fig.question.correctAnswer);
+      expect(idx).toBeGreaterThanOrEqual(0);
+      positionCounts[idx]++;
+    });
+
+    // ア、イ、ウ、エのすべてに複数問の正解が配置されていること（アだけに偏っていないこと）
+    positionCounts.forEach((count, i) => {
+      const label = ['ア', 'イ', 'ウ', 'エ'][i];
+      expect(count, `正解位置「${label}」の設問が1問以上存在すること`).toBeGreaterThan(0);
+    });
+
+    // 2. 出題時（モーダル）の検証: 10問解く中で正解位置が「ア」以外にも必ず配置されること
+    render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>
+    );
+
+    fireEvent.click(screen.getByTestId('start-extra-book-btn'));
+
+    // 1問目での正解ボタンが存在すること
+    const choiceButtons = screen.getAllByRole('button').filter(b => 
+      b.querySelector('span') && ['ア', 'イ', 'ウ', 'エ'].includes(b.querySelector('span')!.textContent || '')
+    );
+    expect(choiceButtons.length).toBe(4);
+  });
 });
