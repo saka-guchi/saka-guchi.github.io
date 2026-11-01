@@ -142,10 +142,13 @@ export const DoctorCertificateModal: React.FC<DoctorCertificateModalProps> = ({
         <div className={styles.recipientBox}>
           <span style={{ fontSize: '16px', color: '#78350f' }}>氏名：</span>
           <input
+            id="cert-user-name-input"
+            name="certUserName"
             className={styles.recipientName}
             value={userName}
             onChange={e => setUserName(e.target.value)}
             title="クリックして名前を変更できます"
+            autoComplete="name"
           />
           <span style={{ fontSize: '16px', color: '#78350f' }}>どの</span>
         </div>

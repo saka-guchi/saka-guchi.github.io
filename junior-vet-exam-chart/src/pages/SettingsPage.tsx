@@ -179,10 +179,14 @@ export const SettingsPage: React.FC = () => {
 
           <div className={styles.settingRow}>
             <div>
-              <strong>思い出す待ち時間</strong>
+              <label htmlFor="recall-delay-select">
+                <strong>思い出す待ち時間</strong>
+              </label>
               <div className={styles.subLabel}>選択肢を出すまでの考慮時間</div>
             </div>
             <select
+              id="recall-delay-select"
+              name="recallDelaySeconds"
               value={String(settings.recallDelaySeconds)}
               onChange={e => {
                 const val = e.target.value === 'auto' ? 'auto' : Number(e.target.value);
@@ -202,11 +206,15 @@ export const SettingsPage: React.FC = () => {
 
           <div className={styles.settingRow}>
             <div>
-              <strong>🎯 目標受験日</strong>
+              <label htmlFor="target-exam-date-input">
+                <strong>🎯 目標受験日</strong>
+              </label>
               <div className={styles.subLabel}>入試本番までのカウントダウン基準日</div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <input
+                id="target-exam-date-input"
+                name="targetExamDate"
                 type="date"
                 value={settings.targetExamDate || '2027-02-01'}
                 onChange={e => updateSettings({ targetExamDate: e.target.value })}
@@ -221,10 +229,14 @@ export const SettingsPage: React.FC = () => {
 
           <div className={styles.settingRow}>
             <div>
-              <strong>1日の学習問題数</strong>
+              <label htmlFor="daily-count-select">
+                <strong>1日の学習問題数</strong>
+              </label>
               <div className={styles.subLabel}>日々の自動選定される問題数</div>
             </div>
             <select
+              id="daily-count-select"
+              name="dailyQuestionCount"
               value={settings.dailyQuestionCount}
               onChange={e => updateSettings({ dailyQuestionCount: Number(e.target.value) as any })}
               className={styles.selectInput}
@@ -238,9 +250,13 @@ export const SettingsPage: React.FC = () => {
 
           <div className={styles.settingRow}>
             <div>
-              <strong>文字の大きさ</strong>
+              <label htmlFor="font-size-select">
+                <strong>文字の大きさ</strong>
+              </label>
             </div>
             <select
+              id="font-size-select"
+              name="fontSize"
               value={settings.fontSize}
               onChange={e => updateSettings({ fontSize: e.target.value as any })}
               className={styles.selectInput}
@@ -253,9 +269,13 @@ export const SettingsPage: React.FC = () => {
 
           <div className={styles.settingRow}>
             <div>
-              <strong>効果音</strong>
+              <label htmlFor="sound-enabled-checkbox">
+                <strong>効果音</strong>
+              </label>
             </div>
             <input
+              id="sound-enabled-checkbox"
+              name="soundEnabled"
               type="checkbox"
               checked={settings.soundEnabled}
               onChange={e => updateSettings({ soundEnabled: e.target.checked })}
@@ -399,6 +419,8 @@ export const SettingsPage: React.FC = () => {
             >
               📤 履歴を取り込み（復元）
               <input
+                id="import-history-file-input"
+                name="importHistoryFile"
                 type="file"
                 accept=".json"
                 onChange={handleImportHistory}

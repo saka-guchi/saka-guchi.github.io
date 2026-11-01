@@ -601,10 +601,13 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                 {isEditingGoal ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <input
+                      id="parent-goal-input"
+                      name="parentGoal"
                       type="text"
                       value={editGoalText}
                       onChange={e => setEditGoalText(e.target.value)}
                       placeholder="例: 算数で80点取れたらケーキバイキング！"
+                      autoComplete="off"
                       style={{
                         width: '100%',
                         padding: '10px',

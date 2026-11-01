@@ -716,6 +716,7 @@ export const StudyPage: React.FC = () => {
                       }}
                     >
                       <input
+                        id={`report-reason-${item.id}`}
                         type="radio"
                         name="reportReason"
                         value={item.id}
@@ -730,10 +731,12 @@ export const StudyPage: React.FC = () => {
                 </div>
 
                 <div style={{ marginBottom: '18px' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-subtle)', marginBottom: '6px' }}>
+                  <label htmlFor="report-comment-textarea" style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-subtle)', marginBottom: '6px', display: 'block' }}>
                     くわしいメモ（任意）:
-                  </div>
+                  </label>
                   <textarea
+                    id="report-comment-textarea"
+                    name="reportComment"
                     value={reportComment}
                     onChange={e => setReportComment(e.target.value)}
                     placeholder="例: 答えはアじゃなくてイだと思う、など"

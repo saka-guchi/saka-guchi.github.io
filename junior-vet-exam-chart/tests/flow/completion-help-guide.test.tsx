@@ -58,3 +58,4 @@ describe('合格カルテ完成度の解説（マウスオーバー＆クリッ�
     expect(screen.queryByTestId('completion-help-modal')).not.toBeInTheDocument();
   });
 });
+

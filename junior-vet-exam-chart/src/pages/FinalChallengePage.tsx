@@ -813,14 +813,17 @@ export const FinalChallengePage: React.FC = () => {
                     <div className={styles.subSlotGrid}>
                       {sec.slots.filter(s => s.questionNumber === '1').map(slot => (
                         <div key={slot.id} className={styles.slotItem}>
-                          <label style={{ fontWeight: 'bold' }}>[{slot.partNumber}]</label>
+                          <label htmlFor={`slot-input-${slot.id}`} style={{ fontWeight: 'bold' }}>[{slot.partNumber}]</label>
                           <input
+                            id={`slot-input-${slot.id}`}
+                            name={`slot_${slot.id}`}
                             type="text"
                             placeholder="語句を入力"
                             className={styles.textInput}
                             value={answers[slot.id] || ''}
                             onChange={e => handleInputChange(slot.id, e.target.value)}
                             data-testid={`slot-${slot.id}`}
+                            autoComplete="off"
                           />
                         </div>
                       ))}
@@ -837,10 +840,12 @@ export const FinalChallengePage: React.FC = () => {
                     <div className={styles.kanjiGrid}>
                       {sec.slots.map(slot => (
                         <div key={slot.id} className={styles.kanjiItem}>
-                          <label style={{ fontWeight: 'bold', fontSize: '12px', color: 'var(--text)' }}>
+                          <label htmlFor={`kanji-input-${slot.id}`} style={{ fontWeight: 'bold', fontSize: '12px', color: 'var(--text)' }}>
                             {slot.label}
                           </label>
                           <input
+                            id={`kanji-input-${slot.id}`}
+                            name={`kanji_${slot.id}`}
                             type="text"
                             placeholder={slot.id.endsWith('01') || slot.id.endsWith('02') || slot.id.endsWith('03') || slot.id.endsWith('04') || slot.id.endsWith('05') ? '漢字を入力' : 'ひらがなで入力'}
                             className={styles.textInput}
@@ -848,6 +853,7 @@ export const FinalChallengePage: React.FC = () => {
                             value={answers[slot.id] || ''}
                             onChange={e => handleInputChange(slot.id, e.target.value)}
                             data-testid={`slot-${slot.id}`}
+                            autoComplete="off"
                           />
                         </div>
                       ))}
@@ -891,6 +897,8 @@ export const FinalChallengePage: React.FC = () => {
                         {slot.answerType === 'open' ? (
                           <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <textarea
+                              id={`open-input-${slot.id}`}
+                              name={`open_${slot.id}`}
                               placeholder={
                                 currentSubject === 'kokugo'
                                   ? '記述の答えを入力（提出時に採点要素・キーワード判定が確認できます）'
@@ -901,6 +909,7 @@ export const FinalChallengePage: React.FC = () => {
                               value={currentAns}
                               onChange={e => handleInputChange(slot.id, e.target.value)}
                               data-testid={`slot-${slot.id}`}
+                              autoComplete="off"
                             />
                             {charLimit && (
                               <div
@@ -919,12 +928,15 @@ export const FinalChallengePage: React.FC = () => {
                           </div>
                         ) : slot.answerType === 'numeric' ? (
                           <input
+                            id={`numeric-input-${slot.id}`}
+                            name={`numeric_${slot.id}`}
                             type="number"
                             placeholder="数値を入力"
                             className={styles.textInput}
                             value={currentAns}
                             onChange={e => handleInputChange(slot.id, e.target.value)}
                             data-testid={`slot-${slot.id}`}
+                            autoComplete="off"
                           />
                         ) : (slot.stage2Options || slot.options) ? (
                           <div
@@ -986,6 +998,8 @@ export const FinalChallengePage: React.FC = () => {
                         ) : (
                           <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <input
+                              id={`term-input-${slot.id}`}
+                              name={`term_${slot.id}`}
                               type="text"
                               placeholder={
                                 slot.label.includes('最初と最後')
@@ -996,6 +1010,7 @@ export const FinalChallengePage: React.FC = () => {
                               value={currentAns}
                               onChange={e => handleInputChange(slot.id, e.target.value)}
                               data-testid={`slot-${slot.id}`}
+                              autoComplete="off"
                             />
                             {charLimit && (
                               <div
@@ -1122,6 +1137,8 @@ export const FinalChallengePage: React.FC = () => {
                           }}
                         >
                           <input
+                            id={`rubric-check-${slot.id}-${rIdx}`}
+                            name={`rubric_${slot.id}_${rIdx}`}
                             type="checkbox"
                             checked={!!rubricChecks[slot.id]?.[rIdx]}
                             onChange={e => {
