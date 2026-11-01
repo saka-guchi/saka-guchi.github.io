@@ -40,6 +40,7 @@ export const HomePage: React.FC = () => {
   // ホーム画面のプレビュースロット表示切り替え（daily or chart）
   const [stampPreviewType, setStampPreviewType] = useState<'daily' | 'chart'>('daily');
   const [showLevelHelpModal, setShowLevelHelpModal] = useState(false);
+  const [showCompletionHelpModal, setShowCompletionHelpModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showParentModal, setShowParentModal] = useState(false);
   const [showAllAnimalsModal, setShowAllAnimalsModal] = useState(false);
@@ -313,12 +314,28 @@ export const HomePage: React.FC = () => {
             <span>{studyStreak > 0 ? `${studyStreak}日れんぞく！` : '今日からスタート！'}</span>
           </div>
 
-          <div className={styles.progressLabel}>
-            <span>合格カルテ完成度</span>
-            <strong data-testid="completion-percent">{completionPercent}%</strong>
-          </div>
-          <div className={styles.progressBarBg} aria-label="攻略度進捗バー">
-            <div className={styles.progressBarFill} style={{ width: `${completionPercent}%` }} />
+          {/* 合格カルテ完成度（クリックで100%にするための解説を表示） */}
+          <div
+            className={styles.progressGroup}
+            onClick={() => {
+              sound.playPop();
+              setShowCompletionHelpModal(true);
+            }}
+            title="合格カルテ完成度: 全56テーマの「記憶メーター（定着度）」の平均値です。クリックで100%にするための方法をチェック！"
+            data-testid="completion-progress-group"
+            role="button"
+            tabIndex={0}
+            aria-label={`合格カルテ完成度 ${completionPercent}%。クリックで100%にする方法を表示`}
+          >
+            <div className={styles.progressLabel}>
+              <span className={styles.progressLabelTitle}>
+                合格カルテ完成度 <span style={{ fontSize: '11px' }}>❓</span>
+              </span>
+              <strong data-testid="completion-percent">{completionPercent}%</strong>
+            </div>
+            <div className={styles.progressBarBg} aria-label="攻略度進捗バー">
+              <div className={styles.progressBarFill} style={{ width: `${completionPercent}%` }} />
+            </div>
           </div>
 
           {/* 右上操作コントロール群 */}
@@ -1450,6 +1467,184 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 合格カルテ完成度 100%達成ガイドモーダル */}
+      {showCompletionHelpModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowCompletionHelpModal(false)} data-testid="completion-help-modal">
+          <div className={styles.modalContent} onClick={e => e.stopPropagation()} style={{ maxWidth: '640px' }}>
+            <div className={styles.modalHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '24px' }}>📈</span>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: 'var(--text)' }}>
+                    合格カルテ完成度（現在: {completionPercent}%）を100%にするには？
+                  </h3>
+                  <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
+                    全{ALL_PROGRESS_SKILLS.length}テーマの「記憶定着メーター」の平均値だよ！
+                  </div>
+                </div>
+              </div>
+              <button
+                className={styles.modalCloseBtn}
+                onClick={() => {
+                  sound.playPop();
+                  setShowCompletionHelpModal(false);
+                }}
+                data-testid="close-completion-help-btn"
+                aria-label="閉じる"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '8px 0' }}>
+              {/* ナース猫ミケちゃんからのアドバイス */}
+              <div
+                style={{
+                  background: 'var(--primary-weak)',
+                  border: '1.5px solid var(--primary)',
+                  borderRadius: '12px',
+                  padding: '14px',
+                  display: 'flex',
+                  gap: '12px',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <span style={{ fontSize: '32px' }}>🐱</span>
+                <div style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--text)' }}>
+                  <strong>ナース猫のミケちゃん:</strong><br />
+                  「先生、おつかれさま！合格カルテ完成度は全{ALL_PROGRESS_SKILLS.length}テーマの記憶定着メーターの平均値だよ。
+                  人間の脳は時間が経つと少しずつ忘れちゃうけれど、<strong>3つのアクション</strong>で誰でも100%を満タンにできるよ！」
+                </div>
+              </div>
+
+              {/* 100%にするための3つのアクション */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div
+                  style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '10px',
+                    padding: '12px 14px',
+                    display: 'flex',
+                    gap: '12px',
+                    alignItems: 'center',
+                  }}
+                  data-testid="action-item-focus"
+                >
+                  <span style={{ fontSize: '26px' }}>🎯</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text)' }}>
+                      ① 単元の「特訓問題」を解いて正解する（大幅UP！）
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                      カルテの「🎯 この単元を特訓してLvアップ！」で正解すると、記憶メーターが一気に80%〜100%（全快）へ上がります。
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '10px',
+                    padding: '12px 14px',
+                    display: 'flex',
+                    gap: '12px',
+                    alignItems: 'center',
+                  }}
+                  data-testid="action-item-flashcard"
+                >
+                  <span style={{ fontSize: '26px' }}>📇</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text)' }}>
+                      ② 「暗記カード」をサクッとめくって復習する（急速チャージ！）
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                      時間がないときは「📇 暗記カード」で急所ポイントを思い出すだけで、記憶メーターが即座に回復します。
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '10px',
+                    padding: '12px 14px',
+                    display: 'flex',
+                    gap: '12px',
+                    alignItems: 'center',
+                  }}
+                  data-testid="action-item-daily"
+                >
+                  <span style={{ fontSize: '26px' }}>🐾</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text)' }}>
+                      ③ 「今日のオススメ10問」を毎日解く（100%キープ！）
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                      忘却曲線で減りかけた単元が自動で優先出題されるので、毎日1回解くだけで100%をずっとキープできます！
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 現在の単元状況 */}
+              <div
+                style={{
+                  background: 'var(--surface-subtle)',
+                  borderRadius: '10px',
+                  padding: '12px 16px',
+                  fontSize: '13px',
+                  display: 'flex',
+                  justifyContent: 'space-around',
+                  textAlign: 'center',
+                }}
+              >
+                <div>
+                  <div style={{ color: 'var(--success-text)', fontWeight: 800, fontSize: '18px' }}>
+                    {enrichedSkills.filter(s => getMemoryRetention(s.id) >= 80).length} 単元
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>🟢 80%以上（バッチリ！）</div>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--warning-text)', fontWeight: 800, fontSize: '18px' }}>
+                    {enrichedSkills.filter(s => getMemoryRetention(s.id) >= 50 && getMemoryRetention(s.id) < 80).length} 単元
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>🟡 50〜79%（復習の好機！）</div>
+                </div>
+                <div>
+                  <div style={{ color: '#ef4444', fontWeight: 800, fontSize: '18px' }}>
+                    {enrichedSkills.filter(s => getMemoryRetention(s.id) < 50).length} 単元
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>🔴 50%未満（特訓しよう）</div>
+                </div>
+              </div>
+
+              {/* アクションボタン */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '6px' }}>
+                <button
+                  type="button"
+                  className={styles.focusStudyBtn}
+                  style={{ width: 'auto', padding: '10px 20px', fontSize: '13px' }}
+                  onClick={() => {
+                    sound.playPop();
+                    setShowCompletionHelpModal(false);
+                    const el = document.querySelector('[data-testid="card-weakness"]');
+                    if (el && typeof el.scrollIntoView === 'function') {
+                      el.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                  data-testid="jump-to-weakness-btn"
+                >
+                  🎯 カルテ進度で記憶メーターを100%にする ❯
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
