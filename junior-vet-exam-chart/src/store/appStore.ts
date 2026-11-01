@@ -43,7 +43,7 @@ interface AppState {
   promotedSkillInfo: PromotedSkillResult | null;
 
   // セッション操作
-  startDailySession: (subject?: Subject) => void;
+  startDailySession: (subject?: Subject | Subject[]) => void;
   startSkillFocusSession: (skillId: string) => void;
   startSingleQuestionSession: (questionId: string) => void;
   startSampleSession: () => void;
@@ -102,7 +102,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   startDailySession: (subject) => {
     let pool = ALL_CURRICULUM_QUESTIONS;
     if (subject) {
-      pool = pool.filter(q => q.subject === subject);
+      if (Array.isArray(subject)) {
+        if (subject.length > 0) {
+          pool = pool.filter(q => subject.includes(q.subject));
+        }
+      } else {
+        pool = pool.filter(q => q.subject === subject);
+      }
     }
     const count = get().settings.dailyQuestionCount;
     const questions = [...pool].sort(() => 0.5 - Math.random()).slice(0, count);

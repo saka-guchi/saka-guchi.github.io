@@ -19,6 +19,7 @@ import { AnimatedVetPet } from '../components/AnimatedVetPet';
 import { ReferenceBookQuizModal } from '../components/ReferenceBookQuizModal';
 import { REFERENCE_BOOKS } from '../data/extra-history-80';
 import { getRefBookProgress } from '../utils/reference-book-store';
+import type { Subject } from '../types';
 import styles from './HomePage.module.css';
 
 type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
@@ -42,7 +43,9 @@ export const HomePage: React.FC = () => {
   const [currentTheme, setCurrentTheme] = useState<ThemeType>('default');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [selectedSkillSubject, setSelectedSkillSubject] = useState<'all' | 'rika' | 'sansu' | 'shakai' | 'kokugo'>('all');
-  const [selectedStudySubject, setSelectedStudySubject] = useState<'all' | 'rika' | 'sansu' | 'shakai' | 'kokugo'>('all');
+  // 今日の学習の出題教科（複数選択可能。初期値は全4教科）
+  const ALL_STUDY_SUBJECTS: Subject[] = ['rika', 'sansu', 'shakai', 'kokugo'];
+  const [selectedStudySubjects, setSelectedStudySubjects] = useState<Subject[]>(['rika', 'sansu', 'shakai', 'kokugo']);
   const [, setRetentionTick] = useState(0);
   const [, setSkillStagesTick] = useState(0);
 
@@ -155,9 +158,57 @@ export const HomePage: React.FC = () => {
 
   const nextStamp = ANIMAL_STAMPS.find(s => !earnedStampIds.includes(s.id)) || ANIMAL_STAMPS[0];
 
+  const isAllSubjectsSelected = selectedStudySubjects.length === ALL_STUDY_SUBJECTS.length;
+
+  const handleSelectAllSubjects = () => {
+    sound.playPop();
+    setSelectedStudySubjects([...ALL_STUDY_SUBJECTS]);
+  };
+
+  const handleToggleSubject = (sub: Subject) => {
+    sound.playPop();
+    // 全教科選択されている状態で特定科目をタップした場合は、その科目のみを選択（直感的な絞り込み操作）
+    if (isAllSubjectsSelected) {
+      setSelectedStudySubjects([sub]);
+      return;
+    }
+
+    if (selectedStudySubjects.includes(sub)) {
+      // 既に選択中の科目をタップした場合:
+      if (selectedStudySubjects.length > 1) {
+        // 残り2科目以上あれば解除
+        setSelectedStudySubjects(selectedStudySubjects.filter(s => s !== sub));
+      } else {
+        // 最後の1科目を解除しようとした場合は全教科選択に戻す（必ず1科目以上選ばれる）
+        setSelectedStudySubjects([...ALL_STUDY_SUBJECTS]);
+      }
+    } else {
+      // 未選択の科目をタップして追加（複数選択）
+      const next = [...selectedStudySubjects, sub];
+      setSelectedStudySubjects(next);
+    }
+  };
+
+  const getStartButtonLabel = () => {
+    if (isAllSubjectsSelected) {
+      return '全教科オススメ10問をスタート！ 🐾';
+    }
+    const subjectNames: Record<Subject, { label: string; icon: string }> = {
+      rika: { label: '理科', icon: '🧪' },
+      sansu: { label: '算数', icon: '📐' },
+      shakai: { label: '社会', icon: '🗾' },
+      kokugo: { label: '国語', icon: '📖' },
+    };
+    // ALL_STUDY_SUBJECTSの順序でソートして見やすく並べる
+    const sortedSelected = ALL_STUDY_SUBJECTS.filter(s => selectedStudySubjects.includes(s));
+    const labels = sortedSelected.map(s => subjectNames[s]?.label || s).join('・');
+    const icons = sortedSelected.map(s => subjectNames[s]?.icon || '').join('');
+    return `${labels} 10問をスタート！ ${icons || '🐾'}`;
+  };
+
   const handleStartToday = () => {
     sound.playChime();
-    startDailySession(selectedStudySubject === 'all' ? undefined : selectedStudySubject);
+    startDailySession(isAllSubjectsSelected ? undefined : selectedStudySubjects);
     navigate('/study');
   };
 
@@ -324,33 +375,48 @@ export const HomePage: React.FC = () => {
                 理科・算数・社会・国語の4教科すべてに対応！毎日少しずつ解くのが記憶のコツだよ。
               </p>
 
-              {/* 科目選択セグメントコントロール */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text)' }}>
-                  出題教科:
-                </span>
-                <div className={styles.categoryFilterRow} role="tablist" aria-label="出題教科の選択">
+              {/* 出題教科セグメントコントロール（複数選択対応・トグルUI） */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '8px', marginBottom: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text)' }}>
+                    出題教科（タップで複数選べるよ！）:
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 700 }}>
+                    {isAllSubjectsSelected ? '🌟 全教科ミックス' : `🎯 ${selectedStudySubjects.length}教科を選択中`}
+                  </span>
+                </div>
+                <div className={styles.categoryFilterRow} role="group" aria-label="出題教科の選択（複数選択可能）">
+                  <button
+                    key="all"
+                    type="button"
+                    className={`${styles.categoryFilterBtn} ${isAllSubjectsSelected ? styles.categoryFilterBtnActive : ''}`}
+                    onClick={handleSelectAllSubjects}
+                    data-testid="study-subject-all"
+                    title="全教科をまとめて出題"
+                  >
+                    {isAllSubjectsSelected ? '✓ 🌟 全教科' : '🌟 全教科'}
+                  </button>
                   {[
-                    { id: 'all', label: '🌟 全教科' },
-                    { id: 'rika', label: '🧪 理科' },
-                    { id: 'sansu', label: '📐 算数' },
-                    { id: 'shakai', label: '🗾 社会' },
-                    { id: 'kokugo', label: '📖 国語' },
-                  ].map(sub => (
-                    <button
-                      key={sub.id}
-                      className={`${styles.categoryFilterBtn} ${selectedStudySubject === sub.id ? styles.categoryFilterBtnActive : ''}`}
-                      onClick={() => {
-                        sound.playPop();
-                        setSelectedStudySubject(sub.id as any);
-                      }}
-                      type="button"
-                      role="tab"
-                      aria-selected={selectedStudySubject === sub.id}
-                    >
-                      {sub.label}
-                    </button>
-                  ))}
+                    { id: 'rika' as Subject, label: '理科', icon: '🧪' },
+                    { id: 'sansu' as Subject, label: '算数', icon: '📐' },
+                    { id: 'shakai' as Subject, label: '社会', icon: '🗾' },
+                    { id: 'kokugo' as Subject, label: '国語', icon: '📖' },
+                  ].map(sub => {
+                    const isSelected = selectedStudySubjects.includes(sub.id);
+                    return (
+                      <button
+                        key={sub.id}
+                        type="button"
+                        className={`${styles.categoryFilterBtn} ${isSelected ? styles.categoryFilterBtnActive : ''}`}
+                        onClick={() => handleToggleSubject(sub.id)}
+                        data-testid={`study-subject-${sub.id}`}
+                        aria-pressed={isSelected}
+                        title={`クリックして${sub.label}を出題教科に追加/解除`}
+                      >
+                        {isSelected ? `✓ ${sub.icon} ${sub.label}` : `${sub.icon} ${sub.label}`}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -372,15 +438,7 @@ export const HomePage: React.FC = () => {
                 onClick={handleStartToday}
                 data-testid="start-study-btn"
               >
-                {selectedStudySubject === 'all'
-                  ? '全教科オススメ10問をスタート！ 🐾'
-                  : selectedStudySubject === 'rika'
-                  ? '理科 10問をスタート！ 🧪'
-                  : selectedStudySubject === 'sansu'
-                  ? '算数 10問をスタート！ 📐'
-                  : selectedStudySubject === 'shakai'
-                  ? '社会 10問をスタート！ 🗾'
-                  : '国語 10問をスタート！ 📖'}
+                {getStartButtonLabel()}
               </button>
             </div>
           </section>
