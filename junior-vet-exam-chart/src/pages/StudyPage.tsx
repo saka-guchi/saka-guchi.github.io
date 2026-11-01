@@ -292,6 +292,15 @@ export const StudyPage: React.FC = () => {
                     <span className={styles.resultIcon}>{currentIsCorrect ? '✓' : '✕'}</span>
                     <span className={styles.resultText}>{currentIsCorrect ? '正解！' : '不正解'}</span>
                   </div>
+                  <button
+                    className={styles.inlineNextBtn}
+                    onClick={handleNext}
+                    data-testid="inline-next-btn"
+                    title="次の問題へ進む"
+                  >
+                    <span>次へ進む</span>
+                    <span>❯</span>
+                  </button>
                 </div>
               ) : (
                 /* 回答前の形式見出し＆ヒント */

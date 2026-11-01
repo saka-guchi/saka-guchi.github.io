@@ -311,6 +311,7 @@
   margin: 0 auto;
   width: 100%;
   flex-shrink: 0;
+  z-index: 50;
 }
 
 .subBtn {
@@ -346,6 +347,30 @@
   cursor: pointer;
 }
 
+.inlineNextBtn {
+  height: 44px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  color: #ffffff;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: 0 2px 8px var(--primary-glow);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+}
+
+.inlineNextBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
 .emptyContainer {
   height: 100vh;
   display: flex;
@@ -355,27 +380,50 @@
   gap: 20px;
 }
 
-/* モバイル S1 */
+/* モバイル S1: 画面下に常時固定（スクロール不要で次へ進める） */
 @media (max-width: 768px) {
   .pageLayout {
+    height: 100vh;
+    height: 100dvh;
     overflow-y: auto;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
   }
   .mainArea {
     grid-template-columns: 1fr;
     overflow-y: visible;
+    padding: 12px 14px;
+    padding-bottom: 100px; /* 固定ボトムバーと重ならない余白 */
   }
   .questionArea, .answerArea {
     overflow-y: visible;
+    padding: 16px;
   }
   .bottomBar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     height: 72px;
     padding: 0 16px;
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+    background: var(--surface);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+    border-top: 1.5px solid var(--border);
+    z-index: 100;
   }
   .subBtn {
     width: 120px;
+    min-width: 100px;
+    height: 48px;
+    font-size: 15px;
   }
   .mainBtn {
-    width: 200px;
+    flex: 1;
+    min-width: 160px;
+    height: 48px;
+    font-size: 16px;
+    padding: 0 16px;
   }
 }
 

@@ -650,6 +650,52 @@
   gap: 20px;
 }
 
+/* スマホ用下段ビュー切り替えタブ（PCでは非表示、768px以下で出現） */
+.mobileTabSwitcher {
+  display: none;
+}
+
+.masteredAccordionBtn {
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 800;
+  color: #166534;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+}
+
+.masteredAccordionBtn:hover {
+  background: #dcfce7;
+}
+
+.quickExamJumpBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1.5px solid #f59e0b;
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #92400e;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quickExamJumpBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.25);
+}
+
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1135,5 +1181,46 @@
   }
   .bottomCardsGrid {
     grid-template-columns: 1fr;
+  }
+  .mobileTabSwitcher {
+    display: flex;
+    background: var(--surface-subtle);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 4px;
+    gap: 6px;
+    width: 100%;
+    margin-bottom: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  }
+  .mobileTabBtn {
+    flex: 1;
+    height: 44px;
+    border-radius: var(--radius-pill);
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .mobileTabBtnActive {
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 3px 8px var(--primary-glow);
+  }
+  .mobileTabBtnActiveGold {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #ffffff;
+    box-shadow: 0 3px 8px rgba(217, 119, 6, 0.35);
+  }
+  /* スマホでのカード表示制御 */
+  .cardHiddenOnMobile {
+    display: none !important;
   }
 }

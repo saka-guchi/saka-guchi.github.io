@@ -46,6 +46,10 @@ export const HomePage: React.FC = () => {
   // 今日の学習の出題教科（複数選択可能。初期値は全4教科）
   const ALL_STUDY_SUBJECTS: Subject[] = ['rika', 'sansu', 'shakai', 'kokugo'];
   const [selectedStudySubjects, setSelectedStudySubjects] = useState<Subject[]>(['rika', 'sansu', 'shakai', 'kokugo']);
+  // スマホ向け下段ビュー切り替え（カルテ進度 or 認定試験）
+  const [mobileBottomTab, setMobileBottomTab] = useState<'progress' | 'exam'>('progress');
+  // カルテ進度内のマスター達成テーマの開閉（スマホでの過剰スクロール防止）
+  const [showMasteredSkills, setShowMasteredSkills] = useState(false);
   const [, setRetentionTick] = useState(0);
   const [, setSkillStagesTick] = useState(0);
 
@@ -543,24 +547,71 @@ export const HomePage: React.FC = () => {
           </button>
         </section>
 
+        {/* スマホ専用下段ビュー切り替えタブ（スクロール不要で認定試験に瞬時に移動可能） */}
+        <div className={styles.mobileTabSwitcher} role="tablist" aria-label="カルテ進度と認定試験の切り替え">
+          <button
+            type="button"
+            className={`${styles.mobileTabBtn} ${mobileBottomTab === 'progress' ? styles.mobileTabBtnActive : ''}`}
+            onClick={() => {
+              sound.playPop();
+              setMobileBottomTab('progress');
+            }}
+            data-testid="mobile-tab-progress"
+          >
+            🩺 カルテ進度 ({filteredSkills.length})
+          </button>
+          <button
+            type="button"
+            className={`${styles.mobileTabBtn} ${mobileBottomTab === 'exam' ? styles.mobileTabBtnActiveGold : ''}`}
+            onClick={() => {
+              sound.playPop();
+              setMobileBottomTab('exam');
+            }}
+            data-testid="mobile-tab-exam"
+          >
+            🏆 認定試験
+          </button>
+        </div>
+
         {/* ゾーン3: 下段2カラム（全テーマのカルテ進度 と 獣医師認定試験） */}
         <div className={styles.bottomCardsGrid}>
           {/* 左カラム: 🩺 受験カルテ進度（全テーマ） */}
-          <div className={styles.card} data-testid="card-weakness">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div
+            className={`${styles.card} ${mobileBottomTab !== 'progress' ? styles.cardHiddenOnMobile : ''}`}
+            data-testid="card-weakness"
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
               <h3 className={styles.cardTitle} style={{ margin: 0 }}>
                 🩺 受験カルテ進度（全{ALL_PROGRESS_SKILLS.length}テーマ）
               </h3>
-              <button
-                className={styles.helpLinkBtn}
-                onClick={() => {
-                  sound.playPop();
-                  setShowLevelHelpModal(true);
-                }}
-                title="Lvについて知る"
-              >
-                ❓ Lvってなに？
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <button
+                  type="button"
+                  className={styles.quickExamJumpBtn}
+                  onClick={() => {
+                    sound.playPop();
+                    setMobileBottomTab('exam');
+                    const examEl = document.querySelector('[data-testid="card-final-challenge"]');
+                    if (examEl && typeof examEl.scrollIntoView === 'function') {
+                      examEl.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                  data-testid="quick-jump-exam-btn"
+                  title="合格ドクター認定試験へ瞬時にジャンプ"
+                >
+                  🏆 認定試験へ ❯
+                </button>
+                <button
+                  className={styles.helpLinkBtn}
+                  onClick={() => {
+                    sound.playPop();
+                    setShowLevelHelpModal(true);
+                  }}
+                  title="Lvについて知る"
+                >
+                  ❓ Lvってなに？
+                </button>
+              </div>
             </div>
 
             <div style={{ fontSize: '13px', color: 'var(--text-subtle)', margin: '2px 0 4px 0' }}>
@@ -721,13 +772,23 @@ export const HomePage: React.FC = () => {
                 );
               })}
 
-              {/* 達成済みテーマ */}
+              {/* 達成済みテーマ（スマホでの過剰スクロール防止のためアコーディオン開閉） */}
               {filteredSkills.filter(s => s.isMastered).length > 0 && (
-                <div style={{ fontSize: '12px', fontWeight: '800', color: 'var(--success-text)', marginTop: '12px' }}>
-                  ✅ マスター達成済みのテーマ（{masteredCount} つ）
-                </div>
+                <button
+                  type="button"
+                  className={styles.masteredAccordionBtn}
+                  onClick={() => {
+                    sound.playPop();
+                    setShowMasteredSkills(!showMasteredSkills);
+                  }}
+                  data-testid="toggle-mastered-skills-btn"
+                  title="マスター達成済みテーマの表示/非表示を切り替え"
+                >
+                  <span>✅ 全快マスター達成テーマ（{masteredCount} つ）</span>
+                  <span>{showMasteredSkills ? '▲ とじる' : '▼ ひらく'}</span>
+                </button>
               )}
-              {filteredSkills.filter(s => s.isMastered).map(skill => {
+              {showMasteredSkills && filteredSkills.filter(s => s.isMastered).map(skill => {
                 const info = getMasteryLevelInfo(skill.stage);
                 const enhance = THEME_ENHANCEMENTS[skill.id];
                 const patientIcon = enhance?.patientAnimal?.icon || skill.patientIcon || '🐾';
@@ -808,7 +869,10 @@ export const HomePage: React.FC = () => {
           </div>
 
           {/* 右カラム: 🏆 合格ドクター認定試験 */}
-          <div className={styles.card} data-testid="card-final-challenge">
+          <div
+            className={`${styles.card} ${mobileBottomTab !== 'exam' ? styles.cardHiddenOnMobile : ''}`}
+            data-testid="card-final-challenge"
+          >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
               <h3 className={styles.cardTitle} style={{ margin: 0 }}>
                 🏆 合格ドクター認定試験
