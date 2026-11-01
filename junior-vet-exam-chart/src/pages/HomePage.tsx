@@ -31,6 +31,14 @@ export const HomePage: React.FC = () => {
   const [earnedStampIds, setEarnedStampIds] = useState<string[]>([]);
   const [showStampModal, setShowStampModal] = useState(false);
   const [openedStampIds, setOpenedStampIds] = useState<string[]>([]);
+  // スタンプ帳モーダルのタブ（毎日の学習 or カルテ全快患者）
+  const [stampModalTab, setStampModalTab] = useState<'daily' | 'chart'>('daily');
+  // カルテ全快スタンプの教科フィルター
+  const [chartStampSubject, setChartStampSubject] = useState<'all' | 'rika' | 'sansu' | 'shakai' | 'kokugo'>('all');
+  // 開いたカルテスタンプのID一覧（開きっぱなし維持）
+  const [openedChartStampIds, setOpenedChartStampIds] = useState<string[]>([]);
+  // ホーム画面のプレビュースロット表示切り替え（daily or chart）
+  const [stampPreviewType, setStampPreviewType] = useState<'daily' | 'chart'>('daily');
   const [showLevelHelpModal, setShowLevelHelpModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showParentModal, setShowParentModal] = useState(false);
@@ -238,6 +246,20 @@ export const HomePage: React.FC = () => {
       nextGoalHint,
     };
   });
+
+  // 全カルテスキルのうち全快（M4/M5マスター）したスキル
+  const allMasteredSkills = enrichedSkills.filter(s => s.isMastered);
+
+  // カルテスキルのスタンプ情報ヘルパー
+  const getSkillStampDetails = (skill: ComprehensiveSkillProgressItem) => {
+    const enhance = THEME_ENHANCEMENTS[skill.id];
+    const icon = enhance?.patientAnimal?.icon || skill.patientIcon || '🐾';
+    const name = enhance?.patientAnimal?.name || skill.patientName || '患者どうぶつ';
+    const role = enhance?.patientAnimal?.role || `${skill.subjectLabel}マスター`;
+    const symptom = enhance?.patientAnimal?.symptom || `「${skill.title}のカルテをマスターしてくれてありがとう！すっかり元気になったよ！」`;
+    const examPoint = enhance?.flashCard?.examPoint || enhance?.flashCard?.tip || `💡 急所ポイント: ${skill.nextGoalHint}。毎日の復習で全快をキープしよう！`;
+    return { icon, name, role, symptom, examPoint };
+  };
 
   // 科目別フィルター（小学生向け科目タブ：すべて・理科・算数・社会）
   const filteredSkills = enrichedSkills.filter(skill => {
@@ -513,27 +535,100 @@ export const HomePage: React.FC = () => {
           <div className={styles.stampLeft}>
             <div>
               <div className={styles.stampHeaderTitle}>
-                🐾 元気にした動物スタンプ帳（{earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹）
+                🐾 元気にした動物スタンプ帳（毎日: {earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹 ＋ カルテ全快: {allMasteredSkills.length} / {enrichedSkills.length} 匹）
               </div>
               <div className={styles.stampNextHint}>
-                👉 今日の10問をとくと、次は【{nextStamp.icon} {nextStamp.name}】が元気になるよ！
+                👉 今日の10問で【{nextStamp.icon} {nextStamp.name}】、カルテ特訓（Lv.4マスター）で【患者動物たち】が全快スタンプになるよ！
               </div>
             </div>
-            <div className={styles.stampIconRow}>
-              {ANIMAL_STAMPS.map(stamp => {
-                const isEarned = earnedStampIds.includes(stamp.id);
-                return (
-                  <div
-                    key={stamp.id}
-                    className={`${styles.stampSlot} ${isEarned ? styles.stampSlotActive : ''}`}
-                    onClick={() => handleStampClick(isEarned)}
-                    title={isEarned ? `${stamp.name}: 元気回復！クリックでプチ知識` : `${stamp.name}: 治療を待っているよ`}
-                  >
-                    {isEarned ? stamp.icon : '❓'}
-                  </div>
-                );
-              })}
+
+            {/* スロット切り替えミニトグル */}
+            <div className={styles.stampPreviewToggleRow} role="tablist" aria-label="スタンプスロット切り替え">
+              <button
+                type="button"
+                className={`${styles.stampPreviewTabBtn} ${stampPreviewType === 'daily' ? styles.stampPreviewTabBtnActive : ''}`}
+                onClick={() => setStampPreviewType('daily')}
+                data-testid="preview-tab-daily"
+              >
+                📅 毎日の学習（{earnedStampIds.length} / {ANIMAL_STAMPS.length}）
+              </button>
+              <button
+                type="button"
+                className={`${styles.stampPreviewTabBtn} ${stampPreviewType === 'chart' ? styles.stampPreviewTabBtnActive : ''}`}
+                onClick={() => setStampPreviewType('chart')}
+                data-testid="preview-tab-chart"
+              >
+                🩺 カルテ全快（{allMasteredSkills.length} / {enrichedSkills.length}）
+              </button>
             </div>
+
+            {stampPreviewType === 'daily' ? (
+              <div className={styles.stampIconRow}>
+                {ANIMAL_STAMPS.map(stamp => {
+                  const isEarned = earnedStampIds.includes(stamp.id);
+                  return (
+                    <div
+                      key={stamp.id}
+                      className={`${styles.stampSlot} ${isEarned ? styles.stampSlotActive : ''}`}
+                      onClick={() => {
+                        setStampModalTab('daily');
+                        handleStampClick(isEarned);
+                      }}
+                      title={isEarned ? `${stamp.name}: 元気回復！クリックでプチ知識` : `${stamp.name}: 治療を待っているよ`}
+                    >
+                      {isEarned ? stamp.icon : '❓'}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className={styles.stampIconRow}>
+                {enrichedSkills.slice(0, 16).map(skill => {
+                  const isEarned = skill.isMastered;
+                  const details = getSkillStampDetails(skill);
+                  return (
+                    <div
+                      key={skill.id}
+                      className={`${styles.stampSlot} ${isEarned ? styles.stampSlotActive : ''}`}
+                      style={{
+                        borderColor: isEarned ? '#10b981' : 'var(--border)',
+                        background: isEarned ? '#ecfdf5' : 'var(--surface-subtle)',
+                      }}
+                      onClick={() => {
+                        setStampModalTab('chart');
+                        if (isEarned) {
+                          sound.playAnimalHappy();
+                          fireConfetti({ count: 20 });
+                          setOpenedChartStampIds(prev => (prev.includes(skill.id) ? prev : [...prev, skill.id]));
+                        } else {
+                          sound.playPop();
+                        }
+                        setShowStampModal(true);
+                      }}
+                      title={isEarned ? `${details.name}: 全快！クリックで豆知識` : `${details.name}（${skill.title}）: カルテ特訓で全快させよう！`}
+                      data-testid={`preview-chart-stamp-${skill.id}`}
+                    >
+                      {isEarned ? details.icon : '🔒'}
+                    </div>
+                  );
+                })}
+                {enrichedSkills.length > 16 && (
+                  <button
+                    type="button"
+                    className={styles.stampSlot}
+                    style={{ fontSize: '13px', fontWeight: 800, color: 'var(--primary)', border: '1.5px solid var(--primary)', cursor: 'pointer' }}
+                    onClick={() => {
+                      setStampModalTab('chart');
+                      sound.playPop();
+                      setShowStampModal(true);
+                    }}
+                    title="スタンプ帳ですべての全快動物を見る"
+                  >
+                    +{enrichedSkills.length - 16}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
           <button
             className={styles.stampBookBtn}
@@ -1050,109 +1145,311 @@ export const HomePage: React.FC = () => {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-              {ANIMAL_STAMPS.map(stamp => {
-                const isEarned = earnedStampIds.includes(stamp.id);
-                const isOpened = openedStampIds.includes(stamp.id);
+            {/* スタンプ帳モーダル内タブ切り替え */}
+            <div className={styles.stampModalTabs} role="tablist">
+              <button
+                type="button"
+                className={`${styles.stampModalTabBtn} ${stampModalTab === 'daily' ? styles.stampModalTabBtnActive : ''}`}
+                onClick={() => {
+                  sound.playPop();
+                  setStampModalTab('daily');
+                }}
+                data-testid="stamp-tab-daily"
+              >
+                📅 毎日の学習スタンプ（{earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹）
+              </button>
+              <button
+                type="button"
+                className={`${styles.stampModalTabBtn} ${stampModalTab === 'chart' ? styles.stampModalTabBtnActive : ''}`}
+                onClick={() => {
+                  sound.playPop();
+                  setStampModalTab('chart');
+                }}
+                data-testid="stamp-tab-chart"
+              >
+                🩺 カルテ全快ドクタースタンプ（{allMasteredSkills.length} / {enrichedSkills.length} 匹）
+              </button>
+            </div>
 
-                return (
-                  <div
-                    key={stamp.id}
-                    onClick={() => {
-                      if (isEarned) {
-                        sound.playAnimalHappy();
-                        fireConfetti({ count: 20 });
-                        // 1度クリックした動物は開きっぱなしを維持（他の動物をクリックしても閉じない）
-                        setOpenedStampIds(prev => (prev.includes(stamp.id) ? prev : [...prev, stamp.id]));
-                      } else {
-                        sound.playPop();
-                      }
-                    }}
-                    style={{
-                      border: isEarned ? '2px solid var(--primary)' : '1px dashed var(--border)',
-                      background: isEarned ? (isOpened ? '#fef3c7' : 'var(--primary-weak)') : 'var(--surface-subtle)',
-                      borderRadius: '14px',
-                      padding: '14px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                      opacity: isEarned ? 1 : 0.65,
-                      cursor: 'pointer',
-                      boxShadow: isEarned ? '0 4px 12px rgba(0, 0, 0, 0.1)' : 'none',
-                      transition: 'all 0.2s ease',
-                      transform: isOpened ? 'scale(1.02)' : 'none',
-                    }}
-                    data-testid={`animal-stamp-${stamp.id}`}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ fontSize: '32px' }}>{isEarned ? stamp.icon : '🔒'}</span>
-                      <div>
-                        <div style={{ fontSize: '14px', fontWeight: '900', color: 'var(--text)' }}>
-                          {stamp.name}
-                        </div>
-                        <div style={{ fontSize: '11px', color: isEarned ? 'var(--primary)' : 'var(--text-muted)', fontWeight: '700' }}>
-                          {isEarned ? `回復: ${stamp.patientTitle}` : '学習を続けて助けよう！'}
+            {stampModalTab === 'daily' ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                {ANIMAL_STAMPS.map(stamp => {
+                  const isEarned = earnedStampIds.includes(stamp.id);
+                  const isOpened = openedStampIds.includes(stamp.id);
+
+                  return (
+                    <div
+                      key={stamp.id}
+                      onClick={() => {
+                        if (isEarned) {
+                          sound.playAnimalHappy();
+                          fireConfetti({ count: 20 });
+                          // 1度クリックした動物は開きっぱなしを維持（他の動物をクリックしても閉じない）
+                          setOpenedStampIds(prev => (prev.includes(stamp.id) ? prev : [...prev, stamp.id]));
+                        } else {
+                          sound.playPop();
+                        }
+                      }}
+                      style={{
+                        border: isEarned ? '2px solid var(--primary)' : '1px dashed var(--border)',
+                        background: isEarned ? (isOpened ? '#fef3c7' : 'var(--primary-weak)') : 'var(--surface-subtle)',
+                        borderRadius: '14px',
+                        padding: '14px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        opacity: isEarned ? 1 : 0.65,
+                        cursor: 'pointer',
+                        boxShadow: isEarned ? '0 4px 12px rgba(0, 0, 0, 0.1)' : 'none',
+                        transition: 'all 0.2s ease',
+                        transform: isOpened ? 'scale(1.02)' : 'none',
+                      }}
+                      data-testid={`animal-stamp-${stamp.id}`}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '32px' }}>{isEarned ? stamp.icon : '🔒'}</span>
+                        <div>
+                          <div style={{ fontSize: '14px', fontWeight: '900', color: 'var(--text)' }}>
+                            {stamp.name}
+                          </div>
+                          <div style={{ fontSize: '11px', color: isEarned ? 'var(--primary)' : 'var(--text-muted)', fontWeight: '700' }}>
+                            {isEarned ? `回復: ${stamp.patientTitle}` : '学習を続けて助けよう！'}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {isEarned && (
-                      isOpened ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
-                          {/* 飛び出す鳴き声・感謝メッセージ */}
-                          <div
-                            style={{
-                              background: '#ffffff',
-                              border: '1.5px solid #f59e0b',
-                              color: '#92400e',
-                              fontSize: '12px',
-                              fontWeight: 'bold',
-                              padding: '8px 10px',
-                              borderRadius: '8px',
-                              lineHeight: '1.45',
-                              boxShadow: '0 2px 6px rgba(245, 158, 11, 0.15)',
-                            }}
-                            data-testid={`stamp-cheer-${stamp.id}`}
-                          >
-                            🐾 {stamp.cheerMessage}
+                      {isEarned && (
+                        isOpened ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                            {/* 飛び出す鳴き声・感謝メッセージ */}
+                            <div
+                              style={{
+                                background: '#ffffff',
+                                border: '1.5px solid #f59e0b',
+                                color: '#92400e',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                padding: '8px 10px',
+                                borderRadius: '8px',
+                                lineHeight: '1.45',
+                                boxShadow: '0 2px 6px rgba(245, 158, 11, 0.15)',
+                              }}
+                              data-testid={`stamp-cheer-${stamp.id}`}
+                            >
+                              🐾 {stamp.cheerMessage}
+                            </div>
+
+                            {/* 飛び出す獣医師プチ知識 */}
+                            <div
+                              style={{
+                                fontSize: '11px',
+                                color: 'var(--text-subtle)',
+                                background: 'var(--surface)',
+                                padding: '8px 10px',
+                                borderRadius: '8px',
+                                border: '1px solid var(--border)',
+                                lineHeight: '1.45',
+                              }}
+                              data-testid={`stamp-fact-${stamp.id}`}
+                            >
+                              {stamp.vetFact}
+                            </div>
                           </div>
-
-                          {/* 飛び出す獣医師プチ知識 */}
+                        ) : (
                           <div
                             style={{
                               fontSize: '11px',
-                              color: 'var(--text-subtle)',
-                              background: 'var(--surface)',
-                              padding: '8px 10px',
+                              color: 'var(--primary)',
+                              background: 'rgba(37, 99, 235, 0.08)',
+                              padding: '6px 8px',
                               borderRadius: '8px',
-                              border: '1px solid var(--border)',
-                              lineHeight: '1.45',
+                              textAlign: 'center',
+                              fontWeight: 'bold',
                             }}
-                            data-testid={`stamp-fact-${stamp.id}`}
                           >
-                            {stamp.vetFact}
+                            👆 タップするとメッセージと豆知識が飛び出すよ！
                           </div>
-                        </div>
-                      ) : (
+                        )
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {/* 教科別絞り込み */}
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-subtle)' }}>教科:</span>
+                  {[
+                    { id: 'all', label: `🌟 すべて (${allMasteredSkills.length}/${enrichedSkills.length})` },
+                    { id: 'rika', label: `🧪 理科 (${enrichedSkills.filter(s => s.subject === 'rika' && s.isMastered).length}/${rikaCount})` },
+                    { id: 'sansu', label: `📐 算数 (${enrichedSkills.filter(s => s.subject === 'sansu' && s.isMastered).length}/${sansuCount})` },
+                    { id: 'shakai', label: `🗾 社会 (${enrichedSkills.filter(s => s.subject === 'shakai' && s.isMastered).length}/${shakaiCount})` },
+                    { id: 'kokugo', label: `📖 国語 (${enrichedSkills.filter(s => s.subject === 'kokugo' && s.isMastered).length}/${kokugoCount})` },
+                  ].map(subTab => (
+                    <button
+                      key={subTab.id}
+                      type="button"
+                      onClick={() => {
+                        sound.playPop();
+                        setChartStampSubject(subTab.id as any);
+                      }}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '16px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        border: chartStampSubject === subTab.id ? '1.5px solid var(--primary)' : '1px solid var(--border)',
+                        background: chartStampSubject === subTab.id ? 'var(--primary)' : 'var(--surface)',
+                        color: chartStampSubject === subTab.id ? '#ffffff' : 'var(--text)',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                      data-testid={`chart-stamp-filter-${subTab.id}`}
+                    >
+                      {subTab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* カルテスタンプ一覧グリッド */}
+                <div className={styles.chartStampGrid} data-testid="chart-stamp-grid">
+                  {enrichedSkills
+                    .filter(s => chartStampSubject === 'all' || s.subject === chartStampSubject)
+                    .map(skill => {
+                      const isEarned = skill.isMastered;
+                      const isOpened = openedChartStampIds.includes(skill.id);
+                      const details = getSkillStampDetails(skill);
+
+                      return (
                         <div
-                          style={{
-                            fontSize: '11px',
-                            color: 'var(--primary)',
-                            background: 'rgba(37, 99, 235, 0.08)',
-                            padding: '6px 8px',
-                            borderRadius: '8px',
-                            textAlign: 'center',
-                            fontWeight: 'bold',
+                          key={skill.id}
+                          className={`${styles.chartStampCard} ${isEarned ? styles.chartStampCardMastered : styles.chartStampCardLocked}`}
+                          onClick={() => {
+                            if (isEarned) {
+                              sound.playAnimalHappy();
+                              fireConfetti({ count: 20 });
+                              setOpenedChartStampIds(prev => (prev.includes(skill.id) ? prev : [...prev, skill.id]));
+                            } else {
+                              sound.playPop();
+                            }
                           }}
+                          data-testid={`chart-animal-stamp-${skill.id}`}
                         >
-                          👆 タップするとメッセージと豆知識が飛び出すよ！
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontSize: '32px' }}>{isEarned ? details.icon : '🔒'}</span>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
+                                <div style={{ fontSize: '14px', fontWeight: '900', color: 'var(--text)' }}>
+                                  {details.name}
+                                </div>
+                                <span
+                                  style={{
+                                    fontSize: '11px',
+                                    fontWeight: 800,
+                                    padding: '2px 8px',
+                                    borderRadius: '10px',
+                                    background: isEarned ? '#ecfdf5' : 'var(--surface-subtle)',
+                                    color: isEarned ? '#059669' : 'var(--text-subtle)',
+                                    border: isEarned ? '1px solid #a7f3d0' : '1px solid var(--border)',
+                                  }}
+                                >
+                                  {isEarned ? '🎉 全快！' : '🩺 治療中'}
+                                </span>
+                              </div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '2px', fontWeight: 600 }}>
+                                【{skill.subjectLabel}】{skill.title}
+                              </div>
+                            </div>
+                          </div>
+
+                          {isEarned ? (
+                            isOpened ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                                <div
+                                  style={{
+                                    background: '#ffffff',
+                                    border: '1.5px solid #10b981',
+                                    color: '#065f46',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    padding: '8px 10px',
+                                    borderRadius: '8px',
+                                    lineHeight: '1.45',
+                                    boxShadow: '0 2px 6px rgba(16, 185, 129, 0.15)',
+                                  }}
+                                  data-testid={`chart-stamp-cheer-${skill.id}`}
+                                >
+                                  🐾 {details.symptom}
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: '11px',
+                                    color: 'var(--text-subtle)',
+                                    background: 'var(--surface)',
+                                    padding: '8px 10px',
+                                    borderRadius: '8px',
+                                    border: '1px solid var(--border)',
+                                    lineHeight: '1.45',
+                                  }}
+                                  data-testid={`chart-stamp-fact-${skill.id}`}
+                                >
+                                  {details.examPoint}
+                                </div>
+                              </div>
+                            ) : (
+                              <div
+                                style={{
+                                  fontSize: '11px',
+                                  color: '#059669',
+                                  background: 'rgba(16, 185, 129, 0.08)',
+                                  padding: '6px 8px',
+                                  borderRadius: '8px',
+                                  textAlign: 'center',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                👆 タップすると全快メッセージと急所ポイントが飛び出すよ！
+                              </div>
+                            )
+                          ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>
+                                💡 カルテ特訓で【⭐Lv.4 マスター】を達成すると全快スタンプが手に入るよ！
+                              </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  sound.playChime();
+                                  setShowStampModal(false);
+                                  startSkillFocusSession(skill.id);
+                                  navigate('/study');
+                                }}
+                                style={{
+                                  padding: '6px 12px',
+                                  background: 'var(--primary)',
+                                  color: '#ffffff',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  fontSize: '12px',
+                                  fontWeight: 800,
+                                  cursor: 'pointer',
+                                  alignSelf: 'flex-start',
+                                  marginTop: '2px',
+                                }}
+                                data-testid={`train-from-stamp-${skill.id}`}
+                              >
+                                🎯 この単元を特訓して全快にする ❯
+                              </button>
+                            </div>
+                          )}
                         </div>
-                      )
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
