@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { StudyPage } from '../../src/pages/StudyPage';
@@ -72,6 +72,45 @@ describe('Global Navigation Consistency Tests', () => {
     expect(resultHomeBtn).toHaveTextContent('ホームへ戻る 🐾');
 
     unmountResult();
+  });
+
+  it('opens pause/interruption modal when clicking top-left back button on StudyPage to prevent accidental quit and provides save vs reset options', () => {
+    // 選択式問題（delayed_choice）を確実にセット
+    useAppStore.setState({
+      currentSessionQuestions: [SAMPLE_QUESTIONS[1]],
+      currentIndex: 0,
+      recallPhase: true,
+      currentAnswered: false,
+    });
+    render(
+      <BrowserRouter>
+        <StudyPage />
+      </BrowserRouter>
+    );
+
+    // ボトムバーに「分かった」や「やめる」ボタンが存在しないこと（UI/UX整理）
+    expect(screen.queryByTestId('recall-understood-btn')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('study-quit-btn')).not.toBeInTheDocument();
+    // 「今すぐ選択肢を見る」ボタンは存在すること
+    expect(screen.getByTestId('reveal-choices-btn')).toBeInTheDocument();
+
+    // 左上の「←」戻るボタンをクリック
+    const studyBackBtn = screen.getByTestId('study-back-btn');
+    fireEvent.click(studyBackBtn);
+
+    // いきなりホームへ遷移せず、中断確認モーダルが開くこと（誤操作防止）
+    const pauseModal = screen.getByTestId('study-pause-modal');
+    expect(pauseModal).toBeInTheDocument();
+    expect(screen.getByText('一時停止中')).toBeInTheDocument();
+
+    // 1. 学習をつづけるボタン
+    expect(screen.getByTestId('study-resume-btn')).toBeInTheDocument();
+
+    // 2. ここまでの記録を残して中断するボタン（セーブ中断）
+    expect(screen.getByTestId('study-pause-quit-btn')).toHaveTextContent('💾 ここまでの記録を残してホームへ');
+
+    // 3. 最初からやり直す（リセット）ボタン
+    expect(screen.getByTestId('study-pause-reset-btn')).toHaveTextContent('🔄 この学習をリセットして最初から（ホームへ）');
   });
 });
 

@@ -24,7 +24,7 @@ describe('スマホ・タブレット向けスクロールレスUI/UX 結合テ�
       );
 
       // 思い出すフェーズをスキップして選択肢表示
-      const revealBtn = screen.queryByTestId('recall-skip-btn') || screen.queryByTestId('recall-understood-btn');
+      const revealBtn = screen.queryByTestId('recall-skip-btn') || screen.queryByTestId('reveal-choices-btn') || screen.queryByTestId('recall-understood-btn');
       if (revealBtn) {
         fireEvent.click(revealBtn);
       }
