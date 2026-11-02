@@ -70,3 +70,4 @@ export {
 
 // データ移行
 export { runMentalCareMigration } from './migration';
+

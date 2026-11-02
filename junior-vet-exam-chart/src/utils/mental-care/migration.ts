@@ -199,3 +199,4 @@ export function runMentalCareMigration(): MigrationResult {
 
   return result;
 }
+

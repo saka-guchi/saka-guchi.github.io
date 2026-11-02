@@ -174,3 +174,4 @@ export async function decryptData<T>(payload: EncryptedPayload, key: CryptoKey):
   const jsonStr = dec.decode(decryptedBuffer);
   return JSON.parse(jsonStr) as T;
 }
+

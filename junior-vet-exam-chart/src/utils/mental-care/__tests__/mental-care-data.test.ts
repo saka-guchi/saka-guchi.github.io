@@ -344,3 +344,4 @@ describe('こころ機能 データ基盤 (Mental Care Data Foundation)', () => 
     });
   });
 });
+

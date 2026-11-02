@@ -330,3 +330,4 @@ export async function savePrivateWeatherDetails(
   bundle.weatherDetails = details;
   await savePrivateBundle(bundle);
 }
+

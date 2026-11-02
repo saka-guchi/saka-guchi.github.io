@@ -324,3 +324,4 @@ export function agreeToPromises(): void {
   };
   safeSetItem(MENTAL_STORAGE_KEYS.META_PROMISES_AGREED, meta);
 }
+

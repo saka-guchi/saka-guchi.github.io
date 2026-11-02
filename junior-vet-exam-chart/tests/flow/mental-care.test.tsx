@@ -17,6 +17,11 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
     vi.clearAllMocks();
   });
 
+  afterEach(() => {
+    cleanup();
+    vi.clearAllTimers();
+  });
+
   it('ホーム画面のヘッダーボタンおよびバナーからこころの相談室全画面ページへ遷移でき、戻るボタンで復帰できること', async () => {
     render(
       <MemoryRouter initialEntries={['/']}>
