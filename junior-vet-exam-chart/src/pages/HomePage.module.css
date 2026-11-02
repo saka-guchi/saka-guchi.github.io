@@ -1446,7 +1446,9 @@
   .progressLabel strong {
     font-size: var(--font-size-caption);
   }
-  .parentBadgeBtn {
+  .parentBadgeBtn,
+  .mentalCareBadgeBtn {
+
     height: 32px;
     padding: 0 10px;
     font-size: var(--font-size-caption);
