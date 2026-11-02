@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
 
 permissions:
@@ -40,7 +41,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./junior-vet-exam-chart
-        run: npm test
+        run: npm test -- --reporter=verbose
 
       - name: Build Junior Vet App
         working-directory: ./junior-vet-exam-chart
