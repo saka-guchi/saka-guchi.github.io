@@ -40,7 +40,15 @@ jobs:
 
       - name: Run tests
         working-directory: ./junior-vet-exam-chart
-        run: npm test -- --reporter=verbose
+        run: |
+          set -o pipefail
+          npx vitest run --reporter=verbose 2>&1 | tee test-output.log || {
+            echo "### ❌ Test Failures" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 120 test-output.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit 1
+          }
 
       - name: Build Junior Vet App
         working-directory: ./junior-vet-exam-chart
