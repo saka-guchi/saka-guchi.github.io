@@ -349,51 +349,79 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
         style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(0, 0, 0, 0.65)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          background: 'var(--bg-primary, #f8fafc)',
+          width: '100vw',
+          height: '100vh',
           zIndex: 1100,
-          padding: '16px',
-          backdropFilter: 'blur(3px)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
         }}
-        onClick={onClose}
         data-testid="parent-dashboard-modal"
       >
       <div
         style={{
-          background: 'var(--surface, #ffffff)',
-          borderRadius: '20px',
-          maxWidth: '720px',
           width: '100%',
-          maxHeight: '92vh',
+          maxWidth: '1024px',
+          margin: '0 auto',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '0 24px 48px rgba(0, 0, 0, 0.25)',
-          border: '2px solid var(--border)',
+          height: '100%',
+          background: 'var(--surface, #ffffff)',
+          boxShadow: '0 0 32px rgba(0, 0, 0, 0.08)',
+          borderLeft: '1px solid var(--border)',
+          borderRight: '1px solid var(--border)',
           overflow: 'hidden',
         }}
-        onClick={e => e.stopPropagation()}
       >
-        {/* ヘッダー */}
+        {/* フル画面ヘッダー（左上統一戻るボタン完備） */}
         <div
           style={{
-            padding: '16px 20px',
+            padding: '12px 20px',
             borderBottom: '1px solid var(--border)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             background: 'linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%)',
+            flexShrink: 0,
+            gap: '12px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '28px' }}>👨‍⚕️</span>
-            <div>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--text)' }}>
-                指導医ログ
-              </h3>
-              <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                見習い獣医さんの学習量・理解度の推移・ほめ言葉ヒント・A4弱点印刷
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={() => {
+                sound.playPop();
+                onClose();
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                border: '1px solid var(--border)',
+                background: 'var(--surface, #ffffff)',
+                color: 'var(--text)',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              }}
+              aria-label="ホームへ戻る"
+              data-testid="parent-back-btn"
+            >
+              ← 戻る
+            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '28px' }}>👨‍⚕️</span>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--text)' }}>
+                  指導医ログ
+                </h3>
+                <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
+                  見習い獣医さんの学習量・理解度の推移・ほめ言葉ヒント・A4弱点印刷
+                </div>
               </div>
             </div>
           </div>
@@ -424,6 +452,9 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
             background: 'var(--surface-subtle)',
             padding: '4px 16px 0',
             gap: '8px',
+            overflowX: 'auto',
+            flexShrink: 0,
+            whiteSpace: 'nowrap',
           }}
         >
           {(() => {
@@ -484,7 +515,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
         </div>
 
         {/* コンテンツエリア */}
-        <div style={{ padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', flex: 1 }}>
           {/* ================= タブ1: グラフ可視化 ================= */}
           {activeTab === 'charts' && (
             <>
@@ -1968,6 +1999,30 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
               )}
             </div>
           )}
+
+          {/* 最下部CTA（ハイブリッド配置） */}
+          <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+            <button
+              onClick={() => {
+                sound.playPop();
+                onClose();
+              }}
+              style={{
+                background: 'var(--primary, #0D9488)',
+                color: 'white',
+                border: 'none',
+                padding: '12px 36px',
+                borderRadius: '12px',
+                fontWeight: 'bold',
+                fontSize: '15px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(13, 148, 136, 0.25)',
+              }}
+              data-testid="parent-bottom-back-btn"
+            >
+              ホームへ戻る ❯
+            </button>
+          </div>
         </div>
       </div>
     </div>

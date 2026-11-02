@@ -68,6 +68,8 @@ export const MentalCarePage: React.FC = () => {
   const [checkinMemo, setCheckinMemo] = useState<string>('');
   const [selectedParentRequest, setSelectedParentRequest] = useState<ParentRequestType | undefined>(undefined);
   const [weatherToast, setWeatherToast] = useState<string | null>(null);
+  const [parentRequestToast, setParentRequestToast] = useState<string | null>(null);
+  const parentRequestTimerRef = useRef<any>(null);
   const [crisisAlertActive, setCrisisAlertActive] = useState(false);
   const [showCheckinMemo, setShowCheckinMemo] = useState(false);
   const [showNextStepInput, setShowNextStepInput] = useState(false);
@@ -164,6 +166,7 @@ export const MentalCarePage: React.FC = () => {
     return () => {
       isMountedRef.current = false;
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      if (parentRequestTimerRef.current) clearTimeout(parentRequestTimerRef.current);
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     };
   }, []);
@@ -192,6 +195,35 @@ export const MentalCarePage: React.FC = () => {
     } else {
       setCrisisAlertActive(false);
     }
+
+    await loadAllData();
+  };
+
+  // おうちの人へのお願い（選択・解除トグル）
+  const handleToggleParentRequest = async (type: ParentRequestType) => {
+    sound.playPop();
+    const nextRequest = selectedParentRequest === type ? undefined : type;
+    setSelectedParentRequest(nextRequest);
+
+    const matchedOpt = PARENT_REQUEST_OPTIONS.find((o) => o.type === type);
+    const msg = nextRequest
+      ? `おうちの人への希望を「${matchedOpt?.label ?? ''}」にセットしたよ！ 🤝`
+      : 'おうちの人への希望を解除したよ';
+    setParentRequestToast(msg);
+
+    if (parentRequestTimerRef.current) clearTimeout(parentRequestTimerRef.current);
+    parentRequestTimerRef.current = setTimeout(() => {
+      if (isMountedRef.current) setParentRequestToast(null);
+    }, 3500);
+
+    const today = getTodayDateJst();
+    await recordMentalCheckin({
+      date: today,
+      weather: selectedWeather,
+      memo: checkinMemo.trim() || undefined,
+      shareWithParent,
+      parentRequest: nextRequest,
+    });
 
     await loadAllData();
   };
@@ -1156,17 +1188,37 @@ export const MentalCarePage: React.FC = () => {
                     key={opt.type}
                     type="button"
                     className={`${styles.boxBtn} ${selectedParentRequest === opt.type ? styles.boxHelp : ''}`}
-                    style={{ background: selectedParentRequest === opt.type ? '#CCFBF1' : '#F8FAFC', border: '1px solid #CBD5E1' }}
-                    onClick={() => {
-                      setSelectedParentRequest(opt.type);
-                      handleSaveWeather(selectedWeather);
+                    style={{
+                      background: selectedParentRequest === opt.type ? '#CCFBF1' : '#F8FAFC',
+                      border: selectedParentRequest === opt.type ? '2px solid #0D9488' : '1px solid #CBD5E1',
+                      fontWeight: selectedParentRequest === opt.type ? 800 : 600,
                     }}
+                    onClick={() => handleToggleParentRequest(opt.type)}
                   >
                     <span>{opt.icon}</span>
                     <span>{opt.label}</span>
+                    {selectedParentRequest === opt.type && <span style={{ fontSize: '11px', color: '#0F766E', marginLeft: '4px' }}>✓ セット中</span>}
                   </button>
                 ))}
               </div>
+              {parentRequestToast && (
+                <div
+                  data-testid="parent-request-toast"
+                  style={{
+                    marginTop: '10px',
+                    padding: '8px 12px',
+                    background: '#F0FDFA',
+                    border: '1px solid #99F6E4',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#0F766E',
+                    textAlign: 'center',
+                  }}
+                >
+                  {parentRequestToast}
+                </div>
+              )}
             </div>
 
             <div>
