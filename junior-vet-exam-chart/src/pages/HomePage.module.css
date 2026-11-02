@@ -114,9 +114,9 @@
 
 .countdownNumber {
   font-size: var(--font-size-subheading);
-  font-weight: 900;
+  font-weight: 800;
   color: var(--accent-gold-title);
-  letter-spacing: -0.02em;
+  letter-spacing: normal;
 }
 
 /* 合格カルテ完成度プログレス */
@@ -162,8 +162,8 @@
 
 .progressLabel strong {
   color: var(--primary);
-  font-size: var(--font-size-body);
-  font-weight: 900;
+  font-size: var(--font-size-subheading);
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -1082,6 +1082,13 @@
   gap: 6px;
   font-size: var(--font-size-caption);
   color: var(--text-subtle);
+}
+
+.memoryBarWrap strong {
+  font-size: var(--font-size-caption);
+  font-weight: 800;
+  color: var(--text);
+  min-width: 32px;
 }
 
 .memoryBar {

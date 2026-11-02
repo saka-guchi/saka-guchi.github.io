@@ -67,10 +67,10 @@
   --mental-border: #81E6D9;
   --mental-text: #234E52;
 
-  /* 文字色（コントラスト比 4.5:1 以上保証） */
+  /* 文字色（コントラスト比 4.5:1 以上保証: 白背景で 5.51:1、パステル面でも 4.69:1 以上） */
   --text: #1E293B;
-  --text-subtle: #475569;
-  --text-muted: #475569;
+  --text-subtle: #596A82;
+  --text-muted: #596A82;
   --focus: #38BDF8;
 
   /* ==========================================================================
@@ -154,14 +154,14 @@
   --bg-gradient: linear-gradient(180deg, #ECFDF5 0%, #F5FBF7 100%);
   --surface-subtle: #F6FCF8;
   --border: #DCFCE7;
-  --primary: #059669;
-  --primary-hover: #047857;
+  --primary: #047857;
+  --primary-hover: #065F46;
   --primary-weak: #ECFDF5;
-  --primary-glow: rgba(5, 150, 105, 0.25);
+  --primary-glow: rgba(4, 120, 87, 0.25);
   --hint-text: #047857;
-  --stamp-dot: rgba(5, 150, 105, 0.08);
-  --shadow-card: 0 4px 16px rgba(5, 150, 105, 0.07);
-  --shadow-primary-btn: 0 6px 20px rgba(5, 150, 105, 0.32);
+  --stamp-dot: rgba(4, 120, 87, 0.08);
+  --shadow-card: 0 4px 16px rgba(4, 120, 87, 0.07);
+  --shadow-primary-btn: 0 6px 20px rgba(4, 120, 87, 0.32);
 }
 
 /* ラベンダーテーマ（知的でおしゃれなパープル手帳） */
