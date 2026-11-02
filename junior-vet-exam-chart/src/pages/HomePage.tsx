@@ -754,20 +754,20 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* 合格のカギ（Lv.4マスター）の進度と集め方の説明（カルテ領域に配置） */}
-            <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '10px', padding: '10px 12px', margin: '8px 0 10px 0' }} data-testid="key-progress-box">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <strong style={{ fontSize: '13px', color: '#92400e' }}>
+            <div className={styles.keyProgressBox} data-testid="key-progress-box">
+              <div className={styles.keyProgressHeader}>
+                <strong className={styles.keyProgressTitle}>
                   🔑 合格のカギ: {masteredCount} / {filteredSkills.length} 個
                 </strong>
-                <span style={{ fontSize: '11px', color: '#b45309', fontWeight: 'bold' }}>
+                <span className={styles.keyProgressSubject}>
                   {selectedSkillSubject === 'rika' ? '理科' : selectedSkillSubject === 'sansu' ? '算数' : selectedSkillSubject === 'shakai' ? '社会' : '国語'}
                 </span>
               </div>
-              <div style={{ fontSize: '12px', color: '#78350f', marginTop: '4px', lineHeight: '1.5' }}>
+              <div className={styles.keyProgressDesc}>
                 【集め方】下の症例スタディでテーマを学習し、<strong>【⭐Lv.4 マスター】</strong>にすると手に入ります。
               </div>
-              <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #fcd34d', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '11px', color: '#92400e', fontWeight: 'bold' }}>
+              <div className={styles.keyProgressFooter}>
+                <span className={styles.keyProgressRewardTitle}>
                   🐾 カギ全達成特典: 全動物からの感謝メッセージ
                 </span>
                 {masteredCount >= filteredSkills.length && filteredSkills.length > 0 ? (
@@ -776,22 +776,13 @@ export const HomePage: React.FC = () => {
                       sound.playChime();
                       setShowAllAnimalsModal(true);
                     }}
-                    style={{
-                      background: '#f59e0b',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '12px',
-                      padding: '3px 10px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                    }}
+                    className={styles.allAnimalsBtn}
                     data-testid="all-animals-message-btn"
                   >
                     🎉 メッセージを見る！
                   </button>
                 ) : (
-                  <span style={{ fontSize: '10px', color: '#b45309', background: '#fef9c3', padding: '2px 6px', borderRadius: '8px' }}>
+                  <span className={styles.keyRemainingBadge}>
                     🔒 あと {remainingCount} 個
                   </span>
                 )}

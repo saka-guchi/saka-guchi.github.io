@@ -1759,3 +1759,98 @@
 }
 
 
+/* 1-B(d) カルテ・スタンプ・合格のカギ進度スタイル */
+.stampSlotChartMastered {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.stampSlotMoreBtn {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+  cursor: pointer;
+}
+
+.caseStudyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.keyProgressBox {
+  background: var(--accent-gold-bg);
+  border: 1px solid var(--accent-gold-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin: var(--space-sm) 0 10px 0;
+}
+
+.keyProgressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.keyProgressTitle {
+  font-size: 13px;
+  color: var(--accent-gold-title);
+}
+
+.keyProgressSubject {
+  font-size: var(--font-size-caption);
+  color: #b45309;
+  font-weight: bold;
+}
+
+.keyProgressDesc {
+  font-size: var(--font-size-caption);
+  color: var(--accent-gold-text);
+  margin-top: var(--space-xs);
+  line-height: 1.5;
+}
+
+.keyProgressFooter {
+  margin-top: var(--space-sm);
+  padding-top: 6px;
+  border-top: 1px dashed #fcd34d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.keyProgressRewardTitle {
+  font-size: var(--font-size-caption);
+  color: var(--accent-gold-title);
+  font-weight: bold;
+}
+
+.allAnimalsBtn {
+  background: #f59e0b;
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 3px 10px;
+  font-size: var(--font-size-caption);
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.allAnimalsBtn:hover {
+  background: #d97706;
+  transform: translateY(-1px);
+}
+
+.keyRemainingBadge {
+  font-size: 10px;
+  color: #b45309;
+  background: #fef9c3;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+}
+
+
