@@ -21,7 +21,7 @@
   border-radius: 50%;
   background: var(--surface-subtle);
   border: 1px solid var(--border);
-  font-size: 20px;
+  font-size: var(--font-size-heading);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -132,4 +132,5 @@
   font: var(--font-body);
   font-weight: bold;
 }
+
 

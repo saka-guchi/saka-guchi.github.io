@@ -11,7 +11,7 @@
   --primary-hover: #1D4ED8;
   --primary-weak: #EFF6FF;
   --primary-glow: rgba(37, 99, 235, 0.25);
-  
+
   --accent-pink: #EC4899;
   --accent-pink-weak: #FDF2F8;
   --accent-mint: #10B981;
@@ -36,54 +36,92 @@
   --subject-kokugo-border: #fecdd3;
   --subject-kokugo-dark: #9f1239;
 
+  /* 全快・正解（グリーン）: コントラスト比 4.5:1 以上保証 */
   --success: #10B981;
   --success-weak: #ECFDF5;
-  --success-text: #059669;
+  --success-border: #A7F3D0;
+  --success-text: #065F46;
+
+  /* 警告・注意（オレンジ） */
   --warning: #F59E0B;
   --warning-weak: #FFFBEB;
   --warning-text: #C2410C;
   --warning-badge-bg: #FFF7ED;
   --warning-badge-border: #FFEDD5;
+
+  /* エラー */
   --error: #EF4444;
   --error-weak: #FEF2F2;
 
   --hint-text: #0284C7;
   --stamp-dot: rgba(37, 99, 235, 0.08);
 
-  --accent-gold-bg: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  /* 報酬・合格のカギ・認定バッジ（琥珀・ゴールド）: 背景・枠・文字色の統一セット (コントラスト比 5.8:1〜7.2:1) */
+  --accent-gold-bg: #FEF3C7;
   --accent-gold-border: #FDE68A;
   --accent-gold-text: #78350F;
   --accent-gold-title: #92400E;
 
+  /* こころの相談室（ティール） */
+  --mental-bg: #E6FFFA;
+  --mental-border: #81E6D9;
+  --mental-text: #234E52;
+
+  /* 文字色（コントラスト比 4.5:1 以上保証） */
   --text: #1E293B;
   --text-subtle: #475569;
-  --text-muted: #64748B;
+  --text-muted: #475569;
   --focus: #38BDF8;
 
-  /* 角丸 */
+  /* ==========================================================================
+     デザイントークン: 段階1 集約定義
+     ========================================================================== */
+
+  /* フォントサイズ（4段階体系 + 大見出し） */
+  --font-size-display: 24px;       /* ページ大見出し */
+  --font-size-heading: 20px;       /* 主要セクション見出し */
+  --font-size-subheading: 16px;    /* 小見出し・カードタイトル・フォーム入力 */
+  --font-size-body: 14px;          /* 本文（14px/16px提案検証用） */
+  --font-size-caption: 12px;       /* 補足・注釈・バッジ（最小12px厳守） */
+
+  /* 行高 */
+  --line-height-tight: 1.25;
+  --line-height-heading: 1.4;
+  --line-height-body: 1.6;
+
+  /* 余白体系（8px倍数グリッド） */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* 角丸体系 */
   --radius-xs: 6px;
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-pill: 999px;
 
-  /* 影 */
-  --shadow-sm: 0 2px 8px rgba(30, 41, 59, 0.04);
-  --shadow-card: 0 6px 20px rgba(37, 99, 235, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02);
-  --shadow-card-hover: 0 12px 28px rgba(37, 99, 235, 0.12), 0 4px 10px rgba(0, 0, 0, 0.03);
-  --shadow-primary-btn: 0 8px 24px rgba(37, 99, 235, 0.3);
-  --shadow-pop: 0 10px 30px rgba(236, 72, 153, 0.25);
+  /* 影体系 */
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 4px 16px rgba(37, 99, 235, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02);
+  --shadow-card-hover: 0 8px 24px rgba(37, 99, 235, 0.12), 0 4px 10px rgba(0, 0, 0, 0.03);
+  --shadow-primary-btn: 0 6px 20px rgba(37, 99, 235, 0.3);
+  --shadow-pop: 0 8px 24px rgba(236, 72, 153, 0.2);
+  --shadow-modal: 0 16px 40px rgba(0, 0, 0, 0.2);
 
-  /* 文字 */
+  /* 書体定義（Zen Maru Gothicに統一） */
   --font-family: 'Zen Maru Gothic', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'BIZ UDPGothic', sans-serif;
-  --font-page-title: 700 24px/1.3 var(--font-family);
-  --font-question: 700 24px/1.55 var(--font-family);
-  --font-heading: 700 18px/1.4 var(--font-family);
-  --font-body: 500 15px/1.65 var(--font-family);
-  --font-choice: 700 17px/1.45 var(--font-family);
-  --font-caption: 500 13px/1.5 var(--font-family);
-  --font-label: 700 12px/1.4 var(--font-family);
+  --font-page-title: 700 var(--font-size-display)/var(--line-height-tight) var(--font-family);
+  --font-question: 700 var(--font-size-display)/1.55 var(--font-family);
+  --font-heading: 700 var(--font-size-heading)/var(--line-height-heading) var(--font-family);
+  --font-body: 500 var(--font-size-body)/var(--line-height-body) var(--font-family);
+  --font-choice: 700 var(--font-size-subheading)/1.45 var(--font-family);
+  --font-caption: 500 var(--font-size-caption)/1.5 var(--font-family);
+  --font-label: 700 var(--font-size-caption)/1.4 var(--font-family);
 
   --btn-main-height: 54px;
   --choice-height: 60px;
@@ -106,8 +144,8 @@
   --primary-glow: rgba(219, 39, 119, 0.25);
   --hint-text: #BE185D;
   --stamp-dot: rgba(219, 39, 119, 0.08);
-  --shadow-card: 0 6px 20px rgba(219, 39, 119, 0.07);
-  --shadow-primary-btn: 0 8px 24px rgba(219, 39, 119, 0.32);
+  --shadow-card: 0 4px 16px rgba(219, 39, 119, 0.07);
+  --shadow-primary-btn: 0 6px 20px rgba(219, 39, 119, 0.32);
 }
 
 /* ミントテーマ（爽やかな自然・動物保護） */
@@ -122,8 +160,8 @@
   --primary-glow: rgba(5, 150, 105, 0.25);
   --hint-text: #047857;
   --stamp-dot: rgba(5, 150, 105, 0.08);
-  --shadow-card: 0 6px 20px rgba(5, 150, 105, 0.07);
-  --shadow-primary-btn: 0 8px 24px rgba(5, 150, 105, 0.32);
+  --shadow-card: 0 4px 16px rgba(5, 150, 105, 0.07);
+  --shadow-primary-btn: 0 6px 20px rgba(5, 150, 105, 0.32);
 }
 
 /* ラベンダーテーマ（知的でおしゃれなパープル手帳） */
@@ -138,8 +176,8 @@
   --primary-glow: rgba(124, 58, 237, 0.25);
   --hint-text: #6D28D9;
   --stamp-dot: rgba(124, 58, 237, 0.08);
-  --shadow-card: 0 6px 20px rgba(124, 58, 237, 0.07);
-  --shadow-primary-btn: 0 8px 24px rgba(124, 58, 237, 0.32);
+  --shadow-card: 0 4px 16px rgba(124, 58, 237, 0.07);
+  --shadow-primary-btn: 0 6px 20px rgba(124, 58, 237, 0.32);
 }
 
 /* 夜空自習室モード（徹底的に視認性とコントラストを高めたプレミアムダーク） */
@@ -158,10 +196,11 @@
 
   --text: #FFFFFF;
   --text-subtle: #E2E8F0;
-  --text-muted: #94A3B8;
+  --text-muted: #CBD5E1;
 
   --success: #34D399;
   --success-weak: #064E3B;
+  --success-border: #059669;
   --success-text: #6EE7B7;
 
   --warning: #FBBF24;
@@ -173,18 +212,30 @@
   --hint-text: #7DD3FC;
   --stamp-dot: rgba(255, 255, 255, 0.05);
 
-  --accent-gold-bg: linear-gradient(135deg, #2D2314 0%, #201A10 100%);
-  --accent-gold-border: #B45309;
+  --accent-gold-bg: #241808;
+  --accent-gold-border: #D97706;
   --accent-gold-text: #FEF3C7;
   --accent-gold-title: #FDE68A;
 
-  --shadow-card: 0 8px 26px rgba(0, 0, 0, 0.45);
-  --shadow-primary-btn: 0 8px 24px rgba(56, 189, 248, 0.4);
+  --mental-bg: #133838;
+  --mental-border: #319795;
+  --mental-text: #B2F5EA;
+
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-primary-btn: 0 6px 20px rgba(56, 189, 248, 0.4);
+  --shadow-modal: 0 16px 40px rgba(0, 0, 0, 0.6);
 }
 
+/* 視覚的配慮: アニメーション軽減モード */
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --transition-normal: 0ms;
+    --transition-normal: 0ms !important;
+    --transition-smooth: 0ms !important;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
@@ -199,7 +250,7 @@ body {
   background: var(--bg);
   background-image: var(--bg-gradient);
   color: var(--text);
-  line-height: 1.5;
+  line-height: var(--line-height-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   touch-action: manipulation;
@@ -215,9 +266,15 @@ button {
   transition: transform var(--transition-normal), box-shadow var(--transition-normal), background var(--transition-normal);
 }
 
-button:focus-visible, a:focus-visible, input:focus-visible {
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
+}
+
+/* iOS Safariのフォーカス時自動拡大（ピンチズーム）防止のためフォーム要素は16px以上に統一 */
+input, select, textarea {
+  font-family: inherit;
+  font-size: 16px !important;
 }
 
 @keyframes jellyBounce {

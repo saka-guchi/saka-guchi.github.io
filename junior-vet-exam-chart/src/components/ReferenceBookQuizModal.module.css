@@ -56,25 +56,25 @@
 .badge {
   background: #3b82f6;
   color: #ffffff;
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: 800;
   padding: 3px 8px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 }
 
 .subjectBadge {
-  background: #ecfdf5;
+  background: var(--success-weak);
   color: #047857;
-  border: 1px solid #a7f3d0;
-  font-size: 11px;
+  border: 1px solid var(--success-border);
+  font-size: var(--font-size-caption);
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 }
 
 .modalTitle {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--font-size-subheading);
   font-weight: 800;
   color: #1e293b;
 }
@@ -82,7 +82,7 @@
 .closeBtn {
   background: #f1f5f9;
   border: none;
-  font-size: 16px;
+  font-size: var(--font-size-subheading);
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -117,7 +117,7 @@
 .progressLabel {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   color: #475569;
 }
@@ -131,14 +131,14 @@
   width: 100%;
   height: 10px;
   background: #e2e8f0;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   overflow: hidden;
 }
 
 .progressBarFill {
   height: 100%;
   background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   transition: width 0.3s ease;
 }
 
@@ -146,7 +146,7 @@
 .questionCard {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   padding: 18px;
   display: flex;
   flex-direction: column;
@@ -162,37 +162,37 @@
 }
 
 .periodBadge {
-  background: #fef3c7;
-  color: #92400e;
-  font-size: 11px;
+  background: var(--accent-gold-bg);
+  color: var(--accent-gold-title);
+  font-size: var(--font-size-caption);
   font-weight: 700;
   padding: 3px 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 .rankBadge {
   background: #fee2e2;
   color: #b91c1c;
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: 800;
   padding: 3px 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 .schoolBadge {
   background: #f1f5f9;
   color: #475569;
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   padding: 3px 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 /* 即答キーワード枠 */
 .keywordBox {
   background: linear-gradient(135deg, #fefce8 0%, #fffbeb 100%);
   border: 1px solid #fde047;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 10px 14px;
 }
 
@@ -204,11 +204,11 @@
 }
 
 .keywordIcon {
-  font-size: 14px;
+  font-size: var(--font-size-body);
 }
 
 .keywordTitle {
-  font-size: 12px;
+  font-size: var(--font-size-caption);
   font-weight: 800;
   color: #854d0e;
   flex: 1;
@@ -218,10 +218,10 @@
   background: #fef08a;
   border: 1px solid #facc15;
   color: #713f12;
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -242,20 +242,20 @@
   border: 1px solid #fef08a;
   padding: 3px 10px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .keywordMasked {
-  font-size: 12px;
+  font-size: var(--font-size-caption);
   color: #a16207;
   font-style: italic;
 }
 
 /* 問題文 */
 .promptText {
-  font-size: 16px;
+  font-size: var(--font-size-subheading);
   line-height: 1.6;
   font-weight: 700;
   color: #1e293b;
@@ -278,7 +278,7 @@
 .choiceBtn {
   background: #f8fafc;
   border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 14px 16px;
   display: flex;
   align-items: center;
@@ -305,13 +305,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: var(--font-size-caption);
   font-weight: 800;
   flex-shrink: 0;
 }
 
 .choiceText {
-  font-size: 15px;
+  font-size: var(--font-size-body);
   font-weight: 700;
   color: #1e293b;
 }
@@ -323,7 +323,7 @@
 
 .choiceCorrect {
   border-color: #10b981 !important;
-  background: #ecfdf5 !important;
+  background: var(--success-weak) !important;
 }
 
 .choiceCorrect .choiceLetter {
@@ -332,7 +332,7 @@
 }
 
 .choiceCorrect .choiceText {
-  color: #065f46;
+  color: var(--success-text);
   font-weight: 800;
 }
 
@@ -352,7 +352,7 @@
 
 /* フィードバックカード */
 .feedbackCard {
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -371,7 +371,7 @@
 }
 
 .feedbackTitle {
-  font-size: 16px;
+  font-size: var(--font-size-subheading);
   font-weight: 800;
 }
 
@@ -384,12 +384,12 @@
 }
 
 .explanationText {
-  font-size: 13px;
+  font-size: var(--font-size-caption);
   line-height: 1.6;
   color: #334155;
   background: #ffffff;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -403,9 +403,9 @@
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: #ffffff;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 12px 24px;
-  font-size: 15px;
+  font-size: var(--font-size-body);
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
@@ -428,10 +428,10 @@
 }
 
 .resultBadge {
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fde68a;
-  font-size: 13px;
+  background: var(--accent-gold-bg);
+  color: var(--accent-gold-title);
+  border: 1px solid var(--accent-gold-border);
+  font-size: var(--font-size-caption);
   font-weight: 800;
   padding: 6px 16px;
   border-radius: 20px;
@@ -450,7 +450,7 @@
 }
 
 .resultMessage {
-  font-size: 15px;
+  font-size: var(--font-size-body);
   font-weight: 700;
   color: #475569;
   max-width: 480px;
@@ -459,7 +459,7 @@
 .statsCard {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 14px 20px;
   width: 100%;
   max-width: 420px;
@@ -471,7 +471,7 @@
 .statsRow {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: var(--font-size-caption);
 }
 
 .statsLabel {
@@ -497,8 +497,8 @@
   color: #ffffff;
   border: none;
   padding: 12px 20px;
-  border-radius: 12px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body);
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
@@ -514,8 +514,8 @@
   color: #334155;
   border: 1px solid #cbd5e1;
   padding: 12px 20px;
-  border-radius: 12px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body);
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -524,4 +524,5 @@
 .finishBtn:hover {
   background: #e2e8f0;
 }
+
 

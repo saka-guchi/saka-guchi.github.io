@@ -22,7 +22,7 @@
   border-radius: 50%;
   background: var(--surface-subtle);
   border: 1px solid var(--border);
-  font-size: 20px;
+  font-size: var(--font-size-heading);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -42,8 +42,8 @@
 }
 
 .timerWarning {
-  background: #fef3c7;
-  color: #b45309;
+  background: var(--accent-gold-bg);
+  color: var(--accent-gold-title);
   border-color: #f59e0b;
 }
 
@@ -195,12 +195,12 @@
 }
 
 .sectionHeader {
-  font-size: 14px;
+  font-size: var(--font-size-body);
   font-weight: bold;
   color: var(--primary);
   background: var(--primary-weak);
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   margin-bottom: 12px;
 }
 
@@ -308,7 +308,7 @@
   border: 1px solid #fda4af;
   border-radius: var(--radius-pill);
   padding: 4px 10px;
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   color: #be123c;
   cursor: pointer;
@@ -335,7 +335,7 @@
 .kanjiItem {
   background: white;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -352,7 +352,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: bold;
   padding: 2px 8px;
   border-radius: var(--radius-pill);
@@ -388,7 +388,7 @@
   color: #be123c;
   border-radius: var(--radius-pill);
   padding: 3px 8px;
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: bold;
   cursor: pointer;
   display: inline-flex;
@@ -442,4 +442,5 @@
     overflow-y: auto;
   }
 }
+
 

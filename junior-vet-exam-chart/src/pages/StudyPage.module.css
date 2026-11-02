@@ -23,7 +23,7 @@
   border-radius: 50%;
   background: var(--surface-subtle);
   border: 1px solid var(--border);
-  font-size: 20px;
+  font-size: var(--font-size-heading);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -188,7 +188,7 @@
   background: var(--surface);
   color: var(--primary);
   border-radius: var(--radius-pill);
-  font-size: 12px;
+  font-size: var(--font-size-caption);
   font-weight: bold;
   white-space: nowrap;
   flex-shrink: 0;
@@ -241,7 +241,7 @@
 }
 
 .resultIcon {
-  font-size: 24px;
+  font-size: var(--font-size-display);
   font-weight: bold;
 }
 
@@ -357,7 +357,7 @@
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
   color: #ffffff;
   border-radius: var(--radius-pill);
-  font-size: 14px;
+  font-size: var(--font-size-body);
   font-weight: 800;
   box-shadow: 0 2px 8px var(--primary-glow);
   border: none;
@@ -416,14 +416,15 @@
     width: 120px;
     min-width: 100px;
     height: 48px;
-    font-size: 15px;
+    font-size: var(--font-size-body);
   }
   .mainBtn {
     flex: 1;
     min-width: 160px;
     height: 48px;
-    font-size: 16px;
+    font-size: var(--font-size-subheading);
     padding: 0 16px;
   }
 }
+
 
