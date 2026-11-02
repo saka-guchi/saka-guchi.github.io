@@ -89,6 +89,7 @@ export interface SharedWeatherDaily {
   // 「今日は伝えない」選択日はキー自体が未生成（記録なしと区別不能）
   [date: string]: {
     weather: WeatherType;
+    weatherLabel?: string;
     updatedAt: string;
   };
 }
@@ -100,6 +101,8 @@ export interface SharedWeeklySummary {
   weatherCounts: Record<WeatherType, number>;
   // お守りの名称・日時は含めず、大分類カテゴリの集計のみ
   copingCategoryCounts: Record<CopingCategoryKey, number>;
+  mostFrequentWeather?: WeatherType;
+  totalActivities?: number;
 }
 
 export interface SharedParentRequestMap {
@@ -116,6 +119,8 @@ export interface SharedCareCard {
   customText?: string;
   fromChild: true;
   createdAt: string;
+  cardTitle?: string;
+  sentAt?: string;
 }
 
 export interface SharedCareSignal {

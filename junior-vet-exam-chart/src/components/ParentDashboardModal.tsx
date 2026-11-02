@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { db } from '../db';
 import { ALL_PROGRESS_SKILLS } from '../data/all-skills';
 import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
@@ -11,11 +11,28 @@ import type { FinalChallengeResult } from '../types';
 import { getQuestionReports, toggleReportResolved, deleteQuestionReport, type QuestionReportItem } from '../utils/question-reports';
 import styles from './ParentDashboardModal.module.css';
 import {
-  generateParentPrescription,
-  getParentActionChecklist,
-  toggleParentActionCheck,
-  type ParentMentalPrescription,
-} from '../utils/mental-care-store';
+  runMentalCareMigration,
+  getSharedWeatherMap,
+  getSharedWeeklySummaries,
+  getSharedParentRequests,
+  getSharedCareCards,
+  getSharedCareSignal,
+  isCareSignalActive,
+  acknowledgeCareSignal,
+  isParentPinSet,
+  verifyParentPin,
+  setParentPin,
+  resetParentPinAndSharedData,
+  generateParentGuidance,
+  OFFICIAL_CRISIS_CONTACTS,
+  type WeatherType,
+  type SharedCareSignal,
+  type ParentRequestType,
+  type SharedCareCard,
+  type SharedWeeklySummary,
+  type SharedWeatherDaily,
+  type SharedParentRequestMap,
+} from '../utils/mental-care';
 
 interface ParentDashboardModalProps {
   onClose: () => void;
@@ -35,24 +52,91 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   onInspectQuestion,
 }) => {
   const [activeTab, setActiveTab] = useState<'charts' | 'advice' | 'mental' | 'print' | 'reports'>('charts');
-  const [prescription, setPrescription] = useState<ParentMentalPrescription>(() => generateParentPrescription());
-  const [parentChecklist, setParentChecklist] = useState<Record<string, boolean>>(() => getParentActionChecklist());
+
+  // こころ機能データ（保護者開示データのみ・private非参照）
+  const [sharedWeatherMap, setSharedWeatherMap] = useState<SharedWeatherDaily>({});
+  const [sharedRequests, setSharedRequests] = useState<SharedParentRequestMap>({});
+  const [sharedCareCards, setSharedCareCards] = useState<SharedCareCard[]>([]);
+  const [sharedWeeklySummaries, setSharedWeeklySummaries] = useState<Record<string, SharedWeeklySummary>>({});
+  const [careSignal, setCareSignal] = useState<SharedCareSignal | null>(null);
+
+  // 保護者PIN管理
+  const [isPinConfigured, setIsPinConfigured] = useState<boolean>(() => isParentPinSet());
+  const [isPinUnlocked, setIsPinUnlocked] = useState<boolean>(() => !isParentPinSet());
+  const [pinInput, setPinInput] = useState<string>('');
+  const [pinError, setPinError] = useState<string>('');
+  const [showPinSetup, setShowPinSetup] = useState<boolean>(false);
+  const [newPinInput, setNewPinInput] = useState<string>('');
+
+  // 親のアクションチェックリスト
+  const [parentChecklist, setParentChecklist] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem('junior_vet_parent_action_checklist');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
   const [actionDoneToast, setActionDoneToast] = useState<string | null>(null);
+  const [showAllWeatherAdvice, setShowAllWeatherAdvice] = useState<boolean>(false);
   const actionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMountedRef = useRef(true);
 
+  // 初期化・データ移行
   useEffect(() => {
     isMountedRef.current = true;
+    runMentalCareMigration();
+
+    const hasPin = isParentPinSet();
+    setIsPinConfigured(hasPin);
+    setIsPinUnlocked(!hasPin);
+
+    setSharedWeatherMap(getSharedWeatherMap());
+    setSharedRequests(getSharedParentRequests());
+    setSharedCareCards(getSharedCareCards());
+    setSharedWeeklySummaries(getSharedWeeklySummaries());
+    setCareSignal(getSharedCareSignal());
+
     return () => {
       isMountedRef.current = false;
       if (actionTimerRef.current) clearTimeout(actionTimerRef.current);
     };
   }, []);
 
+  // 本日日付 (JST)
+  const todayStr = useMemo(() => {
+    return new Intl.DateTimeFormat('ja-JP', {
+      timeZone: 'Asia/Tokyo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date()).replace(/\//g, '-');
+  }, []);
+
+  // 今日の共有お天気とリクエスト（本日データがなければ最新の記録を参照）
+  const sortedWeatherDates = useMemo(() => Object.keys(sharedWeatherMap).sort(), [sharedWeatherMap]);
+  const todaySharedWeather = sharedWeatherMap[todayStr] || (
+    sortedWeatherDates.length > 0 ? sharedWeatherMap[sortedWeatherDates[sortedWeatherDates.length - 1]] : undefined
+  );
+  
+  const sortedRequestDates = useMemo(() => Object.keys(sharedRequests).sort(), [sharedRequests]);
+  const latestRequest = sortedRequestDates.length > 0 ? sharedRequests[sortedRequestDates[sortedRequestDates.length - 1]] : undefined;
+
+  // ガイダンス生成
+  const guidance = useMemo(() => {
+    return generateParentGuidance(
+      todaySharedWeather?.weather || null,
+      latestRequest?.request
+    );
+  }, [todaySharedWeather, latestRequest]);
+
+  // 親のケアアクション トグル
   const handleToggleParentAction = (actionId: string) => {
     sound.playAnimalHappy();
-    const next = toggleParentActionCheck(actionId);
+    const next = { ...parentChecklist, [actionId]: !parentChecklist[actionId] };
     setParentChecklist(next);
+    localStorage.setItem('junior_vet_parent_action_checklist', JSON.stringify(next));
+
     if (next[actionId]) {
       fireConfetti({ count: 20 });
       setActionDoneToast('ナイスサポート！お子さんの心の安全基地が守られました🐾');
@@ -64,6 +148,58 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
       }, 3500);
     }
   };
+
+  // 警戒サイン解除
+  const handleAcknowledgeSignal = () => {
+    sound.playPop();
+    acknowledgeCareSignal();
+    setCareSignal(getSharedCareSignal());
+  };
+
+  // PINロック解除
+  const handleUnlockPin = async () => {
+    const res = await verifyParentPin(pinInput);
+    if (res.success) {
+      sound.playPop();
+      setIsPinUnlocked(true);
+      setPinError('');
+      setPinInput('');
+    } else {
+      sound.playPop();
+      setPinError(res.isLocked ? '連続失敗のため一時的にロックされています' : 'PIN番号が違います');
+    }
+  };
+
+  // PIN新規設定
+  const handleSetNewPin = async () => {
+    if (newPinInput.length === 4 && /^\d+$/.test(newPinInput)) {
+      await setParentPin(newPinInput);
+      sound.playPop();
+      setIsPinConfigured(true);
+      setIsPinUnlocked(true);
+      setShowPinSetup(false);
+      setNewPinInput('');
+      setPinError('');
+    } else {
+      sound.playPop();
+      setPinError('4桁の半角数字を入力してください');
+    }
+  };
+
+  // PINリセット（忘れた場合の救済）
+  const handleResetPin = () => {
+    resetParentPinAndSharedData();
+    sound.playPop();
+    setIsPinConfigured(false);
+    setIsPinUnlocked(true);
+    setSharedWeatherMap({});
+    setSharedRequests({});
+    setSharedCareCards([]);
+    setSharedWeeklySummaries({});
+    setCareSignal(null);
+    setPinError('');
+  };
+
   const [reports, setReports] = useState<QuestionReportItem[]>(() => getQuestionReports());
   const [examResults, setExamResults] = useState<FinalChallengeResult[]>([]);
   const [dailyCounts, setDailyCounts] = useState<DailyCount[]>([]);
@@ -293,10 +429,10 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
           {(() => {
             const unresolvedCount = reports.filter(r => !r.resolved).length;
             return [
-              { id: 'charts', label: '📈 学習・成績グラフ', badge: 0 },
-              { id: 'advice', label: '🐱 ほめ言葉＆お約束', badge: 0 },
-              { id: 'mental', label: '💚 こころの見守り処方箋', badge: 0 },
-              { id: 'print', label: '🖨️ 弱点処方箋＆A4印刷', badge: 0 },
+              { id: 'charts', label: '📈 成績', badge: 0 },
+              { id: 'advice', label: '🐱 声かけ', badge: 0 },
+              { id: 'mental', label: `💚 こころ${careSignal?.active ? ' 🔴' : ''}`, badge: careSignal?.active ? 1 : 0 },
+              { id: 'print', label: '🖨️ 印刷', badge: 0 },
               {
                 id: 'reports',
                 label: `🛠️ 修正依頼${unresolvedCount > 0 ? ` (${unresolvedCount})` : ''}`,
@@ -932,244 +1068,625 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                 </div>
               )}
 
-              {/* 1. お子さんのこころの天気予報＆サイン */}
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfeff 100%)',
-                  border: '1.5px solid #a7f3d0',
-                  borderRadius: '16px',
-                  padding: '18px 20px',
-                }}
-                data-testid="child-mental-forecast-card"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '28px' }}>
-                      {prescription.childWeather.weather === 'sunny' ? '☀️' :
-                       prescription.childWeather.weather === 'cloudy' ? '⛅' :
-                       prescription.childWeather.weather === 'rainy' ? '🌧️' : '⛈️'}
-                    </span>
-                    <div>
-                      <h4 style={{ margin: 0, fontSize: '15px', color: '#065f46', fontWeight: 800 }}>
-                        お子さんのこころのお天気サイン: 【{prescription.childWeather.weatherLabel}】
-                      </h4>
-                      <div style={{ fontSize: '11px', color: '#047857' }}>
-                        記録日: {prescription.childWeather.date} (プライバシー配慮により心理状態のみ要約)
-                      </div>
-                    </div>
-                  </div>
-                  <span
-                    style={{
-                      background: '#d1fae5',
-                      color: '#065f46',
-                      padding: '4px 10px',
-                      borderRadius: '12px',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                    }}
-                  >
-                    🌱 安全基地サポート中
-                  </span>
-                </div>
-
-                <p style={{ margin: '8px 0', fontSize: '13px', color: '#1f2937', lineHeight: 1.6, fontWeight: 600 }}>
-                  {prescription.statusSummary}
-                </p>
-
+              {/* 保護者PINロック状態の表示 */}
+              {!isPinUnlocked ? (
                 <div
                   style={{
                     background: '#ffffff',
-                    border: '1px solid #d1fae5',
-                    borderRadius: '10px',
-                    padding: '10px 14px',
-                    fontSize: '12px',
-                    color: '#065f46',
-                    lineHeight: 1.5,
+                    border: '2px solid #cbd5e1',
+                    borderRadius: '16px',
+                    padding: '24px',
+                    textAlign: 'center',
+                    maxWidth: '400px',
+                    margin: '20px auto',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
                   }}
                 >
-                  <strong>💡 こころの背景サイン:</strong> {prescription.childSignalHint}
-                </div>
-
-                {/* お子さんが取り組んだ心の活動（プライバシー守秘版） */}
-                {(prescription.completedTopicTitles.length > 0 || prescription.savedCopingTitles.length > 0) && (
-                  <div style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {prescription.completedTopicTitles.map((t, idx) => (
-                      <span
-                        key={idx}
-                        style={{
-                          background: '#e0e7ff',
-                          color: '#3730a3',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          padding: '3px 8px',
-                          borderRadius: '8px',
-                        }}
-                      >
-                        🦉 哲学対話: {t}
-                      </span>
-                    ))}
-                    {prescription.savedCopingTitles.map((c, idx) => (
-                      <span
-                        key={idx}
-                        style={{
-                          background: '#fef3c7',
-                          color: '#92400e',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          padding: '3px 8px',
-                          borderRadius: '8px',
-                        }}
-                      >
-                        ⭐ お守り: {c}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 2. 今日かけたい言葉（魔法のフレーズ集） */}
-              <div
-                style={{
-                  background: '#ffffff',
-                  border: '1.5px solid #bfdbfe',
-                  borderRadius: '16px',
-                  padding: '18px 20px',
-                }}
-                data-testid="recommended-phrases-card"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <span style={{ fontSize: '22px' }}>💬</span>
-                  <h4 style={{ margin: 0, fontSize: '15px', color: '#1e40af', fontWeight: 800 }}>
-                    今日かけたい言葉（家庭での承認・共感フレーズ）
+                  <div style={{ fontSize: '36px', marginBottom: '8px' }}>🔒</div>
+                  <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 800, color: '#1e293b' }}>
+                    保護者PINロック
                   </h4>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {prescription.recommendedPhrases.map(phrase => (
-                    <div
-                      key={phrase.id}
+                  <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.5, marginBottom: '16px' }}>
+                    お子さんのプライバシーと安全基地を守るため、この画面は保護者PINで保護されています。
+                  </p>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+                    <input
+                      id="parent-pin-input"
+                      name="parent-pin-input"
+                      type="password"
+                      maxLength={4}
+                      placeholder="4桁の数字"
+                      value={pinInput}
+                      onChange={(e) => setPinInput(e.target.value)}
                       style={{
-                        background: '#eff6ff',
-                        borderLeft: '4px solid #3b82f6',
-                        borderRadius: '8px',
                         padding: '10px 14px',
+                        fontSize: '18px',
+                        letterSpacing: '4px',
+                        textAlign: 'center',
+                        borderRadius: '8px',
+                        border: '1.5px solid #94a3b8',
+                        width: '140px',
+                      }}
+                    />
+                    {pinError && (
+                      <div style={{ color: '#dc2626', fontSize: '12px', fontWeight: 700 }}>
+                        {pinError}
+                      </div>
+                    )}
+                    <button
+                      onClick={handleUnlockPin}
+                      style={{
+                        padding: '10px 24px',
+                        background: '#047857',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        width: '100%',
+                        maxWidth: '200px',
                       }}
                     >
-                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#1d4ed8', marginBottom: '2px' }}>
-                        {phrase.title}
-                      </div>
-                      <div style={{ fontSize: '13px', color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
-                        {phrase.detail}
+                      ロック解除 ❯
+                    </button>
+                    <button
+                      onClick={handleResetPin}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#94a3b8',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                        marginTop: '8px',
+                      }}
+                    >
+                      PINを忘れた場合（データをリセットして解除）
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* 冒頭の約束（常時表示） */}
+                  <div
+                    style={{
+                      background: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      fontSize: '12px',
+                      color: '#475569',
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    ℹ️ <strong>この画面の約束:</strong> お子さんを責めたり詮索したりせず、家庭の安心基地を整えるヒントとしてご活用ください。見守っていることをお子さんと共有し、話したくないときは無理に聞き出さないことをお約束ください。
+                  </div>
+
+                  {/* 🚨 重大な警戒サイン（active時のみ最上部に赤アラート表示） */}
+                  {careSignal?.active && (
+                    <div
+                      style={{
+                        background: '#fef2f2',
+                        border: '2px solid #ef4444',
+                        borderRadius: '16px',
+                        padding: '16px 20px',
+                        animation: 'pulse 2s infinite',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '22px' }}>🚨</span>
+                            <h4 style={{ margin: 0, fontSize: '15px', color: '#991b1b', fontWeight: 800 }}>
+                              こころの警戒サインが検知されました
+                            </h4>
+                          </div>
+                          <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#7f1d1d', lineHeight: 1.5, fontWeight: 600 }}>
+                            「あらし」のサインが複数日連続している、または限界に近いSOSサインが届いています。勉強はいったん脇に置き、お子さんの睡眠・休養と安心を最優先にしてください。
+                          </p>
+                        </div>
+                        <button
+                          onClick={handleAcknowledgeSignal}
+                          style={{
+                            padding: '8px 16px',
+                            background: '#991b1b',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          確認しました（警戒解除）
+                        </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
+                  )}
 
-              {/* 3. 家庭でできる具体的なケア行動＆親のチェックリスト */}
-              <div
-                style={{
-                  background: '#ffffff',
-                  border: '1.5px solid #fed7aa',
-                  borderRadius: '16px',
-                  padding: '18px 20px',
-                }}
-                data-testid="home-care-checklist-card"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '6px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '22px' }}>🍵</span>
-                    <h4 style={{ margin: 0, fontSize: '15px', color: '#9a3412', fontWeight: 800 }}>
-                      家庭でできるケア行動（親のアクション・チェックリスト）
-                    </h4>
-                  </div>
-                  <span style={{ fontSize: '11px', color: '#c2410c', fontWeight: 700 }}>
-                    タップして実行をチェック ✅
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {prescription.homeCareActions.map(action => {
-                    const isDone = !!parentChecklist[action.id];
-                    return (
-                      <div
-                        key={action.id}
-                        onClick={() => handleToggleParentAction(action.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: '12px',
-                          background: isDone ? '#f0fdf4' : '#fff7ed',
-                          border: `1.5px solid ${isDone ? '#86efac' : '#fdba74'}`,
-                          borderRadius: '10px',
-                          padding: '10px 14px',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease',
-                        }}
-                        role="checkbox"
-                        aria-checked={isDone}
-                        data-testid={`parent-action-item-${action.id}`}
-                      >
-                        <span style={{ fontSize: '20px', lineHeight: 1 }}>
-                          {isDone ? '✅' : '⬜'}
+                  {/* 1. お子さんのこころのお天気サイン */}
+                  <div
+                    style={{
+                      background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfeff 100%)',
+                      border: '1.5px solid #a7f3d0',
+                      borderRadius: '16px',
+                      padding: '18px 20px',
+                    }}
+                    data-testid="child-mental-forecast-card"
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '28px' }}>
+                          {todaySharedWeather?.weather === 'sunny' ? '☀️' :
+                           todaySharedWeather?.weather === 'cloudy' ? '⛅' :
+                           todaySharedWeather?.weather === 'rainy' ? '🌧️' :
+                           todaySharedWeather?.weather === 'storm' ? '⛈️' : '🕊️'}
                         </span>
-                        <div style={{ flex: 1 }}>
-                          <div
-                            style={{
-                              fontSize: '13px',
-                              fontWeight: 800,
-                              color: isDone ? '#166534' : '#7c2d12',
-                              textDecoration: isDone ? 'line-through' : 'none',
-                            }}
-                          >
-                            {action.title}
-                          </div>
-                          <div style={{ fontSize: '12px', color: '#4b5563', marginTop: '2px', lineHeight: 1.4 }}>
-                            {action.detail}
+                        <div>
+                          <h4 style={{ margin: 0, fontSize: '15px', color: '#065f46', fontWeight: 800 }}>
+                            お子さんのこころのお天気サイン: 【{todaySharedWeather?.weatherLabel || guidance.weatherLabel}】
+                          </h4>
+                          <div style={{ fontSize: '11px', color: '#047857' }}>
+                            {todaySharedWeather ? `最新記録日: ${todaySharedWeather.updatedAt.split('T')[0]} (プライバシー配慮により要約表示)` : '本日はまだ記録がありません（または伝えない設定です）'}
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
+                      <span
+                        style={{
+                          background: '#d1fae5',
+                          color: '#065f46',
+                          padding: '4px 10px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                        }}
+                      >
+                        🌱 安全基地サポート中
+                      </span>
+                    </div>
 
-              {/* 4. 言ってはいけないNGワード集 */}
-              <div
-                style={{
-                  background: '#fff1f2',
-                  border: '1.5px solid #fecdd3',
-                  borderRadius: '16px',
-                  padding: '18px 20px',
-                }}
-                data-testid="ng-words-card"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <span style={{ fontSize: '22px' }}>⚠️</span>
-                  <h4 style={{ margin: 0, fontSize: '15px', color: '#9f1239', fontWeight: 800 }}>
-                    今は避けたほうがよいNGワード（理由と解説）
-                  </h4>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {prescription.ngWordsToAvoid.map(ng => (
-                    <div
-                      key={ng.id}
-                      style={{
-                        background: '#ffffff',
-                        border: '1px solid #ffe4e6',
-                        borderRadius: '10px',
-                        padding: '10px 14px',
-                      }}
-                    >
-                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#e11d48' }}>
-                        {ng.title}
+                    <p style={{ margin: '8px 0', fontSize: '13px', color: '#1f2937', lineHeight: 1.6, fontWeight: 600 }}>
+                      {guidance.statusSummary}
+                    </p>
+
+                    {/* お子さんからのお願いバッジ */}
+                    {latestRequest && (
+                      <div
+                        style={{
+                          marginTop: '8px',
+                          background: '#eff6ff',
+                          border: '1px solid #bfdbfe',
+                          borderRadius: '10px',
+                          padding: '10px 14px',
+                          fontSize: '12px',
+                          color: '#1e40af',
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        <strong>💌 お子さんからのお願いサイン:</strong>{' '}
+                        {latestRequest.request === 'listen' && '「話を聞いてほしい」'}
+                        {latestRequest.request === 'quiet' && '「少しそっとしておいてほしい」'}
+                        {latestRequest.request === 'refresh' && '「いっしょに気分転換したい」'}
                       </div>
-                      <div style={{ fontSize: '12px', color: '#4b5563', marginTop: '2px', lineHeight: 1.4 }}>
-                        {ng.detail}
+                    )}
+                  </div>
+
+                  {/* 2. 今日かけたい言葉（家庭での承認・共感フレーズ） */}
+                  <div
+                    style={{
+                      background: '#ffffff',
+                      border: '1.5px solid #bfdbfe',
+                      borderRadius: '16px',
+                      padding: '18px 20px',
+                    }}
+                    data-testid="recommended-phrases-card"
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                      <span style={{ fontSize: '22px' }}>💬</span>
+                      <h4 style={{ margin: 0, fontSize: '15px', color: '#1e40af', fontWeight: 800 }}>
+                        今日かけたい言葉（家庭での承認・共感フレーズ）
+                      </h4>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {guidance.recommendedPhrases.map(phrase => (
+                        <div
+                          key={phrase.id}
+                          style={{
+                            background: '#eff6ff',
+                            borderLeft: '4px solid #3b82f6',
+                            borderRadius: '8px',
+                            padding: '10px 14px',
+                          }}
+                        >
+                          <div style={{ fontSize: '12px', fontWeight: 800, color: '#1d4ed8', marginBottom: '2px' }}>
+                            {phrase.title || phrase.situation}
+                          </div>
+                          <div style={{ fontSize: '13px', color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
+                            {phrase.detail || phrase.phrase}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 3. 家庭でできる具体的なケア行動＆親のチェックリスト */}
+                  <div
+                    style={{
+                      background: '#ffffff',
+                      border: '1.5px solid #fed7aa',
+                      borderRadius: '16px',
+                      padding: '18px 20px',
+                    }}
+                    data-testid="home-care-checklist-card"
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '6px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '22px' }}>🍵</span>
+                        <h4 style={{ margin: 0, fontSize: '15px', color: '#9a3412', fontWeight: 800 }}>
+                          家庭でできるケア行動（親のアクション・チェックリスト）
+                        </h4>
+                      </div>
+                      <span style={{ fontSize: '11px', color: '#c2410c', fontWeight: 700 }}>
+                        タップして実行をチェック ✅
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {guidance.careActions.map(action => {
+                        const isDone = !!parentChecklist[action.id];
+                        return (
+                          <div
+                            key={action.id}
+                            onClick={() => handleToggleParentAction(action.id)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: '12px',
+                              background: isDone ? '#f0fdf4' : '#fff7ed',
+                              border: `1.5px solid ${isDone ? '#86efac' : '#fdba74'}`,
+                              borderRadius: '10px',
+                              padding: '10px 14px',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                            }}
+                            role="checkbox"
+                            aria-checked={isDone}
+                            data-testid={`parent-action-item-${action.id}`}
+                          >
+                            <span style={{ fontSize: '20px', lineHeight: 1 }}>
+                              {isDone ? '✅' : '⬜'}
+                            </span>
+                            <div style={{ flex: 1 }}>
+                              <div
+                                style={{
+                                  fontSize: '13px',
+                                  fontWeight: 800,
+                                  color: isDone ? '#166534' : '#7c2d12',
+                                  textDecoration: isDone ? 'line-through' : 'none',
+                                }}
+                              >
+                                {action.title}
+                              </div>
+                              <div style={{ fontSize: '12px', color: '#4b5563', marginTop: '2px', lineHeight: 1.4 }}>
+                                {action.desc || action.detail}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 4. 言ってはいけないNGワード集 */}
+                  <div
+                    style={{
+                      background: '#fff1f2',
+                      border: '1.5px solid #fecdd3',
+                      borderRadius: '16px',
+                      padding: '18px 20px',
+                    }}
+                    data-testid="ng-words-card"
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                      <span style={{ fontSize: '22px' }}>⚠️</span>
+                      <h4 style={{ margin: 0, fontSize: '15px', color: '#9f1239', fontWeight: 800 }}>
+                        今は避けたほうがよいNGワード（理由と解説）
+                      </h4>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {guidance.avoidPhrases.map((phrase, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            background: '#ffffff',
+                            border: '1px solid #ffe4e6',
+                            borderRadius: '10px',
+                            padding: '10px 14px',
+                          }}
+                        >
+                          <div style={{ fontSize: '13px', fontWeight: 800, color: '#e11d48' }}>
+                            {phrase}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 5. こんなときは専門家へ（目安と無料の公的相談窓口） */}
+                  <div
+                    style={{
+                      background: '#f8fafc',
+                      border: '1.5px solid #cbd5e1',
+                      borderRadius: '16px',
+                      padding: '18px 20px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                      <span style={{ fontSize: '22px' }}>🏥</span>
+                      <h4 style={{ margin: 0, fontSize: '15px', color: '#334155', fontWeight: 800 }}>
+                        こんなときは専門家へ（相談の目安と公的窓口）
+                      </h4>
+                    </div>
+                    <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px 0', lineHeight: 1.5 }}>
+                      親御さんだけで抱え込まず、以下のサインが見られる場合はスクールカウンセラーや専門医療機関、公的相談窓口へご相談ください。
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
+                      {guidance.expertConsultationSignals.map((sig, idx) => (
+                        <div key={idx} style={{ fontSize: '12px', color: '#475569', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ color: '#ef4444' }}>•</span>
+                          <span>{sig}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ borderTop: '1px dashed #cbd5e1', paddingTop: '12px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#1e293b', marginBottom: '6px' }}>
+                        📞 無料の公的相談窓口（24時間・匿名可）
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '8px' }}>
+                        {OFFICIAL_CRISIS_CONTACTS.map((c, idx) => (
+                          <div
+                            key={idx}
+                            style={{
+                              background: '#ffffff',
+                              border: '1px solid #e2e8f0',
+                              borderRadius: '8px',
+                              padding: '8px 12px',
+                              fontSize: '11px',
+                            }}
+                          >
+                            <div style={{ fontWeight: 700, color: '#0f172a' }}>{c.name}</div>
+                            <div style={{ color: '#0284c7', fontWeight: 800, fontSize: '13px', margin: '2px 0' }}>
+                              {c.phone}
+                            </div>
+                            <div style={{ color: '#64748b', fontSize: '10px' }}>{c.description}（{c.hours}）</div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+
+                  {/* 6. お子さんからの「伝えるカード」＆直近のまとめ */}
+                  {(sharedCareCards.length > 0 || Object.keys(sharedWeeklySummaries).length > 0) && (
+                    <div
+                      style={{
+                        background: '#ffffff',
+                        border: '1.5px solid #e2e8f0',
+                        borderRadius: '16px',
+                        padding: '18px 20px',
+                      }}
+                    >
+                      <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#1e293b', fontWeight: 800 }}>
+                        📬 届いたカード＆週のまとめ
+                      </h4>
+
+                      {/* 伝えるカード */}
+                      {sharedCareCards.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
+                          <div style={{ fontSize: '12px', fontWeight: 700, color: '#475569' }}>
+                            お子さんから届いたメッセージカード:
+                          </div>
+                          {sharedCareCards.map((card) => (
+                            <div
+                              key={card.id}
+                              style={{
+                                background: '#fdf4ff',
+                                border: '1px solid #f5d0fe',
+                                borderRadius: '10px',
+                                padding: '10px 14px',
+                                fontSize: '12px',
+                                color: '#86198f',
+                              }}
+                            >
+                              <strong>
+                                💌 「
+                                {card.cardTitle || (
+                                  card.templateId === 'listen' ? '話を聞いてほしいな' :
+                                  card.templateId === 'quiet' ? '少しそっとしておいてね' : 'いっしょに気分転換したいな'
+                                )}
+                                」
+                              </strong>
+                              <span style={{ fontSize: '10px', color: '#a21caf', marginLeft: '8px' }}>
+                                ({card.sentAt || card.createdAt.split('T')[0]})
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* 週のまとめ（統計のみ開示） */}
+                      {Object.keys(sharedWeeklySummaries).length > 0 && (
+                        <div>
+                          <div style={{ fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                            直近の週の傾向（プライバシー保護要約）:
+                          </div>
+                          {Object.values(sharedWeeklySummaries).slice(-2).map((ws, idx) => {
+                            const weatherEntries = Object.entries(ws.weatherCounts || {}) as [WeatherType, number][];
+                            const topWeather = weatherEntries.sort((a, b) => b[1] - a[1])[0]?.[0] || 'sunny';
+                            const totalActs = Object.values(ws.copingCategoryCounts || {}).reduce((sum, v) => sum + v, 0);
+
+                            return (
+                              <div
+                                key={idx}
+                                style={{
+                                  background: '#f8fafc',
+                                  border: '1px solid #e2e8f0',
+                                  borderRadius: '8px',
+                                  padding: '8px 12px',
+                                  fontSize: '11px',
+                                  color: '#334155',
+                                  marginBottom: '6px',
+                                }}
+                              >
+                                週最多のお天気: {topWeather === 'sunny' ? '☀️ はれ' : topWeather === 'cloudy' ? '⛅ くもり' : topWeather === 'rainy' ? '🌧️ あめ' : '⛈️ あらし'} / こころの活動回数: {totalActs}回
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 7. 「もっと見る」天気別ヒント展開 */}
+                  <div style={{ textAlign: 'center' }}>
+                    <button
+                      onClick={() => setShowAllWeatherAdvice(prev => !prev)}
+                      style={{
+                        background: 'none',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '20px',
+                        padding: '6px 16px',
+                        fontSize: '12px',
+                        color: '#475569',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {showAllWeatherAdvice ? '▲ 天気別の声かけヒントを閉じる' : '▼ 他のお天気（はれ/くもり/あめ/あらし）のヒント一覧を見る'}
+                    </button>
+
+                    {showAllWeatherAdvice && (
+                      <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
+                        {(['sunny', 'cloudy', 'rainy', 'storm'] as WeatherType[]).map(w => {
+                          const g = generateParentGuidance(w);
+                          return (
+                            <div
+                              key={w}
+                              style={{
+                                background: '#f8fafc',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '10px',
+                                padding: '12px 14px',
+                              }}
+                            >
+                              <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>
+                                {w === 'sunny' ? '☀️' : w === 'cloudy' ? '⛅' : w === 'rainy' ? '🌧️' : '⛈️'} {g.weatherLabel}
+                              </div>
+                              <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.5, marginBottom: '6px' }}>
+                                {g.statusSummary}
+                              </div>
+                              <div style={{ fontSize: '11px', color: '#0369a1', fontWeight: 700 }}>
+                                おすすめ: {g.recommendedPhrases[0]?.phrase}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 8. 保護者PIN設定・管理 */}
+                  <div
+                    style={{
+                      marginTop: '10px',
+                      padding: '14px',
+                      background: '#f8fafc',
+                      borderRadius: '12px',
+                      border: '1px dashed #cbd5e1',
+                      fontSize: '12px',
+                      color: '#64748b',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: '8px',
+                    }}
+                  >
+                    <div>
+                      <strong>🔒 保護者PINセキュリティ:</strong>{' '}
+                      {isPinConfigured ? '設定済み（保護中）' : '未設定（誰でも閲覧可能）'}
+                    </div>
+
+                    {!showPinSetup ? (
+                      <button
+                        onClick={() => {
+                          setShowPinSetup(true);
+                          setPinError('');
+                        }}
+                        style={{
+                          background: '#ffffff',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '6px',
+                          padding: '4px 10px',
+                          fontSize: '11px',
+                          cursor: 'pointer',
+                          fontWeight: 700,
+                          color: '#334155',
+                        }}
+                      >
+                        {isPinConfigured ? 'PINを変更する' : 'PINを設定する'}
+                      </button>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <input
+                          type="password"
+                          maxLength={4}
+                          placeholder="4桁の数字"
+                          value={newPinInput}
+                          onChange={(e) => setNewPinInput(e.target.value)}
+                          style={{
+                            padding: '4px 8px',
+                            fontSize: '12px',
+                            width: '90px',
+                            borderRadius: '4px',
+                            border: '1px solid #94a3b8',
+                          }}
+                        />
+                        <button
+                          onClick={handleSetNewPin}
+                          style={{
+                            background: '#047857',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '4px 8px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          保存
+                        </button>
+                        <button
+                          onClick={() => setShowPinSetup(false)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '11px',
+                            cursor: 'pointer',
+                            color: '#64748b',
+                          }}
+                        >
+                          キャンセル
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           )}
 

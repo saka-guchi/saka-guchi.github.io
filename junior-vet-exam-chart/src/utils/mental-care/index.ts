@@ -71,3 +71,7 @@ export {
 // データ移行
 export { runMentalCareMigration } from './migration';
 
+// 保護者向け処方箋・声かけヒント生成
+export { generateParentGuidance } from './parent-prescription';
+export type { ParentGuidance, ParentAdviceItem } from './parent-prescription';
+

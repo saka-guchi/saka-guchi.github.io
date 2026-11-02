@@ -177,6 +177,7 @@ export function runMentalCareMigration(): MigrationResult {
           const shared: SharedWeatherDaily = {
             [date]: {
               weather,
+              weatherLabel: legacyCheckin.weatherLabel,
               updatedAt: new Date().toISOString(),
             },
           };
