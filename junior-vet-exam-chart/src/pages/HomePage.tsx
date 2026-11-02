@@ -17,6 +17,7 @@ import { checkForAppUpdate } from '../utils/version-checker';
 import { getDaysUntilExam } from '../utils/countdown-helper';
 import { AnimatedVetPet } from '../components/AnimatedVetPet';
 import { ReferenceBookQuizModal } from '../components/ReferenceBookQuizModal';
+import { MentalCareModal } from '../components/MentalCareModal';
 import { REFERENCE_BOOKS } from '../data/extra-history-80';
 import { getRefBookProgress } from '../utils/reference-book-store';
 import type { Subject } from '../types';
@@ -43,6 +44,7 @@ export const HomePage: React.FC = () => {
   const [showCompletionHelpModal, setShowCompletionHelpModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showParentModal, setShowParentModal] = useState(false);
+  const [showMentalCareModal, setShowMentalCareModal] = useState(false);
   const [showAllAnimalsModal, setShowAllAnimalsModal] = useState(false);
   const [flashCardSkillId, setFlashCardSkillId] = useState<string | null>(null);
   const [activePatientSkillId, setActivePatientSkillId] = useState<string | null>(null);
@@ -352,6 +354,26 @@ export const HomePage: React.FC = () => {
 
           {/* 右上操作コントロール群 */}
           <div className={styles.headerControls}>
+            {/* こころの相談室ボタン */}
+            <button
+              className={styles.parentBadgeBtn}
+              style={{
+                background: 'linear-gradient(135deg, #e6fffa 0%, #ebf8ff 100%)',
+                borderColor: '#81e6d9',
+                color: '#234e52',
+              }}
+              onClick={() => {
+                sound.playPop();
+                setShowMentalCareModal(true);
+              }}
+              title="こころの相談室（モヤモヤ仕分けパズル・お守りコーピング・哲学対話）"
+              aria-label="こころの相談室"
+              data-testid="header-mental-care-btn"
+            >
+              <span style={{ fontSize: '15px' }}>💚</span>
+              <span>こころの相談室</span>
+            </button>
+
             {/* 指導医ログボタン */}
             <button
               className={styles.parentBadgeBtn}
@@ -412,6 +434,56 @@ export const HomePage: React.FC = () => {
             <strong>ナース猫のミケちゃん:</strong>「おかえりなさい、先生！今日は【{nextStamp.name}】が元気をなくして待っているよ。本日の回診をといて、とびっきりの笑顔にしてあげよう！」
           </div>
         </section>
+
+        {/* こころの相談室・オアシスバナー */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #f0fff4 0%, #ebf8ff 100%)',
+            border: '1px solid #b2f5ea',
+            borderRadius: '14px',
+            padding: '10px 16px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '10px',
+            cursor: 'pointer',
+          }}
+          onClick={() => {
+            sound.playPop();
+            setShowMentalCareModal(true);
+          }}
+          role="button"
+          tabIndex={0}
+          data-testid="banner-mental-care"
+          title="クリックしてこころの相談室を開く"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '24px' }}>💚</span>
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: '#234e52' }}>
+                「学校や友達のことでモヤモヤする…」「ちょっと心が疲れちゃったな」というときは？
+              </div>
+              <div style={{ fontSize: '12px', color: '#285e61' }}>
+                🐾 こころの相談室で、モヤモヤ仕分けパズル・お守りコーピング・哲学対話をしてみよう
+              </div>
+            </div>
+          </div>
+          <span
+            style={{
+              background: '#319795',
+              color: 'white',
+              fontSize: '12px',
+              fontWeight: 700,
+              padding: '6px 14px',
+              borderRadius: '20px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            こころの相談室へ ❯
+          </span>
+        </div>
 
         {/* ゾーン1: 上段2カラム（本日の回診 と 知識の処方箋） */}
         <div className={styles.topCardsGrid}>
@@ -1912,6 +1984,14 @@ export const HomePage: React.FC = () => {
           bookId={activeRefBookId}
           onClose={() => setActiveRefBookId(null)}
           onUpdate={() => setRefBookTick(t => t + 1)}
+        />
+      )}
+
+      {/* こころの相談室（メンタルケア・課題の分離・コーピング・哲学対話）モーダル */}
+      {showMentalCareModal && (
+        <MentalCareModal
+          isOpen={showMentalCareModal}
+          onClose={() => setShowMentalCareModal(false)}
         />
       )}
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../db';
 import { ALL_PROGRESS_SKILLS } from '../data/all-skills';
 import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
@@ -10,6 +10,12 @@ import { fireConfetti } from '../utils/confetti';
 import type { FinalChallengeResult } from '../types';
 import { getQuestionReports, toggleReportResolved, deleteQuestionReport, type QuestionReportItem } from '../utils/question-reports';
 import styles from './ParentDashboardModal.module.css';
+import {
+  generateParentPrescription,
+  getParentActionChecklist,
+  toggleParentActionCheck,
+  type ParentMentalPrescription,
+} from '../utils/mental-care-store';
 
 interface ParentDashboardModalProps {
   onClose: () => void;
@@ -28,7 +34,36 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   onStartWeaknessQuiz,
   onInspectQuestion,
 }) => {
-  const [activeTab, setActiveTab] = useState<'charts' | 'advice' | 'print' | 'reports'>('charts');
+  const [activeTab, setActiveTab] = useState<'charts' | 'advice' | 'mental' | 'print' | 'reports'>('charts');
+  const [prescription, setPrescription] = useState<ParentMentalPrescription>(() => generateParentPrescription());
+  const [parentChecklist, setParentChecklist] = useState<Record<string, boolean>>(() => getParentActionChecklist());
+  const [actionDoneToast, setActionDoneToast] = useState<string | null>(null);
+  const actionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (actionTimerRef.current) clearTimeout(actionTimerRef.current);
+    };
+  }, []);
+
+  const handleToggleParentAction = (actionId: string) => {
+    sound.playAnimalHappy();
+    const next = toggleParentActionCheck(actionId);
+    setParentChecklist(next);
+    if (next[actionId]) {
+      fireConfetti({ count: 20 });
+      setActionDoneToast('ナイスサポート！お子さんの心の安全基地が守られました🐾');
+      if (actionTimerRef.current) clearTimeout(actionTimerRef.current);
+      actionTimerRef.current = setTimeout(() => {
+        if (isMountedRef.current) {
+          setActionDoneToast(null);
+        }
+      }, 3500);
+    }
+  };
   const [reports, setReports] = useState<QuestionReportItem[]>(() => getQuestionReports());
   const [examResults, setExamResults] = useState<FinalChallengeResult[]>([]);
   const [dailyCounts, setDailyCounts] = useState<DailyCount[]>([]);
@@ -260,6 +295,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
             return [
               { id: 'charts', label: '📈 学習・成績グラフ', badge: 0 },
               { id: 'advice', label: '🐱 ほめ言葉＆お約束', badge: 0 },
+              { id: 'mental', label: '💚 こころの見守り処方箋', badge: 0 },
               { id: 'print', label: '🖨️ 弱点処方箋＆A4印刷', badge: 0 },
               {
                 id: 'reports',
@@ -868,6 +904,273 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                 </button>
               </div>
             </>
+          )}
+
+          {/* ================= タブ3: こころの見守り処方箋 ================= */}
+          {activeTab === 'mental' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} data-testid="parent-mental-tab">
+              {/* アクション完了フィードバック */}
+              {actionDoneToast && (
+                <div
+                  style={{
+                    background: '#f0fdf4',
+                    border: '1.5px solid #86efac',
+                    borderRadius: '12px',
+                    padding: '12px 16px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#166534',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    animation: 'fadeIn 0.2s ease',
+                  }}
+                  data-testid="parent-action-done-toast"
+                >
+                  <span>🎉</span>
+                  <span>{actionDoneToast}</span>
+                </div>
+              )}
+
+              {/* 1. お子さんのこころの天気予報＆サイン */}
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfeff 100%)',
+                  border: '1.5px solid #a7f3d0',
+                  borderRadius: '16px',
+                  padding: '18px 20px',
+                }}
+                data-testid="child-mental-forecast-card"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '28px' }}>
+                      {prescription.childWeather.weather === 'sunny' ? '☀️' :
+                       prescription.childWeather.weather === 'cloudy' ? '⛅' :
+                       prescription.childWeather.weather === 'rainy' ? '🌧️' : '⛈️'}
+                    </span>
+                    <div>
+                      <h4 style={{ margin: 0, fontSize: '15px', color: '#065f46', fontWeight: 800 }}>
+                        お子さんのこころのお天気サイン: 【{prescription.childWeather.weatherLabel}】
+                      </h4>
+                      <div style={{ fontSize: '11px', color: '#047857' }}>
+                        記録日: {prescription.childWeather.date} (プライバシー配慮により心理状態のみ要約)
+                      </div>
+                    </div>
+                  </div>
+                  <span
+                    style={{
+                      background: '#d1fae5',
+                      color: '#065f46',
+                      padding: '4px 10px',
+                      borderRadius: '12px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                    }}
+                  >
+                    🌱 安全基地サポート中
+                  </span>
+                </div>
+
+                <p style={{ margin: '8px 0', fontSize: '13px', color: '#1f2937', lineHeight: 1.6, fontWeight: 600 }}>
+                  {prescription.statusSummary}
+                </p>
+
+                <div
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #d1fae5',
+                    borderRadius: '10px',
+                    padding: '10px 14px',
+                    fontSize: '12px',
+                    color: '#065f46',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <strong>💡 こころの背景サイン:</strong> {prescription.childSignalHint}
+                </div>
+
+                {/* お子さんが取り組んだ心の活動（プライバシー守秘版） */}
+                {(prescription.completedTopicTitles.length > 0 || prescription.savedCopingTitles.length > 0) && (
+                  <div style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {prescription.completedTopicTitles.map((t, idx) => (
+                      <span
+                        key={idx}
+                        style={{
+                          background: '#e0e7ff',
+                          color: '#3730a3',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          padding: '3px 8px',
+                          borderRadius: '8px',
+                        }}
+                      >
+                        🦉 哲学対話: {t}
+                      </span>
+                    ))}
+                    {prescription.savedCopingTitles.map((c, idx) => (
+                      <span
+                        key={idx}
+                        style={{
+                          background: '#fef3c7',
+                          color: '#92400e',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          padding: '3px 8px',
+                          borderRadius: '8px',
+                        }}
+                      >
+                        ⭐ お守り: {c}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 2. 今日かけたい言葉（魔法のフレーズ集） */}
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1.5px solid #bfdbfe',
+                  borderRadius: '16px',
+                  padding: '18px 20px',
+                }}
+                data-testid="recommended-phrases-card"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '22px' }}>💬</span>
+                  <h4 style={{ margin: 0, fontSize: '15px', color: '#1e40af', fontWeight: 800 }}>
+                    今日かけたい言葉（家庭での承認・共感フレーズ）
+                  </h4>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {prescription.recommendedPhrases.map(phrase => (
+                    <div
+                      key={phrase.id}
+                      style={{
+                        background: '#eff6ff',
+                        borderLeft: '4px solid #3b82f6',
+                        borderRadius: '8px',
+                        padding: '10px 14px',
+                      }}
+                    >
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#1d4ed8', marginBottom: '2px' }}>
+                        {phrase.title}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
+                        {phrase.detail}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. 家庭でできる具体的なケア行動＆親のチェックリスト */}
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1.5px solid #fed7aa',
+                  borderRadius: '16px',
+                  padding: '18px 20px',
+                }}
+                data-testid="home-care-checklist-card"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '22px' }}>🍵</span>
+                    <h4 style={{ margin: 0, fontSize: '15px', color: '#9a3412', fontWeight: 800 }}>
+                      家庭でできるケア行動（親のアクション・チェックリスト）
+                    </h4>
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#c2410c', fontWeight: 700 }}>
+                    タップして実行をチェック ✅
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {prescription.homeCareActions.map(action => {
+                    const isDone = !!parentChecklist[action.id];
+                    return (
+                      <div
+                        key={action.id}
+                        onClick={() => handleToggleParentAction(action.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '12px',
+                          background: isDone ? '#f0fdf4' : '#fff7ed',
+                          border: `1.5px solid ${isDone ? '#86efac' : '#fdba74'}`,
+                          borderRadius: '10px',
+                          padding: '10px 14px',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                        }}
+                        role="checkbox"
+                        aria-checked={isDone}
+                        data-testid={`parent-action-item-${action.id}`}
+                      >
+                        <span style={{ fontSize: '20px', lineHeight: 1 }}>
+                          {isDone ? '✅' : '⬜'}
+                        </span>
+                        <div style={{ flex: 1 }}>
+                          <div
+                            style={{
+                              fontSize: '13px',
+                              fontWeight: 800,
+                              color: isDone ? '#166534' : '#7c2d12',
+                              textDecoration: isDone ? 'line-through' : 'none',
+                            }}
+                          >
+                            {action.title}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#4b5563', marginTop: '2px', lineHeight: 1.4 }}>
+                            {action.detail}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 4. 言ってはいけないNGワード集 */}
+              <div
+                style={{
+                  background: '#fff1f2',
+                  border: '1.5px solid #fecdd3',
+                  borderRadius: '16px',
+                  padding: '18px 20px',
+                }}
+                data-testid="ng-words-card"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '22px' }}>⚠️</span>
+                  <h4 style={{ margin: 0, fontSize: '15px', color: '#9f1239', fontWeight: 800 }}>
+                    今は避けたほうがよいNGワード（理由と解説）
+                  </h4>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {prescription.ngWordsToAvoid.map(ng => (
+                    <div
+                      key={ng.id}
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #ffe4e6',
+                        borderRadius: '10px',
+                        padding: '10px 14px',
+                      }}
+                    >
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#e11d48' }}>
+                        {ng.title}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#4b5563', marginTop: '2px', lineHeight: 1.4 }}>
+                        {ng.detail}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
 
           {/* ================= タブ4: 問題修正依頼一覧 ================= */}

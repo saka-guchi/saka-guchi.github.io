@@ -1,0 +1,799 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(20, 24, 38, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modalContent {
+  background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(79, 134, 198, 0.15);
+  width: 100%;
+  max-width: 820px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.25s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ヘッダー */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, #eef7f2 0%, #e8f4fc 100%);
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.headerTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerIcon {
+  font-size: 32px;
+  background: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.headerTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e3a5f;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerSubtitle {
+  margin: 2px 0 0 0;
+  font-size: 13px;
+  color: #4a5568;
+}
+
+.closeButton {
+  background: white;
+  border: 1px solid #cbd5e0;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  font-size: 18px;
+  cursor: pointer;
+  color: #718096;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.closeButton:hover {
+  background: #edf2f7;
+  color: #2d3748;
+  transform: rotate(90deg);
+}
+
+/* こころのお天気チェックインバー */
+.weatherCheckinBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 24px;
+  background: #f0fff4;
+  border-bottom: 1px solid #c6f6d5;
+}
+
+.weatherCheckinLabel {
+  font-size: 12px;
+  font-weight: 800;
+  color: #22543d;
+}
+
+.weatherButtonGroup {
+  display: flex;
+  gap: 6px;
+}
+
+.weatherBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e0;
+  background: white;
+  color: #4a5568;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.weatherBtn:hover {
+  background: #e2e8f0;
+}
+
+.weatherBtnSelected {
+  background: #3182ce;
+  color: white;
+  border-color: #2b6cb0;
+  box-shadow: 0 2px 6px rgba(49, 130, 206, 0.3);
+}
+
+.weatherToastText {
+  font-size: 11px;
+  color: #276749;
+  font-weight: 700;
+  margin-left: 6px;
+  animation: fadeIn 0.2s ease;
+}
+
+/* タブバー */
+.tabBar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  overflow-x: auto;
+}
+
+.tabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: #edf2f7;
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.tabBtn:hover {
+  background: #e2e8f0;
+}
+
+.tabBtnActive {
+  background: white;
+  color: #2b6cb0;
+  border-color: #bee3f8;
+  box-shadow: 0 2px 6px rgba(66, 153, 225, 0.2);
+}
+
+/* ボディ */
+.body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* 共通ボックス */
+.cardBox {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  margin-bottom: 20px;
+}
+
+/* =========================================================
+   タブ1: モヤモヤ仕分けパズル
+   ========================================================= */
+.puzzleIntro {
+  background: #ebf8ff;
+  border-left: 4px solid #3182ce;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #2b6cb0;
+  line-height: 1.6;
+}
+
+.sortingArena {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 640px) {
+  .sortingArena {
+    grid-template-columns: 1fr;
+  }
+}
+
+.boxSelf {
+  background: linear-gradient(180deg, #f0fff4 0%, #ffffff 100%);
+  border: 2px dashed #48bb78;
+  border-radius: 16px;
+  padding: 16px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+}
+
+.boxOthers {
+  background: linear-gradient(180deg, #fefcbf 0%, #ffffff 100%);
+  border: 2px dashed #ecc94b;
+  border-radius: 16px;
+  padding: 16px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+}
+
+.boxHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.boxTitleSelf {
+  font-size: 15px;
+  font-weight: 800;
+  color: #276749;
+}
+
+.boxTitleOthers {
+  font-size: 15px;
+  font-weight: 800;
+  color: #975a16;
+}
+
+.boxDesc {
+  font-size: 12px;
+  color: #718096;
+  margin-bottom: 12px;
+}
+
+.boxList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.sortedChip {
+  background: white;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.activeCardStage {
+  background: #f7fafc;
+  border: 2px solid #cbd5e0;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.activeCardTitle {
+  font-size: 18px;
+  font-weight: 800;
+  color: #2d3748;
+  margin: 12px 0;
+  line-height: 1.5;
+}
+
+.activeCardHint {
+  font-size: 13px;
+  color: #718096;
+  margin-bottom: 16px;
+}
+
+.sortActionBtns {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btnSortSelf {
+  background: #48bb78;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.2s ease;
+  white-space: nowrap;
+}
+
+.btnSortSelf:hover {
+  background: #38a169;
+  transform: translateY(-2px);
+}
+
+.btnSortOthers {
+  background: #ecc94b;
+  color: #744210;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.2s ease;
+  white-space: nowrap;
+}
+
+.btnSortOthers:hover {
+  background: #d69e2e;
+  transform: translateY(-2px);
+}
+
+.feedbackBanner {
+  background: #e6fffa;
+  border-left: 4px solid #38b2ac;
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: #234e52;
+  text-align: left;
+  line-height: 1.6;
+}
+
+.customAddGroup {
+  margin-top: 20px;
+  padding: 16px;
+  background: #edf2f7;
+  border-radius: 12px;
+}
+
+.customAddTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #4a5568;
+  margin-bottom: 8px;
+}
+
+.customAddForm {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.customInput {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.customSelect {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 13px;
+  background: white;
+}
+
+.btnCustomAdd {
+  padding: 8px 16px;
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   タブ2: お守りコーピング図鑑
+   ========================================================= */
+.copingHeaderBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.gachaBtn {
+  background: linear-gradient(135deg, #ed64a6 0%, #d53f8c 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(213, 63, 140, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.15s ease;
+}
+
+.gachaBtn:hover {
+  transform: translateY(-2px);
+}
+
+.copingCategoryBar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+.copingCatChip {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #edf2f7;
+  color: #4a5568;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.copingCatChipActive {
+  background: #3182ce;
+  color: white;
+}
+
+.copingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.copingCard {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.copingCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.copingCardSaved {
+  border-color: #f6e05e;
+  background: linear-gradient(180deg, #fffff0 0%, #ffffff 100%);
+}
+
+.copingCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.copingCardIcon {
+  font-size: 28px;
+}
+
+.copingBookmarkBtn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.copingCardTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #2d3748;
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+}
+
+.copingCardAction {
+  font-size: 12px;
+  color: #4a5568;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  flex: 1;
+}
+
+.copingCardWhy {
+  font-size: 11px;
+  color: #718096;
+  background: #f7fafc;
+  padding: 6px 8px;
+  border-radius: 6px;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.copingCardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copingDuration {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a0aec0;
+}
+
+.btnTryCoping {
+  background: #edf2f7;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4a5568;
+  cursor: pointer;
+}
+
+.btnTryCoping:hover {
+  background: #e2e8f0;
+}
+
+/* =========================================================
+   タブ3: 哲学対話ノート
+   ========================================================= */
+.topicSelectGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.topicCard {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.topicCard:hover {
+  transform: translateY(-2px);
+  border-color: #63b3ed;
+  box-shadow: 0 6px 16px rgba(99, 179, 237, 0.15);
+}
+
+.topicCardActive {
+  border-color: #3182ce;
+  background: linear-gradient(180deg, #ebf8ff 0%, #ffffff 100%);
+  box-shadow: 0 4px 12px rgba(49, 130, 206, 0.2);
+}
+
+.dialogChatArea {
+  background: #f7fafc;
+  border-radius: 16px;
+  padding: 18px;
+  margin-top: 16px;
+}
+
+.charSpeechBubble {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.charAvatar {
+  font-size: 32px;
+  background: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.charMessageCard {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  border-top-left-radius: 2px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  flex: 1;
+}
+
+.charName {
+  font-size: 12px;
+  font-weight: 800;
+  color: #4a5568;
+  margin-bottom: 4px;
+}
+
+.charQuestion {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2d3748;
+  line-height: 1.6;
+}
+
+.choiceList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.choiceBtn {
+  background: white;
+  border: 1.5px solid #cbd5e0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2d3748;
+  text-align: left;
+  cursor: pointer;
+  line-height: 1.5;
+  transition: all 0.15s ease;
+}
+
+.choiceBtn:hover {
+  background: #ebf8ff;
+  border-color: #3182ce;
+  color: #2b6cb0;
+  transform: translateX(3px);
+}
+
+.reactionCard {
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 14px;
+  animation: fadeIn 0.3s ease;
+}
+
+.reactionText {
+  font-size: 13px;
+  font-weight: 700;
+  color: #276749;
+  margin-bottom: 6px;
+}
+
+.insightText {
+  font-size: 12px;
+  color: #2f855a;
+  line-height: 1.6;
+}
+
+.btnNextStep {
+  margin-top: 12px;
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.prescriptionCard {
+  background: linear-gradient(135deg, #faf5ff 0%, #ebf8ff 100%);
+  border: 2px solid #b794f4;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.prescriptionTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #553c9e;
+  margin-bottom: 8px;
+}
+
+.prescriptionQuote {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2d3748;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+/* フッター */
+.footer {
+  padding: 12px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footerNote {
+  font-size: 12px;
+  color: #718096;
+}
+
+.btnCloseBottom {
+  background: #e2e8f0;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4a5568;
+  cursor: pointer;
+}
+
+.btnCloseBottom:hover {
+  background: #cbd5e0;
+}
+
