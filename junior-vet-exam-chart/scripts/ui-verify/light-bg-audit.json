@@ -1,0 +1,632 @@
+[
+  {
+    "file": "src/components/AnimatedVetPet.module.css",
+    "line": 164,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/components/AnimatedVetPet.tsx",
+    "line": 97,
+    "name": "白背景 (#ffffff)",
+    "text": "fill=\"#FFFFFF\""
+  },
+  {
+    "file": "src/components/AnimatedVetPet.tsx",
+    "line": 117,
+    "name": "白背景 (#ffffff)",
+    "text": "<circle cx=\"21\" cy=\"24\" r=\"0.8\" fill=\"#FFFFFF\" />"
+  },
+  {
+    "file": "src/components/AnimatedVetPet.tsx",
+    "line": 121,
+    "name": "白背景 (#ffffff)",
+    "text": "<circle cx=\"35\" cy=\"24\" r=\"0.8\" fill=\"#FFFFFF\" />"
+  },
+  {
+    "file": "src/components/AnimatedVetPet.tsx",
+    "line": 138,
+    "name": "白背景 (#ffffff)",
+    "text": "<rect x=\"0\" y=\"0\" width=\"7\" height=\"4\" rx=\"1.5\" fill=\"#FFFFFF\" stroke=\"#3B82F6\" strokeWidth=\"0.8\" />"
+  },
+  {
+    "file": "src/components/AnimatedVetPet.tsx",
+    "line": 158,
+    "name": "白背景 (#ffffff)",
+    "text": "<ellipse cx=\"14\" cy=\"42\" rx=\"4.5\" ry=\"3.5\" fill=\"#FFFFFF\" stroke=\"#CBD5E1\" strokeWidth=\"1\" />"
+  },
+  {
+    "file": "src/components/AppUpdateBanner.module.css",
+    "line": 70,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/components/AppUpdateBanner.module.css",
+    "line": 87,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: #f8fafc;"
+  },
+  {
+    "file": "src/components/DoctorCertificateModal.module.css",
+    "line": 15,
+    "name": "琥珀ライト背景 (#fffbeb)",
+    "text": "background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, var(--accent-gold-bg) 100%);"
+  },
+  {
+    "file": "src/components/DoctorCertificateModal.module.css",
+    "line": 154,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/components/DoctorCertificateModal.module.css",
+    "line": 207,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/components/ErrorBoundary.tsx",
+    "line": 46,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: '#f8fafc',"
+  },
+  {
+    "file": "src/components/ErrorBoundary.tsx",
+    "line": 78,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/components/FinalExamHistoryModal.tsx",
+    "line": 85,
+    "name": "白背景 (#ffffff)",
+    "text": "background: 'var(--surface, #ffffff)',"
+  },
+  {
+    "file": "src/components/FinalExamHistoryModal.tsx",
+    "line": 287,
+    "name": "ゴールドライト背景 (#fef3c7)",
+    "text": "background: '#fef3c7',"
+  },
+  {
+    "file": "src/components/formats/Formats.module.css",
+    "line": 30,
+    "name": "青ライト背景 (#eff6ff)",
+    "text": "background: #eff6ff;"
+  },
+  {
+    "file": "src/components/formats/QuestionRenderer.tsx",
+    "line": 375,
+    "name": "琥珀ライト背景 (#fffbeb)",
+    "text": "background: '#fffbeb',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.module.css",
+    "line": 38,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff !important;"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.module.css",
+    "line": 118,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.module.css",
+    "line": 165,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: #f8fafc;"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 352,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: 'var(--bg-primary, #f8fafc)',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 370,
+    "name": "白背景 (#ffffff)",
+    "text": "background: 'var(--surface, #ffffff)',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 385,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: 'linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%)',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 403,
+    "name": "白背景 (#ffffff)",
+    "text": "background: 'var(--surface, #ffffff)',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 482,
+    "name": "白背景 (#ffffff)",
+    "text": "background: activeTab === tab.id ? 'var(--surface, #ffffff)' : 'transparent',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 525,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "<div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: '12px', padding: '12px', textAlign: 'center', boxShadow: '0 2px 6px rgba(34, 197, 94, 0.08)' }}>"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 536,
+    "name": "青ライト背景 (#eff6ff)",
+    "text": "<div style={{ background: '#eff6ff', border: '1.5px solid #93c5fd', borderRadius: '12px', padding: '12px', textAlign: 'center', boxShadow: '0 2px 6px rgba(59, 130, 246, 0.08)' }}>"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 547,
+    "name": "ゴールドライト背景 (#fef3c7)",
+    "text": "<div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 558,
+    "name": "ピンクライト背景 (#fdf2f8)",
+    "text": "<div style={{ background: '#fdf2f8', border: '1px solid #fbcfe8', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 720,
+    "name": "白背景 (#ffffff)",
+    "text": "<circle cx={p.x} cy={p.y} r=\"5\" fill=\"#f59e0b\" stroke=\"#ffffff\" strokeWidth=\"2\" />"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 745,
+    "name": "琥珀ライト背景 (#fffbeb)",
+    "text": "background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 764,
+    "name": "白背景 (#ffffff)",
+    "text": "<div style={{ background: '#ffffff', borderRadius: '12px', padding: '14px', border: '1px solid #fef08a', lineHeight: '1.6', fontSize: '13px', color: '#78350f' }}>"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 831,
+    "name": "白背景 (#fff)",
+    "text": "style={{ padding: '6px 16px', borderRadius: '6px', border: 'none', background: 'var(--primary)', color: '#fff', fontSize: '12px', fontWeight: 'bold' }}"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 840,
+    "name": "白背景 (#ffffff)",
+    "text": "background: rewardAchieved ? '#dcfce7' : '#ffffff',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 930,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: isExpanded ? '#dbeafe' : '#f0fdf4',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 952,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: '#f8fafc',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 987,
+    "name": "白背景 (#ffffff)",
+    "text": "<div style={{ background: '#ffffff', border: '1px dashed #cbd5e1', borderRadius: '6px', padding: '8px 10px' }}>"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1040,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1083,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: '#f0fdf4',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1106,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1186,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: '#f8fafc',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1244,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfeff 100%)',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1291,
+    "name": "青ライト背景 (#eff6ff)",
+    "text": "background: '#eff6ff',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1311,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1329,
+    "name": "青ライト背景 (#eff6ff)",
+    "text": "background: '#eff6ff',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1349,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1379,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: isDone ? '#f0fdf4' : '#fff7ed',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1435,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1452,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: '#f8fafc',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1485,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1507,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1566,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: '#f8fafc',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1610,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: '#f8fafc',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1637,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: '#f8fafc',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1661,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1853,
+    "name": "ピンクライト背景 (#fdf2f8)",
+    "text": "background: '#fdf2f8',"
+  },
+  {
+    "file": "src/components/ParentDashboardModal.tsx",
+    "line": 1871,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: '#f8fafc',"
+  },
+  {
+    "file": "src/components/QuickFlashCardModal.module.css",
+    "line": 87,
+    "name": "白背景 (#ffffff)",
+    "text": "background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);"
+  },
+  {
+    "file": "src/components/QuickFlashCardModal.module.css",
+    "line": 91,
+    "name": "琥珀ライト背景 (#fffbeb)",
+    "text": "background: linear-gradient(135deg, #fdf4f8 0%, #fffbeb 100%);"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 4,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background-color: var(--bg-primary, #f8fafc);"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 19,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 44,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 147,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 193,
+    "name": "琥珀ライト背景 (#fffbeb)",
+    "text": "background: linear-gradient(135deg, #fefce8 0%, #fffbeb 100%);"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 240,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 279,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: #f8fafc;"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 294,
+    "name": "青ライト背景 (#eff6ff)",
+    "text": "background: #eff6ff;"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 321,
+    "name": "青ライト背景 (#eff6ff)",
+    "text": "background: #eff6ff;"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 364,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: #f0fdf4;"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 390,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 463,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: #f8fafc;"
+  },
+  {
+    "file": "src/components/ReferenceBookQuizModal.module.css",
+    "line": 540,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/pages/FinalChallengePage.tsx",
+    "line": 535,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/pages/FinalChallengePage.tsx",
+    "line": 699,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/pages/FinalChallengePage.tsx",
+    "line": 1218,
+    "name": "白背景 (#ffffff)",
+    "text": "background: 'var(--surface, #ffffff)',"
+  },
+  {
+    "file": "src/pages/FinalChallengePage.tsx",
+    "line": 1279,
+    "name": "白背景 (#ffffff)",
+    "text": "background: 'var(--surface, #ffffff)',"
+  },
+  {
+    "file": "src/pages/HomePage.module.css",
+    "line": 103,
+    "name": "琥珀ライト背景 (#fffbeb)",
+    "text": "background: linear-gradient(135deg, var(--accent-gold-bg) 0%, #fffbeb 100%);"
+  },
+  {
+    "file": "src/pages/HomePage.module.css",
+    "line": 194,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/pages/HomePage.module.css",
+    "line": 399,
+    "name": "青ライト背景 (#eff6ff)",
+    "text": "background: linear-gradient(135deg, var(--surface) 0%, #eff6ff 100%);"
+  },
+  {
+    "file": "src/pages/HomePage.module.css",
+    "line": 473,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/pages/HomePage.module.css",
+    "line": 749,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: #f0fdf4;"
+  },
+  {
+    "file": "src/pages/HomePage.module.css",
+    "line": 770,
+    "name": "琥珀ライト背景 (#fffbeb)",
+    "text": "background: #fffbeb;"
+  },
+  {
+    "file": "src/pages/HomePage.module.css",
+    "line": 1570,
+    "name": "白背景 (#ffffff)",
+    "text": "background: #ffffff;"
+  },
+  {
+    "file": "src/pages/HomePage.module.css",
+    "line": 1626,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: #f0fdf4;"
+  },
+  {
+    "file": "src/pages/HomePage.tsx",
+    "line": 1264,
+    "name": "ゴールドライト背景 (#fef3c7)",
+    "text": "background: isEarned ? (isOpened ? '#fef3c7' : 'var(--primary-weak)') : 'var(--surface-subtle)',"
+  },
+  {
+    "file": "src/pages/HomePage.tsx",
+    "line": 1296,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/pages/HomePage.tsx",
+    "line": 1440,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/pages/HomePage.tsx",
+    "line": 1843,
+    "name": "琥珀ライト背景 (#fffbeb)",
+    "text": "background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',"
+  },
+  {
+    "file": "src/pages/MentalCarePage.module.css",
+    "line": 7,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: var(--bg-primary, #F8FAFC);"
+  },
+  {
+    "file": "src/pages/MentalCarePage.module.css",
+    "line": 138,
+    "name": "白背景 (#ffffff)",
+    "text": "background: linear-gradient(180deg, #F0FDFA 0%, #FFFFFF 100%);"
+  },
+  {
+    "file": "src/pages/MentalCarePage.module.css",
+    "line": 226,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: #F8FAFC;"
+  },
+  {
+    "file": "src/pages/MentalCarePage.module.css",
+    "line": 515,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: #F8FAFC;"
+  },
+  {
+    "file": "src/pages/MentalCarePage.module.css",
+    "line": 605,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: #F0FDF4;"
+  },
+  {
+    "file": "src/pages/MentalCarePage.module.css",
+    "line": 810,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: #F8FAFC;"
+  },
+  {
+    "file": "src/pages/MentalCarePage.module.css",
+    "line": 956,
+    "name": "琥珀ライト背景 (#fffbeb)",
+    "text": "background: #FFFBEB;"
+  },
+  {
+    "file": "src/pages/MentalCarePage.tsx",
+    "line": 774,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "<div style={{ background: '#F8FAFC', padding: '12px 14px', borderRadius: '12px', marginBottom: '20px' }}>"
+  },
+  {
+    "file": "src/pages/MentalCarePage.tsx",
+    "line": 1192,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "background: selectedParentRequest === opt.type ? '#CCFBF1' : '#F8FAFC',"
+  },
+  {
+    "file": "src/pages/MentalCarePage.tsx",
+    "line": 1344,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "style={{ borderColor: '#86EFAC', background: '#F0FDF4' }}"
+  },
+  {
+    "file": "src/pages/MentalCarePage.tsx",
+    "line": 1353,
+    "name": "黄ライト背景 (#fefce8)",
+    "text": "style={{ borderColor: '#FDE047', background: '#FEFCE8' }}"
+  },
+  {
+    "file": "src/pages/MentalCarePage.tsx",
+    "line": 1362,
+    "name": "スレートライト背景 (#f8fafc)",
+    "text": "style={{ borderColor: '#CBD5E1', background: '#F8FAFC' }}"
+  },
+  {
+    "file": "src/pages/ResultPage.module.css",
+    "line": 341,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: linear-gradient(135deg, #f0fdf4 0%, var(--success-weak) 100%);"
+  },
+  {
+    "file": "src/pages/ResultPage.tsx",
+    "line": 92,
+    "name": "青ライト背景 (#eff6ff)",
+    "text": "background: '#eff6ff',"
+  },
+  {
+    "file": "src/pages/ResultPage.tsx",
+    "line": 281,
+    "name": "緑ライト背景 (#f0fdf4)",
+    "text": "background: 'linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%)',"
+  },
+  {
+    "file": "src/pages/ResultPage.tsx",
+    "line": 307,
+    "name": "白背景 (#ffffff)",
+    "text": "background: '#ffffff',"
+  },
+  {
+    "file": "src/pages/SettingsPage.tsx",
+    "line": 449,
+    "name": "琥珀ライト背景 (#fffbeb)",
+    "text": "background: backupStatus.includes('❌') ? '#FEF2F2' : backupStatus.includes('⚠️') ? '#FFFBEB' : '#F0FDF4',"
+  }
+]

@@ -1807,10 +1807,33 @@
 }
 
 .keyProgressDesc {
-  font-size: var(--font-size-caption);
+  font-size: var(--font-size-subtext);
   color: var(--accent-gold-text);
   margin-top: var(--space-xs);
   line-height: 1.5;
+}
+
+.caseStudyHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.caseStudyTitle {
+  margin: 0;
+}
+
+.accordionToggleLabel {
+  font-size: var(--font-size-caption);
+}
+
+.skillBadgeGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .keyProgressFooter {
@@ -1854,3 +1877,175 @@
 }
 
 
+
+/* 段階1-B(f) 認定試験カードと報酬カード */
+.examHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.examSubjectBadge {
+  font-size: var(--font-size-caption);
+  background: var(--primary-weak);
+  color: var(--primary);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-weight: bold;
+}
+
+.examDesc {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.examStageList {
+  margin: 6px 0 0 0;
+  padding-left: 18px;
+  font-size: var(--font-size-caption);
+  color: var(--text-subtle);
+}
+
+.rewardSubtext {
+  font-size: 11px;
+  color: var(--text-subtle);
+  margin-bottom: 8px;
+}
+
+.rewardItem {
+  margin-bottom: 8px;
+}
+
+.rewardItemNote {
+  font-size: 11px;
+  color: var(--text-subtle);
+  margin-top: 2px;
+}
+
+.examActionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.historyModalBtn {
+  background: var(--surface-subtle);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.historyModalBtn:hover {
+  background: var(--surface-hover);
+}
+
+/* 段階1-B(g) ホーム内モーダル共通スタイル */
+.modalHeaderTitleWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modalHeaderIcon {
+  font-size: 22px;
+}
+
+.modalHeaderTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--text);
+}
+
+.modalHeaderSubtext {
+  font-size: var(--font-size-subtext);
+  color: var(--text-subtle);
+}
+
+.modalActionList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modalActionCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.modalActionTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.modalActionDesc {
+  font-size: var(--font-size-subtext);
+  color: var(--text-subtle);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+
+/* 段階1-B(h) フッター領域スタイル */
+.homeFooter {
+  text-align: center;
+  padding: 16px 0 24px;
+  font-size: var(--font-size-caption);
+  color: var(--text-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.footerUpdateBtn {
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  transition: all 0.2s ease;
+}
+
+.footerUpdateBtnActive {
+  background: #fdf4ff;
+  border: 1.5px solid #d946ef;
+  color: #86198f;
+}
+
+.footerParentBtn {
+  background: none;
+  border: none;
+  color: #c2410c;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: var(--font-size-caption);
+  font-weight: bold;
+}
+
+.footerLinkBtn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: var(--font-size-caption);
+}

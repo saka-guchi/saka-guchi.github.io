@@ -747,8 +747,8 @@ export const HomePage: React.FC = () => {
             className={`${styles.card} ${mobileBottomTab !== 'progress' ? styles.cardHiddenOnMobile : ''}`}
             data-testid="card-weakness"
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-              <h3 className={styles.cardTitle} style={{ margin: 0 }}>
+            <div className={styles.caseStudyHeaderRow}>
+              <h3 className={`${styles.cardTitle} ${styles.caseStudyTitle}`}>
                 🩺 症例スタディ（全{ALL_PROGRESS_SKILLS.length}テーマ）
               </h3>
             </div>
@@ -841,7 +841,7 @@ export const HomePage: React.FC = () => {
                   title="レベルアップをめざすテーマの表示/非表示を切り替え"
                 >
                   <span>✏️ レベルアップをめざすテーマ（あと {remainingCount} つ）</span>
-                  <span style={{ fontSize: '12px' }}>{showUnmasteredSkills ? '▲ とじる' : '▼ ひらく（特訓する）'}</span>
+                  <span className={styles.accordionToggleLabel}>{showUnmasteredSkills ? '▲ とじる' : '▼ ひらく（特訓する）'}</span>
                 </button>
               )}
               {showUnmasteredSkills && filteredSkills.filter(s => !s.isMastered).map(skill => {
@@ -873,7 +873,7 @@ export const HomePage: React.FC = () => {
                         </div>
                         <div className={styles.skillTitle}>{skill.title}</div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                      <div className={styles.skillBadgeGroup}>
                         <span className={styles.extraSubjectBadge}>
                           {getSubjectBadgeText(skill.subject)}
                         </span>
@@ -974,7 +974,7 @@ export const HomePage: React.FC = () => {
                         </div>
                         <div className={styles.skillTitle}>{skill.title}</div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                      <div className={styles.skillBadgeGroup}>
                         <span className={styles.extraSubjectBadge}>
                           {getSubjectBadgeText(skill.subject)}
                         </span>
@@ -1037,20 +1037,20 @@ export const HomePage: React.FC = () => {
             className={`${styles.card} ${mobileBottomTab !== 'exam' ? styles.cardHiddenOnMobile : ''}`}
             data-testid="card-final-challenge"
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <h3 className={styles.cardTitle} style={{ margin: 0 }}>
+            <div className={styles.examHeaderRow}>
+              <h3 className={`${styles.cardTitle} ${styles.caseStudyTitle}`}>
                 🏆 合格ドクター認定試験
               </h3>
-              <span style={{ fontSize: '12px', background: 'var(--primary-weak)', color: 'var(--primary)', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+              <span className={styles.examSubjectBadge}>
                 理科・算数・社会
               </span>
             </div>
 
             <div className={styles.challengeStatus}>
               {/* 試験内容の説明 */}
-              <div style={{ fontSize: '13px', color: 'var(--text)', lineHeight: '1.6', marginBottom: '12px' }}>
+              <div className={styles.examDesc}>
                 実際の入試問題に挑む総合テストです。各教科いつでも力試しに挑戦できます！
-                <ul style={{ margin: '6px 0 0 0', paddingLeft: '18px', fontSize: '12px', color: 'var(--text-subtle)' }}>
+                <ul className={styles.examStageList}>
                   <li><strong>Stage 1（過去問本番）</strong>: 実際の入試問題（過去問原本）を見ながら受験</li>
                   <li><strong>Stage 2（同等未見問題）</strong>: Skill構成と難易度が同等の新しい未見問題で実力判定</li>
                 </ul>
@@ -1061,19 +1061,19 @@ export const HomePage: React.FC = () => {
                 <div className={styles.rewardTitle}>
                   <span>🎖️ 認定試験クリアの豪華報酬！</span>
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginBottom: '8px' }}>
+                <div className={styles.rewardSubtext}>
                   本番テストを突破して、実力の証（ライセンス＆バッジ）を獲得しよう：
                 </div>
                 <ul className={styles.rewardList}>
-                  <li style={{ marginBottom: '8px' }}>
+                  <li className={styles.rewardItem}>
                     👑 <strong>Stage 1（過去問本番）クリア</strong>
-                    <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                    <div className={styles.rewardItemNote}>
                       → <strong>「合格ドクター認定証（ライセンス）」</strong>授与＆画像保存！
                     </div>
                   </li>
                   <li>
                     ⭐ <strong>Stage 1 & 2（同等未見問題）両方クリア</strong>
-                    <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                    <div className={styles.rewardItemNote}>
                       → <strong>「金のマスター獣医師バッジ」</strong>をアンロック！
                     </div>
                   </li>
@@ -1081,7 +1081,7 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div className={styles.examActionGroup}>
               <button
                 className={styles.challengeBtn}
                 onClick={() => {
@@ -1098,17 +1098,7 @@ export const HomePage: React.FC = () => {
                   sound.playPop();
                   setShowHistoryModal(true);
                 }}
-                style={{
-                  background: 'var(--surface-subtle)',
-                  color: 'var(--text)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-pill)',
-                  padding: '8px 16px',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                }}
+                className={styles.historyModalBtn}
                 data-testid="open-exam-history-btn"
               >
                 📋 過去の採点カルテ・成績表を見る
@@ -1119,24 +1109,14 @@ export const HomePage: React.FC = () => {
       </main>
 
       {/* フッター: バージョン表記と設定へのリンク */}
-      <footer style={{ textAlign: 'center', padding: '16px 0 24px', fontSize: '12px', color: 'var(--text-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }} data-testid="home-footer-version">
+      <footer className={styles.homeFooter} data-testid="home-footer-version">
         <span>みならい獣医さんの中学受験カルテ v{APP_VERSION} ({BUILD_TIMESTAMP})</span>
 
         {/* 手動バージョン更新チェックボタン */}
         <button
           onClick={handleManualUpdateCheck}
           disabled={manualCheckStatus === 'checking'}
-          style={{
-            background: manualCheckStatus === 'update-available' ? '#fdf4ff' : 'var(--surface-subtle)',
-            border: manualCheckStatus === 'update-available' ? '1.5px solid #d946ef' : '1px solid var(--border)',
-            borderRadius: '999px',
-            padding: '3px 10px',
-            color: manualCheckStatus === 'update-available' ? '#86198f' : 'var(--primary)',
-            cursor: 'pointer',
-            fontSize: '11px',
-            fontWeight: '800',
-            transition: 'all 0.2s ease',
-          }}
+          className={`${styles.footerUpdateBtn} ${manualCheckStatus === 'update-available' ? styles.footerUpdateBtnActive : ''}`}
           title="最新バージョンがないかサーバーを確認します"
           data-testid="manual-update-check-btn"
         >
@@ -1156,15 +1136,7 @@ export const HomePage: React.FC = () => {
             sound.playPop();
             setShowParentModal(true);
           }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#c2410c',
-            textDecoration: 'underline',
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontWeight: 'bold',
-          }}
+          className={styles.footerParentBtn}
           data-testid="footer-parent-btn"
         >
           👨‍⚕️ 指導医ログ
@@ -1174,14 +1146,7 @@ export const HomePage: React.FC = () => {
             sound.playPop();
             navigate('/settings');
           }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--primary)',
-            textDecoration: 'underline',
-            cursor: 'pointer',
-            fontSize: '12px',
-          }}
+          className={styles.footerLinkBtn}
         >
           ⚙️ 設定・キャッシュ更新
         </button>
@@ -1192,13 +1157,13 @@ export const HomePage: React.FC = () => {
         <div className={styles.modalOverlay} onClick={() => setShowStampModal(false)}>
           <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '22px' }}>📋</span>
+              <div className={styles.modalHeaderTitleWrap}>
+                <span className={styles.modalHeaderIcon}>📋</span>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: 'var(--text)' }}>
+                  <h3 className={styles.modalHeaderTitle}>
                     🐾 元気にした動物たちのカルテ
                   </h3>
-                  <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
+                  <div className={styles.modalHeaderSubtext}>
                     全快した動物たちをクリックすると、カルテのメッセージや豆知識が飛び出すよ！
                   </div>
                 </div>
@@ -1574,71 +1539,47 @@ export const HomePage: React.FC = () => {
               </div>
 
               {/* 100%にするための3つのアクション */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div className={styles.modalActionList}>
                 <div
-                  style={{
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '10px',
-                    padding: '12px 14px',
-                    display: 'flex',
-                    gap: '12px',
-                    alignItems: 'center',
-                  }}
+                  className={styles.modalActionCard}
                   data-testid="action-item-focus"
                 >
                   <span style={{ fontSize: '26px' }}>🎯</span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text)' }}>
+                    <div className={styles.modalActionTitle}>
                       ① 症例の「特訓問題」を解いて正解する（大幅UP！）
                     </div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                    <div className={styles.modalActionDesc}>
                       症例スタディの「🎯 この症例を特訓してLvアップ！」で正解すると、記憶キープ度が一気に80%〜100%（全快）へ上がります。
                     </div>
                   </div>
                 </div>
 
                 <div
-                  style={{
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '10px',
-                    padding: '12px 14px',
-                    display: 'flex',
-                    gap: '12px',
-                    alignItems: 'center',
-                  }}
+                  className={styles.modalActionCard}
                   data-testid="action-item-flashcard"
                 >
                   <span style={{ fontSize: '26px' }}>📇</span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text)' }}>
+                    <div className={styles.modalActionTitle}>
                       ② 「トリアージ・カード」をサクッとめくって復習する（急速チャージ！）
                     </div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                    <div className={styles.modalActionDesc}>
                       時間がないときは「📇 トリアージ・カード」で急所ポイントを思い出すだけで、記憶キープ度が即座に回復します。
                     </div>
                   </div>
                 </div>
 
                 <div
-                  style={{
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '10px',
-                    padding: '12px 14px',
-                    display: 'flex',
-                    gap: '12px',
-                    alignItems: 'center',
-                  }}
+                  className={styles.modalActionCard}
                   data-testid="action-item-daily"
                 >
                   <span style={{ fontSize: '26px' }}>🐾</span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text)' }}>
+                    <div className={styles.modalActionTitle}>
                       ③ 「本日の回診」を毎日解く（100%キープ！）
                     </div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                    <div className={styles.modalActionDesc}>
                       忘却曲線で減りかけた単元が自動で優先出題されるので、毎日1回解くだけで100%をずっとキープできます！
                     </div>
                   </div>

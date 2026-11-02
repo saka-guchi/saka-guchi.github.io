@@ -154,7 +154,7 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
                 <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#b45309', marginBottom: '2px' }}>
                   💡 {item.flashCard.tip}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', lineHeight: '1.4' }}>
+                <div style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5' }}>
                   🎯 <strong>入試の急所:</strong> {item.flashCard.examPoint}
                 </div>
               </div>

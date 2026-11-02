@@ -299,7 +299,7 @@ export const SettingsPage: React.FC = () => {
               <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>● 稼働中（PWA対応）</span>
             </div>
 
-            <p style={{ fontSize: '12px', color: 'var(--text-subtle)', margin: '0 0 12px 0', lineHeight: '1.5' }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-subtle)', margin: '0 0 12px 0', lineHeight: '1.5' }}>
               💡 アプリはネットワーク接続時に最新バージョンがないか自動確認します。手動で確認したい場合や、画面の更新が反映されない場合は下のボタンをご利用ください。
             </p>
 
