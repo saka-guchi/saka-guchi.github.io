@@ -466,7 +466,7 @@ export const HomePage: React.FC = () => {
             <div className={styles.todayCardContent} data-testid="card-breakdown">
               <div className={styles.badgeRow}>
                 <span className={styles.badgeToday}>🩺 本日の回診</span>
-                <span style={{ color: 'var(--border)', margin: '0 2px' }}>|</span>
+                <span className={styles.badgeDivider}>|</span>
                 <span className={styles.estimatedTime}>⏱️ 目安: 約5分</span>
               </div>
               <h2 className={styles.todayHeading} style={{ margin: '2px 0', fontSize: '20px' }}>
@@ -474,12 +474,12 @@ export const HomePage: React.FC = () => {
               </h2>
 
               {/* 出題教科セグメントコントロール（複数選択対応・トグルUI） */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '8px', marginBottom: '4px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text)' }}>
+              <div className={styles.subjectSelectContainer}>
+                <div className={styles.subjectSelectHeader}>
+                  <span className={styles.subjectSelectTitle}>
                     出題教科（タップで複数選べるよ！）:
                   </span>
-                  <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 700 }}>
+                  <span className={styles.subjectSelectCount}>
                     {isAllSubjectsSelected ? '🌟 全教科ミックス' : `🎯 ${selectedStudySubjects.length}教科を選択中`}
                   </span>
                 </div>
@@ -520,7 +520,7 @@ export const HomePage: React.FC = () => {
 
               {/* 今日の10問内訳 */}
               <div className={styles.todayMenuRow}>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-subtle)', marginRight: '4px' }}>
+                <span className={styles.todayMenuLabel}>
                   📋 内訳:
                 </span>
                 <span className={styles.todayMenuPill}>🔄 復習 3</span>
@@ -544,12 +544,12 @@ export const HomePage: React.FC = () => {
           {/* 右カラム: 知識の処方箋（名作参考書マスター） */}
           <section className={styles.extraStudyCard} data-testid="section-extra-study">
             <div className={styles.extraHeaderRow}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div className={styles.extraHeaderLeft}>
                 <span className={styles.extraBadgeQuest}>💊 知識の処方箋</span>
-                <span style={{ color: 'var(--border)', margin: '0 2px' }}>|</span>
+                <span className={styles.badgeDivider}>|</span>
                 <span className={styles.extraSubjectBadge}>出題教科：🗾 社会</span>
               </div>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: '#0284c7', background: '#e0f2fe', padding: '2px 8px', borderRadius: '10px' }}>
+              <span className={styles.extraSourceBadge}>
                 名作参考書から調合 🧪
               </span>
             </div>
@@ -576,7 +576,7 @@ export const HomePage: React.FC = () => {
                     {histProg.masteredIds.length} / {book.availableQuestionsCount} 人 達成
                   </span>
                   {histProg.clearedSessionsCount > 0 && (
-                    <span style={{ color: '#059669', fontWeight: 'bold', marginLeft: 'auto' }}>
+                    <span className={styles.extraClearedBadge}>
                       （服用完了 {histProg.clearedSessionsCount} 回）
                     </span>
                   )}
