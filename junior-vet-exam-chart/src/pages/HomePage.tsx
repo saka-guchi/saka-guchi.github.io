@@ -433,19 +433,7 @@ export const HomePage: React.FC = () => {
 
         {/* こころの相談室・オアシスバナー */}
         <div
-          style={{
-            background: 'linear-gradient(135deg, #f0fff4 0%, #ebf8ff 100%)',
-            border: '1px solid #b2f5ea',
-            borderRadius: '14px',
-            padding: '10px 16px',
-            marginBottom: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '10px',
-            cursor: 'pointer',
-          }}
+          className={styles.mentalCareBanner}
           onClick={() => {
             sound.playPop();
             navigate('/mental-care');
@@ -455,28 +443,18 @@ export const HomePage: React.FC = () => {
           data-testid="banner-mental-care"
           title="クリックしてこころの相談室を開く"
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '24px' }}>💚</span>
+          <div className={styles.mentalCareBannerLeft}>
+            <span className={styles.mentalCareBannerIcon}>💚</span>
             <div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: '#234e52' }}>
+              <div className={styles.mentalCareBannerTitle}>
                 「学校や友達のことでモヤモヤする…」「ちょっと心が疲れちゃったな」というときは？
               </div>
-              <div style={{ fontSize: '12px', color: '#285e61' }}>
+              <div className={styles.mentalCareBannerDesc}>
                 🐾 こころの相談室で、モヤモヤ仕分けパズル・お守りコーピング・哲学対話をしてみよう
               </div>
             </div>
           </div>
-          <span
-            style={{
-              background: '#319795',
-              color: 'white',
-              fontSize: '12px',
-              fontWeight: 700,
-              padding: '6px 14px',
-              borderRadius: '20px',
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <span className={styles.mentalCareBannerBtn}>
             こころの相談室へ ❯
           </span>
         </div>
