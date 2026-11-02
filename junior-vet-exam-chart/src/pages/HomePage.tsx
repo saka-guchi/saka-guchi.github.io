@@ -343,7 +343,7 @@ export const HomePage: React.FC = () => {
             >
               <div className={styles.progressLabel}>
                 <span className={styles.progressLabelTitle}>
-                  合格カルテ完成度 <span style={{ fontSize: '11px' }}>❓</span>
+                  合格カルテ完成度 <span className={styles.helpIcon}>❓</span>
                 </span>
                 <strong data-testid="completion-percent">{completionPercent}%</strong>
               </div>
@@ -357,12 +357,7 @@ export const HomePage: React.FC = () => {
           <div className={styles.headerControls}>
             {/* こころの相談室ボタン */}
             <button
-              className={styles.parentBadgeBtn}
-              style={{
-                background: 'linear-gradient(135deg, #e6fffa 0%, #ebf8ff 100%)',
-                borderColor: '#81e6d9',
-                color: '#234e52',
-              }}
+              className={styles.mentalCareBadgeBtn}
               onClick={() => {
                 sound.playPop();
                 navigate('/mental-care');
@@ -371,7 +366,7 @@ export const HomePage: React.FC = () => {
               aria-label="こころの相談室"
               data-testid="header-mental-care-btn"
             >
-              <span style={{ fontSize: '15px' }}>💚</span>
+              <span className={styles.btnEmoji}>💚</span>
               <span>こころの相談室</span>
             </button>
 
@@ -386,7 +381,7 @@ export const HomePage: React.FC = () => {
               aria-label="指導医ログ"
               data-testid="header-parent-btn"
             >
-              <span style={{ fontSize: '15px' }}>👨‍⚕️</span>
+              <span className={styles.btnEmoji}>👨‍⚕️</span>
               <span>指導医ログ</span>
             </button>
 

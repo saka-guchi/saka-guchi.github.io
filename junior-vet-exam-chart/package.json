@@ -44,6 +44,8 @@
     "fake-indexeddb": "^6.2.6",
     "jsdom": "^26.0.0",
     "pdfjs-dist": "^4.10.38",
+    "pixelmatch": "^8.0.0",
+    "pngjs": "^7.0.0",
     "prettier": "^3.4.2",
     "sharp": "^0.33.5",
     "tsx": "^4.19.2",

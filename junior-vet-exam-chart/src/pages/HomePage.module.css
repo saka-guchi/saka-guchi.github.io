@@ -229,6 +229,41 @@
   box-shadow: 0 4px 10px rgba(194, 65, 12, 0.12);
 }
 
+.mentalCareBadgeBtn {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, #e6fffa 0%, #ebf8ff 100%);
+  border: 1.5px solid #81e6d9;
+  font-size: var(--font-size-caption);
+  font-weight: 800;
+  color: #234e52;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mentalCareBadgeBtn:hover {
+  background: #ccfbf1;
+  border-color: #38b2ac;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(40, 116, 101, 0.12);
+}
+
+.helpIcon {
+  font-size: var(--font-size-caption);
+  opacity: 0.8;
+}
+
+.btnEmoji {
+  font-size: var(--font-size-subheading);
+  display: inline-flex;
+  align-items: center;
+}
+
 .controlBtn {
   width: 40px;
   height: 40px;
