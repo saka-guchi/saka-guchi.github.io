@@ -17,7 +17,6 @@ import { checkForAppUpdate } from '../utils/version-checker';
 import { getDaysUntilExam } from '../utils/countdown-helper';
 import { AnimatedVetPet } from '../components/AnimatedVetPet';
 import { ReferenceBookQuizModal } from '../components/ReferenceBookQuizModal';
-import { MentalCareModal } from '../components/MentalCareModal';
 import { REFERENCE_BOOKS } from '../data/extra-history-80';
 import { getRefBookProgress } from '../utils/reference-book-store';
 import type { Subject } from '../types';
@@ -44,7 +43,6 @@ export const HomePage: React.FC = () => {
   const [showCompletionHelpModal, setShowCompletionHelpModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showParentModal, setShowParentModal] = useState(false);
-  const [showMentalCareModal, setShowMentalCareModal] = useState(false);
   const [showAllAnimalsModal, setShowAllAnimalsModal] = useState(false);
   const [flashCardSkillId, setFlashCardSkillId] = useState<string | null>(null);
   const [activePatientSkillId, setActivePatientSkillId] = useState<string | null>(null);
@@ -312,43 +310,46 @@ export const HomePage: React.FC = () => {
         </div>
 
         <div className={styles.headerRight}>
-          {/* 受験カウントダウン */}
-          <div
-            className={styles.countdownBadge}
-            title={`2027年2月1日の受験本番まであと${daysUntilExam}日！一歩ずつマスターしていこう🐾`}
-            data-testid="exam-countdown-badge"
-          >
-            <span>🎯</span>
-            <span>2027/2/1 本番まで あと <strong className={styles.countdownNumber}>{daysUntilExam}</strong> 日！</span>
-          </div>
-
-          {/* 連続学習ストリーク（ゲーミフィケーション） */}
-          <div className={styles.streakBadge} title="連続学習日数" data-testid="streak-badge">
-            <span>{studyStreak > 0 ? '🔥' : '🌱'}</span>
-            <span>{studyStreak > 0 ? `${studyStreak}日れんぞく！` : '今日からスタート！'}</span>
-          </div>
-
-          {/* 合格カルテ完成度（クリックで100%にするための解説を表示） */}
-          <div
-            className={styles.progressGroup}
-            onClick={() => {
-              sound.playPop();
-              setShowCompletionHelpModal(true);
-            }}
-            title="合格カルテ完成度: 全56テーマの「記憶メーター（定着度）」の平均値です。クリックで100%にするための方法をチェック！"
-            data-testid="completion-progress-group"
-            role="button"
-            tabIndex={0}
-            aria-label={`合格カルテ完成度 ${completionPercent}%。クリックで100%にする方法を表示`}
-          >
-            <div className={styles.progressLabel}>
-              <span className={styles.progressLabelTitle}>
-                合格カルテ完成度 <span style={{ fontSize: '11px' }}>❓</span>
-              </span>
-              <strong data-testid="completion-percent">{completionPercent}%</strong>
+          {/* ステータス情報バッジ群（カウントダウン・連続日数・完成度） */}
+          <div className={styles.headerStatusGroup}>
+            {/* 受験カウントダウン */}
+            <div
+              className={styles.countdownBadge}
+              title={`2027年2月1日の受験本番まであと${daysUntilExam}日！一歩ずつマスターしていこう🐾`}
+              data-testid="exam-countdown-badge"
+            >
+              <span>🎯</span>
+              <span>2027/2/1 本番まで あと <strong className={styles.countdownNumber}>{daysUntilExam}</strong> 日！</span>
             </div>
-            <div className={styles.progressBarBg} aria-label="攻略度進捗バー">
-              <div className={styles.progressBarFill} style={{ width: `${completionPercent}%` }} />
+
+            {/* 連続学習ストリーク（ゲーミフィケーション） */}
+            <div className={styles.streakBadge} title="連続学習日数" data-testid="streak-badge">
+              <span>{studyStreak > 0 ? '🔥' : '🌱'}</span>
+              <span>{studyStreak > 0 ? `${studyStreak}日れんぞく！` : '今日からスタート！'}</span>
+            </div>
+
+            {/* 合格カルテ完成度（クリックで100%にするための解説を表示） */}
+            <div
+              className={styles.progressGroup}
+              onClick={() => {
+                sound.playPop();
+                setShowCompletionHelpModal(true);
+              }}
+              title="合格カルテ完成度: 全56テーマの「記憶メーター（定着度）」の平均値です。クリックで100%にするための方法をチェック！"
+              data-testid="completion-progress-group"
+              role="button"
+              tabIndex={0}
+              aria-label={`合格カルテ完成度 ${completionPercent}%。クリックで100%にする方法を表示`}
+            >
+              <div className={styles.progressLabel}>
+                <span className={styles.progressLabelTitle}>
+                  合格カルテ完成度 <span style={{ fontSize: '11px' }}>❓</span>
+                </span>
+                <strong data-testid="completion-percent">{completionPercent}%</strong>
+              </div>
+              <div className={styles.progressBarBg} aria-label="攻略度進捗バー">
+                <div className={styles.progressBarFill} style={{ width: `${completionPercent}%` }} />
+              </div>
             </div>
           </div>
 
@@ -364,7 +365,7 @@ export const HomePage: React.FC = () => {
               }}
               onClick={() => {
                 sound.playPop();
-                setShowMentalCareModal(true);
+                navigate('/mental-care');
               }}
               title="こころの相談室（モヤモヤ仕分けパズル・お守りコーピング・哲学対話）"
               aria-label="こころの相談室"
@@ -452,7 +453,7 @@ export const HomePage: React.FC = () => {
           }}
           onClick={() => {
             sound.playPop();
-            setShowMentalCareModal(true);
+            navigate('/mental-care');
           }}
           role="button"
           tabIndex={0}
@@ -1984,14 +1985,6 @@ export const HomePage: React.FC = () => {
           bookId={activeRefBookId}
           onClose={() => setActiveRefBookId(null)}
           onUpdate={() => setRefBookTick(t => t + 1)}
-        />
-      )}
-
-      {/* こころの相談室（メンタルケア・課題の分離・コーピング・哲学対話）モーダル */}
-      {showMentalCareModal && (
-        <MentalCareModal
-          isOpen={showMentalCareModal}
-          onClose={() => setShowMentalCareModal(false)}
         />
       )}
     </div>

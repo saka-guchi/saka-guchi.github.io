@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styles from './MentalCareModal.module.css';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import styles from './MentalCarePage.module.css';
 import {
   INITIAL_SORTING_CARDS,
   COPING_RECIPES,
@@ -25,18 +26,16 @@ import {
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
 
-interface MentalCareModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  initialTab?: 'puzzle' | 'coping' | 'philosophy';
-}
+export const MentalCarePage: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialTabParam = searchParams.get('tab') as 'puzzle' | 'coping' | 'philosophy' | null;
 
-export const MentalCareModal: React.FC<MentalCareModalProps> = ({
-  isOpen,
-  onClose,
-  initialTab = 'puzzle',
-}) => {
-  const [activeTab, setActiveTab] = useState<'puzzle' | 'coping' | 'philosophy'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'puzzle' | 'coping' | 'philosophy'>(
+    initialTabParam && ['puzzle', 'coping', 'philosophy'].includes(initialTabParam)
+      ? initialTabParam
+      : 'puzzle'
+  );
 
   // Tab 1: パズル用状態
   const [sortedCards, setSortedCards] = useState<Record<string, 'self' | 'others'>>({});
@@ -80,13 +79,11 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      setSavedCopingIds(getSavedCopingIds());
-      setCustomCards(getCustomSortingCards());
-      setCompletedTopicIds(getCompletedTopicIds());
-      setTodayWeather(getTodayCheckin());
-    }
-  }, [isOpen]);
+    setSavedCopingIds(getSavedCopingIds());
+    setCustomCards(getCustomSortingCards());
+    setCompletedTopicIds(getCompletedTopicIds());
+    setTodayWeather(getTodayCheckin());
+  }, []);
 
   const handleWeatherSelect = (weather: WeatherType, weatherLabel: string) => {
     sound.playAnimalHappy();
@@ -112,8 +109,6 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
       }
     }, 3000);
   };
-
-  if (!isOpen) return null;
 
   // --- Tab 1: パズル操作 ---
   const allCards = INITIAL_SORTING_CARDS;
@@ -240,30 +235,37 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose} data-testid="mental-care-modal">
-      <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-        {/* ヘッダー */}
-        <div className={styles.header}>
-          <div className={styles.headerTitleGroup}>
-            <div className={styles.headerIcon}>💚</div>
-            <div>
-              <h2 className={styles.headerTitle}>🐾 こころの相談室・マインドカルテ</h2>
-              <p className={styles.headerSubtitle}>
-                モヤモヤしたときの気持ちの整理・ストレス解消・自分を守る心のレッスン
-              </p>
-            </div>
+    <div className={styles.pageContainer} data-testid="mental-care-page">
+      {/* 画面左上統一の戻るボタン（ヤコブの法則・ルール⑮） */}
+      <header className={styles.pageHeader}>
+        <button
+          className={styles.backButton}
+          onClick={() => {
+            sound.playPop();
+            navigate('/');
+          }}
+          aria-label="ホームに戻る"
+          title="ホームに戻る"
+          data-testid="mental-care-back-btn"
+        >
+          ←
+        </button>
+
+        <div className={styles.headerTitleGroup}>
+          <div className={styles.headerIcon}>💚</div>
+          <div>
+            <h1 className={styles.headerTitle}>🐾 こころの相談室・マインドカルテ</h1>
+            <p className={styles.headerSubtitle}>
+              モヤモヤしたときの気持ちの整理・ストレス解消・自分を守る心のレッスン
+            </p>
           </div>
-          <button
-            className={styles.closeButton}
-            onClick={onClose}
-            aria-label="閉じる"
-            title="閉じる"
-            data-testid="mental-care-close-btn"
-          >
-            ✕
-          </button>
         </div>
 
+        <div style={{ width: '44px' }} />
+      </header>
+
+      {/* メインコンテンツ */}
+      <main className={styles.mainContent}>
         {/* こころのお天気チェックインバー */}
         <div className={styles.weatherCheckinBar} data-testid="weather-checkin-bar">
           <span className={styles.weatherCheckinLabel}>
@@ -333,8 +335,8 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
           </button>
         </div>
 
-        {/* ボディコンテンツ */}
-        <div className={styles.body}>
+        {/* タブコンテンツ */}
+        <div className={styles.contentCard}>
           {/* =========================================================
               タブ1: モヤモヤ仕分けパズル
              ========================================================= */}
@@ -350,7 +352,7 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
               {/* 仕分け前ステージ */}
               {!isAllSorted ? (
                 <div className={styles.activeCardStage}>
-                  <div style={{ fontSize: '32px' }}>{currentCard.icon}</div>
+                  <div style={{ fontSize: '36px' }}>{currentCard.icon}</div>
                   <div className={styles.activeCardTitle}>{currentCard.text}</div>
                   <div className={styles.activeCardHint}>ヒント: {currentCard.hint}</div>
 
@@ -382,18 +384,18 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
                 </div>
               ) : (
                 <div className={styles.cardBox} style={{ textAlign: 'center', background: '#f0fff4' }}>
-                  <div style={{ fontSize: '40px', marginBottom: '8px' }}>🎉</div>
-                  <h3 style={{ margin: '0 0 8px 0', color: '#22543d' }}>
+                  <div style={{ fontSize: '44px', marginBottom: '8px' }}>🎉</div>
+                  <h3 style={{ margin: '0 0 8px 0', color: '#22543d', fontSize: '18px' }}>
                     全8問の仕分け完了！頭の中がスッキリ整理できたね！
                   </h3>
-                  <p style={{ fontSize: '13px', color: '#276749', marginBottom: '14px' }}>
+                  <p style={{ fontSize: '14px', color: '#276749', marginBottom: '16px', lineHeight: 1.6 }}>
                     まわりの箱に入ったものは、あなたが背負わなくていい「相手の課題」です。
                     自分の箱に入った小さな一歩（休む、話す、好きなことをする）を大切にしようね。
                   </p>
                   <button
                     className={styles.btnSortSelf}
                     onClick={handleResetPuzzle}
-                    style={{ fontSize: '13px', padding: '8px 18px' }}
+                    style={{ fontSize: '14px', padding: '10px 22px' }}
                   >
                     🔄 もう一度仕分けてみる
                   </button>
@@ -405,7 +407,7 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
                 {/* じぶんの箱 */}
                 <div className={styles.boxSelf}>
                   <div className={styles.boxHeader}>
-                    <span style={{ fontSize: '20px' }}>🙋‍♀️</span>
+                    <span style={{ fontSize: '22px' }}>🙋‍♀️</span>
                     <span className={styles.boxTitleSelf}>じぶんの箱（変えられること）</span>
                   </div>
                   <div className={styles.boxDesc}>
@@ -426,7 +428,8 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
                           <span>✏️ {c.text}</span>
                           <button
                             onClick={() => handleDeleteCustomCard(c.id)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a0aec0' }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a0aec0', fontSize: '14px' }}
+                            aria-label="削除"
                           >
                             ×
                           </button>
@@ -438,7 +441,7 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
                 {/* まわりの箱 */}
                 <div className={styles.boxOthers}>
                   <div className={styles.boxHeader}>
-                    <span style={{ fontSize: '20px' }}>🌍</span>
+                    <span style={{ fontSize: '22px' }}>🌍</span>
                     <span className={styles.boxTitleOthers}>まわりの箱（変えられないこと）</span>
                   </div>
                   <div className={styles.boxDesc}>
@@ -459,7 +462,8 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
                           <span>✏️ {c.text}</span>
                           <button
                             onClick={() => handleDeleteCustomCard(c.id)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a0aec0' }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a0aec0', fontSize: '14px' }}
+                            aria-label="削除"
                           >
                             ×
                           </button>
@@ -515,10 +519,10 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
 
               <div className={styles.copingHeaderBar}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '16px', color: '#2d3748' }}>
+                  <h3 style={{ margin: 0, fontSize: '17px', color: '#2d3748' }}>
                     🧰 こころのレスキューBOX（{COPING_RECIPES.length}のストレス解消法）
                   </h3>
-                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#718096' }}>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#718096' }}>
                     モヤモヤやイライラを感じたときにすぐできる、お守りのような小さな行動集です。
                   </p>
                 </div>
@@ -642,12 +646,12 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
                       data-testid={`topic-card-${topic.id}`}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                        <span style={{ fontSize: '24px' }}>{topic.icon}</span>
-                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#3182ce' }}>
+                        <span style={{ fontSize: '26px' }}>{topic.icon}</span>
+                        <span style={{ fontSize: '12px', fontWeight: 700, color: '#3182ce' }}>
                           {topic.categoryTag} {isCompleted && '✅ 読了'}
                         </span>
                       </div>
-                      <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#1a202c', lineHeight: 1.4 }}>
+                      <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#1a202c', lineHeight: 1.4 }}>
                         {topic.title}
                       </h4>
                       <p style={{ margin: 0, fontSize: '12px', color: '#718096' }}>{topic.subtitle}</p>
@@ -709,14 +713,14 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
                 ) : (
                   /* 完了後のこころの処方箋 */
                   <div className={styles.prescriptionCard} data-testid="prescription-card">
-                    <div style={{ fontSize: '36px', marginBottom: '8px' }}>📜</div>
+                    <div style={{ fontSize: '40px', marginBottom: '8px' }}>📜</div>
                     <div className={styles.prescriptionTitle}>
                       🐾 こころの処方箋（フクロウ博士＆ネコ看護師より）
                     </div>
                     <div className={styles.prescriptionQuote}>
                       「{currentTopic.summaryQuote}」
                     </div>
-                    <p style={{ fontSize: '12px', color: '#4a5568', lineHeight: 1.6, maxWidth: '600px', margin: '0 auto 16px auto' }}>
+                    <p style={{ fontSize: '13px', color: '#4a5568', lineHeight: 1.6, maxWidth: '640px', margin: '0 auto 20px auto' }}>
                       正解のない問いについて深く考え、自分の気持ちを言葉にできましたね。
                       どんな大人の態度に出会っても、あなたの純粋な努力や心の美しさは変わりません。
                       つらいときはいつでもここへ戻ってきて、お守りを取り出してくださいね。
@@ -734,17 +738,24 @@ export const MentalCareModal: React.FC<MentalCareModalProps> = ({
             </div>
           )}
         </div>
+      </main>
 
-        {/* フッター */}
-        <div className={styles.footer}>
-          <div className={styles.footerNote}>
-            🍀 ここに記録した内容はあなただけの秘密です。安心して心を休めてね。
-          </div>
-          <button className={styles.btnCloseBottom} onClick={onClose}>
-            とじる
-          </button>
+      {/* 画面最下部ハイブリッド戻るボタン（ヤコブの法則・ルール⑮） */}
+      <footer className={styles.pageFooter}>
+        <div className={styles.footerNote}>
+          🍀 ここに記録した内容はあなただけの秘密です。安心して心を休めてね。
         </div>
-      </div>
+        <button
+          className={styles.bottomBackBtn}
+          onClick={() => {
+            sound.playPop();
+            navigate('/');
+          }}
+          data-testid="mental-care-bottom-back-btn"
+        >
+          <span>🏠 ホームへもどる</span>
+        </button>
+      </footer>
     </div>
   );
 };

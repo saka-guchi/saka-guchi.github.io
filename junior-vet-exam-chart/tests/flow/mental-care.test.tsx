@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor, cleanup, act } from '@testing-library/react';
 import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { HomePage } from '../../src/pages/HomePage';
-import { MentalCareModal } from '../../src/components/MentalCareModal';
+import { MentalCarePage } from '../../src/pages/MentalCarePage';
 import { ParentDashboardModal } from '../../src/components/ParentDashboardModal';
 
 vi.mock('../../src/utils/version-checker', () => ({
@@ -17,10 +17,13 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
     vi.clearAllMocks();
   });
 
-  it('ホーム画面のヘッダーボタンおよびバナーからこころの相談室モーダルが開閉できること', async () => {
+  it('ホーム画面のヘッダーボタンおよびバナーからこころの相談室全画面ページへ遷移でき、戻るボタンで復帰できること', async () => {
     render(
-      <MemoryRouter>
-        <HomePage />
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/mental-care" element={<MentalCarePage />} />
+        </Routes>
       </MemoryRouter>
     );
 
@@ -28,30 +31,40 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
       expect(screen.getByTestId('today-study-card')).toBeInTheDocument();
     });
 
-    // ヘッダーボタンから開く
+    // ヘッダーボタンから全画面へ遷移
     const headerBtn = screen.getByTestId('header-mental-care-btn');
     expect(headerBtn).toBeInTheDocument();
     fireEvent.click(headerBtn);
 
-    expect(screen.getByTestId('mental-care-modal')).toBeInTheDocument();
+    expect(screen.getByTestId('mental-care-page')).toBeInTheDocument();
     expect(screen.getByText('🐾 こころの相談室・マインドカルテ')).toBeInTheDocument();
 
-    // 閉じるボタン
-    const closeBtn = screen.getByTestId('mental-care-close-btn');
-    fireEvent.click(closeBtn);
-    expect(screen.queryByTestId('mental-care-modal')).not.toBeInTheDocument();
+    // 左上統一の戻るボタン（ヤコブの法則・ルール⑮）でホームに戻る
+    const backBtn = screen.getByTestId('mental-care-back-btn');
+    fireEvent.click(backBtn);
+    expect(screen.queryByTestId('mental-care-page')).not.toBeInTheDocument();
+    expect(screen.getByTestId('today-study-card')).toBeInTheDocument();
 
-    // バナーから開く
+    // バナーから全画面へ遷移
     const banner = screen.getByTestId('banner-mental-care');
     expect(banner).toBeInTheDocument();
     fireEvent.click(banner);
-    expect(screen.getByTestId('mental-care-modal')).toBeInTheDocument();
+    expect(screen.getByTestId('mental-care-page')).toBeInTheDocument();
+
+    // 画面下部ハイブリッド戻るボタンでホームに戻る
+    const bottomBackBtn = screen.getByTestId('mental-care-bottom-back-btn');
+    fireEvent.click(bottomBackBtn);
+    expect(screen.queryByTestId('mental-care-page')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('today-study-card')).toBeInTheDocument();
+    });
   });
 
   it('こころのお天気チェックインが動作し、フィードバックが表示されること', async () => {
-    const handleClose = () => {};
     render(
-      <MentalCareModal isOpen={true} onClose={handleClose} initialTab="puzzle" />
+      <MemoryRouter>
+        <MentalCarePage />
+      </MemoryRouter>
     );
 
     expect(screen.getByTestId('weather-checkin-bar')).toBeInTheDocument();
@@ -63,9 +76,10 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
   });
 
   it('タブ1: モヤモヤ仕分けパズルでカードの仕分けと自由追加が正常に動作すること', async () => {
-    const handleClose = () => {};
     render(
-      <MentalCareModal isOpen={true} onClose={handleClose} initialTab="puzzle" />
+      <MemoryRouter>
+        <MentalCarePage />
+      </MemoryRouter>
     );
 
     // 最初のカード（先生の贔屓）が表示されていることを確認
@@ -88,9 +102,10 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
   });
 
   it('タブ2: お守りコーピング図鑑でガチャ、マイお守り登録、お試しフィードバックが動作すること', async () => {
-    const handleClose = () => {};
     render(
-      <MentalCareModal isOpen={true} onClose={handleClose} initialTab="coping" />
+      <MemoryRouter>
+        <MentalCarePage />
+      </MemoryRouter>
     );
 
     // コーピングタブに切り替え
@@ -120,9 +135,10 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
   });
 
   it('タブ3: 哲学対話ノートで対話シナリオが進行し、こころの処方箋が受け取れること', async () => {
-    const handleClose = () => {};
     render(
-      <MentalCareModal isOpen={true} onClose={handleClose} initialTab="philosophy" />
+      <MemoryRouter>
+        <MentalCarePage />
+      </MemoryRouter>
     );
 
     // 哲学対話タブに切り替え
