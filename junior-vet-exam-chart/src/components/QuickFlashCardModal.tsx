@@ -176,50 +176,68 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
                 </div>
               )}
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', width: '100%', marginTop: '6px' }}>
+                <button
+                  onClick={handleMastered}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '10px 18px',
+                    minHeight: '40px',
+                    width: '100%',
+                    maxWidth: '340px',
+                    borderRadius: 'var(--radius-pill)',
+                    background: '#10b981',
+                    color: '#ffffff',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    boxShadow: '0 3px 8px rgba(16, 185, 129, 0.3)',
+                    cursor: 'pointer',
+                    border: 'none',
+                    whiteSpace: 'nowrap',
+                    boxSizing: 'border-box',
+                  }}
+                  data-testid="flashcard-remembered-btn"
+                >
+                  <span>🎉</span>
+                  <span>思い出せた！（記憶キープUP）</span>
+                </button>
+
+                {onStartFocusSession && (
                   <button
-                    onClick={handleMastered}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      sound.playChime();
+                      onStartFocusSession(item.skillId);
+                    }}
                     style={{
-                      padding: '8px 16px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      padding: '10px 18px',
+                      minHeight: '40px',
+                      width: '100%',
+                      maxWidth: '340px',
                       borderRadius: 'var(--radius-pill)',
-                      background: '#10b981',
+                      background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
                       color: '#ffffff',
                       fontWeight: 'bold',
-                      fontSize: '12px',
-                      boxShadow: '0 3px 8px rgba(16, 185, 129, 0.3)',
+                      fontSize: '13px',
+                      boxShadow: '0 3px 8px rgba(219, 39, 119, 0.35)',
                       cursor: 'pointer',
                       border: 'none',
+                      whiteSpace: 'nowrap',
+                      boxSizing: 'border-box',
                     }}
-                    data-testid="flashcard-remembered-btn"
+                    data-testid="flashcard-start-focus-btn"
                   >
-                    🎉 思い出せた！（記憶キープUP）
+                    <span>🎯</span>
+                    <span>この症例を特訓してLvアップ！ ❯</span>
                   </button>
-
-                  {onStartFocusSession && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        sound.playChime();
-                        onStartFocusSession(item.skillId);
-                      }}
-                      style={{
-                        padding: '8px 16px',
-                        borderRadius: 'var(--radius-pill)',
-                        background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
-                        color: '#ffffff',
-                        fontWeight: 'bold',
-                        fontSize: '12px',
-                        boxShadow: '0 3px 8px rgba(219, 39, 119, 0.35)',
-                        cursor: 'pointer',
-                        border: 'none',
-                      }}
-                      data-testid="flashcard-start-focus-btn"
-                    >
-                      🎯 この症例を特訓してLvアップ！ ❯
-                    </button>
-                  )}
-                </div>
+                )}
               </div>
             </div>
           </div>
