@@ -14,3 +14,10 @@ dist/
 **/dist/
 *.log
 *.tsbuildinfo
+
+# UIリファクタリング検証用スクリーンショット・差分ヒートマップ
+junior-vet-exam-chart/docs/baseline/
+junior-vet-exam-chart/docs/baseline_*/
+junior-vet-exam-chart/docs/step*/
+junior-vet-exam-chart/docs/diff_heatmaps/
+junior-vet-exam-chart/docs/*.json
