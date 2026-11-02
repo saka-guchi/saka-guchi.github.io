@@ -127,7 +127,9 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
                 {currentFigure.rank && (
                   <span className={styles.rankBadge}>入試でる順 #{currentFigure.rank}</span>
                 )}
-                <span className={styles.schoolBadge}>🏫 {currentFigure.question.school}</span>
+                <span className={styles.schoolBadge} data-testid="question-school-source">
+                  🏫 {currentFigure.question.school}
+                </span>
               </div>
 
               {/* 即答キーワード（ヒント枠） */}

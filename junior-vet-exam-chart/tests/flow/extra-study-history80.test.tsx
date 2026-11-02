@@ -68,8 +68,10 @@ describe('知識の処方箋（名作参考書：歴史人物80）UI/UX 結合�
     expect(screen.getByText('ウ')).toBeInTheDocument();
     expect(screen.getByText('エ')).toBeInTheDocument();
 
-    // 学校名の出典が表示されていること（例: 〇〇中学校 改、〇〇中等部 改など）
-    expect(screen.getByText(/🏫.*(中学校|中等部|中学部)/)).toBeInTheDocument();
+    // 学校名の出典が表示されていること（例: 〇〇中学校 改、〇〇中等部 改、〇〇中等科 改、慶應義塾普通部 改など）
+    const schoolSource = screen.getByTestId('question-school-source');
+    expect(schoolSource).toBeInTheDocument();
+    expect(schoolSource.textContent).toMatch(/🏫.*(中学校|中等部|中学部|中等科|普通部)/);
   });
 
   it('選択肢をタップすると解答判定され、解説カードと「つぎの問題へ進む」が表示される', async () => {
@@ -94,6 +96,13 @@ describe('知識の処方箋（名作参考書：歴史人物80）UI/UX 結合�
 
     // 問 2 / 10 に進むこと
     expect(screen.getByText('問 2 / 10')).toBeInTheDocument();
+  });
+
+  it('全80問の学校名出典が正しく中学校・中等部・中等科・普通部・中学部であること', () => {
+    expect(HISTORY_80_FIGURES.length).toBe(80);
+    HISTORY_80_FIGURES.forEach((fig) => {
+      expect(fig.question.school).toMatch(/(中学校|中等部|中学部|中等科|普通部)/);
+    });
   });
 
   it('データおよび出題時において正解位置が「ア」固定ではなくランダムに分散していること（再発防止テスト）', () => {
