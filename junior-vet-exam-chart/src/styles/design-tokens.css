@@ -271,10 +271,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   outline-offset: 2px;
 }
 
-/* iOS Safariのフォーカス時自動拡大（ピンチズーム）防止のためフォーム要素は16px以上に統一 */
+/* iOS Safariのフォーカス時自動拡大（ピンチズーム）防止のためフォーム要素は16px（subheading）に統一 */
 input, select, textarea {
   font-family: inherit;
-  font-size: 16px !important;
+  font-size: var(--font-size-subheading);
 }
 
 @keyframes jellyBounce {

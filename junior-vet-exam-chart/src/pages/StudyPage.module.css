@@ -269,13 +269,17 @@
 }
 
 .takeawayText {
-  font: var(--font-body);
-  font-weight: 600;
+  font-family: var(--font-family);
+  font-size: var(--font-size-subheading);
+  font-weight: 700;
+  line-height: var(--line-height-body);
   color: var(--text);
 }
 
 .reasoningText {
-  font: var(--font-caption);
+  font-family: var(--font-family);
+  font-size: var(--font-size-subheading);
+  line-height: var(--line-height-body);
   color: var(--text);
 }
 
