@@ -90,9 +90,21 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
-        {/* ヘッダー */}
+        {/* フル画面ヘッダー（左上統一戻るボタン完備） */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
+            <button
+              type="button"
+              className={styles.backBtn}
+              onClick={() => {
+                sound.playPop();
+                onClose();
+              }}
+              aria-label="ホームへ戻る"
+              data-testid="refbook-back-btn"
+            >
+              ← 戻る
+            </button>
             <span className={styles.badge}>{bookInfo.badgeText}</span>
             <span className={styles.subjectBadge}>{bookInfo.subjectLabel}</span>
             <h3 className={styles.modalTitle}>{bookInfo.shortTitle}</h3>
