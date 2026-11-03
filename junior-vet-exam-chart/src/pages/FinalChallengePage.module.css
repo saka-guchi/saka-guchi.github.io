@@ -177,11 +177,24 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  min-height: 0;
+}
+
+.scanImageContainer {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .pageImage {
   max-width: 100%;
+  max-height: 100%;
+  width: auto;
   height: auto;
+  object-fit: contain;
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   background: white;
@@ -290,40 +303,7 @@
   transform: translateY(0);
 }
 
-/* 国語専用UI・読解アシスト */
-.readerToolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  background: #fff1f2;
-  border: 1px solid #fecdd3;
-  border-radius: var(--radius-pill);
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
 
-.readerToolBtn {
-  background: white;
-  border: 1px solid #fda4af;
-  border-radius: var(--radius-pill);
-  padding: 4px 10px;
-  font-size: var(--font-size-caption);
-  font-weight: 700;
-  color: #be123c;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.readerToolBtn:hover {
-  background: #ffe4e6;
-}
-
-.readerToolBtnActive {
-  background: #e11d48;
-  color: white;
-  border-color: #be123c;
-}
 
 .kanjiGrid {
   display: grid;
