@@ -933,6 +933,8 @@ export const FINAL_CHALLENGE_SHAKAI_SECTIONS: ChallengeSection[] = [
 ];
 
 import { FINAL_CHALLENGE_2022_KOKUGO_SECTIONS } from './final-challenge-2022-kokugo';
+import { FINAL_CHALLENGE_2024_KOKUGO_SECTIONS } from './final-challenge-2024-kokugo';
+export { FINAL_CHALLENGE_2024_KOKUGO_SECTIONS } from './final-challenge-2024-kokugo';
 
 export { FINAL_CHALLENGE_2022_KOKUGO_SECTIONS } from './final-challenge-2022-kokugo';
 
@@ -971,8 +973,8 @@ export const FINAL_CHALLENGE_DATA_BY_SUBJECT: Record<
   kokugo: {
     subjectLabel: '国語',
     icon: '📖',
-    sections: FINAL_CHALLENGE_2022_KOKUGO_SECTIONS,
-    totalPages: 14,
+    sections: FINAL_CHALLENGE_2024_KOKUGO_SECTIONS,
+    totalPages: 13,
     timeLimitMinutes: 50,
   },
 };

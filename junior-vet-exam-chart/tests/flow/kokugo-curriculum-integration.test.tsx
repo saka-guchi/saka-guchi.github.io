@@ -79,6 +79,8 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
       </BrowserRouter>
     );
 
+    // 2022年度タブをクリック
+    fireEvent.click(screen.getByTestId('year-tab-2022'));
     // 国語タブをクリック
     const kokugoTab = screen.getByTestId('subject-tab-kokugo');
     expect(kokugoTab).toBeInTheDocument();
@@ -115,6 +117,8 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
       </BrowserRouter>
     );
 
+    // 2022年度タブをクリック
+    fireEvent.click(screen.getByTestId('year-tab-2022'));
     // 国語タブをクリック
     fireEvent.click(screen.getByTestId('subject-tab-kokugo'));
 

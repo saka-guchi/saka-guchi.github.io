@@ -205,10 +205,7 @@ export const FinalChallengePage: React.FC = () => {
   const padPage = String(currentPage).padStart(3, '0');
   const pageImageKey = `images/pages/${currentYear}/${currentSubject}/mondai_p${padPage}.webp`;
   const pageImageAltKey = `images/pages/${currentYear}/${currentSubject}/mondai_p${padPage}.png`;
-  const publicFallback =
-    currentYear === 2024
-      ? `${import.meta.env.BASE_URL}pages/${currentSubject}/mondai_p${padPage}.webp`
-      : `${import.meta.env.BASE_URL}pages/${currentYear}/${currentSubject}/mondai_p${padPage}.webp`;
+  const publicFallback = `${import.meta.env.BASE_URL}pages/${currentYear}/${currentSubject}/mondai_p${padPage}.webp`;
   const pageImageData =
     storedPack?.images?.[pageImageKey] ||
     storedPack?.images?.[pageImageAltKey] ||
@@ -216,6 +213,23 @@ export const FinalChallengePage: React.FC = () => {
 
   // 傍線部ジャンプ用マップ（スロット番号・傍線部番号とページ番号の対応）
   const kokugoUnderlinePages: Record<string, { page: number; elementId: string }> = {
+    // 2024年度 国語 傍線部ジャンプ
+    'kokugo-2024-02-01-1': { page: 2, elementId: 'kokugo-2024-underline-a' },
+    'kokugo-2024-02-01-2': { page: 3, elementId: 'kokugo-2024-underline-b' },
+    'kokugo-2024-02-02': { page: 2, elementId: 'kokugo-2024-underline-1' },
+    'kokugo-2024-02-03': { page: 3, elementId: 'kokugo-2024-underline-2' },
+    'kokugo-2024-02-04': { page: 3, elementId: 'kokugo-2024-underline-3' },
+    'kokugo-2024-02-05': { page: 4, elementId: 'kokugo-2024-underline-4' },
+    'kokugo-2024-02-06': { page: 5, elementId: 'kokugo-2024-underline-5' },
+    'kokugo-2024-03-01': { page: 8, elementId: 'kokugo-2024-underline-6' },
+    'kokugo-2024-03-02': { page: 8, elementId: 'kokugo-2024-underline-7' },
+    'kokugo-2024-03-03': { page: 10, elementId: 'kokugo-2024-underline-8' },
+    'kokugo-2024-03-04-1': { page: 10, elementId: 'kokugo-2024-underline-9' },
+    'kokugo-2024-03-04-2': { page: 10, elementId: 'kokugo-2024-underline-9' },
+    'kokugo-2024-03-05-1': { page: 10, elementId: 'kokugo-2024-underline-10' },
+    'kokugo-2024-03-05-2': { page: 10, elementId: 'kokugo-2024-underline-10' },
+    'kokugo-2024-03-06': { page: 10, elementId: 'kokugo-2024-underline-11' },
+    'kokugo-2024-03-07': { page: 10, elementId: 'kokugo-2024-underline-12' },
     'kokugo-2022-02-02-1': { page: 2, elementId: 'kokugo-underline-1' },
     'kokugo-2022-02-02-2': { page: 6, elementId: 'kokugo-underline-5' },
     'kokugo-2022-02-03': { page: 3, elementId: 'kokugo-underline-2' },

@@ -5,10 +5,47 @@ import {
 } from "../../src/data/final-challenge-data";
 import { STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT } from "../../src/data/final-challenge-pages";
 
-describe("2025年度・2026年度 安田学園過去問データ統合テスト", () => {
+describe("2024〜2026年度 安田学園過去問データ統合テスト", () => {
   it("SUPPORTED_EXAM_YEARS に 2026, 2025 が含まれていること", () => {
     expect(SUPPORTED_EXAM_YEARS).toContain(2026);
     expect(SUPPORTED_EXAM_YEARS).toContain(2025);
+  });
+
+  describe("2024年度 データ整合性（国語新収録含む全4教科）", () => {
+    const data2024 = FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[2024];
+    const pages2024 = STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT[2024];
+
+    it("理科・算数・社会・国語の4教科が定義されていること", () => {
+      expect(data2024.rika).toBeDefined();
+      expect(data2024.sansu).toBeDefined();
+      expect(data2024.shakai).toBeDefined();
+      expect(data2024.kokugo).toBeDefined();
+
+      expect(pages2024.rika).toBeDefined();
+      expect(pages2024.sansu).toBeDefined();
+      expect(pages2024.shakai).toBeDefined();
+      expect(pages2024.kokugo).toBeDefined();
+    });
+
+    it("2024年度国語の問題用紙（左側）に選択問題の選択肢（ア〜エ）が提示されていること", () => {
+      const page6 = pages2024.kokugo[6];
+      expect(page6).toBeDefined();
+      expect(page6.sections[0].bodyText).toContain("問1 傍線部");
+      expect(page6.sections[0].bodyText).toContain("ア 無作為に");
+      expect(page6.sections[0].bodyText).toContain("イ 無関心に");
+    });
+
+    it("国語が大問3・28スロットで正解・Stage2が設定されていること", () => {
+      expect(data2024.kokugo.sections.length).toBe(3);
+      const kokugoSlots = data2024.kokugo.sections.flatMap(s => s.slots);
+      expect(kokugoSlots.length).toBe(28);
+
+      for (const slot of kokugoSlots) {
+        expect(slot.correctAnswer).toBeTruthy();
+        expect(slot.stage2Prompt).toBeTruthy();
+        expect(slot.stage2CorrectAnswer).toBeTruthy();
+      }
+    });
   });
 
   describe("2025年度 データ整合性", () => {
