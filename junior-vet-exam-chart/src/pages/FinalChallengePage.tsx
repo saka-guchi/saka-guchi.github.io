@@ -42,7 +42,7 @@ export const FinalChallengePage: React.FC = () => {
   const [subjectTimes, setSubjectTimes] = useState<Record<Subject, number>>(getInitialTimes(2024));
   const [showTimeUpModal, setShowTimeUpModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // p.1 (表紙) から開始
-  const [zoom, setZoom] = useState(100);
+  const [scanZoom, setScanZoom] = useState(100); // 原本スキャン画像専用ズーム（100%=全体表示Fit）
   const [viewMode, setViewMode] = useState<'text' | 'image'>('text');
   const [storedPack, setStoredPack] = useState<StoredPack | null>(BUILTIN_YASUDA_PACK);
 
@@ -55,9 +55,6 @@ export const FinalChallengePage: React.FC = () => {
   const [hasMasterBadge, setHasMasterBadge] = useState(false);
   const [showExamResultModal, setShowExamResultModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [kokugoFont, setKokugoFont] = useState<'mincho' | 'gothic'>('mincho');
-  const [kokugoFontSize, setKokugoFontSize] = useState<'normal' | 'large'>('normal');
-  const [kokugoLineHeight, setKokugoLineHeight] = useState<'normal' | 'loose'>('loose');
   const [lastExamResult, setLastExamResult] = useState<{
     score: number;
     passed: boolean;
@@ -387,33 +384,38 @@ export const FinalChallengePage: React.FC = () => {
               </button>
             </div>
 
-            {/* ズーム操作 */}
-            <div className={styles.zoomControls}>
-              <button
-                className={styles.pageBtn}
-                onClick={() => setZoom(z => Math.max(70, z - 15))}
-                title="縮小"
-              >
-                🔍 -
-              </button>
-              <span style={{ fontSize: '13px', minWidth: '42px', textAlign: 'center' }}>
-                {zoom}%
-              </span>
-              <button
-                className={styles.pageBtn}
-                onClick={() => setZoom(z => Math.min(180, z + 15))}
-                title="拡大"
-              >
-                🔍 +
-              </button>
-              <button
-                className={styles.pageBtn}
-                onClick={() => setZoom(100)}
-                style={{ fontSize: '12px' }}
-              >
-                100%
-              </button>
-            </div>
+            {/* 原本スキャン時のズーム操作（初期はウィンドウに収まる全体表示Fit、必要な時に拡大） */}
+            {stage === 1 && viewMode === 'image' && pageImageData && (
+              <div className={styles.zoomControls}>
+                <button
+                  className={styles.pageBtn}
+                  onClick={() => setScanZoom(z => Math.max(100, z - 20))}
+                  disabled={scanZoom <= 100}
+                  title="縮小"
+                >
+                  🔍 -
+                </button>
+                <span style={{ fontSize: '13px', minWidth: '42px', textAlign: 'center' }}>
+                  {scanZoom === 100 ? '全体' : `${scanZoom}%`}
+                </span>
+                <button
+                  className={styles.pageBtn}
+                  onClick={() => setScanZoom(z => Math.min(200, z + 20))}
+                  disabled={scanZoom >= 200}
+                  title="拡大"
+                >
+                  🔍 +
+                </button>
+                <button
+                  className={styles.pageBtn}
+                  onClick={() => setScanZoom(100)}
+                  style={{ fontSize: '12px' }}
+                  title="ウィンドウに収まる全体サイズに戻す"
+                >
+                  全体表示
+                </button>
+              </div>
+            )}
 
             {stage === 1 && pageImageData && (
               <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
@@ -455,92 +457,30 @@ export const FinalChallengePage: React.FC = () => {
           <div className={styles.pageWrapper}>
             {stage === 1 ? (
               viewMode === 'image' && pageImageData ? (
-                /* 画像がある場合は実ページ画像を表示（第13章仕様: 元のページ画像をそのまま表示し、拡大できる） */
-                <img
-                  src={pageImageData}
-                  alt={`問題用紙 p.${currentPage}`}
-                  className={styles.pageImage}
-                  style={{
-                    transform: `scale(${zoom / 100})`,
-                    transformOrigin: 'top center',
-                  }}
-                  data-testid="exam-page-image"
-                />
-              ) : (
-                /* テキスト・図表・設問表示 */
+                /* 画像がある場合は実ページ画像を表示（初期状態はウィンドウ内に収まる全体表示Fit、スクロールバーなし） */
                 <div
-                  className={styles.samplePdfMock}
-                  style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
+                  className={styles.scanImageContainer}
+                  style={{
+                    alignItems: scanZoom > 100 ? 'flex-start' : 'center',
+                  }}
                 >
-                  <div
+                  <img
+                    src={pageImageData}
+                    alt={`問題用紙 p.${currentPage}`}
+                    className={styles.pageImage}
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '8px 14px',
-                      marginBottom: '12px',
-                      background: 'rgba(37, 99, 235, 0.08)',
-                      border: '1px solid var(--primary-weak)',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      color: 'var(--primary)',
+                      transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
+                      transformOrigin: 'top center',
+                      maxWidth: scanZoom > 100 ? 'none' : '100%',
+                      maxHeight: scanZoom > 100 ? 'none' : '100%',
+                      width: scanZoom > 100 ? `${scanZoom}%` : 'auto',
                     }}
-                  >
-                    <span>
-                      📐 <strong>図表付き問題用紙モード</strong>（原本スキャンの代わりに鮮明な図表を表示しています）
-                    </span>
-                    <button
-                      onClick={() => navigate('/settings')}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--primary)',
-                        textDecoration: 'underline',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        padding: 0,
-                      }}
-                    >
-                      教材パックインポート
-                    </button>
-                  </div>
-                  {/* 国語読解アシストバー */}
-                  {currentSubject === 'kokugo' && (
-                    <div className={styles.readerToolbar}>
-                      <span style={{ fontSize: '11px', fontWeight: 800, color: '#be123c', marginRight: '4px' }}>
-                        📖 読解アシスト:
-                      </span>
-                      <button
-                        type="button"
-                        className={`${styles.readerToolBtn} ${kokugoFont === 'mincho' ? styles.readerToolBtnActive : ''}`}
-                        onClick={() => { sound.playPop(); setKokugoFont('mincho'); }}
-                      >
-                        明朝体（入試風）
-                      </button>
-                      <button
-                        type="button"
-                        className={`${styles.readerToolBtn} ${kokugoFont === 'gothic' ? styles.readerToolBtnActive : ''}`}
-                        onClick={() => { sound.playPop(); setKokugoFont('gothic'); }}
-                      >
-                        ゴシック体
-                      </button>
-                      <button
-                        type="button"
-                        className={`${styles.readerToolBtn} ${kokugoFontSize === 'large' ? styles.readerToolBtnActive : ''}`}
-                        onClick={() => { sound.playPop(); setKokugoFontSize(f => f === 'large' ? 'normal' : 'large'); }}
-                      >
-                        {kokugoFontSize === 'large' ? '文字: 標準' : '文字: やや大'}
-                      </button>
-                      <button
-                        type="button"
-                        className={`${styles.readerToolBtn} ${kokugoLineHeight === 'loose' ? styles.readerToolBtnActive : ''}`}
-                        onClick={() => { sound.playPop(); setKokugoLineHeight(l => l === 'loose' ? 'normal' : 'loose'); }}
-                      >
-                        {kokugoLineHeight === 'loose' ? '行間: 標準' : '行間: ゆったり'}
-                      </button>
-                    </div>
-                  )}
-
+                    data-testid="exam-page-image"
+                  />
+                </div>
+              ) : (
+                /* テキスト・図表・設問表示（ズーム影響を受けず常に標準サイズで快適に閲覧可能） */
+                <div className={styles.samplePdfMock}>
                   <div
                     style={{
                       padding: '24px',
@@ -548,10 +488,6 @@ export const FinalChallengePage: React.FC = () => {
                       borderRadius: '8px',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                       minHeight: '520px',
-                      fontFamily: currentSubject === 'kokugo' && kokugoFont === 'mincho'
-                        ? '"Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", serif'
-                        : 'inherit',
-                      fontSize: currentSubject === 'kokugo' && kokugoFontSize === 'large' ? '17px' : '15px',
                     }}
                   >
                     <h3
@@ -581,7 +517,7 @@ export const FinalChallengePage: React.FC = () => {
                             dangerouslySetInnerHTML={{ __html: sec.bodyText }}
                             style={{
                               whiteSpace: 'pre-wrap',
-                              lineHeight: kokugoLineHeight === 'loose' ? '2.1' : '1.8',
+                              lineHeight: '1.8',
                               color: 'var(--text)',
                               letterSpacing: '0.04em',
                             }}
@@ -701,10 +637,7 @@ export const FinalChallengePage: React.FC = () => {
               )
             ) : (
               /* Stage 2 (同等未見問題) の表示 */
-              <div
-                className={styles.samplePdfMock}
-                style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
-              >
+              <div className={styles.samplePdfMock}>
                 <div
                   style={{
                     padding: '24px',

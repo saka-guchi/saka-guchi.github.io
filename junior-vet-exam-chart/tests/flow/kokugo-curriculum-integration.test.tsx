@@ -72,7 +72,7 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
     expect(STAGE1_2022_KOKUGO_PAGE_CONTENTS[2].sections[0].bodyText).toContain('kokugo-underline-1');
   });
 
-  it('FinalChallengePage で国語タブを選択時、読解アシストバーや文字数カウンター、漢字グリッドが表示されること', async () => {
+  it('FinalChallengePage で国語選択時、読解アシストバーや不要バナーが表示されず統一フォントで表示され、漢字グリッドや文字数カウンターが動作すること', async () => {
     render(
       <BrowserRouter>
         <FinalChallengePage />
@@ -86,10 +86,10 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
     expect(kokugoTab).toBeInTheDocument();
     fireEvent.click(kokugoTab);
 
-    // 国語専用の読解アシストツールバーが表示されていること
-    expect(screen.getByText('📖 読解アシスト:')).toBeInTheDocument();
-    expect(screen.getByText('明朝体（入試風）')).toBeInTheDocument();
-    expect(screen.getByText('ゴシック体')).toBeInTheDocument();
+    // 読解アシストバーおよび不要な図表モードバナーが表示されないこと（全科目統一）
+    expect(screen.queryByText('📖 読解アシスト:')).toBeNull();
+    expect(screen.queryByText(/図表付き問題用紙モード/)).toBeNull();
+    expect(screen.queryByText('教材パックインポート')).toBeNull();
 
     // 漢字10問専用ヘッダーが表示されていること
     expect(screen.getByText('✏️ 漢字の書き取り（①〜⑤）と読み（⑥〜⑩）')).toBeInTheDocument();
@@ -150,5 +150,45 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
 
     const slotContainer = screen.getByTestId('slot-kokugo-2022-03-07');
     expect(slotContainer).toHaveAttribute('data-value', 'ウ');
+  });
+
+  it('原本スキャンモード切り替え時、初期表示で全体Fitサイズになり、拡大してもテキストモードにズームが干渉しないこと', async () => {
+    render(
+      <BrowserRouter>
+        <FinalChallengePage />
+      </BrowserRouter>
+    );
+
+    // 2026年度タブをクリック
+    fireEvent.click(screen.getByTestId('year-tab-2026'));
+    // 理科タブをクリック
+    fireEvent.click(screen.getByTestId('subject-tab-rika'));
+
+    // 原本スキャンタブをクリック
+    const scanTab = screen.getByText('📸 原本スキャン');
+    expect(scanTab).toBeInTheDocument();
+    fireEvent.click(scanTab);
+
+    // 原本スキャン画像が表示されていること
+    const scanImg = screen.getByTestId('exam-page-image');
+    expect(scanImg).toBeInTheDocument();
+
+    // ズームコントロールが表示され、初期状態は「全体」または「全体表示」であること
+    expect(screen.getByText('全体')).toBeInTheDocument();
+    expect(screen.getByText('全体表示')).toBeInTheDocument();
+
+    // 拡大ボタンをクリック
+    const zoomInBtn = screen.getByTitle('拡大');
+    fireEvent.click(zoomInBtn);
+    expect(screen.getByText('120%')).toBeInTheDocument();
+
+    // 再度「テキスト・図表」タブに戻る
+    const textTab = screen.getByText('📐 テキスト・図表');
+    fireEvent.click(textTab);
+
+    // テキスト問題用紙のコンテナ（samplePdfMock）に scale 縮小スタイルが適用されていないこと
+    const mockContainer = document.querySelector('[class*="samplePdfMock"]');
+    expect(mockContainer).toBeInTheDocument();
+    expect(mockContainer?.getAttribute('style') || '').not.toContain('scale');
   });
 });
