@@ -271,10 +271,10 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
     // 「📖 見開き」ボタンをクリック
     fireEvent.click(screen.getByTestId('layout-spread-btn'));
 
-    // 見開きコンテナが表示され、左ページ(p.1)と右ページ(p.2)が表示されていること
+    // 見開きコンテナが表示され、左開き（理科）では左ページ(p.1)と右ページ(p.2)が表示されていること
     expect(screen.getByTestId('scan-spread-container')).toBeInTheDocument();
-    expect(screen.getByTestId('exam-page-image-left')).toBeInTheDocument();
-    expect(screen.getByTestId('exam-page-image-right')).toBeInTheDocument();
+    expect(screen.getByTestId('exam-page-image-left')).toHaveAttribute('alt', '問題用紙 p.1');
+    expect(screen.getByTestId('exam-page-image-right')).toHaveAttribute('alt', '問題用紙 p.2');
 
     // ページインジケーターが見開き表記（ページ: 1-2 / 6）になっていること
     expect(screen.getByTestId('page-indicator')).toHaveTextContent(/ページ: 1-2 \/ 6/);
@@ -290,5 +290,36 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
     expect(screen.queryByTestId('scan-spread-container')).toBeNull();
     expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
     expect(screen.getByTestId('page-indicator')).toHaveTextContent(/ページ: 3 \/ 6/);
+  });
+
+  it('国語の見開き表示では、右開き冊子の仕様に合わせて左右が反転し「左: P2 / 右: P1」で配置されること', async () => {
+    render(
+      <BrowserRouter>
+        <FinalChallengePage />
+      </BrowserRouter>
+    );
+
+    // 2022年度 国語を選択
+    fireEvent.click(screen.getByTestId('year-tab-2022'));
+    fireEvent.click(screen.getByTestId('subject-tab-kokugo'));
+
+    // 原本スキャンが表示されていることを確認
+    expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
+
+    // 「📖 見開き」ボタンをクリック
+    fireEvent.click(screen.getByTestId('layout-spread-btn'));
+    expect(screen.getByTestId('scan-spread-container')).toBeInTheDocument();
+
+    // 国語は右開き（右から左へめくる）のため、左側にP2、右側にP1が表示されていること
+    const leftImage = screen.getByTestId('exam-page-image-left');
+    const rightImage = screen.getByTestId('exam-page-image-right');
+    expect(leftImage).toHaveAttribute('alt', '問題用紙 p.2');
+    expect(rightImage).toHaveAttribute('alt', '問題用紙 p.1');
+
+    // 次の見開き（p.3-4）に進んだ際も、左側にP4、右側にP3が表示されること
+    const nextBtn = screen.getByTestId('next-page-btn');
+    fireEvent.click(nextBtn);
+    expect(screen.getByTestId('exam-page-image-left')).toHaveAttribute('alt', '問題用紙 p.4');
+    expect(screen.getByTestId('exam-page-image-right')).toHaveAttribute('alt', '問題用紙 p.3');
   });
 });

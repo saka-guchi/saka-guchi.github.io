@@ -568,52 +568,64 @@ export const FinalChallengePage: React.FC = () => {
           <div className={styles.pageWrapper}>
             {stage === 1 ? (
               viewMode === 'image' && pageImageData ? (
-                pageLayout === 'spread' ? (
-                  /* 左右見開き（2ページ並び）表示（ウィンドウ内に美しくフィット） */
-                  <div
-                    className={styles.scanSpreadContainer}
-                    style={{
-                      alignItems: scanZoom > 100 ? 'flex-start' : 'center',
-                    }}
-                    data-testid="scan-spread-container"
-                  >
-                    {/* 左ページ */}
-                    <div className={styles.spreadPageCol}>
-                      <span className={styles.spreadPageLabel}>p.{currentPage}</span>
-                      <img
-                        src={pageImageData}
-                        alt={`問題用紙 p.${currentPage}`}
-                        className={styles.spreadPageImage}
-                        style={{
-                          transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
-                          transformOrigin: 'top center',
-                          maxWidth: scanZoom > 100 ? 'none' : '100%',
-                          maxHeight: scanZoom > 100 ? 'none' : 'calc(100% - 22px)',
-                        }}
-                        data-testid="exam-page-image-left"
-                      />
-                    </div>
+                pageLayout === 'spread' ? (() => {
+                  // 国語は縦書き冊子・右開き（右から左へめくる）のため、左にP(n+1)・右にP(n)を配置
+                  // 理科・算数・社会は横書き冊子・左開きのため、左にP(n)・右にP(n+1)を配置
+                  const isRtlBook = currentSubject === 'kokugo';
+                  const leftPageNum = isRtlBook ? (nextPageImageData ? currentPage + 1 : null) : currentPage;
+                  const leftPageData = isRtlBook ? nextPageImageData : pageImageData;
+                  const rightPageNum = isRtlBook ? currentPage : (nextPageImageData ? currentPage + 1 : null);
+                  const rightPageData = isRtlBook ? pageImageData : nextPageImageData;
 
-                    {/* 右ページ（存在する場合） */}
-                    {nextPageImageData && (
-                      <div className={styles.spreadPageCol}>
-                        <span className={styles.spreadPageLabel}>p.{currentPage + 1}</span>
-                        <img
-                          src={nextPageImageData}
-                          alt={`問題用紙 p.${currentPage + 1}`}
-                          className={styles.spreadPageImage}
-                          style={{
-                            transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
-                            transformOrigin: 'top center',
-                            maxWidth: scanZoom > 100 ? 'none' : '100%',
-                            maxHeight: scanZoom > 100 ? 'none' : 'calc(100% - 22px)',
-                          }}
-                          data-testid="exam-page-image-right"
-                        />
-                      </div>
-                    )}
-                  </div>
-                ) : (
+                  return (
+                    /* 左右見開き（2ページ並び）表示（ウィンドウ内に美しくフィット） */
+                    <div
+                      className={styles.scanSpreadContainer}
+                      style={{
+                        alignItems: scanZoom > 100 ? 'flex-start' : 'center',
+                      }}
+                      data-testid="scan-spread-container"
+                    >
+                      {/* 左ページ */}
+                      {leftPageData && leftPageNum !== null && (
+                        <div className={styles.spreadPageCol}>
+                          <span className={styles.spreadPageLabel}>p.{leftPageNum}</span>
+                          <img
+                            src={leftPageData}
+                            alt={`問題用紙 p.${leftPageNum}`}
+                            className={styles.spreadPageImage}
+                            style={{
+                              transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
+                              transformOrigin: 'top center',
+                              maxWidth: scanZoom > 100 ? 'none' : '100%',
+                              maxHeight: scanZoom > 100 ? 'none' : 'calc(100% - 22px)',
+                            }}
+                            data-testid="exam-page-image-left"
+                          />
+                        </div>
+                      )}
+
+                      {/* 右ページ */}
+                      {rightPageData && rightPageNum !== null && (
+                        <div className={styles.spreadPageCol}>
+                          <span className={styles.spreadPageLabel}>p.{rightPageNum}</span>
+                          <img
+                            src={rightPageData}
+                            alt={`問題用紙 p.${rightPageNum}`}
+                            className={styles.spreadPageImage}
+                            style={{
+                              transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
+                              transformOrigin: 'top center',
+                              maxWidth: scanZoom > 100 ? 'none' : '100%',
+                              maxHeight: scanZoom > 100 ? 'none' : 'calc(100% - 22px)',
+                            }}
+                            data-testid="exam-page-image-right"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })() : (
                   /* 単一ページ表示（初期状態はウィンドウ内に収まる全体表示Fit、スクロールバーなし） */
                   <div
                     className={styles.scanImageContainer}
