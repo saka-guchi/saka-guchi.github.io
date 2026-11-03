@@ -2647,3 +2647,35 @@
     gap: 8px;
   }
 }
+
+/* 認定試験 ごほうび点数グリッド */
+.rewardScoreGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 12px;
+  margin: 4px 0 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-caption);
+  color: var(--accent-gold-text);
+  line-height: 1.4;
+}
+
+.rewardScoreGrid li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.rewardScoreGrid strong {
+  color: var(--text);
+  font-weight: 800;
+}
+
+@media (max-width: 520px) {
+  .rewardScoreGrid {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}

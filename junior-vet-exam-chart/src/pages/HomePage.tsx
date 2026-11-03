@@ -1082,17 +1082,24 @@ export const HomePage: React.FC = () => {
               実際の入試問題で力試しをしよう
             </p>
 
-            {/* 二段階報酬カード */}
+            {/* 認定試験 挑戦のごほうびカード */}
             <div className={styles.rewardCard} data-testid="challenge-reward-card">
               <div className={styles.rewardTitle}>🎖️ 挑戦のごほうび</div>
-              <ul className={styles.rewardList}>
+              <p style={{ margin: '4px 0 6px 0', fontSize: '13px', lineHeight: '1.5', color: 'var(--text)' }}>
+                各年度のすべての科目で高得点をとってごほうびをゲット！
+              </p>
+              <ul className={styles.rewardScoreGrid}>
                 <li>
-                  <strong>Stage 1（過去問本番）クリア</strong>: 
-                  「合格ドクター認定証（ライセンス）」授与！
+                  <strong>📜 60点以上</strong>: みならい卒業証書
                 </li>
                 <li>
-                  <strong>Stage 1 & 2（同等未見問題）両方クリア</strong>: 
-                  最高栄誉「金のマスター獣医師バッジ」授与！
+                  <strong>🥉 80点以上</strong>: ふつうの獣医師の称号
+                </li>
+                <li>
+                  <strong>🥈 90点以上</strong>: ベテラン獣医師の称号
+                </li>
+                <li>
+                  <strong>🥇 100点満点</strong>: マスター獣医師の称号
                 </li>
               </ul>
             </div>
