@@ -56,7 +56,7 @@ export const FinalChallengePage: React.FC = () => {
   const [showTimeUpModal, setShowTimeUpModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // p.1 (表紙) から開始
   const [scanZoom, setScanZoom] = useState(100); // 原本スキャン画像専用ズーム（100%=全体表示Fit）
-  const [viewMode, setViewMode] = useState<'text' | 'image'>('text');
+  const [viewMode, setViewMode] = useState<'text' | 'image'>('image');
   const [storedPack, setStoredPack] = useState<StoredPack | null>(BUILTIN_YASUDA_PACK);
 
   // 回答状態: slotId -> 入力値

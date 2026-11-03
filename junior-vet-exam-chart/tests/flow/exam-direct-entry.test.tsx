@@ -11,7 +11,7 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
     await db.finalChallengeResults.clear();
   });
 
-  it('トップページの認定試験欄が文章最小限のコンパクト1行レイアウトになり、初期状態では「未受験」が表示されること', async () => {
+  it('トップページの認定試験欄に年度別・科目別の1行レイアウトが表示され、初期状態では「未受験」が表示されること', async () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <Routes>
@@ -24,9 +24,9 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
     expect(screen.getByTestId('card-final-challenge')).toBeInTheDocument();
     expect(screen.getByText('実際の入試問題で力試しをしよう')).toBeInTheDocument();
 
-    // 不要な長文説明・黄色い報酬カード・過去の成績表ボタンが削除されていること
-    expect(screen.queryByTestId('challenge-reward-card')).toBeNull();
-    expect(screen.queryByTestId('open-exam-history-btn')).toBeNull();
+    // 報酬カード・過去の成績表ボタンが存在すること
+    expect(screen.getByTestId('challenge-reward-card')).toBeInTheDocument();
+    expect(screen.getByTestId('open-exam-history-btn')).toBeInTheDocument();
 
     // 2026年度〜2022年度の各行が表示されていること
     expect(screen.getByTestId('exam-year-row-2026')).toBeInTheDocument();
@@ -90,7 +90,7 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
     expect(sansuBtn.className).toContain('compactExamBtnPerfect');
   });
 
-  it('トップページの科目ボタンをクリックすると、指定した年度・科目の試験ページへ直接遷移し、Stage 2タブのリンクが非表示になっていること', async () => {
+  it('トップページの科目ボタンをクリックすると、指定した年度・科目の試験ページへ直接遷移し、初期状態で原本スキャンが表示されること', async () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <Routes>
@@ -109,8 +109,11 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
     const activeRikaTab = screen.getByTestId('subject-tab-rika');
     expect(activeRikaTab.className).toContain('activeSubjectTab');
 
-    // 未見問題（Stage 2）へのタブリンクが非表示（display: none）になっていること
-    const stageTabsContainer = screen.getByTestId('stage-1-tab').parentElement;
-    expect(stageTabsContainer).toHaveStyle({ display: 'none' });
+    // デフォルトで原本スキャン画像が表示されていること
+    expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
+
+    // 理科なのでStage 2（同等未見問題）タブは活性化していること
+    const stage2Tab = screen.getByTestId('stage-2-tab');
+    expect(stage2Tab).not.toBeDisabled();
   });
 });
