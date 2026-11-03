@@ -76,10 +76,19 @@ export const FinalChallengePage: React.FC = () => {
     });
   }, []);
 
-  // 年度切り替え
+  // 年度切り替え（その年度に存在しない科目が選択されている場合は理科等へ安全フォールバック）
   const handleYearChange = (newYear: ExamYear) => {
     if (newYear === currentYear) return;
     sound.playPop();
+    const targetYearData = FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[newYear] || FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[2024];
+    const newAvailable = (['rika', 'sansu', 'shakai', 'kokugo'] as Subject[]).filter(sub => {
+      const d = targetYearData[sub];
+      return d && d.sections && d.sections.length > 0;
+    });
+
+    if (!newAvailable.includes(currentSubject)) {
+      setCurrentSubject(newAvailable[0] || 'rika');
+    }
     setCurrentYear(newYear);
     setCurrentPage(1);
     setAnswers({});
@@ -306,21 +315,26 @@ export const FinalChallengePage: React.FC = () => {
             ))}
           </div>
 
-          {/* 教科切り替えタブ */}
+          {/* 教科切り替えタブ（その年度に問題が存在する教科のみ表示: 2023年は国語なし） */}
           <div className={styles.subjectTabs} data-testid="challenge-subject-tabs">
-            {(['rika', 'sansu', 'shakai', 'kokugo'] as Subject[]).map(sub => {
-              const info = currentYearData[sub] || FINAL_CHALLENGE_2022_DATA_BY_SUBJECT[sub];
-              return (
-                <button
-                  key={sub}
-                  className={`${styles.subjectTab} ${currentSubject === sub ? styles.activeSubjectTab : ''}`}
-                  onClick={() => handleSubjectChange(sub)}
-                  data-testid={`subject-tab-${sub}`}
-                >
-                  {info.icon} {info.subjectLabel}
-                </button>
-              );
-            })}
+            {(['rika', 'sansu', 'shakai', 'kokugo'] as Subject[])
+              .filter(sub => {
+                const subData = currentYearData[sub];
+                return subData && subData.sections && subData.sections.length > 0;
+              })
+              .map(sub => {
+                const info = currentYearData[sub];
+                return (
+                  <button
+                    key={sub}
+                    className={`${styles.subjectTab} ${currentSubject === sub ? styles.activeSubjectTab : ''}`}
+                    onClick={() => handleSubjectChange(sub)}
+                    data-testid={`subject-tab-${sub}`}
+                  >
+                    {info.icon} {info.subjectLabel}
+                  </button>
+                );
+              })}
           </div>
         </div>
 

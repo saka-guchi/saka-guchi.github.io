@@ -191,4 +191,28 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
     expect(mockContainer).toBeInTheDocument();
     expect(mockContainer?.getAttribute('style') || '').not.toContain('scale');
   });
+
+  it('2023年度は国語が存在しないため教科タブに国語が表示されず、他年度では表示されること', async () => {
+    render(
+      <BrowserRouter>
+        <FinalChallengePage />
+      </BrowserRouter>
+    );
+
+    // 2024年度（国語あり）
+    fireEvent.click(screen.getByTestId('year-tab-2024'));
+    expect(screen.getByTestId('subject-tab-kokugo')).toBeInTheDocument();
+
+    // 2023年度（国語なし）に切り替え
+    fireEvent.click(screen.getByTestId('year-tab-2023'));
+    expect(screen.queryByTestId('subject-tab-kokugo')).toBeNull();
+    // 理科・算数・社会は表示されること
+    expect(screen.getByTestId('subject-tab-rika')).toBeInTheDocument();
+    expect(screen.getByTestId('subject-tab-sansu')).toBeInTheDocument();
+    expect(screen.getByTestId('subject-tab-shakai')).toBeInTheDocument();
+
+    // 2022年度（国語あり）に切り替え
+    fireEvent.click(screen.getByTestId('year-tab-2022'));
+    expect(screen.getByTestId('subject-tab-kokugo')).toBeInTheDocument();
+  });
 });
