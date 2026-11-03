@@ -180,12 +180,12 @@ describe('UI Redesign & New Features Integration Tests', () => {
   it('displays key progress box in the medical chart area and shows reward details', () => {
     render(<App />);
 
-    // カルテ領域に合格のカギボックスが存在
+    // カルテ領域に挑戦のごほうびボックスが存在
     const keyBox = screen.getByTestId('key-progress-box');
     expect(keyBox).toBeInTheDocument();
-    expect(keyBox).toHaveTextContent(/🔑 合格のカギ:/);
-    expect(keyBox).toHaveTextContent(/【⭐Lv.4 マスター】にすると手に入ります/);
-    expect(keyBox).toHaveTextContent(/🐾 カギ全達成特典: 全動物からの感謝メッセージ/);
+    expect(keyBox).toHaveTextContent('挑戦のごほうび');
+    expect(keyBox).toHaveTextContent(/【⭐Lv.4 マスター】/);
+    expect(keyBox).toHaveTextContent(/動物からの感謝メッセージ/);
 
     // 右カラム認定試験の新報酬ルール表記（60点〜: 認定証 / 80点〜: 銅 / 90点〜: 銀 / 100点: 金）
     expect(screen.getByText('※カッコ内は過去の最高得点')).toBeInTheDocument();

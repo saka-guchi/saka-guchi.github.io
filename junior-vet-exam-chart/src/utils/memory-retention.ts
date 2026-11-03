@@ -4,6 +4,7 @@ const STORAGE_PREFIX = 'junior_vet_memory_retention_';
 
 /**
  * スキルごとの記憶定着メーター値（0〜100%）を取得する
+ * 未学習時は0%からスタートし、問題を解いたり暗記カードで復習するごとに上昇する
  */
 export function getMemoryRetention(skillId: string): number {
   try {
@@ -16,13 +17,12 @@ export function getMemoryRetention(skillId: string): number {
     // ignore
   }
 
-  // デフォルト値: THEME_ENHANCEMENTS の値、または 50%
-  const defaultVal = THEME_ENHANCEMENTS[skillId]?.memoryRetention;
-  return typeof defaultVal === 'number' ? defaultVal : 50;
+  // 未学習の初期状態は0%
+  return 0;
 }
 
 /**
- * 暗記カードで正解したときに記憶定着メーターを上昇させる
+ * 暗記カードや問題正解時に記憶定着メーターを上昇させる
  * @param skillId スキルID
  * @param boostAmount 上昇幅（デフォルト: +20%）
  * @returns 更新後の定着率 (0〜100%)
@@ -52,4 +52,3 @@ export function getAllMemoryRetentions(): Record<string, number> {
   }
   return map;
 }
-

@@ -78,48 +78,46 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     expect(screen.getByText('記述問題の自己判定（第13章仕様）')).toBeInTheDocument();
   });
 
-  it('switches subjects between Science, Math, and Social Studies', () => {
-    render(
-      <MemoryRouter>
+  it('displays specified subjects Math and Social Studies via query parameters', () => {
+    // 算数をクエリパラメータで指定してレンダリング
+    const { unmount } = render(
+      <MemoryRouter initialEntries={['/final-challenge?year=2024&subject=sansu']}>
         <FinalChallengePage />
       </MemoryRouter>
     );
 
-    // 算数タブに切り替え
-    const sansuTab = screen.getByTestId('subject-tab-sansu');
-    fireEvent.click(sansuTab);
-
     // 算数: 10ページ、16問、50分
+    expect(screen.getByTestId('challenge-exam-badge')).toHaveTextContent('算数');
     expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 10');
     expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 16 欄');
     expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 50:00');
     expect(screen.getByTestId('slot-sansu-2024-01-01')).toBeInTheDocument();
 
-    // 社会タブに切り替え
-    const shakaiTab = screen.getByTestId('subject-tab-shakai');
-    fireEvent.click(shakaiTab);
+    unmount();
+
+    // 社会をクエリパラメータで指定してレンダリング
+    render(
+      <MemoryRouter initialEntries={['/final-challenge?year=2024&subject=shakai']}>
+        <FinalChallengePage />
+      </MemoryRouter>
+    );
 
     // 社会: 9ページ、25問、30分
+    expect(screen.getByTestId('challenge-exam-badge')).toHaveTextContent('社会');
     expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 9');
     expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 25 欄');
     expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 30:00');
     expect(screen.getByTestId('slot-shakai-2024-01-01')).toBeInTheDocument();
-
-    // 再び理科に戻っても、理科のタブが正常に切り替わること
-    const rikaTab = screen.getByTestId('subject-tab-rika');
-    fireEvent.click(rikaTab);
-    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 7');
-    expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 22 欄');
   });
 
-  it('preserves elapsed time across subject switches and triggers time-up modal when timer reaches zero', async () => {
+  it('triggers time-up modal when exam timer reaches zero', async () => {
     const { act } = await import('@testing-library/react');
     const { vi } = await import('vitest');
 
     vi.useFakeTimers();
 
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={['/final-challenge?year=2024&subject=rika']}>
         <FinalChallengePage />
       </MemoryRouter>
     );
@@ -133,21 +131,7 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     });
     expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 29:50');
 
-    // 算数へ切り替え: 算数の残り時間は 50:00
-    fireEvent.click(screen.getByTestId('subject-tab-sansu'));
-    expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 50:00');
-
-    // 算数で20秒経過
-    act(() => {
-      vi.advanceTimersByTime(20000);
-    });
-    expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 49:40');
-
-    // 再び理科に戻る: 復活せず 29:50 から再開すること！
-    fireEvent.click(screen.getByTestId('subject-tab-rika'));
-    expect(screen.getByTestId('challenge-timer')).toHaveTextContent('⏱ 残り時間: 29:50');
-
-    // 残り時間すべて進める
+    // 残り時間すべて進める (29分51秒進める)
     act(() => {
       vi.advanceTimersByTime(29 * 60 * 1000 + 51 * 1000);
     });
@@ -163,29 +147,19 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     vi.useRealTimers();
   });
 
-  it('switches to Stage 2 and displays human-verified Stage 2 questions', () => {
+  it('provides Stage 1 only and does not display Stage 1/2 switch tabs in header', () => {
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={['/final-challenge?year=2024&subject=rika']}>
         <FinalChallengePage />
       </MemoryRouter>
     );
 
-    const stage2Tab = screen.getByTestId('stage-2-tab');
-    fireEvent.click(stage2Tab);
+    // ヘッダーにStage切り替えタブ（Stage 1 / Stage 2）が存在しないこと
+    expect(screen.queryByTestId('stage-1-tab')).toBeNull();
+    expect(screen.queryByTestId('stage-2-tab')).toBeNull();
 
-    expect(stage2Tab).toHaveClass(/activeTab/);
-    expect(screen.getByText('Stage 2：同等未見問題（人による確認済み）')).toBeInTheDocument();
-
-    // Stage 2 では原本が存在しないため原本スキャンボタンは非表示、代わりに未見問題モードバッジが表示されること
-    expect(screen.queryByText('📸 原本スキャン')).not.toBeInTheDocument();
-    expect(screen.getByText('✨ 同等未見問題モード（オリジナル出題）')).toBeInTheDocument();
-
-    // 次のページ（p.2）へ進むと、Stage 2 の問題カードと選択肢が問題用紙に正しくレンダリングされること
-    fireEvent.click(screen.getByTestId('next-page-btn'));
-    expect(screen.getByTestId('stage2-card-rika-2024-01-03')).toBeInTheDocument();
-    // 選択肢（① ホウセンカ、② ツユクサ等）が表示されていること
-    expect(screen.getByTestId('stage2-options-rika-2024-01-03')).toBeInTheDocument();
-    expect(screen.getAllByText('① ホウセンカ').length).toBeGreaterThanOrEqual(1);
+    // Stage 1（原本スキャン/問題用紙）が表示されていること
+    expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
   });
 
   it('displays in-app result modal and allows opening history modal after finalizing score', async () => {
@@ -218,22 +192,17 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     });
   });
 
-  it('switches exam year between 2024 and 2023, updating exam paper and answer slots', () => {
-    render(
-      <MemoryRouter>
+  it('displays exam paper and answer slots according to exam year in query params', () => {
+    // 2023年度・理科を指定してレンダリング
+    const { unmount } = render(
+      <MemoryRouter initialEntries={['/final-challenge?year=2023&subject=rika']}>
         <FinalChallengePage />
       </MemoryRouter>
     );
 
-    // 初期状態は2024年度・理科（7ページ）
-    expect(screen.getByTestId('year-tab-2024')).toBeInTheDocument();
-    expect(screen.getByTestId('year-tab-2023')).toBeInTheDocument();
-    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 7');
-
-    // 2023年度へ切り替え
-    fireEvent.click(screen.getByTestId('year-tab-2023'));
-
-    // 理科2023年度（5ページ、20スロット）へ更新されること
+    // 理科2023年度（5ページ、20スロット）が表示されること
+    expect(screen.getByTestId('challenge-exam-badge')).toHaveTextContent('2023年度');
+    expect(screen.getByTestId('challenge-exam-badge')).toHaveTextContent('理科');
     expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 5');
     const sheetArea = screen.getByTestId('challenge-answer-sheet');
     expect(sheetArea).toHaveTextContent('大問 1: ミツバチの社会生活と日齢分業・完全変態');
@@ -241,19 +210,20 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     expect(screen.getByTestId('slot-rika-2023-01-01-1')).toBeInTheDocument();
     expect(screen.getByTestId('slot-rika-2023-01-02')).toBeInTheDocument();
 
-    // 算数へ切り替え（2023年度: 8ページ、18スロット）
-    fireEvent.click(screen.getByTestId('subject-tab-sansu'));
+    unmount();
+
+    // 2023年度・算数を指定してレンダリング（2023年度: 8ページ、18スロット）
+    render(
+      <MemoryRouter initialEntries={['/final-challenge?year=2023&subject=sansu']}>
+        <FinalChallengePage />
+      </MemoryRouter>
+    );
+    expect(screen.getByTestId('challenge-exam-badge')).toHaveTextContent('2023年度');
+    expect(screen.getByTestId('challenge-exam-badge')).toHaveTextContent('算数');
     expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 8');
     expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 18 欄');
     expect(screen.getByTestId('slot-sansu-2023-01-01')).toBeInTheDocument();
     expect(screen.getByTestId('slot-sansu-2023-02-01')).toBeInTheDocument();
-
-    // 社会へ切り替え（2023年度: 10ページ、23スロット）
-    fireEvent.click(screen.getByTestId('subject-tab-shakai'));
-    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 10');
-    expect(screen.getByTestId('challenge-answer-sheet')).toHaveTextContent('全 23 欄');
-    expect(screen.getByTestId('slot-shakai-2023-01-01-a')).toBeInTheDocument();
-    expect(screen.getByTestId('slot-shakai-2023-01-01-b')).toBeInTheDocument();
   });
 });
 

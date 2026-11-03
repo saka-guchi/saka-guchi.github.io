@@ -12,8 +12,6 @@ import { getMemoryRetention } from '../utils/memory-retention';
 import { calculateExamChartCompletion, calculateStreakDays } from '../utils/progress-analytics';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
-import { APP_VERSION, BUILD_TIMESTAMP } from '../version';
-import { checkForAppUpdate } from '../utils/version-checker';
 import { getDaysUntilExam } from '../utils/countdown-helper';
 import { AnimatedVetPet } from '../components/AnimatedVetPet';
 import { ReferenceBookQuizModal } from '../components/ReferenceBookQuizModal';
@@ -82,22 +80,6 @@ export const HomePage: React.FC = () => {
   // 合格カルテ完成度（%）と連続学習日数（ストリーク）の動的計算
   const [completionPercent, setCompletionPercent] = useState<number>(() => calculateExamChartCompletion());
   const [studyStreak, setStudyStreak] = useState<number>(0);
-  const [manualCheckStatus, setManualCheckStatus] = useState<string | null>(null);
-
-  const handleManualUpdateCheck = async () => {
-    sound.playPop();
-    setManualCheckStatus('checking');
-    const res = await checkForAppUpdate();
-    if (res.hasUpdate) {
-      setManualCheckStatus('update-available');
-    } else if (!res.isOnline) {
-      setManualCheckStatus('offline');
-      setTimeout(() => setManualCheckStatus(null), 3000);
-    } else {
-      setManualCheckStatus('latest');
-      setTimeout(() => setManualCheckStatus(null), 3000);
-    }
-  };
 
   useEffect(() => {
     let isMounted = true;
@@ -297,11 +279,20 @@ export const HomePage: React.FC = () => {
   const masteredCount = filteredSkills.filter(s => s.isMastered).length;
   const remainingCount = filteredSkills.length - masteredCount;
 
-  // 各教科のスキル数カウント
+  // 全科目の合計マスター数および各教科のマスター数・スキル数
+  const totalMasteredCount = enrichedSkills.filter(s => s.isMastered).length;
+  const totalSkillsCount = enrichedSkills.length;
+  const totalRemainingCount = totalSkillsCount - totalMasteredCount;
+
   const rikaCount = enrichedSkills.filter(s => s.subject === 'rika').length;
   const sansuCount = enrichedSkills.filter(s => s.subject === 'sansu').length;
   const shakaiCount = enrichedSkills.filter(s => s.subject === 'shakai').length;
   const kokugoCount = enrichedSkills.filter(s => s.subject === 'kokugo').length;
+
+  const rikaMasteredCount = enrichedSkills.filter(s => s.subject === 'rika' && s.isMastered).length;
+  const sansuMasteredCount = enrichedSkills.filter(s => s.subject === 'sansu' && s.isMastered).length;
+  const shakaiMasteredCount = enrichedSkills.filter(s => s.subject === 'shakai' && s.isMastered).length;
+  const kokugoMasteredCount = enrichedSkills.filter(s => s.subject === 'kokugo' && s.isMastered).length;
 
   const themeIcons: Record<ThemeType, string> = {
     default: '🩺 クリニック',
@@ -763,28 +754,25 @@ export const HomePage: React.FC = () => {
           >
             <div className={styles.caseStudyHeaderRow}>
               <h3 className={`${styles.cardTitle} ${styles.caseStudyTitle}`}>
-                🩺 症例スタディ（全{ALL_PROGRESS_SKILLS.length}テーマ）
+                🩺 症例スタディ
               </h3>
             </div>
 
-            {/* 合格のカギ（Lv.4マスター）の進度と集め方の説明（カルテ領域に配置） */}
-            <div className={styles.keyProgressBox} data-testid="key-progress-box">
-              <div className={styles.keyProgressHeader}>
-                <strong className={styles.keyProgressTitle}>
-                  🔑 合格のカギ: {masteredCount} / {filteredSkills.length} 個
-                </strong>
-                <span className={styles.keyProgressSubject}>
-                  {selectedSkillSubject === 'rika' ? '理科' : selectedSkillSubject === 'sansu' ? '算数' : selectedSkillSubject === 'shakai' ? '社会' : '国語'}
+            <p className={styles.caseStudyLead}>
+              科目ごとの単元をすべて攻略しよう
+            </p>
+
+            {/* 症例スタディ 挑戦のごほうびカード（認定試験カードと完全統一） */}
+            <div className={styles.rewardCard} data-testid="key-progress-box">
+              <div className={styles.rewardTitle}>🎖️ 挑戦のごほうび</div>
+              <p style={{ margin: '6px 0 10px 0', fontSize: '13px', lineHeight: '1.6', color: 'var(--text)' }}>
+                各科目のすべての症例理解度が<strong>【⭐Lv.4 マスター】</strong>になると、<strong>「動物からの感謝メッセージ」</strong>が届くよ！
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', paddingTop: '8px', borderTop: '1px dashed rgba(245, 158, 11, 0.4)' }}>
+                <span style={{ fontSize: '12px', color: '#92400e', fontWeight: '700' }}>
+                  全教科マスター進度: <strong>{totalMasteredCount} / {totalSkillsCount} テーマ</strong>
                 </span>
-              </div>
-              <div className={styles.keyProgressDesc}>
-                【集め方】下の症例スタディでテーマを学習し、<strong>【⭐Lv.4 マスター】</strong>にすると手に入ります。
-              </div>
-              <div className={styles.keyProgressFooter}>
-                <span className={styles.keyProgressRewardTitle}>
-                  🐾 カギ全達成特典: 全動物からの感謝メッセージ
-                </span>
-                {masteredCount >= filteredSkills.length && filteredSkills.length > 0 ? (
+                {totalMasteredCount >= totalSkillsCount && totalSkillsCount > 0 ? (
                   <button
                     onClick={() => {
                       sound.playChime();
@@ -793,39 +781,54 @@ export const HomePage: React.FC = () => {
                     className={styles.allAnimalsBtn}
                     data-testid="all-animals-message-btn"
                   >
-                    🎉 メッセージを見る！
+                    🎉 感謝メッセージを見る！
                   </button>
                 ) : (
                   <span className={styles.keyRemainingBadge}>
-                    🔒 あと {remainingCount} 個
+                    あと {totalRemainingCount} テーマで達成！
                   </span>
                 )}
               </div>
             </div>
 
-            {/* 小学生向け科目別フィルター ＆ トリアージ・カード導線 */}
-            <div className={styles.skillFilterHeaderRow}>
-              <div className={styles.categoryFilterRow} data-testid="skill-subject-filter-row">
-                {[
-                  { id: 'rika', label: `🧪 理科 (${rikaCount})` },
-                  { id: 'sansu', label: `📐 算数 (${sansuCount})` },
-                  { id: 'shakai', label: `🗾 社会 (${shakaiCount})` },
-                  { id: 'kokugo', label: `📖 国語 (${kokugoCount})` },
-                ].map(cat => (
-                  <button
-                    key={cat.id}
-                    className={`${styles.categoryFilterBtn} ${selectedSkillSubject === cat.id ? styles.categoryFilterBtnActive : ''}`}
-                    onClick={() => {
-                      sound.playPop();
-                      setSelectedSkillSubject(cat.id as any);
-                    }}
-                    data-testid={`skill-subject-btn-${cat.id}`}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
+            {/* 小学生向け科目別フィルター */}
+            <div className={styles.categoryFilterRow} data-testid="skill-subject-filter-row">
+              {[
+                { id: 'rika', label: `🧪 理科 (${rikaCount})` },
+                { id: 'sansu', label: `📐 算数 (${sansuCount})` },
+                { id: 'shakai', label: `🗾 社会 (${shakaiCount})` },
+                { id: 'kokugo', label: `📖 国語 (${kokugoCount})` },
+              ].map(cat => (
+                <button
+                  key={cat.id}
+                  className={`${styles.categoryFilterBtn} ${selectedSkillSubject === cat.id ? styles.categoryFilterBtnActive : ''}`}
+                  onClick={() => {
+                    sound.playPop();
+                    setSelectedSkillSubject(cat.id as any);
+                  }}
+                  data-testid={`skill-subject-btn-${cat.id}`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
 
+            {/* サクッと要点暗記カード（トリアージ・カード）導線バナー */}
+            <div className={styles.triageBanner} data-testid="triage-card-banner">
+              <div className={styles.triageBannerContent}>
+                <div className={styles.triageBannerHeader}>
+                  <span className={styles.triageBannerIcon}>📇</span>
+                  <strong className={styles.triageBannerTitle}>
+                    要点暗記カード
+                  </strong>
+                  <span className={styles.triageSubjectTag}>
+                    {selectedSkillSubject === 'rika' ? '🧪 理科' : selectedSkillSubject === 'sansu' ? '📐 算数' : selectedSkillSubject === 'shakai' ? '🗾 社会' : '📖 国語'}
+                  </span>
+                </div>
+                <p className={styles.triageBannerDesc}>
+                  スキマ時間に重要急所をパッと思い出して、記憶キープ度をチャージしよう！
+                </p>
+              </div>
               <button
                 className={styles.triageCardLaunchBtn}
                 onClick={() => {
@@ -836,7 +839,7 @@ export const HomePage: React.FC = () => {
                 title="全症例の急所・重症度をサクッと確認できるフラッシュカード"
                 data-testid="launch-triage-card-btn"
               >
-                <span>📇 トリアージ・カード ❯</span>
+                <span>📇 カードをめくる ❯</span>
               </button>
             </div>
 
@@ -1055,35 +1058,30 @@ export const HomePage: React.FC = () => {
               <h3 className={`${styles.cardTitle} ${styles.caseStudyTitle}`}>
                 🏆 合格ドクター認定試験
               </h3>
-              <button
-                type="button"
-                className={styles.examHistoryBtn}
-                onClick={() => {
-                  sound.playPop();
-                  setShowHistoryModal(true);
-                }}
-                data-testid="open-exam-history-btn"
-                title="これまでの認定試験の得点履歴・採点カルテを確認"
-              >
-                📊 採点カルテ・成績表
-              </button>
             </div>
 
             <p className={styles.examSimpleLead}>
               実際の入試問題で力試しをしよう
             </p>
 
-            {/* 二段階報酬カード */}
+            {/* 認定試験 挑戦のごほうびカード */}
             <div className={styles.rewardCard} data-testid="challenge-reward-card">
               <div className={styles.rewardTitle}>🎖️ 挑戦のごほうび</div>
-              <ul className={styles.rewardList}>
+              <p style={{ margin: '4px 0 6px 0', fontSize: '13px', lineHeight: '1.5', color: 'var(--text)' }}>
+                各年度のすべての科目で高得点をとってごほうびをゲット！
+              </p>
+              <ul className={styles.rewardScoreGrid}>
                 <li>
-                  <strong>Stage 1（過去問本番）クリア</strong>: 
-                  「合格ドクター認定証（ライセンス）」授与！
+                  <strong>📜 60点以上</strong>: みならい卒業証書
                 </li>
                 <li>
-                  <strong>Stage 1 & 2（同等未見問題）両方クリア</strong>: 
-                  最高栄誉「金のマスター獣医師バッジ」授与！
+                  <strong>🥉 80点以上</strong>: ふつうの獣医師の称号
+                </li>
+                <li>
+                  <strong>🥈 90点以上</strong>: ベテラン獣医師の称号
+                </li>
+                <li>
+                  <strong>🥇 100点満点</strong>: マスター獣医師の称号
                 </li>
               </ul>
             </div>
@@ -1163,49 +1161,7 @@ export const HomePage: React.FC = () => {
         </div>
       </main>
 
-      {/* フッター: バージョン表記と設定へのリンク */}
-      <footer className={styles.homeFooter} data-testid="home-footer-version">
-        <span>みならい獣医さんの中学受験カルテ v{APP_VERSION} ({BUILD_TIMESTAMP})</span>
 
-        {/* 手動バージョン更新チェックボタン */}
-        <button
-          onClick={handleManualUpdateCheck}
-          disabled={manualCheckStatus === 'checking'}
-          className={`${styles.footerUpdateBtn} ${manualCheckStatus === 'update-available' ? styles.footerUpdateBtnActive : ''}`}
-          title="最新バージョンがないかサーバーを確認します"
-          data-testid="manual-update-check-btn"
-        >
-          {manualCheckStatus === 'checking'
-            ? '🔄 確認中...'
-            : manualCheckStatus === 'update-available'
-            ? '🚀 新バージョンあり！'
-            : manualCheckStatus === 'latest'
-            ? '✅ 最新版です'
-            : manualCheckStatus === 'offline'
-            ? '⚠️ オフライン'
-            : '🔄 更新をチェック'}
-        </button>
-
-        <button
-          onClick={() => {
-            sound.playPop();
-            setShowParentModal(true);
-          }}
-          className={styles.footerParentBtn}
-          data-testid="footer-parent-btn"
-        >
-          👨‍⚕️ 指導医ログ
-        </button>
-        <button
-          onClick={() => {
-            sound.playPop();
-            navigate('/settings');
-          }}
-          className={styles.footerLinkBtn}
-        >
-          ⚙️ 設定・キャッシュ更新
-        </button>
-      </footer>
 
       {/* 動物カルテモーダル */}
       {showStampModal && (
@@ -1745,13 +1701,13 @@ export const HomePage: React.FC = () => {
                   lv: 'Lv.3',
                   name: '🍀 なっとく理由',
                   desc: '「なぜそうなるのか」の理由や、解く手順までしっかり説明できるレベル！',
-                  howToUp: '💡 場面が変わった応用問題に正解で【⭐Lv.4マスター】達成！🔑合格のカギを獲得！',
+                  howToUp: '💡 場面が変わった応用問題に正解で【⭐Lv.4マスター】達成！',
                 },
                 {
                   stage: 'M4',
                   lv: 'Lv.4',
                   name: '⭐ カルテマスター',
-                  desc: '数字や問題の場面が変わった【初めて見る応用問題】でも自力で解けるレベル！🔑合格のカギ獲得済み。',
+                  desc: '数字や問題の場面が変わった【初めて見る応用問題】でも自力で解けるレベル！',
                   howToUp: '💡 1日後・3日後の復習で記憶メーターを高くキープすると【Lv.5】へ！',
                 },
                 {
@@ -1819,7 +1775,7 @@ export const HomePage: React.FC = () => {
                     全動物たちからの特別感謝メッセージ
                   </h3>
                   <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                    全テーマの合格のカギ（⭐Lv.4マスター）達成おめでとう！
+                    全テーマの【⭐Lv.4マスター】達成おめでとう！
                   </div>
                 </div>
               </div>

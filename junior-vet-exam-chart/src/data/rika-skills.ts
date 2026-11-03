@@ -19,9 +19,9 @@ export const RIKA_EXAM_SKILLS: SkillProgressItem[] = [
     category: '植物',
     levelType: 'core',
     levelTypeName: '大問コア',
-    stage: 'M4',
-    isMastered: true,
-    nextGoalHint: 'マスター達成済み！あとは復習で定着',
+    stage: 'M2',
+    isMastered: false,
+    nextGoalHint: '基本問題を解いてみよう',
   },
   {
     id: 'skill-rika-gas-co2',
@@ -29,9 +29,9 @@ export const RIKA_EXAM_SKILLS: SkillProgressItem[] = [
     category: '気体',
     levelType: 'primary',
     levelTypeName: '基本',
-    stage: 'M4',
-    isMastered: true,
-    nextGoalHint: 'マスター達成済み！あとは復習で定着',
+    stage: 'M2',
+    isMastered: false,
+    nextGoalHint: '基本問題を解いてみよう',
   },
   {
     id: 'skill-rika-physics-density-floating',
@@ -39,9 +39,9 @@ export const RIKA_EXAM_SKILLS: SkillProgressItem[] = [
     category: '浮力',
     levelType: 'core',
     levelTypeName: '大問コア',
-    stage: 'M4',
-    isMastered: true,
-    nextGoalHint: 'マスター達成済み！あとは復習で定着',
+    stage: 'M2',
+    isMastered: false,
+    nextGoalHint: '基本問題を解いてみよう',
   },
   // 未達成（6テーマ）- ここをLv.4に引き上げる！
   {

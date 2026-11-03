@@ -26,7 +26,7 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
 
     // 報酬カード・過去の成績表ボタンが存在すること
     expect(screen.getByTestId('challenge-reward-card')).toBeInTheDocument();
-    expect(screen.getByTestId('open-exam-history-btn')).toBeInTheDocument();
+    expect(screen.queryByTestId('open-exam-history-btn')).not.toBeInTheDocument();
 
     // 2026年度〜2022年度の各行が表示されていること
     expect(screen.getByTestId('exam-year-row-2026')).toBeInTheDocument();
@@ -104,16 +104,16 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
     const rikaBtn = screen.getByTestId('start-exam-btn-2026-rika');
     fireEvent.click(rikaBtn);
 
-    // FinalChallengePage に遷移し、2026年度・理科が選択されていること
+    // FinalChallengePage に遷移し、2026年度・理科のバッジが表示されていること
     expect(await screen.findByTestId('final-challenge-page')).toBeInTheDocument();
-    const activeRikaTab = screen.getByTestId('subject-tab-rika');
-    expect(activeRikaTab.className).toContain('activeSubjectTab');
+    const examBadge = screen.getByTestId('challenge-exam-badge');
+    expect(examBadge).toHaveTextContent('2026年度');
+    expect(examBadge).toHaveTextContent('理科');
 
     // デフォルトで原本スキャン画像が表示されていること
     expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
 
-    // 理科なのでStage 2（同等未見問題）タブは活性化していること
-    const stage2Tab = screen.getByTestId('stage-2-tab');
-    expect(stage2Tab).not.toBeDisabled();
+    // Stage 1 のみ提供されるため、Stage切り替えタブはヘッダーに存在しないこと
+    expect(screen.queryByTestId('stage-2-tab')).toBeNull();
   });
 });

@@ -5,6 +5,7 @@ import { ALL_CURRICULUM_QUESTIONS } from '../data/curriculum';
 import { ALL_PROGRESS_SKILLS } from '../data/all-skills';
 import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
 import { promoteSkillStage } from '../utils/mastery-helper';
+import { boostMemoryRetention } from '../utils/memory-retention';
 import { selectBalancedDailyExamQuestions } from '../data/past-exam-questions';
 
 export interface SessionAnswerRecord {
@@ -249,12 +250,19 @@ export const useAppStore = create<AppState>((set, get) => ({
       newResults[state.currentIndex] = newRecord;
 
       let promotedSkillInfo = state.promotedSkillInfo;
-      if (state.currentFocusSkillId && isCorrect && !promotedSkillInfo) {
-        const skill = ALL_PROGRESS_SKILLS.find(s => s.id === state.currentFocusSkillId);
-        const skillTitle = skill?.title || currentQ?.skillTitle || '重点単元';
-        const promo = promoteSkillStage(state.currentFocusSkillId, skillTitle);
-        if (promo) {
-          promotedSkillInfo = promo;
+      if (isCorrect) {
+        const targetSkillId = state.currentFocusSkillId || currentQ?.skillId;
+        if (targetSkillId) {
+          boostMemoryRetention(targetSkillId, directRecall ? 30 : 20);
+        }
+
+        if (state.currentFocusSkillId && !promotedSkillInfo) {
+          const skill = ALL_PROGRESS_SKILLS.find(s => s.id === state.currentFocusSkillId);
+          const skillTitle = skill?.title || currentQ?.skillTitle || '重点単元';
+          const promo = promoteSkillStage(state.currentFocusSkillId, skillTitle);
+          if (promo) {
+            promotedSkillInfo = promo;
+          }
         }
       }
 
