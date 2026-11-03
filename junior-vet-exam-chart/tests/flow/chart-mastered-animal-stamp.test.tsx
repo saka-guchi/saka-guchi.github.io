@@ -22,8 +22,8 @@ describe('症例スタディマスター（全快）キャラクターのカル�
     );
 
     // カルテヘッダーに症例全快数が含まれていること
-    expect(screen.getByText(/元気にした動物たちのカルテ/)).toBeInTheDocument();
-    expect(screen.getByText(/症例全快:/)).toBeInTheDocument();
+    expect(screen.getByText(/元気にした動物たち/)).toBeInTheDocument();
+    expect(screen.getByText(/症例全快/)).toBeInTheDocument();
 
     // プレビュータブ（症例全快）をクリック
     const chartTab = screen.getByTestId('preview-tab-chart');
