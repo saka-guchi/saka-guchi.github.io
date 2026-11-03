@@ -50,9 +50,15 @@ describe('Question Source Display & Helper Tests', () => {
     expect(getQuestionSource(shakaiQ)).toBe('2024年度 安田学園中学校 社会');
   });
 
+  it('correctly attributes other exam years (2023, 2025, 2026)', () => {
+    expect(getQuestionSource({ id: 'curriculum-2023-rika-bee-1', subject: 'rika' })).toBe('2023年度 安田学園中学校 理科');
+    expect(getQuestionSource({ id: 'past-exam-2025-sansu-01', subject: 'sansu' })).toBe('2025年度 安田学園中学校 算数');
+    expect(getQuestionSource({ id: 'past-exam-2026-shakai-02', subject: 'shakai' })).toBe('2026年度 安田学園中学校 社会');
+    expect(getQuestionSource({ id: 'past-exam-2026-kokugo-01', subject: 'kokugo' })).toBe('2026年度 安田学園中学校 国語');
+  });
+
   it('safely handles missing or empty question objects', () => {
     expect(getQuestionSource(null)).toBe('安田学園中学校 入試問題');
     expect(getQuestionSource(undefined)).toBe('安田学園中学校 入試問題');
   });
 });
-

@@ -36,17 +36,28 @@ export function getQuestionSource(question?: Partial<SampleQuestion> | null): st
   const subjectName = getSubjectJaName(question.subject);
   const id = question.id || '';
 
-  // 2. 国語（kokugo）は2022年度 安田学園中学校の入試問題
-  if (question.subject === 'kokugo' || id.includes('kokugo')) {
-    return '2022年度 安田学園中学校 国語';
+  // 2. IDに年度の明示がある場合（2026, 2025, 2024, 2023, 2022）
+  if (id.includes('2026')) {
+    return `2026年度 安田学園中学校${subjectName ? ` ${subjectName}` : ''}`;
   }
-
-  // 3. IDに2022年度の明示がある場合
+  if (id.includes('2025')) {
+    return `2025年度 安田学園中学校${subjectName ? ` ${subjectName}` : ''}`;
+  }
+  if (id.includes('2024')) {
+    return `2024年度 安田学園中学校${subjectName ? ` ${subjectName}` : ''}`;
+  }
+  if (id.includes('2023')) {
+    return `2023年度 安田学園中学校${subjectName ? ` ${subjectName}` : ''}`;
+  }
   if (id.includes('2022')) {
     return `2022年度 安田学園中学校${subjectName ? ` ${subjectName}` : ''}`;
+  }
+
+  // 3. 国語（kokugo）の特訓問題は初期2022年度 安田学園中学校の入試問題準拠
+  if (question.subject === 'kokugo' || id.includes('kokugo')) {
+    return '2022年度 安田学園中学校 国語';
   }
 
   // 4. その他の特訓カリキュラムおよびサンプル問題は2024年度過去問に準拠
   return `2024年度 安田学園中学校${subjectName ? ` ${subjectName}` : ''}`;
 }
-

@@ -3,6 +3,7 @@ import type { SampleQuestion } from '../sample-data';
 import { SAMPLE_QUESTIONS } from '../sample-data';
 import { CURRICULUM_2023_QUESTIONS } from '../curriculum-2023-questions';
 import { FOCUS_CURRICULUM_QUESTIONS } from '../focus-curriculum-questions';
+import { ALL_PAST_EXAM_QUESTIONS } from '../past-exam-questions';
 
 // 理科
 import rikaQuestions from './rika/questions.json';
@@ -120,9 +121,14 @@ export const BUILTIN_YASUDA_PACK: StoredPack = {
   importedAt: Date.now(),
 };
 
-// 演習問題、応用問題、統合問題、過去問（2023年度含む）、全テーマ特訓問題を SampleQuestion 形式に正規化して結合
+// 演習問題、応用問題、統合問題、全年度過去問（2022〜2026年度）、全テーマ特訓問題を SampleQuestion 形式に正規化して結合
 function buildCurriculumQuestions(): SampleQuestion[] {
-  const list: SampleQuestion[] = [...SAMPLE_QUESTIONS, ...CURRICULUM_2023_QUESTIONS, ...FOCUS_CURRICULUM_QUESTIONS];
+  const list: SampleQuestion[] = [
+    ...SAMPLE_QUESTIONS,
+    ...CURRICULUM_2023_QUESTIONS,
+    ...FOCUS_CURRICULUM_QUESTIONS,
+    ...ALL_PAST_EXAM_QUESTIONS,
+  ];
 
   const allPractice = [
     ...rikaPractice.map(p => ({ ...p, subject: 'rika' as const })),

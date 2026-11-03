@@ -5,6 +5,7 @@ import { ALL_CURRICULUM_QUESTIONS } from '../data/curriculum';
 import { ALL_PROGRESS_SKILLS } from '../data/all-skills';
 import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
 import { promoteSkillStage } from '../utils/mastery-helper';
+import { selectBalancedDailyExamQuestions } from '../data/past-exam-questions';
 
 export interface SessionAnswerRecord {
   question: SampleQuestion;
@@ -111,7 +112,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
     }
     const count = get().settings.dailyQuestionCount;
-    const questions = [...pool].sort(() => 0.5 - Math.random()).slice(0, count);
+    const questions = selectBalancedDailyExamQuestions(pool, count);
 
     set({
       currentFocusSkillId: null,
@@ -301,4 +302,5 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
   },
 }));
+
 
