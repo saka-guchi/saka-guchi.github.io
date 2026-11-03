@@ -493,11 +493,6 @@ export const HomePage: React.FC = () => {
                   })}
                 </div>
               </div>
-
-              {/* 指示1: 内訳（復習3・やり直し2・新知識2・応用3）を教科トグルとボタンの間に配置（1行・12px・グレー文字のみ・ボタン風にしない） */}
-              <div className={styles.todayBreakdownText} data-testid="today-breakdown-text">
-                内訳: 🔄 復習 3問 ・ ✏️ やり直し 2問 ・ 🌱 新知識 2問 ・ ⭐ 応用 3問
-              </div>
             </div>
 
             <div className={styles.todayActions}>
