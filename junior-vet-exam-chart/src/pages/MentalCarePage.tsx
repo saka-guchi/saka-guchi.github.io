@@ -70,6 +70,8 @@ export const MentalCarePage: React.FC = () => {
   const [weatherToast, setWeatherToast] = useState<string | null>(null);
   const [parentRequestToast, setParentRequestToast] = useState<string | null>(null);
   const parentRequestTimerRef = useRef<any>(null);
+  const isMountedRef = useRef<boolean>(true);
+  const toastTimerRef = useRef<any>(null);
   const [crisisAlertActive, setCrisisAlertActive] = useState(false);
   const [showCheckinMemo, setShowCheckinMemo] = useState(false);
   const [showNextStepInput, setShowNextStepInput] = useState(false);
@@ -150,9 +152,6 @@ export const MentalCarePage: React.FC = () => {
     }
   };
 
-  const isMountedRef = useRef(true);
-  const toastTimerRef = useRef<any>(null);
-
   // 初期ロード
   useEffect(() => {
     isMountedRef.current = true;
@@ -190,13 +189,16 @@ export const MentalCarePage: React.FC = () => {
       parentRequest: selectedParentRequest,
     });
 
+    if (!isMountedRef.current) return;
     if (crisisDetected) {
       setCrisisAlertActive(true);
     } else {
       setCrisisAlertActive(false);
     }
 
-    await loadAllData();
+    if (isMountedRef.current) {
+      await loadAllData();
+    }
   };
 
   // おうちの人へのお願い（選択・解除トグル）
@@ -281,12 +283,18 @@ export const MentalCarePage: React.FC = () => {
 
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     timerIntervalRef.current = setInterval(() => {
+      if (!isMountedRef.current) {
+        clearInterval(timerIntervalRef.current);
+        return;
+      }
       setTimerSecondsLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timerIntervalRef.current);
-          setIsTimerRunning(false);
-          setTimerFinished(true);
-          sound.playFanfare();
+          if (isMountedRef.current) {
+            setIsTimerRunning(false);
+            setTimerFinished(true);
+            sound.playFanfare();
+          }
           return 0;
         }
         return prev - 1;
@@ -500,6 +508,9 @@ export const MentalCarePage: React.FC = () => {
               こころの休憩室
             </h1>
             <p className={styles.headerSubtitle}>🐾 こころの相談室・マインドカルテ</p>
+            <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#64748B', lineHeight: 1.4 }}>
+              ※ こころの記録は、ブラウザのデータを消したり端末を変えたりすると消えます（バックアップされません）。
+            </p>
           </div>
         </div>
 
@@ -530,7 +541,10 @@ export const MentalCarePage: React.FC = () => {
               <span>🤝</span> ひとりで抱え込まないでね
             </h2>
             <p className={styles.crisisText}>
-              つらいときや苦しいときは、信頼できる大人に話したり、無料の相談窓口に電話してみてね。秘密は必ず守られるよ。
+              つらいときや苦しいときは、信頼できる大人に話したり、無料の相談窓口に電話してみてね。
+            </p>
+            <p style={{ margin: '4px 0 12px 0', fontSize: '12px', color: '#0F766E', fontWeight: 700 }}>
+              💡 おうちの人にも『ようすを見てあげてね』と伝えるよ。何を書いたかは伝えないよ。
             </p>
             <div className={styles.crisisContactList}>
               {OFFICIAL_CRISIS_CONTACTS.map((c) => (
@@ -574,22 +588,55 @@ export const MentalCarePage: React.FC = () => {
             })}
           </div>
 
-          <div className={styles.privacyToggleRow}>
-            <span className={styles.privacyLabel}>
-              {shareWithParent ? (
-                <span className={styles.sharedBadge}>👨‍⚕️ おうちの人に伝える</span>
-              ) : (
-                <span className={styles.privateBadge}>🔒 今日はおうちの人には伝えない</span>
-              )}
-            </span>
-            <label className={styles.switch}>
-              <input
-                type="checkbox"
-                checked={!shareWithParent}
-                onChange={(e) => setShareWithParent(!e.target.checked)}
-              />
-              <span className={styles.slider} />
-            </label>
+          <div style={{ margin: '14px 0', background: 'var(--surface-subtle, #F1F5F9)', padding: '4px', borderRadius: '12px', display: 'flex', gap: '4px', border: '1px solid var(--border, #E2E8F0)' }}>
+            <button
+              type="button"
+              data-testid="toggle-share-parent"
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                background: shareWithParent ? '#0D9488' : 'transparent',
+                color: shareWithParent ? '#FFFFFF' : 'var(--text-subtle, #64748B)',
+                fontWeight: 800,
+                fontSize: '13px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.15s ease',
+              }}
+              onClick={() => setShareWithParent(true)}
+            >
+              <span>👨‍⚕️ おうちの人に見える</span>
+              {shareWithParent && <span>✓</span>}
+            </button>
+            <button
+              type="button"
+              data-testid="toggle-private-parent"
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                background: !shareWithParent ? '#475569' : 'transparent',
+                color: !shareWithParent ? '#FFFFFF' : 'var(--text-subtle, #64748B)',
+                fontWeight: 800,
+                fontSize: '13px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.15s ease',
+              }}
+              onClick={() => setShareWithParent(false)}
+            >
+              <span>🔒 今日は伝えない</span>
+              {!shareWithParent && <span>✓</span>}
+            </button>
           </div>
 
           <div style={{ marginBottom: '14px' }}>
@@ -772,11 +819,16 @@ export const MentalCarePage: React.FC = () => {
 
             {/* サンプルカードの練習 */}
             <div style={{ background: '#F8FAFC', padding: '12px 14px', borderRadius: '12px', marginBottom: '20px' }}>
-              <div style={{ fontSize: '12px', fontWeight: 800, color: '#0F766E', marginBottom: '6px' }}>
-                💡 例題で仕分けを練習してみよう
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 800, color: '#0F766E' }}>
+                  💡 例題で仕分けを練習してみよう
+                </div>
+                <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 700 }}>
+                  （例題 {(sortingSampleIndex % INITIAL_SORTING_CARDS.length) + 1} / {INITIAL_SORTING_CARDS.length}）
+                </span>
               </div>
-              <p style={{ margin: '0 0 10px 0', fontSize: '13px', fontWeight: 600 }}>
-                先生が男子ばかり褒めたり贔屓（ひいき）すること
+              <p style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 700, color: '#1E293B', lineHeight: 1.5 }}>
+                {INITIAL_SORTING_CARDS[sortingSampleIndex % INITIAL_SORTING_CARDS.length]?.text}
               </p>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
@@ -808,8 +860,9 @@ export const MentalCarePage: React.FC = () => {
                 </button>
               </div>
               {sampleFeedback && (
-                <div style={{ marginTop: '10px', fontSize: '12px', color: '#475569', background: 'white', padding: '8px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                  相手の課題: {sampleFeedback}
+                <div style={{ marginTop: '10px', fontSize: '12px', color: '#334155', background: 'white', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E2E8F0', lineHeight: 1.5 }}>
+                  <div style={{ fontWeight: 800, color: '#0F766E', marginBottom: '2px' }}>💡 直前の例題の解説:</div>
+                  <div>{sampleFeedback}</div>
                 </div>
               )}
             </div>

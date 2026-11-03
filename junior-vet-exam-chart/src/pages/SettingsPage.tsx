@@ -4,6 +4,7 @@ import { useAppStore } from '../store/appStore';
 import { db } from '../db';
 import { APP_VERSION, BUILD_TIMESTAMP, clearCacheAndReload } from '../version';
 import { checkForAppUpdate, applyAppUpdate, type UpdateCheckResult } from '../utils/version-checker';
+import { clearAllMentalCareData } from '../utils/mental-care';
 import { getDaysUntilExam } from '../utils/countdown-helper';
 import styles from './SettingsPage.module.css';
 
@@ -12,6 +13,7 @@ export const SettingsPage: React.FC = () => {
   const { settings, updateSettings } = useAppStore();
   const [backupStatus, setBackupStatus] = useState<string | null>(null);
   const [resetStep, setResetStep] = useState(0);
+  const [mentalResetStep, setMentalResetStep] = useState(0);
   const [isClearingCache, setIsClearingCache] = useState(false);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
   const [checkResult, setCheckResult] = useState<UpdateCheckResult | null>(null);
@@ -133,6 +135,18 @@ export const SettingsPage: React.FC = () => {
       setBackupStatus(`❌ 復元に失敗しました: ${err.message || 'データ形式が不正です'}`);
     } finally {
       if (e.target) e.target.value = '';
+    }
+  };
+
+  
+  // こころの記録の初期化
+  const handleClearMentalCare = () => {
+    if (mentalResetStep === 0) {
+      setMentalResetStep(1);
+    } else if (mentalResetStep === 1) {
+      clearAllMentalCareData();
+      setMentalResetStep(0);
+      setBackupStatus('⚠️ こころの記録（相談室・見守りデータ・PIN）をすべて削除しました。');
     }
   };
 
@@ -399,6 +413,10 @@ export const SettingsPage: React.FC = () => {
           <p style={{ fontSize: '13px', color: 'var(--text-subtle)', margin: '8px 0 12px 0', lineHeight: '1.5' }}>
             別の端末（iPadやPCなど）への引き継ぎや、ブラウザのキャッシュ削除前の退避用として、学習進度（カルテの解答記録・習得度）をファイルに書き出し・復元できます。
           </p>
+          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 14px', fontSize: '12px', color: '#64748b', marginBottom: '16px', lineHeight: '1.5' }}>
+            🔒 <strong>プライバシーに関する重要なお知らせ:</strong><br />
+            お子さんのプライバシー保護のため、こころの記録（相談室のモヤモヤ・お天気・見守りデータ・保護者PIN）は、バックアップファイルおよび学習履歴の初期化には<strong>含まれません</strong>。
+          </div>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
             <button className={styles.actionBtn} onClick={handleExportHistory} data-testid="export-history-btn">
               📥 履歴を書き出し（バックアップ保存）
@@ -435,6 +453,14 @@ export const SettingsPage: React.FC = () => {
               data-testid="reset-history-btn"
             >
               {resetStep === 0 ? '⚠️ 学習履歴を初期化' : '本当に初期化しますか？（タップで確定）'}
+            </button>
+            <button
+              className={`${styles.actionBtn} ${mentalResetStep > 0 ? styles.dangerBtn : ''}`}
+              onClick={handleClearMentalCare}
+              style={{ borderColor: mentalResetStep > 0 ? '#ef4444' : '#cbd5e1' }}
+              data-testid="clear-mental-care-btn"
+            >
+              {mentalResetStep === 0 ? '🗑️ こころの記録を初期化' : 'こころの記録を全削除しますか？（タップで確定）'}
             </button>
           </div>
 

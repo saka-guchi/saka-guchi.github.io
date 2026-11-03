@@ -23,8 +23,11 @@ import {
   verifyParentPin,
   setParentPin,
   resetParentPinAndSharedData,
+  getParentAuditLogs,
+  getParentPinLockoutStatus,
   generateParentGuidance,
   OFFICIAL_CRISIS_CONTACTS,
+  type ParentAuditLogEntry,
   type WeatherType,
   type SharedCareSignal,
   type ParentRequestType,
@@ -67,6 +70,13 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   const [pinError, setPinError] = useState<string>('');
   const [showPinSetup, setShowPinSetup] = useState<boolean>(false);
   const [newPinInput, setNewPinInput] = useState<string>('');
+  const [confirmPinInput, setConfirmPinInput] = useState<string>('');
+  const [holdProgress, setHoldProgress] = useState<number>(0);
+  const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+  const [resetAgreed, setResetAgreed] = useState<boolean>(false);
+  const [auditLogs, setAuditLogs] = useState<ParentAuditLogEntry[]>(() => getParentAuditLogs());
+  const [lockoutStatus, setLockoutStatus] = useState(() => getParentPinLockoutStatus());
+  const holdTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // 親のアクションチェックリスト
   const [parentChecklist, setParentChecklist] = useState<Record<string, boolean>>(() => {
@@ -101,6 +111,17 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
       isMountedRef.current = false;
       if (actionTimerRef.current) clearTimeout(actionTimerRef.current);
     };
+  }, []);
+
+  
+  // ロックアウト状態と監査ログの更新
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (isMountedRef.current && typeof window !== 'undefined') {
+        setLockoutStatus(getParentPinLockoutStatus());
+      }
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   // 本日日付 (JST)
@@ -170,34 +191,69 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
     }
   };
 
-  // PIN新規設定
+  // PIN新規設定 (2回入力検証)
   const handleSetNewPin = async () => {
-    if (newPinInput.length === 4 && /^\d+$/.test(newPinInput)) {
-      await setParentPin(newPinInput);
-      sound.playPop();
-      setIsPinConfigured(true);
-      setIsPinUnlocked(true);
-      setShowPinSetup(false);
-      setNewPinInput('');
-      setPinError('');
-    } else {
+    if (newPinInput.length !== 4 || !/^\d+$/.test(newPinInput)) {
       sound.playPop();
       setPinError('4桁の半角数字を入力してください');
+      return;
     }
+    if (newPinInput !== confirmPinInput) {
+      sound.playPop();
+      setPinError('確認用の番号が一致しません');
+      return;
+    }
+    await setParentPin(newPinInput);
+    sound.playFanfare();
+    setIsPinConfigured(true);
+    setIsPinUnlocked(true);
+    setShowPinSetup(false);
+    setNewPinInput('');
+    setConfirmPinInput('');
+    setPinError('');
+    setAuditLogs(getParentAuditLogs());
   };
 
-  // PINリセット（忘れた場合の救済）
-  const handleResetPin = () => {
+  // PINリセット実行（2段階確認後）
+  const handleExecuteResetPin = () => {
+    if (!resetAgreed) return;
     resetParentPinAndSharedData();
     sound.playPop();
     setIsPinConfigured(false);
-    setIsPinUnlocked(true);
+    setIsPinUnlocked(false);
+    setShowResetConfirm(false);
+    setResetAgreed(false);
     setSharedWeatherMap({});
     setSharedRequests({});
     setSharedCareCards([]);
     setSharedWeeklySummaries({});
-    setCareSignal(null);
     setPinError('');
+    setAuditLogs(getParentAuditLogs());
+  };
+
+  // 長押し3秒タイマー
+  const handleStartHold = () => {
+    if (holdTimerRef.current) clearInterval(holdTimerRef.current);
+    const start = Date.now();
+    holdTimerRef.current = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const progress = Math.min(100, Math.round((elapsed / 3000) * 100));
+      setHoldProgress(progress);
+      if (progress >= 100) {
+        if (holdTimerRef.current) clearInterval(holdTimerRef.current);
+        sound.playPop();
+        setShowPinSetup(true);
+        setHoldProgress(0);
+      }
+    }, 50);
+  };
+
+  const handleEndHold = () => {
+    if (holdTimerRef.current) {
+      clearInterval(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+    setHoldProgress(0);
   };
 
   const [reports, setReports] = useState<QuestionReportItem[]>(() => getQuestionReports());
@@ -1101,83 +1157,282 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
 
               {/* 保護者PINロック状態の表示 */}
               {!isPinUnlocked ? (
-                <div
-                  style={{
-                    background: '#ffffff',
-                    border: '2px solid #cbd5e1',
-                    borderRadius: '16px',
-                    padding: '24px',
-                    textAlign: 'center',
-                    maxWidth: '400px',
-                    margin: '20px auto',
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
-                  }}
-                >
-                  <div style={{ fontSize: '36px', marginBottom: '8px' }}>🔒</div>
-                  <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 800, color: '#1e293b' }}>
-                    保護者PINロック
-                  </h4>
-                  <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.5, marginBottom: '16px' }}>
-                    お子さんのプライバシーと安全基地を守るため、この画面は保護者PINで保護されています。
-                  </p>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                    <input
-                      id="parent-pin-input"
-                      name="parent-pin-input"
-                      type="password"
-                      maxLength={4}
-                      placeholder="4桁の数字"
-                      value={pinInput}
-                      onChange={(e) => setPinInput(e.target.value)}
+                !isPinConfigured ? (
+                  /* 未設定時: 長押し3秒で設定開始 */
+                  <div
+                    style={{
+                      background: '#ffffff',
+                      border: '2px solid #cbd5e1',
+                      borderRadius: '16px',
+                      padding: '28px 24px',
+                      textAlign: 'center',
+                      maxWidth: '440px',
+                      margin: '20px auto',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                    }}
+                    data-testid="parent-pin-unset-container"
+                  >
+                    <div style={{ fontSize: '38px', marginBottom: '8px' }}>🔐</div>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '17px', fontWeight: 800, color: '#1e293b' }}>
+                      保護者PINが未設定です
+                    </h4>
+                    <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.6, marginBottom: '16px' }}>
+                      お子さんのプライバシーと家庭の安心基地を守るため、保護者の方があらかじめ4桁のPIN番号を設定してください。
+                    </p>
+                    <div
                       style={{
-                        padding: '10px 14px',
-                        fontSize: '18px',
-                        letterSpacing: '4px',
-                        textAlign: 'center',
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
                         borderRadius: '8px',
-                        border: '1.5px solid #94a3b8',
-                        width: '140px',
+                        padding: '10px 14px',
+                        fontSize: '12px',
+                        color: '#475569',
+                        marginBottom: '20px',
+                        textAlign: 'left',
                       }}
-                    />
-                    {pinError && (
-                      <div style={{ color: '#dc2626', fontSize: '12px', fontWeight: 700 }}>
-                        {pinError}
+                    >
+                      ⚠️ <strong>ご注意:</strong> このロックはうっかり見られないためのもので、完全な防止ではありません。
+                    </div>
+
+                    {!showPinSetup ? (
+                      <div>
+                        <div style={{ fontSize: '12px', color: '#047857', fontWeight: 700, marginBottom: '8px' }}>
+                          👇 ボタンを【3秒間長押し】して設定を開始
+                        </div>
+                        <button
+                          type="button"
+                          onMouseDown={handleStartHold}
+                          onMouseUp={handleEndHold}
+                          onMouseLeave={handleEndHold}
+                          onTouchStart={handleStartHold}
+                          onTouchEnd={handleEndHold}
+                          style={{
+                            padding: '12px 24px',
+                            background: holdProgress > 0 ? '#059669' : '#047857',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '10px',
+                            fontSize: '14px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            width: '100%',
+                            maxWidth: '280px',
+                            userSelect: 'none',
+                            boxShadow: '0 3px 8px rgba(4, 120, 87, 0.3)',
+                            transition: 'background 0.15s ease',
+                          }}
+                          data-testid="parent-pin-hold-setup-btn"
+                        >
+                          🔒 保護者PINを設定する（長押し3秒）
+                        </button>
+                        {holdProgress > 0 && (
+                          <div style={{ width: '100%', maxWidth: '280px', margin: '8px auto 0', height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{ width: `${holdProgress}%`, height: '100%', background: '#10b981', transition: 'width 0.05s linear' }} />
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      /* PIN設定フォーム（2回入力） */
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }} data-testid="parent-pin-setup-form">
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
+                          新しい4桁の数字を決めてください
+                        </div>
+                        <input
+                          id="new-parent-pin"
+                          name="new-parent-pin"
+                          type="password"
+                          maxLength={4}
+                          placeholder="新しい4桁のPIN"
+                          value={newPinInput}
+                          onChange={(e) => setNewPinInput(e.target.value)}
+                          style={{
+                            padding: '10px 14px',
+                            fontSize: '18px',
+                            letterSpacing: '4px',
+                            textAlign: 'center',
+                            borderRadius: '8px',
+                            border: '1.5px solid #94a3b8',
+                            width: '160px',
+                          }}
+                          data-testid="parent-pin-new-input"
+                        />
+                        <input
+                          id="confirm-parent-pin"
+                          name="confirm-parent-pin"
+                          type="password"
+                          maxLength={4}
+                          placeholder="もう一度入力（確認）"
+                          value={confirmPinInput}
+                          onChange={(e) => setConfirmPinInput(e.target.value)}
+                          style={{
+                            padding: '10px 14px',
+                            fontSize: '18px',
+                            letterSpacing: '4px',
+                            textAlign: 'center',
+                            borderRadius: '8px',
+                            border: '1.5px solid #94a3b8',
+                            width: '160px',
+                          }}
+                          data-testid="parent-pin-confirm-input"
+                        />
+                        {pinError && (
+                          <div style={{ color: '#dc2626', fontSize: '12px', fontWeight: 700 }}>
+                            {pinError}
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowPinSetup(false);
+                              setNewPinInput('');
+                              setConfirmPinInput('');
+                              setPinError('');
+                            }}
+                            style={{
+                              padding: '8px 16px',
+                              background: '#f1f5f9',
+                              border: '1px solid #cbd5e1',
+                              borderRadius: '8px',
+                              fontSize: '13px',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            キャンセル
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleSetNewPin}
+                            style={{
+                              padding: '8px 20px',
+                              background: '#047857',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '8px',
+                              fontSize: '13px',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                            }}
+                            data-testid="save-parent-pin-btn"
+                          >
+                            PINを登録して解錠 ❯
+                          </button>
+                        </div>
                       </div>
                     )}
-                    <button
-                      onClick={handleUnlockPin}
-                      style={{
-                        padding: '10px 24px',
-                        background: '#047857',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        width: '100%',
-                        maxWidth: '200px',
-                      }}
-                    >
-                      ロック解除 ❯
-                    </button>
-                    <button
-                      onClick={handleResetPin}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#94a3b8',
-                        fontSize: '11px',
-                        cursor: 'pointer',
-                        textDecoration: 'underline',
-                        marginTop: '8px',
-                      }}
-                    >
-                      PINを忘れた場合（データをリセットして解除）
-                    </button>
                   </div>
-                </div>
+                ) : (
+                  /* PIN設定済み・ロック画面 */
+                  <div
+                    style={{
+                      background: '#ffffff',
+                      border: '2px solid #cbd5e1',
+                      borderRadius: '16px',
+                      padding: '24px',
+                      textAlign: 'center',
+                      maxWidth: '400px',
+                      margin: '20px auto',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                    }}
+                    data-testid="parent-pin-locked-container"
+                  >
+                    <div style={{ fontSize: '36px', marginBottom: '8px' }}>🔒</div>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 800, color: '#1e293b' }}>
+                      保護者PINロック
+                    </h4>
+                    <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.5, marginBottom: '16px' }}>
+                      お子さんのプライバシーと安全基地を守るため、この画面は保護者PINで保護されています。
+                    </p>
+
+                    {lockoutStatus.isLocked ? (
+                      /* ロックアウト中画面 (迂回防止: 忘れた場合ボタン非表示) */
+                      <div
+                        style={{
+                          background: '#fef2f2',
+                          border: '1.5px solid #f87171',
+                          borderRadius: '10px',
+                          padding: '16px',
+                          color: '#991b1b',
+                        }}
+                        data-testid="parent-pin-lockout-notice"
+                      >
+                        <div style={{ fontSize: '14px', fontWeight: 800, marginBottom: '4px' }}>
+                          ⚠️ 連続失敗のため一時的にロックされています
+                        </div>
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#b91c1c' }}>
+                          ロック解除まで: <strong>{lockoutStatus.remainingText}</strong>
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#7f1d1d', marginTop: '6px' }}>
+                          ※ セキュリティ保護のため、ロックアウト中はPINリセットも実行できません。
+                        </div>
+                      </div>
+                    ) : (
+                      /* 通常のPIN入力フォーム */
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+                        <input
+                          id="parent-pin-input"
+                          name="parent-pin-input"
+                          type="password"
+                          maxLength={4}
+                          placeholder="4桁の数字"
+                          value={pinInput}
+                          onChange={(e) => setPinInput(e.target.value)}
+                          style={{
+                            padding: '10px 14px',
+                            fontSize: '18px',
+                            letterSpacing: '4px',
+                            textAlign: 'center',
+                            borderRadius: '8px',
+                            border: '1.5px solid #94a3b8',
+                            width: '140px',
+                          }}
+                          data-testid="parent-pin-verify-input"
+                        />
+                        {pinError && (
+                          <div style={{ color: '#dc2626', fontSize: '12px', fontWeight: 700 }} data-testid="parent-pin-error">
+                            {pinError}
+                          </div>
+                        )}
+                        <button
+                          onClick={handleUnlockPin}
+                          style={{
+                            padding: '10px 24px',
+                            background: '#047857',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            width: '100%',
+                            maxWidth: '200px',
+                          }}
+                          data-testid="parent-pin-unlock-btn"
+                        >
+                          ロック解除 ❯
+                        </button>
+                        <button
+                          onClick={() => {
+                            sound.playPop();
+                            setShowResetConfirm(true);
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#94a3b8',
+                            fontSize: '11px',
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            marginTop: '8px',
+                          }}
+                          data-testid="parent-pin-forgot-btn"
+                        >
+                          PINを忘れた場合（データをリセットして解除）
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )
               ) : (
                 <>
                   {/* 冒頭の約束（常時表示） */}

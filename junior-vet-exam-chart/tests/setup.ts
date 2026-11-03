@@ -52,3 +52,13 @@ try {
 } catch (e) {
   console.warn('globalThis.crypto polyfill error:', e);
 }
+
+// jsdom 環境での canvas / confetti モック
+try {
+  if (typeof HTMLCanvasElement !== 'undefined') {
+    // @ts-expect-error dummy getContext for jsdom
+    HTMLCanvasElement.prototype.getContext = () => null;
+  }
+} catch {
+  // ignore
+}

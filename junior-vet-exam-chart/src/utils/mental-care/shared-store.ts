@@ -15,8 +15,9 @@ import {
   SharedCareSignal,
   MetaParentPin,
   WeatherType,
+  ParentAuditLogEntry,
 } from './types';
-import { generateSaltHex, hashPin } from './crypto';
+import { generateSaltHex, hashPin, DEFAULT_PBKDF2_ITERATIONS } from './crypto';
 
 function safeGetItem<T>(key: string, defaultValue: T): T {
   if (typeof window === 'undefined' || !window.localStorage) {
@@ -129,16 +130,18 @@ export function isParentPinSet(): boolean {
 /**
  * 保護者PINを設定（新規設定または変更）
  */
-export async function setParentPin(pin: string): Promise<void> {
+export async function setParentPin(pin: string, iterations: number = DEFAULT_PBKDF2_ITERATIONS): Promise<void> {
   const salt = generateSaltHex(16);
-  const testHash = await hashPin(pin, salt);
+  const testHash = await hashPin(pin, salt, iterations);
   const meta: MetaParentPin = {
     enabled: true,
     salt,
     testHash,
     failedCount: 0,
+    iterations,
   };
   safeSetItem(MENTAL_STORAGE_KEYS.META_PARENT_PIN, meta);
+  recordParentAuditLog('pin_set');
 }
 
 export interface VerifyPinResult {
@@ -151,7 +154,7 @@ export interface VerifyPinResult {
 /**
  * 保護者PINを検証
  */
-export async function verifyParentPin(pin: string): Promise<VerifyPinResult> {
+export async function verifyParentPin(pin: string, iterationsOverride?: number): Promise<VerifyPinResult> {
   const meta = getParentPinMeta();
   if (!meta || !meta.enabled) {
     // 未設定の場合は認証通過
@@ -168,7 +171,8 @@ export async function verifyParentPin(pin: string): Promise<VerifyPinResult> {
     };
   }
 
-  const computedHash = await hashPin(pin, meta.salt);
+  const iters = iterationsOverride || meta.iterations || DEFAULT_PBKDF2_ITERATIONS;
+  const computedHash = await hashPin(pin, meta.salt, iters);
   if (computedHash === meta.testHash) {
     // 認証成功: 失敗カウントをリセット
     if (meta.failedCount > 0 || meta.lockedUntil) {
@@ -216,3 +220,61 @@ export function resetParentPinAndSharedData(): void {
   }
 }
 
+
+/**
+ * ------------------------------------------------------------------
+ * 保護者PIN 監査ログ（PIN設定・リセット・警戒サイン解除の履歴記録）
+ * ------------------------------------------------------------------
+ */
+export function getParentAuditLogs(): ParentAuditLogEntry[] {
+  return safeGetItem<ParentAuditLogEntry[]>(MENTAL_STORAGE_KEYS.META_PARENT_AUDIT_LOGS, []);
+}
+
+export function recordParentAuditLog(action: 'pin_set' | 'pin_reset' | 'care_signal_ack'): void {
+  const logs = getParentAuditLogs();
+  const now = new Date();
+  const formattedDateJst = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(now);
+
+  const labels: Record<string, string> = {
+    pin_set: '保護者PIN設定',
+    pin_reset: '保護者PINリセット（共有初期化）',
+    care_signal_ack: '警戒サイン確認（解除）',
+  };
+
+  const newEntry: ParentAuditLogEntry = {
+    action,
+    timestamp: now.toISOString(),
+    label: labels[action] || action,
+    formattedDateJst,
+  };
+
+  // 最新30件まで保持
+  const updatedLogs = [newEntry, ...logs].slice(0, 30);
+  safeSetItem(MENTAL_STORAGE_KEYS.META_PARENT_AUDIT_LOGS, updatedLogs);
+}
+
+/**
+ * 保護者PINロックアウト状態（残り時間）を取得
+ */
+export function getParentPinLockoutStatus(): { isLocked: boolean; remainingMs: number; remainingText: string } {
+  const meta = getParentPinMeta();
+  if (!meta || !meta.lockedUntil) {
+    return { isLocked: false, remainingMs: 0, remainingText: '' };
+  }
+  const now = Date.now();
+  const diff = meta.lockedUntil - now;
+  if (diff <= 0) {
+    return { isLocked: false, remainingMs: 0, remainingText: '' };
+  }
+  const minutes = Math.floor(diff / 60000);
+  const seconds = Math.floor((diff % 60000) / 1000);
+  const remainingText = minutes > 0 ? `あと ${minutes}分${seconds}秒` : `あと ${seconds}秒`;
+  return { isLocked: true, remainingMs: diff, remainingText };
+}
