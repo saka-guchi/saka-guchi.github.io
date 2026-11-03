@@ -1011,12 +1011,12 @@ export const HomePage: React.FC = () => {
             data-testid="card-final-challenge"
           >
             <div className={styles.examHeaderRow}>
-              <h3 className={`${styles.cardTitle} ${styles.caseStudyTitle}`}>
-                🏆 合格ドクター認定試験
-              </h3>
+              <div className={styles.areaHeaderRow}>
+                <h2 className={styles.areaTitle}>🏆 獣医師認定試験</h2>
+              </div>
             </div>
 
-            <p className={styles.examSimpleLead}>
+            <p className={styles.areaDescription}>
               実際の入試問題で力試しをしよう
             </p>
 
