@@ -2716,14 +2716,6 @@
   min-height: 22px; /* 左右カラムで1行目の高さを揃える */
 }
 
-/* 本日の診察: 内訳テキスト（指示1: 1行・12px・グレー文字のみ・ボタン風にしない） */
-.todayBreakdownText {
-  font-size: var(--font-size-caption); /* 12px */
-  color: var(--color-text-muted);
-  margin: 10px 0 0 0;
-  line-height: 1.4;
-}
-
 /* 知識の処方箋: 教材名と教科バッジ */
 .extraBookInfoRow {
   display: flex;
