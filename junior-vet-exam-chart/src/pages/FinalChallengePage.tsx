@@ -208,9 +208,7 @@ export const FinalChallengePage: React.FC = () => {
   const publicFallback =
     currentYear === 2024
       ? `${import.meta.env.BASE_URL}pages/${currentSubject}/mondai_p${padPage}.webp`
-      : currentYear === 2023
-      ? `${import.meta.env.BASE_URL}pages/2023/${currentSubject}/mondai_p${padPage}.webp`
-      : `${import.meta.env.BASE_URL}pages/2022/${currentSubject}/mondai_p${padPage}.webp`;
+      : `${import.meta.env.BASE_URL}pages/${currentYear}/${currentSubject}/mondai_p${padPage}.webp`;
   const pageImageData =
     storedPack?.images?.[pageImageKey] ||
     storedPack?.images?.[pageImageAltKey] ||
