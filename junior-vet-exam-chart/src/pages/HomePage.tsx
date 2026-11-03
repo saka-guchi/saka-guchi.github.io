@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 import { ANIMAL_STAMPS, getEarnedStampIds } from '../data/animal-stamps';
@@ -19,7 +19,10 @@ import { AnimatedVetPet } from '../components/AnimatedVetPet';
 import { ReferenceBookQuizModal } from '../components/ReferenceBookQuizModal';
 import { REFERENCE_BOOKS } from '../data/extra-history-80';
 import { getRefBookProgress } from '../utils/reference-book-store';
-import type { Subject } from '../types';
+import type { Subject, FinalChallengeResult } from '../types';
+import { db } from '../db';
+import { SUPPORTED_EXAM_YEARS, FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT, type ExamYear } from '../data/final-challenge-data';
+import { getAllExamScoreSummaries } from '../utils/exam-scores';
 import styles from './HomePage.module.css';
 
 type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
@@ -42,6 +45,17 @@ export const HomePage: React.FC = () => {
   const [showLevelHelpModal, setShowLevelHelpModal] = useState(false);
   const [showCompletionHelpModal, setShowCompletionHelpModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [examHistory, setExamHistory] = useState<FinalChallengeResult[]>([]);
+  const [selectedExamYear, setSelectedExamYear] = useState<ExamYear>(2026);
+  const [showAllExamYears, setShowAllExamYears] = useState(false);
+
+  useEffect(() => {
+    db.finalChallengeResults.toArray().then(setExamHistory);
+  }, [showHistoryModal]);
+
+  const examSummaries = useMemo(() => {
+    return getAllExamScoreSummaries(examHistory);
+  }, [examHistory]);
   const [showParentModal, setShowParentModal] = useState(false);
   const [showAllAnimalsModal, setShowAllAnimalsModal] = useState(false);
   const [flashCardSkillId, setFlashCardSkillId] = useState<string | null>(null);
@@ -1042,17 +1056,17 @@ export const HomePage: React.FC = () => {
                 🏆 合格ドクター認定試験
               </h3>
               <span className={styles.examSubjectBadge}>
-                理科・算数・社会
+                理科・算数・社会・国語
               </span>
             </div>
 
             <div className={styles.challengeStatus}>
               {/* 試験内容の説明 */}
               <div className={styles.examDesc}>
-                実際の入試問題に挑む総合テストです。各教科いつでも力試しに挑戦できます！
+                実際の入試問題（過去問原本）に挑む総合テストです。年度と教科を選んで、本番形式の腕試しに挑戦しよう！
                 <ul className={styles.examStageList}>
-                  <li><strong>Stage 1（過去問本番）</strong>: 実際の入試問題（過去問原本）を見ながら受験</li>
-                  <li><strong>Stage 2（同等未見問題）</strong>: Skill構成と難易度が同等の新しい未見問題で実力判定</li>
+                  <li><strong>Stage 1（過去問本番）</strong>: 実際の入試問題を見ながら受験</li>
+                  <li><strong>Stage 2（同等未見問題）</strong>: 同等レベルの新しい未見問題で実力判定</li>
                 </ul>
               </div>
 
@@ -1079,20 +1093,165 @@ export const HomePage: React.FC = () => {
                   </li>
                 </ul>
               </div>
+
+              {/* 年度別・教科別入り口セクション */}
+              <div className={styles.examEntrySection} data-testid="exam-entry-section">
+                <div className={styles.examEntryHeader}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '15px' }}>📅</span>
+                    <strong style={{ fontSize: '14px', color: 'var(--text)' }}>
+                      過去問年度・教科を選んで受験
+                    </strong>
+                  </div>
+
+                  {/* 全年度表示切り替えトグル */}
+                  <button
+                    type="button"
+                    className={styles.toggleAllYearsBtn}
+                    onClick={() => {
+                      sound.playPop();
+                      setShowAllExamYears(prev => !prev);
+                    }}
+                    data-testid="toggle-all-years-btn"
+                  >
+                    {showAllExamYears ? '▲ タブ表示に戻す' : '▼ 全年度をまとめて表示'}
+                  </button>
+                </div>
+
+                {/* 年度選択タブ（全年度表示がOFFの場合） */}
+                {!showAllExamYears && (
+                  <div className={styles.examYearTabs} role="tablist" data-testid="exam-year-tabs">
+                    {SUPPORTED_EXAM_YEARS.map(yr => {
+                      const yrSummaries = examSummaries[yr] || {};
+                      const hasPerfect = Object.values(yrSummaries).some(s => s.isPerfect);
+                      const totalAttempts = Object.values(yrSummaries).reduce((acc, s) => acc + s.attemptCount, 0);
+
+                      return (
+                        <button
+                          key={yr}
+                          role="tab"
+                          aria-selected={selectedExamYear === yr}
+                          className={`${styles.examYearTab} ${selectedExamYear === yr ? styles.activeExamYearTab : ''}`}
+                          onClick={() => {
+                            sound.playPop();
+                            setSelectedExamYear(yr);
+                          }}
+                          data-testid={`home-exam-year-tab-${yr}`}
+                        >
+                          <span>{yr}年度</span>
+                          {hasPerfect && <span className={styles.yearTabBadgePerfect} title="100点満点マスター教科あり">👑</span>}
+                          {!hasPerfect && totalAttempts > 0 && <span className={styles.yearTabBadgeAttempted}>済</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* 科目入り口ボタンリスト */}
+                <div className={styles.examSubjectList} data-testid="exam-subject-list">
+                  {(showAllExamYears ? SUPPORTED_EXAM_YEARS : [selectedExamYear]).map(yr => {
+                    const yrData = FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[yr] || {};
+                    const availableSubjects = (['rika', 'sansu', 'shakai', 'kokugo'] as Subject[]).filter(sub => {
+                      const subData = yrData[sub];
+                      return subData && subData.sections && subData.sections.length > 0;
+                    });
+
+                    return (
+                      <div key={yr} className={styles.examYearGroup} data-testid={`exam-year-group-${yr}`}>
+                        {showAllExamYears && (
+                          <div className={styles.examYearGroupHeading}>
+                            <span>📅 {yr}年度 入試過去問</span>
+                          </div>
+                        )}
+
+                        <div className={styles.examSubjectGrid}>
+                          {availableSubjects.map(sub => {
+                            const subData = yrData[sub];
+                            const summary = examSummaries[yr]?.[sub];
+                            const isPerfect = summary?.isPerfect ?? false;
+                            const bestScore = summary?.bestScore ?? null;
+                            const passed = summary?.passed ?? false;
+
+                            return (
+                              <div
+                                key={sub}
+                                className={`${styles.examSubjectCard} ${isPerfect ? styles.examSubjectCardPerfect : ''}`}
+                                data-testid={`exam-entry-card-${yr}-${sub}`}
+                              >
+                                <div className={styles.examSubjectCardTop}>
+                                  <div className={styles.examSubjectInfo}>
+                                    <span className={styles.examSubjectIcon}>{subData.icon}</span>
+                                    <div>
+                                      <div className={styles.examSubjectName}>
+                                        {subData.subjectLabel}
+                                        {showAllExamYears && (
+                                          <span className={styles.examSubjectYearPill}>{yr}年</span>
+                                        )}
+                                      </div>
+                                      <span className={styles.examSubjectTime}>
+                                        ⏱ {subData.timeLimitMinutes}分
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* 最高点の記録表示（100点なら特別なデザイン） */}
+                                  <div
+                                    className={`${styles.examScoreBadge} ${
+                                      isPerfect
+                                        ? styles.examScoreBadgePerfect
+                                        : bestScore !== null
+                                        ? passed
+                                          ? styles.examScoreBadgePassed
+                                          : styles.examScoreBadgeAttempted
+                                        : styles.examScoreBadgeUntested
+                                    }`}
+                                    data-testid={`best-score-${yr}-${sub}`}
+                                    title={`${yr}年度 ${subData.subjectLabel} の最高スコア`}
+                                  >
+                                    {isPerfect ? (
+                                      <span className={styles.perfectScoreLabel}>
+                                        👑 <strong>100点</strong> 満点！
+                                      </span>
+                                    ) : bestScore !== null ? (
+                                      <span>
+                                        {passed ? '⭐ 合格 ' : '最高 '}
+                                        <strong>{bestScore}点</strong>
+                                      </span>
+                                    ) : (
+                                      <span className={styles.untestedLabel}>未受験</span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* 試験開始ボタン */}
+                                <button
+                                  className={`${styles.examStartBtn} ${isPerfect ? styles.examStartBtnPerfect : ''}`}
+                                  onClick={() => {
+                                    sound.playPop();
+                                    navigate(`/final-challenge?year=${yr}&subject=${sub}`);
+                                  }}
+                                  data-testid={`start-exam-btn-${yr}-${sub}`}
+                                >
+                                  {isPerfect ? (
+                                    <>👑 もう一度満点に挑む ❯</>
+                                  ) : bestScore !== null ? (
+                                    <>再挑戦する ❯</>
+                                  ) : (
+                                    <>試験をはじめる ❯</>
+                                  )}
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             <div className={styles.examActionGroup}>
-              <button
-                className={styles.challengeBtn}
-                onClick={() => {
-                  sound.playPop();
-                  navigate('/final-challenge');
-                }}
-                data-testid="final-challenge-link-btn"
-              >
-                合格ドクター認定試験を受ける 🏆
-              </button>
-
               <button
                 onClick={() => {
                   sound.playPop();

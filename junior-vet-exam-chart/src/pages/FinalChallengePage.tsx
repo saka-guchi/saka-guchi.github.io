@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { db, type StoredPack } from '../db';
-import type { Subject } from '../types';
+import type { Subject, FinalChallengeResult } from '../types';
 import {
   FINAL_CHALLENGE_DATA_BY_SUBJECT,
   FINAL_CHALLENGE_2022_DATA_BY_SUBJECT,
@@ -19,14 +19,27 @@ import {
 import { BUILTIN_YASUDA_PACK } from '../data/curriculum';
 import { DoctorCertificateModal } from '../components/DoctorCertificateModal';
 import { FinalExamHistoryModal } from '../components/FinalExamHistoryModal';
+import { getExamScoreSummary } from '../utils/exam-scores';
 import { sound } from '../utils/sound-effects';
 import styles from './FinalChallengePage.module.css';
 
 export const FinalChallengePage: React.FC = () => {
   const navigate = useNavigate();
-  const [currentYear, setCurrentYear] = useState<ExamYear>(2024);
-  const [currentSubject, setCurrentSubject] = useState<Subject>('rika');
+  const [searchParams] = useSearchParams();
+
+  // URLクエリパラメータから初期年度・初期教科を安全に取得
+  const queryYear = Number(searchParams.get('year')) as ExamYear;
+  const querySubject = searchParams.get('subject') as Subject;
+
+  const validYear: ExamYear = SUPPORTED_EXAM_YEARS.includes(queryYear) ? queryYear : 2024;
+  const validSubject: Subject = (['rika', 'sansu', 'shakai', 'kokugo'] as Subject[]).includes(querySubject)
+    ? querySubject
+    : 'rika';
+
+  const [currentYear, setCurrentYear] = useState<ExamYear>(validYear);
+  const [currentSubject, setCurrentSubject] = useState<Subject>(validSubject);
   const [stage, setStage] = useState<1 | 2>(1);
+  const [examHistory, setExamHistory] = useState<FinalChallengeResult[]>([]);
 
   // 教科ごとの残り時間（秒）: 理科30分、算数50分、社会30分、国語50分（各教科独立して保持し、切り替え時も経過時間を維持）
   const getInitialTimes = (yr: ExamYear): Record<Subject, number> => {
@@ -39,7 +52,7 @@ export const FinalChallengePage: React.FC = () => {
     };
   };
 
-  const [subjectTimes, setSubjectTimes] = useState<Record<Subject, number>>(getInitialTimes(2024));
+  const [subjectTimes, setSubjectTimes] = useState<Record<Subject, number>>(getInitialTimes(validYear));
   const [showTimeUpModal, setShowTimeUpModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // p.1 (表紙) から開始
   const [scanZoom, setScanZoom] = useState(100); // 原本スキャン画像専用ズーム（100%=全体表示Fit）
@@ -66,6 +79,11 @@ export const FinalChallengePage: React.FC = () => {
   const currentSubjectData = currentYearData[currentSubject] || currentYearData.rika;
   const currentSections = currentSubjectData.sections;
   const currentTotalPages = currentSubjectData.totalPages;
+
+  // 過去の試験履歴の読み込み（最高点バッジ表示用）
+  useEffect(() => {
+    db.finalChallengeResults.toArray().then(setExamHistory);
+  }, [showExamResultModal]);
 
   // パック読み込み
   useEffect(() => {
@@ -100,6 +118,10 @@ export const FinalChallengePage: React.FC = () => {
   const handleSubjectChange = (newSubject: Subject) => {
     if (newSubject === currentSubject) return;
     sound.playPop();
+    // 国語は同等未見問題（Stage 2）非対応のため、Stage 1へ自動復帰
+    if (newSubject === 'kokugo' && stage === 2) {
+      setStage(1);
+    }
     setCurrentSubject(newSubject);
     setCurrentPage(1);
   };
@@ -175,7 +197,7 @@ export const FinalChallengePage: React.FC = () => {
     const score = Math.round((correctCount / totalQuestions) * 100);
     const passed = score >= 80;
 
-    const examPrefix = storedPack?.examId ? `${storedPack.examId}-${currentSubject}` : `yasuda-${currentYear}-${currentSubject}`;
+    const examPrefix = `yasuda-${currentYear}-${currentSubject}`;
     await db.finalChallengeResults.add({
       examId: examPrefix,
       stage,
@@ -286,6 +308,7 @@ export const FinalChallengePage: React.FC = () => {
   const currentTimeLeft = subjectTimes[currentSubject] ?? 0;
   const isTimeCritical = currentTimeLeft <= 60;
   const isTimeWarning = currentTimeLeft <= 300 && !isTimeCritical;
+  const currentScoreSummary = getExamScoreSummary(examHistory, currentYear, currentSubject);
 
   return (
     <div className={styles.container} data-testid="final-challenge-page">
@@ -339,7 +362,7 @@ export const FinalChallengePage: React.FC = () => {
         </div>
 
         {/* 制限時間タイマー（各教科独立・残り時間により警告色） */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <div
             className={`${styles.timerBadge} ${
               isTimeCritical ? styles.timerCritical : isTimeWarning ? styles.timerWarning : ''
@@ -352,6 +375,40 @@ export const FinalChallengePage: React.FC = () => {
           <span style={{ fontSize: '11px', color: 'var(--text-subtle)', whiteSpace: 'nowrap' }}>
             （0:00で自動採点）
           </span>
+
+          {/* 現在選択中教科の過去最高スコア表示 */}
+          <div
+            style={{
+              fontSize: '12px',
+              fontWeight: 800,
+              padding: '3px 8px',
+              borderRadius: 'var(--radius-pill)',
+              background: currentScoreSummary.isPerfect
+                ? 'linear-gradient(135deg, #fef08a, #fde047)'
+                : currentScoreSummary.bestScore !== null
+                ? 'var(--surface-hover)'
+                : 'transparent',
+              border: currentScoreSummary.isPerfect
+                ? '1.5px solid #ca8a04'
+                : currentScoreSummary.bestScore !== null
+                ? '1px solid var(--border)'
+                : '1px dashed var(--border)',
+              color: currentScoreSummary.isPerfect ? '#713f12' : 'var(--text-muted)',
+              whiteSpace: 'nowrap',
+            }}
+            data-testid="header-best-score-badge"
+            title={`${currentYear}年度 ${currentSubjectData.subjectLabel} の最高スコア`}
+          >
+            {currentScoreSummary.isPerfect ? (
+              <span>👑 100点 満点！</span>
+            ) : currentScoreSummary.bestScore !== null ? (
+              <span>
+                {currentScoreSummary.passed ? '⭐ 合格 ' : '最高 '}: {currentScoreSummary.bestScore}点
+              </span>
+            ) : (
+              <span>未受験</span>
+            )}
+          </div>
         </div>
 
         <div className={styles.stageTabs}>
@@ -364,10 +421,16 @@ export const FinalChallengePage: React.FC = () => {
           </button>
           <button
             className={`${styles.stageTab} ${stage === 2 ? styles.activeTab : ''}`}
-            onClick={() => setStage(2)}
+            onClick={() => {
+              if (currentSubject === 'kokugo') return;
+              setStage(2);
+            }}
+            disabled={currentSubject === 'kokugo'}
+            title={currentSubject === 'kokugo' ? '国語は同等未見問題（Stage 2）非対応です' : undefined}
+            style={currentSubject === 'kokugo' ? { opacity: 0.45, cursor: 'not-allowed' } : undefined}
             data-testid="stage-2-tab"
           >
-            Stage 2（同等未見問題）
+            Stage 2（同等未見問題{currentSubject === 'kokugo' ? '・非対応' : ''}）
           </button>
         </div>
       </header>

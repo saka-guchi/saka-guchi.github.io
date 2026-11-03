@@ -2049,3 +2049,323 @@
   cursor: pointer;
   font-size: var(--font-size-caption);
 }
+
+/* ============================================================
+   年度別・科目別ドクター認定試験 入り口ボタン & 最高点バッジ
+   ============================================================ */
+.examEntrySection {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.examEntryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.toggleAllYearsBtn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.toggleAllYearsBtn:hover {
+  background: var(--surface-hover);
+  border-color: var(--primary);
+}
+
+.examYearTabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.examYearTab {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.examYearTab:hover {
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.activeExamYearTab {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+.yearTabBadgePerfect {
+  font-size: 12px;
+  margin-left: 2px;
+}
+
+.yearTabBadgeAttempted {
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.1);
+  color: inherit;
+}
+
+.activeExamYearTab .yearTabBadgeAttempted {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.examSubjectList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.examYearGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.examYearGroupHeading {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--text-muted);
+  padding: 2px 4px;
+  border-bottom: 1px dashed var(--border);
+  margin-bottom: 2px;
+}
+
+.examSubjectGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.examSubjectCard {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.examSubjectCard:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* 100点満点マスター時の特別豪華デザイン */
+.examSubjectCardPerfect {
+  background: linear-gradient(135deg, rgba(254, 240, 138, 0.35) 0%, rgba(253, 224, 71, 0.15) 100%);
+  border: 2px solid #eab308;
+  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.examSubjectCardPerfect::before {
+  content: '👑 満点';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #eab308;
+  color: #713f12;
+  font-size: 9px;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-bottom-left-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.examSubjectCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.examSubjectInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.examSubjectIcon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.examSubjectName {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.examSubjectYearPill {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+
+.examSubjectTime {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* 最高スコアバッジ表示 */
+.examScoreBadge {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.examScoreBadgeUntested {
+  background: var(--surface-hover);
+  color: var(--text-muted);
+  border: 1px dashed var(--border);
+}
+
+.examScoreBadgeAttempted {
+  background: var(--surface-hover);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.examScoreBadgePassed {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+/* 100点満点バッジの特別デザイン */
+.examScoreBadgePerfect {
+  background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+  color: #713f12;
+  border: 1.5px solid #ca8a04;
+  box-shadow: 0 2px 6px rgba(202, 138, 4, 0.3);
+}
+
+.perfectScoreLabel {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.untestedLabel {
+  font-size: 11px;
+}
+
+.examStartBtn {
+  height: 38px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.examStartBtn:hover {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 3px 10px var(--primary-glow);
+}
+
+.examStartBtnPerfect {
+  border-color: #eab308;
+  color: #854d0e;
+  background: rgba(254, 240, 138, 0.4);
+}
+
+.examStartBtnPerfect:hover {
+  background: #eab308;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(234, 179, 8, 0.4);
+}
+
+/* 夜空テーマでの調和 */
+:global([data-theme='night']) .examSubjectCardPerfect {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(202, 138, 4, 0.22) 100%);
+  border-color: #fbbf24;
+  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.2);
+}
+
+:global([data-theme='night']) .examSubjectCardPerfect::before {
+  background: #fbbf24;
+  color: #451a03;
+}
+
+:global([data-theme='night']) .examScoreBadgePerfect {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #451a03;
+  border-color: #fde047;
+}
+
+:global([data-theme='night']) .examStartBtnPerfect {
+  border-color: #fbbf24;
+  color: #fef08a;
+  background: rgba(234, 179, 8, 0.15);
+}
+
+:global([data-theme='night']) .examStartBtnPerfect:hover {
+  background: #fbbf24;
+  color: #1e1b4b;
+}
+
+:global([data-theme='night']) .examScoreBadgePassed {
+  background: rgba(6, 95, 70, 0.35);
+  color: #a7f3d0;
+  border-color: #059669;
+}

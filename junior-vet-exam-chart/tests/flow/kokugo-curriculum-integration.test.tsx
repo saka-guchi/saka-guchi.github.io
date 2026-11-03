@@ -215,4 +215,35 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
     fireEvent.click(screen.getByTestId('year-tab-2022'));
     expect(screen.getByTestId('subject-tab-kokugo')).toBeInTheDocument();
   });
+
+  it('国語選択時は同等未見問題（Stage 2）が非対応として選択不可（disabled）になり、Stage 2から国語に切り替えた場合はStage 1へ自動復帰すること', async () => {
+    render(
+      <BrowserRouter>
+        <FinalChallengePage />
+      </BrowserRouter>
+    );
+
+    // 2024年度タブをクリック
+    fireEvent.click(screen.getByTestId('year-tab-2024'));
+
+    // 理科選択時: Stage 2 タブは活性化（クリック可能）
+    const stage2Tab = screen.getByTestId('stage-2-tab');
+    expect(stage2Tab).not.toBeDisabled();
+    fireEvent.click(stage2Tab);
+    // Stage 2モード表示になっていること
+    expect(screen.getByText('✨ 同等未見問題モード（オリジナル出題）')).toBeInTheDocument();
+
+    // Stage 2の状態で国語タブをクリック
+    const kokugoTab = screen.getByTestId('subject-tab-kokugo');
+    fireEvent.click(kokugoTab);
+
+    // 国語はStage 2非対応のため、Stage 1へ自動復帰し、Stage 2タブが無効化（disabled）されていること
+    expect(stage2Tab).toBeDisabled();
+    expect(stage2Tab).toHaveTextContent(/非対応/);
+    expect(screen.queryByText('✨ 同等未見問題モード（オリジナル出題）')).toBeNull();
+
+    // disabled状態のStage 2タブをクリックしても遷移しないこと
+    fireEvent.click(stage2Tab);
+    expect(screen.queryByText('✨ 同等未見問題モード（オリジナル出題）')).toBeNull();
+  });
 });
