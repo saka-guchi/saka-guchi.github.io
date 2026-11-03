@@ -86,6 +86,27 @@ describe("2024〜2026年度 安田学園過去問データ統合テスト", () =
         expect(slot.stage2Prompt).toBeTruthy();
         expect(slot.stage2CorrectAnswer).toBeTruthy();
       }
+
+      // 2026年度国語: 原本忠実性の検証（AI創作ダミー設問の再発防止）
+      const pages2026 = STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT[2026];
+      expect(pages2026.kokugo).toBeDefined();
+
+      const page6 = pages2026.kokugo[6]; // 大問二設問ページ
+      expect(page6).toBeDefined();
+      const page6Text = JSON.stringify(page6);
+      expect(page6Text).toContain('花開いた');
+      expect(page6Text).toContain('縁のある');
+      expect(page6Text).toContain('高橋先生');
+
+      const page11 = pages2026.kokugo[11]; // 大問三設問ページ
+      expect(page11).toBeDefined();
+      const page11Text = JSON.stringify(page11);
+      expect(page11Text).toContain('もとの世界にいつもどおりアクセス');
+
+      const page12 = pages2026.kokugo[12]; // 大問三設問ページ
+      expect(page12).toBeDefined();
+      const page12Text = JSON.stringify(page12);
+      expect(page12Text).toContain('同一化');
     });
   });
 
@@ -119,7 +140,7 @@ describe("2024〜2026年度 安田学園過去問データ統合テスト", () =
       expect(rikaSlots.length).toBe(16);
       expect(sansuSlots.length).toBe(16);
       expect(shakaiSlots.length).toBe(23);
-      expect(kokugoSlots.length).toBe(20);
+      expect(kokugoSlots.length).toBe(25);
 
       // 全スロットに正解とStage 2問題・正解が設定されていること
       for (const slot of [...rikaSlots, ...sansuSlots, ...shakaiSlots, ...kokugoSlots]) {
@@ -127,6 +148,27 @@ describe("2024〜2026年度 安田学園過去問データ統合テスト", () =
         expect(slot.stage2Prompt).toBeTruthy();
         expect(slot.stage2CorrectAnswer).toBeTruthy();
       }
+
+      // 2026年度国語: 原本忠実性の検証（AI創作ダミー設問の再発防止）
+      const pages2026 = STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT[2026];
+      expect(pages2026.kokugo).toBeDefined();
+
+      const page6 = pages2026.kokugo[6]; // 大問二設問ページ
+      expect(page6).toBeDefined();
+      const page6Text = JSON.stringify(page6);
+      expect(page6Text).toContain('花開いた');
+      expect(page6Text).toContain('縁のある');
+      expect(page6Text).toContain('高橋先生');
+
+      const page11 = pages2026.kokugo[11]; // 大問三設問ページ
+      expect(page11).toBeDefined();
+      const page11Text = JSON.stringify(page11);
+      expect(page11Text).toContain('もとの世界にいつもどおりアクセス');
+
+      const page12 = pages2026.kokugo[12]; // 大問三設問ページ
+      expect(page12).toBeDefined();
+      const page12Text = JSON.stringify(page12);
+      expect(page12Text).toContain('同一化');
     });
   });
 });
