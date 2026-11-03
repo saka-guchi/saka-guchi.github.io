@@ -386,15 +386,7 @@
   box-shadow: var(--shadow-card-hover);
 }
 
-.todayCard::before {
-  content: '🐾';
-  position: absolute;
-  right: -10px;
-  top: -15px;
-  font-size: 90px;
-  opacity: 0.05;
-  pointer-events: none;
-}
+/* 透かしアイコン削除済み */
 
 /* 知識の処方箋カード */
 .extraStudyCard {
@@ -416,15 +408,7 @@
   box-shadow: var(--shadow-card-hover);
 }
 
-.extraStudyCard::before {
-  content: '💊';
-  position: absolute;
-  right: -10px;
-  top: -15px;
-  font-size: 80px;
-  opacity: 0.05;
-  pointer-events: none;
-}
+/* 透かしアイコン削除済み */
 
 .extraHeaderRow {
   display: flex;
@@ -621,7 +605,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin-top: auto;
+  margin-top: 16px;
 }
 
 .startBtn {
@@ -2695,3 +2679,162 @@
     gap: 4px;
   }
 }
+
+
+/* 4領域統一ヘッダー・説明文スタイル */
+.areaHeaderRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.areaTitle {
+  font-size: var(--font-size-heading); /* 20px */
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.areaEstimatedTime {
+  font-size: var(--font-size-caption); /* 12px */
+  color: var(--color-text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.areaDescription {
+  font-size: var(--font-size-body); /* 14px */
+  color: var(--color-text-muted);
+  margin: 4px 0 12px 0;
+  line-height: 1.5;
+  min-height: 22px; /* 左右カラムで1行目の高さを揃える */
+}
+
+/* 本日の診察: 内訳テキスト（指示1: 1行・12px・グレー文字のみ・ボタン風にしない） */
+.todayBreakdownText {
+  font-size: var(--font-size-caption); /* 12px */
+  color: var(--color-text-muted);
+  margin: 10px 0 0 0;
+  line-height: 1.4;
+}
+
+/* 知識の処方箋: 教材名と教科バッジ */
+.extraBookInfoRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.extraBookTitle {
+  font-size: var(--font-size-subheading);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.extraSubjectPill {
+  font-size: var(--font-size-caption);
+  background: #eff6ff;
+  color: var(--color-action);
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+  font-weight: 700;
+}
+
+/* ごほうびカードの統一（指示3: 症例スタディ側・認定試験側の高さを完全同期） */
+.unifiedRewardCard {
+  min-height: 156px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.rewardDesc {
+  margin: 4px 0 8px 0;
+  font-size: var(--font-size-caption);
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.rewardBottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(245, 158, 11, 0.4);
+}
+
+.rewardProgressText {
+  font-size: var(--font-size-caption);
+  color: #92400e;
+  font-weight: 700;
+}
+
+/* 案A（推奨）: 動物アイコン列の末尾に配置する丸型チップ */
+.stampMoreChip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-action);
+  background: #eff6ff;
+  color: var(--color-action);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.stampMoreChip:hover {
+  background: var(--color-action);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.stampMoreText {
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stampMoreArrow {
+  font-size: 10px;
+  line-height: 1;
+}
+
+/* 認定試験: 4列固定グリッド & データなし科目のdisabledスタイル */
+.compactExamBtnDisabled {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  color: #94a3b8;
+  font-size: var(--font-size-caption);
+  font-weight: 500;
+  cursor: not-allowed;
+  user-select: none;
+}
+
+.compactBtnScoreDisabled {
+  font-size: var(--font-size-caption);
+  color: #cbd5e1;
+}
+

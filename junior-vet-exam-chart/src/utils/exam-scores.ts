@@ -16,10 +16,10 @@ export interface SubjectScoreSummary {
 
 /**
  * 点数に応じた報酬バッジのランクを判定する
- * 60点以上: 合格ドクター認定証
- * 80点以上: 銅の獣医師バッジ
- * 90点以上: 銀の獣医師バッジ
- * 100点: 金の獣医師バッジ
+ * 60点以上: 獣医学部 合格証
+ * 80点以上: 獣医師国家試験 合格証
+ * 90点以上: 動物診療施設 開設許可証
+ * 100点: 世界獣医師会 会長賞
  */
 export function getExamBadgeTier(score: number | null): ExamBadgeTier {
   if (score === null || score < 60) return null;
@@ -32,13 +32,13 @@ export function getExamBadgeTier(score: number | null): ExamBadgeTier {
 export function getExamBadgeInfo(tier: ExamBadgeTier): { label: string; icon: string; color: string } | null {
   switch (tier) {
     case 'gold':
-      return { label: '金の獣医師バッジ', icon: '🥇', color: '#eab308' };
+      return { label: '世界獣医師会 会長賞', icon: '🥇', color: '#eab308' };
     case 'silver':
-      return { label: '銀の獣医師バッジ', icon: '🥈', color: '#94a3b8' };
+      return { label: '動物診療施設 開設許可証', icon: '🥈', color: '#94a3b8' };
     case 'bronze':
-      return { label: '銅の獣医師バッジ', icon: '🥉', color: '#d97706' };
+      return { label: '獣医師国家試験 合格証', icon: '🥉', color: '#d97706' };
     case 'certificate':
-      return { label: '合格ドクター認定証', icon: '📜', color: '#10b981' };
+      return { label: '獣医学部 合格証', icon: '📜', color: '#10b981' };
     default:
       return null;
   }
@@ -81,7 +81,7 @@ export function getExamScoreSummary(
   }
 
   const bestScore = Math.max(...matched.map(m => m.score));
-  // 報酬ルール: 60点以上で合格（合格ドクター認定証）
+  // 報酬ルール: 60点以上で合格（獣医学部 合格証）
   const passed = bestScore >= 60;
   const isPerfect = bestScore === 100;
   const badgeTier = getExamBadgeTier(bestScore);

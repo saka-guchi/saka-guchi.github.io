@@ -27,13 +27,13 @@ describe('知識の処方箋（名作参考書：歴史人物80）UI/UX 結合�
     const extraCard = screen.getByTestId('section-extra-study');
     expect(extraCard).toBeInTheDocument();
     expect(screen.getByText('💊 知識の処方箋')).toBeInTheDocument();
-    expect(screen.getByText('出題教科：🗾 社会')).toBeInTheDocument();
-    expect(screen.getByText(/中学入試 即答キーワードで覚える歴史人物80/)).toBeInTheDocument();
+    expect(screen.getByText('🗾 社会')).toBeInTheDocument();
+    expect(screen.getByText('📕 歴史人物80')).toBeInTheDocument();
     expect(screen.getByTestId('start-extra-book-btn')).toBeInTheDocument();
 
     // 歴史人物80の母数が36人ではなく正真正銘の「80 人」と表示されていること
     const progressRow = screen.getByTestId('extra-history-progress');
-    expect(progressRow).toHaveTextContent(/0 \/ 80 人 達成/);
+    expect(progressRow).toHaveTextContent(/0 \/ 80 人/);
   });
 
   it('全80人の歴史人物データが重複なく完全収録されていること', () => {

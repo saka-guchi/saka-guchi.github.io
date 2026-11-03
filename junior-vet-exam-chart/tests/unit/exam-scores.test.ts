@@ -6,18 +6,18 @@ describe('exam-scores utility tests & 報酬ランク検証', () => {
   it('得点に応じた報酬バッジのランク判定が正確であること', () => {
     expect(getExamBadgeTier(null)).toBeNull();
     expect(getExamBadgeTier(59)).toBeNull();
-    expect(getExamBadgeTier(60)).toBe('certificate'); // 60点以上: 合格ドクター認定証
+    expect(getExamBadgeTier(60)).toBe('certificate'); // 60点以上: 獣医学部 合格証
     expect(getExamBadgeTier(79)).toBe('certificate');
-    expect(getExamBadgeTier(80)).toBe('bronze'); // 80点以上: 銅の獣医師バッジ
+    expect(getExamBadgeTier(80)).toBe('bronze'); // 80点以上: 獣医師国家試験 合格証
     expect(getExamBadgeTier(89)).toBe('bronze');
-    expect(getExamBadgeTier(90)).toBe('silver'); // 90点以上: 銀の獣医師バッジ
+    expect(getExamBadgeTier(90)).toBe('silver'); // 90点以上: 動物診療施設 開設許可証
     expect(getExamBadgeTier(99)).toBe('silver');
-    expect(getExamBadgeTier(100)).toBe('gold'); // 100点: 金の獣医師バッジ
+    expect(getExamBadgeTier(100)).toBe('gold'); // 100点: 世界獣医師会 会長賞
 
-    expect(getExamBadgeInfo('gold')?.label).toBe('金の獣医師バッジ');
-    expect(getExamBadgeInfo('silver')?.label).toBe('銀の獣医師バッジ');
-    expect(getExamBadgeInfo('bronze')?.label).toBe('銅の獣医師バッジ');
-    expect(getExamBadgeInfo('certificate')?.label).toBe('合格ドクター認定証');
+    expect(getExamBadgeInfo('gold')?.label).toBe('世界獣医師会 会長賞');
+    expect(getExamBadgeInfo('silver')?.label).toBe('動物診療施設 開設許可証');
+    expect(getExamBadgeInfo('bronze')?.label).toBe('獣医師国家試験 合格証');
+    expect(getExamBadgeInfo('certificate')?.label).toBe('獣医学部 合格証');
   });
 
   it('未受験の年度・科目は bestScore が null で isPerfect が false であること', () => {

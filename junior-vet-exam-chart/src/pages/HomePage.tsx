@@ -441,12 +441,13 @@ export const HomePage: React.FC = () => {
           {/* 左カラム: 本日の診察 */}
           <section className={styles.todayCard} data-testid="today-study-card">
             <div className={styles.todayCardContent} data-testid="card-breakdown">
-              <div className={styles.badgeRow}>
-                <span className={styles.badgeToday}>🩺 本日の診察</span>
-                <span className={styles.badgeDivider}>|</span>
-                <span className={styles.estimatedTime}>⏱️ 目安: 約5分</span>
+              <div className={styles.areaHeaderRow}>
+                <h2 className={styles.areaTitle}>🩺 本日の診察</h2>
+                <span className={styles.areaEstimatedTime}>⏱️ 目安: 約5分</span>
               </div>
-              
+              <p className={styles.areaDescription}>
+                今日復習すべき10問を忘却曲線に合わせて自動出題
+              </p>
 
               {/* 出題教科セグメントコントロール（複数選択対応・トグルUI） */}
               <div className={styles.subjectSelectContainer}>
@@ -493,6 +494,10 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
 
+              {/* 指示1: 内訳（復習3・やり直し2・新知識2・応用3）を教科トグルとボタンの間に配置（1行・12px・グレー文字のみ・ボタン風にしない） */}
+              <div className={styles.todayBreakdownText} data-testid="today-breakdown-text">
+                内訳: 🔄 復習 3問 ・ ✏️ やり直し 2問 ・ 🌱 新知識 2問 ・ ⭐ 応用 3問
+              </div>
             </div>
 
             <div className={styles.todayActions}>
@@ -509,46 +514,41 @@ export const HomePage: React.FC = () => {
 
           {/* 右カラム: 知識の処方箋（名作参考書マスター） */}
           <section className={styles.extraStudyCard} data-testid="section-extra-study">
-            <div className={styles.extraHeaderRow}>
-              <div className={styles.extraHeaderLeft}>
-                <span className={styles.extraBadgeQuest}>💊 知識の処方箋</span>
-                <span className={styles.badgeDivider}>|</span>
-                <span className={styles.extraSubjectBadge}>出題教科：🗾 社会</span>
+            <div className={styles.todayCardContent}>
+              <div className={styles.areaHeaderRow}>
+                <h2 className={styles.areaTitle}>💊 知識の処方箋</h2>
+                <span className={styles.areaEstimatedTime}>⏱️ 目安: 約3分</span>
               </div>
-              <span className={styles.extraSourceBadge}>
-                名作参考書から調合 🧪
-              </span>
-            </div>
-
-            <div>
-              <h2 className={styles.extraHeading}>
-                📕 中学入試 即答キーワードで覚える歴史人物80
-              </h2>
-              <p className={styles.extraSubText} style={{ marginTop: '4px' }}>
-                歴史の知識不足を補う特効薬を処方！入試頻出の80人を「即答キーワード」と実戦入試問題でサクッと処方・マスターしよう！
+              <p className={styles.areaDescription}>
+                名作参考書から厳選した重要知識をクイズで定着
               </p>
-            </div>
 
-            {/* 学習進捗・達成度 */}
-            {(() => {
-              const histProg = getRefBookProgress('history-80');
-              const book = REFERENCE_BOOKS[0];
-              return (
-                <div className={styles.extraProgressRow} data-testid="extra-history-progress">
-                  <span className={styles.extraProgressLabel}>
-                    💊 処方・マスター状況:
-                  </span>
-                  <span className={styles.extraProgressValue}>
-                    {histProg.masteredIds.length} / {book.availableQuestionsCount} 人 達成
-                  </span>
-                  {histProg.clearedSessionsCount > 0 && (
-                    <span className={styles.extraClearedBadge}>
-                      （服用完了 {histProg.clearedSessionsCount} 回）
+              <div className={styles.extraBookInfoRow}>
+                <span className={styles.extraBookTitle}>📕 歴史人物80</span>
+                <span className={styles.extraSubjectPill}>🗾 社会</span>
+              </div>
+
+              {/* 学習進捗・達成度 */}
+              {(() => {
+                const histProg = getRefBookProgress('history-80');
+                const book = REFERENCE_BOOKS[0];
+                return (
+                  <div className={styles.extraProgressRow} data-testid="extra-history-progress">
+                    <span className={styles.extraProgressLabel}>
+                      💊 処方状況:
                     </span>
-                  )}
-                </div>
-              );
-            })()}
+                    <span className={styles.extraProgressValue}>
+                      {histProg.masteredIds.length} / {book.availableQuestionsCount} 人
+                    </span>
+                    {histProg.clearedSessionsCount > 0 && (
+                      <span className={styles.extraClearedBadge}>
+                        （完了 {histProg.clearedSessionsCount} 回）
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
 
             <div className={styles.extraActions}>
               <button
@@ -559,24 +559,21 @@ export const HomePage: React.FC = () => {
                 }}
                 data-testid="start-extra-book-btn"
               >
-                💊 歴史人物80 処方問題を解く！（10問） ❯
+                💊 歴史人物80にチャレンジ（10問） ❯
               </button>
-              <div className={styles.extraUpcomingHint}>
-                💊 理科・算数の名作参考書からの特効処方箋も今後続々調合予定！
-              </div>
             </div>
           </section>
         </div>
 
-        {/* ゾーン2: 元気にした動物たちのカルテ（ドットノイズ解消・高コントラスト） */}
+        {/* ゾーン2: 元気にした動物たちのカルテ */}
         <section className={styles.stampSection}>
           <div className={styles.stampLeft}>
             <div>
               <div className={styles.stampHeaderTitle}>
-                🐾 元気にした動物たちのカルテ（本日の診察: {earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹 ＋ 症例全快: {allMasteredSkills.length} / {enrichedSkills.length} 匹）
+                🐾 元気にした動物たち {earnedStampIds.length + allMasteredSkills.length}匹
               </div>
               <div className={styles.stampNextHint}>
-                👉 本日の診察で【{nextStamp.icon} {nextStamp.name}】、症例特訓（Lv.4マスター）で【患者動物たち】が全快カルテになるよ！
+                👉 本日の診察と症例スタディで、動物たちが全快するよ！
               </div>
             </div>
 
@@ -618,10 +615,26 @@ export const HomePage: React.FC = () => {
                     </div>
                   );
                 })}
+                {/* 案A（推奨）: 動物アイコン列の末尾に「すべて見る」チップを配置 */}
+                <button
+                  type="button"
+                  className={styles.stampMoreChip}
+                  onClick={() => {
+                    sound.playPop();
+                    setStampModalTab('daily');
+                    setShowStampModal(true);
+                  }}
+                  data-testid="open-stamp-book-btn"
+                  title="すべての動物カルテをひらく"
+                  aria-label="動物カルテをひらく"
+                >
+                  <span className={styles.stampMoreText}>すべて見る</span>
+                  <span className={styles.stampMoreArrow}>❯</span>
+                </button>
               </div>
             ) : (
               <div className={styles.stampIconRow}>
-                {enrichedSkills.slice(0, 16).map(skill => {
+                {enrichedSkills.slice(0, 15).map(skill => {
                   const isEarned = skill.isMastered;
                   const details = getSkillStampDetails(skill);
                   return (
@@ -629,7 +642,7 @@ export const HomePage: React.FC = () => {
                       key={skill.id}
                       className={`${styles.stampSlot} ${isEarned ? styles.stampSlotActive : ''}`}
                       style={{
-                        borderColor: isEarned ? '#10b981' : 'var(--border)',
+                        borderColor: isEarned ? '#10b981' : 'var(--color-border)',
                         background: isEarned ? '#ecfdf5' : 'var(--surface-subtle)',
                       }}
                       onClick={() => {
@@ -650,34 +663,25 @@ export const HomePage: React.FC = () => {
                     </div>
                   );
                 })}
-                {enrichedSkills.length > 16 && (
-                  <button
-                    type="button"
-                    className={styles.stampSlot}
-                    style={{ fontSize: '13px', fontWeight: 800, color: 'var(--primary)', border: '1.5px solid var(--primary)', cursor: 'pointer' }}
-                    onClick={() => {
-                      setStampModalTab('chart');
-                      sound.playPop();
-                      setShowStampModal(true);
-                    }}
-                    title="カルテですべての全快動物を見る"
-                  >
-                    +{enrichedSkills.length - 16}
-                  </button>
-                )}
+                {/* 案A（推奨）: 症例全快プレビューでも末尾にチップを配置 */}
+                <button
+                  type="button"
+                  className={styles.stampMoreChip}
+                  onClick={() => {
+                    sound.playPop();
+                    setStampModalTab('chart');
+                    setShowStampModal(true);
+                  }}
+                  data-testid="open-stamp-book-btn-chart"
+                  title="すべての症例カルテをひらく"
+                  aria-label="動物カルテをひらく"
+                >
+                  <span className={styles.stampMoreText}>すべて見る</span>
+                  <span className={styles.stampMoreArrow}>❯</span>
+                </button>
               </div>
             )}
           </div>
-          <button
-            className={styles.stampBookBtn}
-            onClick={() => {
-              sound.playPop();
-              setShowStampModal(true);
-            }}
-            data-testid="open-stamp-book-btn"
-          >
-            📋 カルテをひらく
-          </button>
         </section>
 
         {/* スマホ専用下段ビュー切り替えタブ（スクロール不要で認定試験に瞬時に移動可能） */}
@@ -714,26 +718,26 @@ export const HomePage: React.FC = () => {
             data-testid="card-weakness"
           >
             <div className={styles.caseStudyHeaderRow}>
-              <h3 className={`${styles.cardTitle} ${styles.caseStudyTitle}`}>
-                🩺 症例スタディ
-              </h3>
+              <div className={styles.areaHeaderRow}>
+              <h2 className={styles.areaTitle}>🩺 症例スタディ</h2>
+            </div>
             </div>
 
-            <p className={styles.caseStudyLead}>
+            <p className={styles.areaDescription}>
               科目ごとの単元をすべて攻略しよう
             </p>
 
             {/* 症例スタディ 挑戦のごほうびカード（認定試験カードと完全統一） */}
-            <div className={styles.rewardCard} data-testid="key-progress-box">
+            <div className={`${styles.rewardCard} ${styles.unifiedRewardCard}`} data-testid="key-progress-box">
               <div className={styles.rewardTitle}>🎖️ 挑戦のごほうび</div>
-              <p style={{ margin: '6px 0 10px 0', fontSize: '13px', lineHeight: '1.6', color: 'var(--text)' }}>
+              <p className={styles.rewardDesc}>
                 各科目のすべての症例理解度が<strong>【⭐Lv.4 マスター】</strong>になると、<strong>「動物からの感謝メッセージ」</strong>が届くよ！
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', paddingTop: '8px', borderTop: '1px dashed rgba(245, 158, 11, 0.4)' }}>
-                <span style={{ fontSize: '12px', color: '#92400e', fontWeight: '700' }}>
+              <div className={styles.rewardBottomRow}>
+                <span className={styles.rewardProgressText}>
                   全教科の全快進度: <strong>{totalMasteredCount} / {totalSkillsCount} テーマ</strong>
                 </span>
-                {totalMasteredCount >= totalSkillsCount && totalSkillsCount > 0 ? (
+                {totalMasteredCount >= totalSkillsCount && totalSkillsCount > 0 && (
                   <button
                     onClick={() => {
                       sound.playChime();
@@ -744,10 +748,6 @@ export const HomePage: React.FC = () => {
                   >
                     🎉 感謝メッセージを見る！
                   </button>
-                ) : (
-                  <span className={styles.keyRemainingBadge}>
-                    あと {totalRemainingCount} テーマで達成！
-                  </span>
                 )}
               </div>
             </div>
@@ -1026,23 +1026,23 @@ export const HomePage: React.FC = () => {
             </p>
 
             {/* 認定試験 挑戦のごほうびカード */}
-            <div className={styles.rewardCard} data-testid="challenge-reward-card">
+            <div className={`${styles.rewardCard} ${styles.unifiedRewardCard}`} data-testid="challenge-reward-card">
               <div className={styles.rewardTitle}>🎖️ 挑戦のごほうび</div>
-              <p style={{ margin: '4px 0 6px 0', fontSize: '13px', lineHeight: '1.5', color: 'var(--text)' }}>
-                各年度のすべての科目で高得点をとってごほうびをゲット！
+              <p className={styles.rewardDesc}>
+                各年度のすべての科目で高得点をとって合格証をゲット！
               </p>
               <ul className={styles.rewardScoreGrid}>
                 <li>
-                  <strong>📜 60点以上</strong>: みならい卒業証書
+                  <strong>📜 60点以上</strong>: 獣医学部 合格証
                 </li>
                 <li>
-                  <strong>🥉 80点以上</strong>: ふつうの獣医師の称号
+                  <strong>🥉 80点以上</strong>: 獣医師国家試験 合格証
                 </li>
                 <li>
-                  <strong>🥈 90点以上</strong>: ベテラン獣医師の称号
+                  <strong>🥈 90点以上</strong>: 動物診療施設 開設許可証
                 </li>
                 <li>
-                  <strong>🥇 100点満点</strong>: マスター獣医師の称号
+                  <strong>👑 100点</strong>: 世界獣医師会 会長賞
                 </li>
               </ul>
             </div>
@@ -1051,10 +1051,12 @@ export const HomePage: React.FC = () => {
             <div className={styles.compactExamList} data-testid="compact-exam-list">
               {SUPPORTED_EXAM_YEARS.map(yr => {
                 const yrData = FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[yr] || {};
-                const availableSubjects = (['rika', 'sansu', 'shakai', 'kokugo'] as Subject[]).filter(sub => {
-                  const subData = yrData[sub];
-                  return subData && subData.sections && subData.sections.length > 0;
-                });
+                const allFourSubjects: { id: Subject; label: string; icon: string }[] = [
+                  { id: 'rika', label: '理科', icon: '🧪' },
+                  { id: 'sansu', label: '算数', icon: '📐' },
+                  { id: 'shakai', label: '社会', icon: '🗾' },
+                  { id: 'kokugo', label: '国語', icon: '📖' },
+                ];
 
                 return (
                   <div key={yr} className={styles.compactExamRow} data-testid={`exam-year-row-${yr}`}>
@@ -1063,8 +1065,27 @@ export const HomePage: React.FC = () => {
                     </div>
 
                     <div className={styles.compactSubjectBtns}>
-                      {availableSubjects.map(sub => {
+                      {allFourSubjects.map(subItem => {
+                        const sub = subItem.id;
                         const subData = yrData[sub];
+                        const hasData = subData && subData.sections && subData.sections.length > 0;
+
+                        if (!hasData) {
+                          // 指示4: データがない科目は薄いグレーで「—(出題なし)」枠を出して位置を保つ
+                          return (
+                            <div
+                              key={sub}
+                              className={styles.compactExamBtnDisabled}
+                              title={`${yr}年度は${subItem.label}の出題データがありません`}
+                              aria-disabled="true"
+                            >
+                              <span className={styles.compactBtnIcon}>{subItem.icon}</span>
+                              <span className={styles.compactBtnName}>{subItem.label}</span>
+                              <span className={styles.compactBtnScoreDisabled}>—</span>
+                            </div>
+                          );
+                        }
+
                         const summary = examSummaries[yr]?.[sub];
                         const bestScore = summary?.bestScore ?? null;
                         const isPerfect = summary?.isPerfect ?? false;
@@ -1114,9 +1135,6 @@ export const HomePage: React.FC = () => {
 
             <div className={styles.compactExamNote}>
               <span>※カッコ内は過去の最高得点</span>
-              <span className={styles.rewardTierHint}>
-                
-              </span>
             </div>
           </div>
         </div>
@@ -1676,7 +1694,7 @@ export const HomePage: React.FC = () => {
                   lv: 'Lv.5',
                   name: '👑 かんぺき定着',
                   desc: '1日後や3日後に復習しても忘れていない、本物の実力がついた証拠！',
-                  howToUp: '💡 本番形式の「合格ドクター認定試験」で満点をとると最高峰【Lv.6】へ！',
+                  howToUp: '💡 本番形式の「獣医師認定試験」で満点をとると最高峰【Lv.6】へ！',
                 },
                 {
                   stage: 'M6',
