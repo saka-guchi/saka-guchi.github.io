@@ -1,14 +1,47 @@
 import type { Subject, FinalChallengeResult } from '../types';
 import { SUPPORTED_EXAM_YEARS, type ExamYear } from '../data/final-challenge-data';
 
+export type ExamBadgeTier = 'gold' | 'silver' | 'bronze' | 'certificate' | null;
+
 export interface SubjectScoreSummary {
   year: ExamYear;
   subject: Subject;
   bestScore: number | null; // 未受験の場合は null
-  passed: boolean;
+  passed: boolean; // 60点以上で合格（認定証獲得）
   isPerfect: boolean; // 100点満点
+  badgeTier: ExamBadgeTier;
   attemptCount: number;
   lastAttemptTimestamp: number | null;
+}
+
+/**
+ * 点数に応じた報酬バッジのランクを判定する
+ * 60点以上: 合格ドクター認定証
+ * 80点以上: 銅の獣医師バッジ
+ * 90点以上: 銀の獣医師バッジ
+ * 100点: 金の獣医師バッジ
+ */
+export function getExamBadgeTier(score: number | null): ExamBadgeTier {
+  if (score === null || score < 60) return null;
+  if (score === 100) return 'gold';
+  if (score >= 90) return 'silver';
+  if (score >= 80) return 'bronze';
+  return 'certificate'; // 60〜79点
+}
+
+export function getExamBadgeInfo(tier: ExamBadgeTier): { label: string; icon: string; color: string } | null {
+  switch (tier) {
+    case 'gold':
+      return { label: '金の獣医師バッジ', icon: '🥇', color: '#eab308' };
+    case 'silver':
+      return { label: '銀の獣医師バッジ', icon: '🥈', color: '#94a3b8' };
+    case 'bronze':
+      return { label: '銅の獣医師バッジ', icon: '🥉', color: '#d97706' };
+    case 'certificate':
+      return { label: '合格ドクター認定証', icon: '📜', color: '#10b981' };
+    default:
+      return null;
+  }
 }
 
 /**
@@ -19,18 +52,14 @@ export function getExamScoreSummary(
   year: ExamYear,
   subject: Subject
 ): SubjectScoreSummary {
-  // examId から特定年度と科目にマッチする結果を抽出
-  // 想定パターン: 'yasuda-2026-rika', 'yasuda-2024-kokugo', 'pack-yasuda-2024-sansu' など
   const matched = history.filter(r => {
     const id = r.examId || '';
     const hasSubject = id.includes(subject);
     if (!hasSubject) return false;
 
-    // 年度の判定
     const yearStr = String(year);
     if (id.includes(yearStr)) return true;
 
-    // 2024年の後方互換: 他の年度文字列(2022, 2023, 2025, 2026)が含まれていない場合
     if (year === 2024 && !id.match(/2022|2023|2025|2026/)) {
       return true;
     }
@@ -45,14 +74,17 @@ export function getExamScoreSummary(
       bestScore: null,
       passed: false,
       isPerfect: false,
+      badgeTier: null,
       attemptCount: 0,
       lastAttemptTimestamp: null,
     };
   }
 
   const bestScore = Math.max(...matched.map(m => m.score));
-  const passed = matched.some(m => m.passed || m.score >= 80);
+  // 報酬ルール: 60点以上で合格（合格ドクター認定証）
+  const passed = bestScore >= 60;
   const isPerfect = bestScore === 100;
+  const badgeTier = getExamBadgeTier(bestScore);
   const lastAttemptTimestamp = Math.max(...matched.map(m => m.timestamp));
 
   return {
@@ -61,6 +93,7 @@ export function getExamScoreSummary(
     bestScore,
     passed,
     isPerfect,
+    badgeTier,
     attemptCount: matched.length,
     lastAttemptTimestamp,
   };

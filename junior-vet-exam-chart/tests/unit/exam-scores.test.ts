@@ -91,3 +91,4 @@ describe('exam-scores utility tests', () => {
     expect(all[2024].sansu.bestScore).toBeNull();
   });
 });
+
