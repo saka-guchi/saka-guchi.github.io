@@ -26,7 +26,7 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
 
     // 報酬カード・過去の成績表ボタンが存在すること
     expect(screen.getByTestId('challenge-reward-card')).toBeInTheDocument();
-    expect(screen.getByTestId('open-exam-history-btn')).toBeInTheDocument();
+    expect(screen.queryByTestId('open-exam-history-btn')).not.toBeInTheDocument();
 
     // 2026年度〜2022年度の各行が表示されていること
     expect(screen.getByTestId('exam-year-row-2026')).toBeInTheDocument();

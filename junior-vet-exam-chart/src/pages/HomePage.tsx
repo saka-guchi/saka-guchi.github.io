@@ -1055,18 +1055,6 @@ export const HomePage: React.FC = () => {
               <h3 className={`${styles.cardTitle} ${styles.caseStudyTitle}`}>
                 🏆 合格ドクター認定試験
               </h3>
-              <button
-                type="button"
-                className={styles.examHistoryBtn}
-                onClick={() => {
-                  sound.playPop();
-                  setShowHistoryModal(true);
-                }}
-                data-testid="open-exam-history-btn"
-                title="これまでの認定試験の得点履歴・採点カルテを確認"
-              >
-                📊 採点カルテ・成績表
-              </button>
             </div>
 
             <p className={styles.examSimpleLead}>

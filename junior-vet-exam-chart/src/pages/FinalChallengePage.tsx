@@ -619,7 +619,7 @@ export const FinalChallengePage: React.FC = () => {
                             {sec.sectionTitle}
                           </h4>
                         )}
-                        {currentSubject === 'kokugo' && sec.bodyText.includes('<mark') ? (
+                        {currentSubject === 'kokugo' && (sec.bodyText.includes('<mark') || sec.bodyText.includes('<u') || sec.bodyText.includes('<span')) ? (
                           <div
                             dangerouslySetInnerHTML={{ __html: sec.bodyText }}
                             style={{
