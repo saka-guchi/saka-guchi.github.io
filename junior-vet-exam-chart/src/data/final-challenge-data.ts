@@ -932,11 +932,8 @@ export const FINAL_CHALLENGE_SHAKAI_SECTIONS: ChallengeSection[] = [
   },
 ];
 
-import { FINAL_CHALLENGE_2022_KOKUGO_SECTIONS } from './final-challenge-2022-kokugo';
 import { FINAL_CHALLENGE_2024_KOKUGO_SECTIONS } from './final-challenge-2024-kokugo';
 export { FINAL_CHALLENGE_2024_KOKUGO_SECTIONS } from './final-challenge-2024-kokugo';
-
-export { FINAL_CHALLENGE_2022_KOKUGO_SECTIONS } from './final-challenge-2022-kokugo';
 
 // 教科別データマップ (2024年度)
 export const FINAL_CHALLENGE_DATA_BY_SUBJECT: Record<
@@ -979,46 +976,16 @@ export const FINAL_CHALLENGE_DATA_BY_SUBJECT: Record<
   },
 };
 
-// 2022年度 教科別データマップ
-export const FINAL_CHALLENGE_2022_DATA_BY_SUBJECT: Record<
-  Subject,
-  {
-    subjectLabel: string;
-    icon: string;
-    sections: ChallengeSection[];
-    totalPages: number;
-    timeLimitMinutes: number;
-  }
-> = {
-  rika: {
-    subjectLabel: '理科',
-    icon: '🧪',
-    sections: FINAL_CHALLENGE_SECTIONS,
-    totalPages: 7,
-    timeLimitMinutes: 30,
-  },
-  sansu: {
-    subjectLabel: '算数',
-    icon: '📐',
-    sections: FINAL_CHALLENGE_SANSU_SECTIONS,
-    totalPages: 10,
-    timeLimitMinutes: 50,
-  },
-  shakai: {
-    subjectLabel: '社会',
-    icon: '🗾',
-    sections: FINAL_CHALLENGE_SHAKAI_SECTIONS,
-    totalPages: 9,
-    timeLimitMinutes: 30,
-  },
-  kokugo: {
-    subjectLabel: '国語',
-    icon: '📖',
-    sections: FINAL_CHALLENGE_2022_KOKUGO_SECTIONS,
-    totalPages: 14,
-    timeLimitMinutes: 50,
-  },
-};
+// 2022年度データの再エクスポート
+export {
+  FINAL_CHALLENGE_2022_RIKA_SECTIONS,
+  FINAL_CHALLENGE_2022_SANSU_SECTIONS,
+  FINAL_CHALLENGE_2022_SHAKAI_SECTIONS,
+  FINAL_CHALLENGE_2022_KOKUGO_SECTIONS,
+  FINAL_CHALLENGE_2022_DATA_BY_SUBJECT,
+} from './final-challenge-2022-data';
+
+import { FINAL_CHALLENGE_2022_DATA_BY_SUBJECT } from './final-challenge-2022-data';
 
 export const TOTAL_PAGES = 7;
 
