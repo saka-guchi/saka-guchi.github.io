@@ -19,7 +19,7 @@ import {
 import { BUILTIN_YASUDA_PACK } from '../data/curriculum';
 import { DoctorCertificateModal } from '../components/DoctorCertificateModal';
 import { FinalExamHistoryModal } from '../components/FinalExamHistoryModal';
-import { getExamScoreSummary } from '../utils/exam-scores';
+import { getExamScoreSummary, getExamBadgeTier, getExamBadgeInfo } from '../utils/exam-scores';
 import { sound } from '../utils/sound-effects';
 import styles from './FinalChallengePage.module.css';
 
@@ -195,7 +195,11 @@ export const FinalChallengePage: React.FC = () => {
 
     const totalQuestions = allSlots.length;
     const score = Math.round((correctCount / totalQuestions) * 100);
-    const passed = score >= 80;
+    // 新報酬ルール: 60点以上で「合格ドクター認定証」、80点以上で「銅」、90点以上で「銀」、100点で「金」
+    const passed = score >= 60;
+    const badgeTier = getExamBadgeTier(score);
+    const hasGold = badgeTier === 'gold';
+    setHasMasterBadge(hasGold);
 
     const examPrefix = `yasuda-${currentYear}-${currentSubject}`;
     await db.finalChallengeResults.add({
@@ -207,16 +211,6 @@ export const FinalChallengePage: React.FC = () => {
       passed,
       questionScores,
     });
-
-    // Stage 1 & Stage 2 の両方合格しているかチェック（金のマスター獣医師バッジ授与判定）
-    try {
-      const history = await db.finalChallengeResults.where('examId').equals(examPrefix).toArray();
-      const otherStage = stage === 1 ? 2 : 1;
-      const otherPassed = history.some(h => h.stage === otherStage && h.passed);
-      setHasMasterBadge(Boolean(passed && otherPassed));
-    } catch {
-      setHasMasterBadge(false);
-    }
 
     setShowScoringModal(false);
     setLastExamResult({ score, passed, correctCount, totalQuestions });
@@ -1349,7 +1343,7 @@ export const FinalChallengePage: React.FC = () => {
 
             <div style={{ fontSize: '13px', color: 'var(--text-subtle)', marginBottom: '16px' }}>
               正解数: <strong>{lastExamResult.correctCount}</strong> / {lastExamResult.totalQuestions} 問
-              （合格基準: 80点以上）
+              （合格基準: 60点以上で認定証 / 80点〜: 🥉 銅 / 90点〜: 🥈 銀 / 100点: 🥇 金）
             </div>
 
             <p style={{ fontSize: '13px', color: 'var(--text)', lineHeight: '1.6', background: 'var(--surface-subtle)', padding: '12px', borderRadius: '10px', margin: '0 0 20px 0' }}>

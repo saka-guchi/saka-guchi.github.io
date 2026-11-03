@@ -54,9 +54,12 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     expect(slot6Textarea.tagName).toBe('TEXTAREA');
     expect(slot6Textarea).toHaveAttribute('placeholder', 'ノートや紙に記述後、提出時に自己採点要素を確認します');
 
-    // 4. 次のページへ進むと p.2 (大問1) が表示されること
+    // 4. 次のページへ進むと p.2 (大問1) が表示されること（初期表示は原本スキャン画像）
     fireEvent.click(screen.getByTestId('next-page-btn'));
     expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 2 / 7');
+    expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
+    // テキスト・図表タブに切り替えて問題文を検証
+    fireEvent.click(screen.getByText('📐 テキスト・図表'));
     expect(screen.getByText('大問【1】 植物の根と茎・葉脈の観察')).toBeInTheDocument();
     expect(screen.getByText('【問1】')).toBeInTheDocument();
     expect(screen.getByText('【問2】')).toBeInTheDocument();

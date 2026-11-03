@@ -128,6 +128,11 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
       fireEvent.click(nextBtn);
     }
 
+    // 原本スキャン画像が表示されていること
+    expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
+    // テキスト・図表タブに切り替えて問題文と選択肢を検証
+    fireEvent.click(screen.getByText('📐 テキスト・図表'));
+
     // ページ14のタイトルが表示されていること
     expect(screen.getByText(/三、大問 3 設問（問7）/)).toBeInTheDocument();
 
