@@ -28,7 +28,7 @@ describe('Skill Focus & Level Promotion Flow', () => {
     expect(getSkillStage(skillId, 'M2')).toBe('M3');
   });
 
-  it('navigates to study when clicking "🎯 この症例を特訓してLvアップ！" button on HomePage', async () => {
+  it('navigates to study when clicking "🎯 この症例を特訓する" button on HomePage', async () => {
     render(<App />);
 
     // 未達成テーマのアコーディオンを開く
@@ -37,7 +37,7 @@ describe('Skill Focus & Level Promotion Flow', () => {
     // 「維管束の配置」の特訓ボタンを取得
     const focusBtn = screen.getByTestId('focus-study-btn-skill-rika-plant-vascular');
     expect(focusBtn).toBeInTheDocument();
-    expect(focusBtn).toHaveTextContent('🎯 この症例を特訓してLvアップ！');
+    expect(focusBtn).toHaveTextContent('🎯 この症例を特訓する');
 
     // クリックして特訓スタート
     fireEvent.click(focusBtn);
@@ -63,7 +63,7 @@ describe('Skill Focus & Level Promotion Flow', () => {
     const flipArea = screen.getByText('👆 タップして【答えと獣医ポイント】を見る');
     fireEvent.click(flipArea);
 
-    // 裏面に「🎯 この症例を特訓してLvアップ！ ❯」ボタンが表示される
+    // 裏面に「🎯 この症例を特訓する ❯」ボタンが表示される
     const startFromCardBtn = screen.getByTestId('flashcard-start-focus-btn');
     expect(startFromCardBtn).toBeInTheDocument();
 

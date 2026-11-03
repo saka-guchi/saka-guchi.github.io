@@ -11,7 +11,7 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
     await db.finalChallengeResults.clear();
   });
 
-  it('トップページの認定試験欄に年度別・科目別の1行レイアウトが表示され、初期状態では「未受験」が表示されること', async () => {
+  it('トップページの認定試験欄に年度別・科目別の1行レイアウトが表示され、初期状態では「—」が表示されること', async () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <Routes>
@@ -35,10 +35,10 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
     expect(screen.getByTestId('exam-year-row-2023')).toBeInTheDocument();
     expect(screen.getByTestId('exam-year-row-2022')).toBeInTheDocument();
 
-    // 2026年度の初期科目ボタンが存在し、「未受験」が表示されていること
+    // 2026年度の初期科目ボタンが存在し、「—」が表示されていること
     const rikaBtn = screen.getByTestId('start-exam-btn-2026-rika');
     expect(rikaBtn).toHaveTextContent('理科');
-    expect(rikaBtn).toHaveTextContent('(未受験)');
+    expect(rikaBtn).toHaveTextContent('(—)');
 
     // 脚注が存在すること
     expect(screen.getByText('※カッコ内は過去の最高得点')).toBeInTheDocument();

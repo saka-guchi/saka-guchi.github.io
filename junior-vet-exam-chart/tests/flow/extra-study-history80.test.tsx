@@ -20,7 +20,7 @@ describe('知識の処方箋（名作参考書：歴史人物80）UI/UX 結合�
 
     // 左カラム: 本日の回診
     expect(screen.getByTestId('today-study-card')).toBeInTheDocument();
-    expect(screen.getByText('🩺 本日の回診')).toBeInTheDocument();
+    expect(screen.getByText('🩺 本日の診察')).toBeInTheDocument();
     expect(screen.getByTestId('start-study-btn')).toBeInTheDocument();
 
     // 右カラム: 知識の処方箋

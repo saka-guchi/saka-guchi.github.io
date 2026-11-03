@@ -1,4 +1,29 @@
 :root {
+  /* ==========================================================================
+     色の意味づけ（役割別デザイントークン）
+     ========================================================================== */
+  --color-action: #2563EB;             /* 押せるもの全般（主ボタン/副ボタン/リンク） */
+  --color-action-hover: #1D4ED8;
+  --color-action-weak: #EFF6FF;
+  --color-action-border: #93C5FD;
+
+  --color-success: #10B981;            /* 全快・マスター・達成・こころの相談室 */
+  --color-success-weak: #ECFDF5;
+  --color-success-border: #A7F3D0;
+  --color-success-text: #065F46;
+
+  --color-reward: #F59E0B;             /* ごほうび・認定・バッジ「だけ」 */
+  --color-reward-bg: #FEF3C7;
+  --color-reward-border: #FDE68A;
+  --color-reward-text: #78350F;
+  --color-reward-title: #92400E;
+
+  --color-text: #1E293B;               /* 中立色: 主要テキスト */
+  --color-text-muted: #64748B;         /* 中立色: 補足テキスト */
+  --color-border: #E2E8F0;             /* 中立色: 境界線 */
+  --color-border-subtle: #F1F5F9;
+  --color-surface: #FFFFFF;            /* 中立色: カード・面 */
+
   /* 基本配色（デフォルト：どうぶつクリニック・スカイブルー） */
   --bg: #F4F8FC;
   --bg-gradient: linear-gradient(180deg, #F0F7FF 0%, #F5F9FD 100%);
