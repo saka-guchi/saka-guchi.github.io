@@ -50,10 +50,9 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
     expect(screen.queryByTestId('mental-care-page')).not.toBeInTheDocument();
     expect(screen.getByTestId('today-study-card')).toBeInTheDocument();
 
-    // バナーから全画面へ遷移
-    const banner = screen.getByTestId('banner-mental-care');
-    expect(banner).toBeInTheDocument();
-    fireEvent.click(banner);
+    // ヘッダーボタンから再度全画面へ遷移できること
+    const reHeaderBtn = screen.getByTestId('header-mental-care-btn');
+    fireEvent.click(reHeaderBtn);
     expect(screen.getByTestId('mental-care-page')).toBeInTheDocument();
 
     // 画面下部ハイブリッド戻るボタンでホームに戻る

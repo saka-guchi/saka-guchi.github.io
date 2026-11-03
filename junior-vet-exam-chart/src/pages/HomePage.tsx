@@ -203,7 +203,7 @@ export const HomePage: React.FC = () => {
 
   const getStartButtonLabel = () => {
     if (isAllSubjectsSelected) {
-      return '全教科の本日の回診をスタート！ 🐾';
+      return '▶ 本日の診察をはじめる（10問）';
     }
     const subjectNames: Record<Subject, { label: string; icon: string }> = {
       rika: { label: '理科', icon: '🧪' },
@@ -211,11 +211,10 @@ export const HomePage: React.FC = () => {
       shakai: { label: '社会', icon: '🗾' },
       kokugo: { label: '国語', icon: '📖' },
     };
-    // ALL_STUDY_SUBJECTSの順序でソートして見やすく並べる
     const sortedSelected = ALL_STUDY_SUBJECTS.filter(s => selectedStudySubjects.includes(s));
     const labels = sortedSelected.map(s => subjectNames[s]?.label || s).join('・');
     const icons = sortedSelected.map(s => subjectNames[s]?.icon || '').join('');
-    return `${labels}の本日の回診をスタート！ ${icons || '🐾'}`;
+    return `▶ ${labels}の診察をはじめる（10問） ${icons || '🐾'}`;
   };
 
   const handleStartToday = () => {
@@ -340,7 +339,7 @@ export const HomePage: React.FC = () => {
                 sound.playPop();
                 setShowCompletionHelpModal(true);
               }}
-              title="合格カルテ完成度: 全56テーマの「記憶メーター（定着度）」の平均値です。クリックで100%にするための方法をチェック！"
+              title="合格カルテ完成度: 全56症例の「記憶メーター（定着度）」の平均値です。クリックで解説モーダルを表示！"
               data-testid="completion-progress-group"
               role="button"
               tabIndex={0}
@@ -348,7 +347,7 @@ export const HomePage: React.FC = () => {
             >
               <div className={styles.progressLabel}>
                 <span className={styles.progressLabelTitle}>
-                  合格カルテ完成度 <span className={styles.helpIcon}>❓</span>
+                  合格カルテ完成度 <span className={styles.helpIcon}>ⓘ</span>
                 </span>
                 <strong data-testid="completion-percent">{completionPercent}%</strong>
               </div>
@@ -417,10 +416,11 @@ export const HomePage: React.FC = () => {
                 sound.playPop();
                 navigate('/settings');
               }}
+              title="設定・データ管理"
               aria-label="設定と教材の読み込み"
               data-testid="header-menu-btn"
             >
-              ⋯
+              ⚙️
             </button>
           </div>
         </div>
@@ -432,37 +432,9 @@ export const HomePage: React.FC = () => {
         <section className={styles.mentorBar}>
           <div className={styles.mentorAvatar}>🐱</div>
           <div className={styles.mentorSpeech} style={{ flex: 1 }}>
-            <strong>ナース猫のミケちゃん:</strong>「おかえりなさい、先生！今日は【{nextStamp.name}】が元気をなくして待っているよ。本日の回診をといて、とびっきりの笑顔にしてあげよう！」
+            <strong>ナース猫のミケちゃん:</strong>「おかえりなさい、先生！今日は【{nextStamp.name}】が元気をなくして待っているよ。今日の診察で、元気にしてあげよう！」
           </div>
         </section>
-
-        {/* こころの相談室・オアシスバナー */}
-        <div
-          className={styles.mentalCareBanner}
-          onClick={() => {
-            sound.playPop();
-            navigate('/mental-care');
-          }}
-          role="button"
-          tabIndex={0}
-          data-testid="banner-mental-care"
-          title="クリックしてこころの相談室を開く"
-        >
-          <div className={styles.mentalCareBannerLeft}>
-            <span className={styles.mentalCareBannerIcon}>💚</span>
-            <div>
-              <div className={styles.mentalCareBannerTitle}>
-                「学校や友達のことでモヤモヤする…」「ちょっと心が疲れちゃったな」というときは？
-              </div>
-              <div className={styles.mentalCareBannerDesc}>
-                🐾 こころの相談室で、モヤモヤ仕分けパズル・お守りコーピング・哲学対話をしてみよう
-              </div>
-            </div>
-          </div>
-          <span className={styles.mentalCareBannerBtn}>
-            こころの相談室へ ❯
-          </span>
-        </div>
 
         {/* ゾーン1: 上段2カラム（本日の回診 と 知識の処方箋） */}
         <div className={styles.topCardsGrid}>
@@ -470,13 +442,11 @@ export const HomePage: React.FC = () => {
           <section className={styles.todayCard} data-testid="today-study-card">
             <div className={styles.todayCardContent} data-testid="card-breakdown">
               <div className={styles.badgeRow}>
-                <span className={styles.badgeToday}>🩺 本日の回診</span>
+                <span className={styles.badgeToday}>🩺 本日の診察</span>
                 <span className={styles.badgeDivider}>|</span>
                 <span className={styles.estimatedTime}>⏱️ 目安: 約5分</span>
               </div>
-              <h2 className={styles.todayHeading} style={{ margin: '2px 0', fontSize: '20px' }}>
-                本日の回診をといて、動物を元気にしよう！
-              </h2>
+              
 
               {/* 出題教科セグメントコントロール（複数選択対応・トグルUI） */}
               <div className={styles.subjectSelectContainer}>
@@ -523,16 +493,6 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* 今日の10問内訳 */}
-              <div className={styles.todayMenuRow}>
-                <span className={styles.todayMenuLabel}>
-                  📋 内訳:
-                </span>
-                <span className={styles.todayMenuPill}>🔄 復習 3</span>
-                <span className={styles.todayMenuPill}>✏️ やり直し 2</span>
-                <span className={styles.todayMenuPill}>🌱 新知識 2</span>
-                <span className={styles.todayMenuPill}>⭐ 応用 3</span>
-              </div>
             </div>
 
             <div className={styles.todayActions}>
@@ -540,6 +500,7 @@ export const HomePage: React.FC = () => {
                 className={styles.startBtn}
                 onClick={handleStartToday}
                 data-testid="start-study-btn"
+                title="📋 今日の10問内訳: 🔄 復習 3 / ✏️ やり直し 2 / 🌱 新知識 2 / ⭐ 応用 3"
               >
                 {getStartButtonLabel()}
               </button>
@@ -770,7 +731,7 @@ export const HomePage: React.FC = () => {
               </p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', paddingTop: '8px', borderTop: '1px dashed rgba(245, 158, 11, 0.4)' }}>
                 <span style={{ fontSize: '12px', color: '#92400e', fontWeight: '700' }}>
-                  全教科マスター進度: <strong>{totalMasteredCount} / {totalSkillsCount} テーマ</strong>
+                  全教科の全快進度: <strong>{totalMasteredCount} / {totalSkillsCount} テーマ</strong>
                 </span>
                 {totalMasteredCount >= totalSkillsCount && totalSkillsCount > 0 ? (
                   <button
@@ -857,7 +818,7 @@ export const HomePage: React.FC = () => {
                   data-testid="toggle-unmastered-skills-btn"
                   title="レベルアップをめざすテーマの表示/非表示を切り替え"
                 >
-                  <span>✏️ レベルアップをめざすテーマ（あと {remainingCount} つ）</span>
+                  <span>✏️ 治療中の症例（あと {remainingCount} つ）</span>
                   <span className={styles.accordionToggleLabel}>{showUnmasteredSkills ? '▲ とじる' : '▼ ひらく（特訓する）'}</span>
                 </button>
               )}
@@ -937,7 +898,7 @@ export const HomePage: React.FC = () => {
                           title="この症例の問題を集中的に解いてレベルアップ！"
                           data-testid={`focus-study-btn-${skill.id}`}
                         >
-                          <span>🎯 この症例を特訓してLvアップ！</span>
+                          <span>🎯 この症例を特訓する</span>
                           <span className={styles.btnArrow}>❯</span>
                         </button>
                       </div>
@@ -958,7 +919,7 @@ export const HomePage: React.FC = () => {
                   data-testid="toggle-mastered-skills-btn"
                   title="マスター達成済みテーマの表示/非表示を切り替え"
                 >
-                  <span>✅ 全快マスター達成テーマ（{masteredCount} つ）</span>
+                  <span>✅ 全快した症例（{masteredCount} つ）</span>
                   <span>{showMasteredSkills ? '▲ とじる' : '▼ ひらく'}</span>
                 </button>
               )}
@@ -1109,7 +1070,7 @@ export const HomePage: React.FC = () => {
                         const isPerfect = summary?.isPerfect ?? false;
                         const badgeTier = summary?.badgeTier ?? null;
 
-                        const scoreText = isPerfect ? '100点' : bestScore !== null ? `${bestScore}点` : '未受験';
+                        const scoreText = isPerfect ? '100点' : bestScore !== null ? `${bestScore}点` : '—';
 
                         return (
                           <button
@@ -1154,7 +1115,7 @@ export const HomePage: React.FC = () => {
             <div className={styles.compactExamNote}>
               <span>※カッコ内は過去の最高得点</span>
               <span className={styles.rewardTierHint}>
-                （60点〜: 📜 認定証 / 80点〜: 🥉 銅 / 90点〜: 🥈 銀 / 100点: 🥇 金）
+                
               </span>
             </div>
           </div>
@@ -1561,7 +1522,7 @@ export const HomePage: React.FC = () => {
                       ① 症例の「特訓問題」を解いて正解する（大幅UP！）
                     </div>
                     <div className={styles.modalActionDesc}>
-                      症例スタディの「🎯 この症例を特訓してLvアップ！」で正解すると、記憶キープ度が一気に80%〜100%（全快）へ上がります。
+                      症例スタディの「🎯 この症例を特訓する」で正解すると、記憶キープ度が一気に80%〜100%（全快）へ上がります。
                     </div>
                   </div>
                 </div>

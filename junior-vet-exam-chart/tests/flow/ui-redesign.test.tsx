@@ -189,7 +189,7 @@ describe('UI Redesign & New Features Integration Tests', () => {
 
     // 右カラム認定試験の新報酬ルール表記（60点〜: 認定証 / 80点〜: 銅 / 90点〜: 銀 / 100点: 金）
     expect(screen.getByText('※カッコ内は過去の最高得点')).toBeInTheDocument();
-    expect(screen.getByText(/60点〜: 📜 認定証/)).toBeInTheDocument();
+    expect(screen.getByTestId('challenge-reward-card')).toHaveTextContent(/60点以上/);
   });
 
   it('verifies DoctorCertificateModal renders master badge according to hasMasterBadge prop', () => {

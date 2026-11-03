@@ -95,7 +95,7 @@ describe('スマホ・タブレット向けスクロールレスUI/UX 結合テ�
       expect(screen.getByText(/場面が変わった応用問題に正解で/)).toBeInTheDocument();
     });
 
-    it('未達成テーマ（レベルアップをめざすテーマ）がデフォルトで折りたたまれており、クリックで開閉できる', () => {
+    it('未達成テーマ（治療中の症例）がデフォルトで折りたたまれており、クリックで開閉できる', () => {
       render(
         <MemoryRouter>
           <HomePage />
@@ -104,7 +104,7 @@ describe('スマホ・タブレット向けスクロールレスUI/UX 結合テ�
 
       const toggleBtn = screen.getByTestId('toggle-unmastered-skills-btn');
       expect(toggleBtn).toBeInTheDocument();
-      expect(toggleBtn).toHaveTextContent(/レベルアップをめざすテーマ/);
+      expect(toggleBtn).toHaveTextContent(/治療中の症例/);
 
       // 初期状態では折りたたまれており、未マスターのスキル行が表示されていないこと
       expect(screen.queryByTestId('focus-study-btn-skill-rika-plant-vascular')).not.toBeInTheDocument();

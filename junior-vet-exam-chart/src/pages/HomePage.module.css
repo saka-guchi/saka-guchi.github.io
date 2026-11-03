@@ -78,44 +78,44 @@
   justify-content: flex-end;
 }
 
-/* ストリーク（連続学習日数）バッジ */
+/* ストリーク（連続学習日数）バッジ: 情報として薄いグレー枠・主張控えめ */
 .streakBadge {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: var(--warning-badge-bg);
-  border: 1px solid var(--warning-badge-border);
-  padding: 6px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 4px 10px;
   border-radius: var(--radius-pill);
   font-size: var(--font-size-caption);
-  font-weight: 800;
-  color: var(--warning-text);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  font-weight: 600;
+  color: var(--color-text-muted);
   white-space: nowrap;
   flex-shrink: 0;
+  cursor: default;
 }
 
-/* 受験カウントダウンバッジ */
+/* 受験カウントダウンバッジ: 情報として薄いグレー枠・主張控えめ */
 .countdownBadge {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(135deg, var(--accent-gold-bg) 0%, #fffbeb 100%);
-  border: 1.5px solid var(--accent-gold-border);
-  padding: 6px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 4px 10px;
   border-radius: var(--radius-pill);
   font-size: var(--font-size-caption);
-  font-weight: 700;
-  color: var(--accent-gold-title);
-  box-shadow: 0 2px 6px rgba(180, 83, 9, 0.08);
+  font-weight: 600;
+  color: var(--color-text-muted);
   white-space: nowrap;
   flex-shrink: 0;
+  cursor: default;
 }
 
 .countdownNumber {
-  font-size: var(--font-size-subheading);
-  font-weight: 800;
-  color: var(--accent-gold-title);
+  font-size: var(--font-size-body);
+  font-weight: 700;
+  color: var(--color-text);
   letter-spacing: normal;
 }
 
@@ -355,29 +355,31 @@
 /* ゾーン1: 上段2カラム（今日のカルテ学習 と 知識の処方箋） */
 .topCardsGrid {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
 }
 
 @media (max-width: 900px) {
   .topCardsGrid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 
 .todayCard {
-  background: linear-gradient(135deg, var(--surface) 0%, var(--primary-weak) 100%);
-  border: 2px solid var(--border);
+  background: var(--surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
-  padding: 24px 26px;
-  box-shadow: var(--shadow-card);
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 16px;
   position: relative;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .todayCard:hover {
@@ -396,18 +398,18 @@
 
 /* 知識の処方箋カード */
 .extraStudyCard {
-  background: linear-gradient(135deg, var(--surface) 0%, #eff6ff 100%);
-  border: 2px solid #bfdbfe;
+  background: var(--surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
-  padding: 24px 26px;
-  box-shadow: var(--shadow-card);
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 16px;
   position: relative;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .extraStudyCard:hover {
@@ -452,11 +454,15 @@
 }
 
 .extraHeading {
-  font-size: var(--font-size-heading);
-  font-weight: 900;
-  color: var(--text);
-  line-height: 1.4;
+  font-size: var(--font-size-subheading);
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: var(--line-height-heading);
   margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .extraSubText {
@@ -491,6 +497,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: auto;
 }
 
 .extraStartBtn {
@@ -498,27 +505,27 @@
   height: 52px;
   padding: 0 20px;
   border-radius: var(--radius-pill);
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: #ffffff;
+  background: transparent;
+  color: var(--color-action);
+  border: 2px solid var(--color-action);
   font-size: var(--font-size-subheading);
-  font-weight: 900;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  border: none;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .extraStartBtn:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.45);
+  background: var(--color-action-weak);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 
 .extraStartBtn:active {
-  transform: translateY(1px) scale(0.98);
+  transform: translateY(1px);
 }
 
 .extraUpcomingHint {
@@ -614,6 +621,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  margin-top: auto;
 }
 
 .startBtn {
@@ -1208,15 +1216,18 @@
 }
 
 .rewardCard {
-  background: var(--accent-gold-bg);
-  border: 2px solid var(--accent-gold-border);
+  background: var(--color-reward-bg);
+  border: 1px solid var(--color-reward-border);
   border-radius: var(--radius-lg);
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 8px;
   position: relative;
   overflow: hidden;
+  min-height: 110px;
+  box-sizing: border-box;
 }
 
 .rewardCard::after {
@@ -1720,13 +1731,13 @@
 }
 
 .subjectSelectCount {
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   color: var(--primary);
   font-weight: 700;
 }
 
 .todayMenuLabel {
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   color: var(--text-subtle);
   margin-right: 4px;
@@ -1744,7 +1755,7 @@
 }
 
 .extraSourceBadge {
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   color: #0284c7;
   background: #e0f2fe;
@@ -1869,7 +1880,7 @@
 }
 
 .keyRemainingBadge {
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   color: #b45309;
   background: #fef9c3;
   padding: 2px 6px;
@@ -1910,7 +1921,7 @@
 }
 
 .rewardSubtext {
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   color: var(--text-subtle);
   margin-bottom: 8px;
 }
@@ -1920,7 +1931,7 @@
 }
 
 .rewardItemNote {
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   color: var(--text-subtle);
   margin-top: 2px;
 }
@@ -2020,7 +2031,7 @@
   padding: 3px 10px;
   color: var(--primary);
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: 800;
   transition: all 0.2s ease;
 }
@@ -2073,7 +2084,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   padding: 4px 10px;
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   color: var(--primary);
   cursor: pointer;
@@ -2129,7 +2140,7 @@
 }
 
 .yearTabBadgeAttempted {
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   padding: 1px 4px;
   border-radius: 4px;
   background: rgba(0, 0, 0, 0.1);
@@ -2203,7 +2214,7 @@
   right: -2px;
   background: #eab308;
   color: #713f12;
-  font-size: 9px;
+  font-size: var(--font-size-caption);
   font-weight: 900;
   padding: 2px 8px;
   border-bottom-left-radius: 8px;
@@ -2238,7 +2249,7 @@
 }
 
 .examSubjectYearPill {
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   background: var(--surface-hover);
   border: 1px solid var(--border);
@@ -2248,7 +2259,7 @@
 }
 
 .examSubjectTime {
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   color: var(--text-muted);
   display: block;
   margin-top: 2px;
@@ -2298,7 +2309,7 @@
 }
 
 .untestedLabel {
-  font-size: 11px;
+  font-size: var(--font-size-caption);
 }
 
 .examStartBtn {
@@ -2412,11 +2423,16 @@
 }
 
 .compactSubjectBtns {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  flex-wrap: wrap;
   flex: 1;
+}
+
+@media (max-width: 580px) {
+  .compactSubjectBtns {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .compactExamBtn {
@@ -2509,7 +2525,7 @@
 }
 
 .rewardTierHint {
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   color: var(--text-subtle);
 }
 
@@ -2569,7 +2585,7 @@
 }
 
 .keyBreakdownItem {
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   padding: 2px 8px;
   border-radius: var(--radius-sm);
@@ -2623,7 +2639,7 @@
 }
 
 .triageSubjectTag {
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   padding: 1px 6px;
   background: #ffffff;
@@ -2634,7 +2650,7 @@
 }
 
 .triageBannerDesc {
-  font-size: 11px;
+  font-size: var(--font-size-caption);
   color: #92400e;
   margin: 3px 0 0 0;
   line-height: 1.4;

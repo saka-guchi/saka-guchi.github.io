@@ -21,7 +21,7 @@ describe('合格カルテ完成度の解説（マウスオーバー＆クリッ�
     const progressGroup = screen.getByTestId('completion-progress-group');
     expect(progressGroup).toBeInTheDocument();
     expect(progressGroup).toHaveAttribute('title');
-    expect(progressGroup.getAttribute('title')).toContain('全56テーマの「記憶メーター（定着度）」の平均値');
+    expect(progressGroup.getAttribute('title')).toContain('全56症例の「記憶メーター（定着度）」の平均値');
 
     // 初期状態ではモーダルは開いていない
     expect(screen.queryByTestId('completion-help-modal')).not.toBeInTheDocument();
