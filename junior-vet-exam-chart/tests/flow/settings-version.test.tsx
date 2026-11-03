@@ -57,16 +57,14 @@ describe('Version Management and Cache Control', () => {
     });
   });
 
-  it('displays app version in the footer on HomePage', () => {
+  it('トップページには不要なフッターが表示されないこと', () => {
     render(
       <MemoryRouter>
         <HomePage />
       </MemoryRouter>
     );
 
-    const footer = screen.getByTestId('home-footer-version');
-    expect(footer).toBeInTheDocument();
-    expect(footer).toHaveTextContent(`v${APP_VERSION}`);
+    expect(screen.queryByTestId('home-footer-version')).not.toBeInTheDocument();
   });
 
   it('学習履歴の初期化を実行しても、こころのデータ（private, shared, meta）は保持・保護されること', async () => {

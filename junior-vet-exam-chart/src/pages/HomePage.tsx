@@ -12,8 +12,6 @@ import { getMemoryRetention } from '../utils/memory-retention';
 import { calculateExamChartCompletion, calculateStreakDays } from '../utils/progress-analytics';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
-import { APP_VERSION, BUILD_TIMESTAMP } from '../version';
-import { checkForAppUpdate } from '../utils/version-checker';
 import { getDaysUntilExam } from '../utils/countdown-helper';
 import { AnimatedVetPet } from '../components/AnimatedVetPet';
 import { ReferenceBookQuizModal } from '../components/ReferenceBookQuizModal';
@@ -82,22 +80,6 @@ export const HomePage: React.FC = () => {
   // 合格カルテ完成度（%）と連続学習日数（ストリーク）の動的計算
   const [completionPercent, setCompletionPercent] = useState<number>(() => calculateExamChartCompletion());
   const [studyStreak, setStudyStreak] = useState<number>(0);
-  const [manualCheckStatus, setManualCheckStatus] = useState<string | null>(null);
-
-  const handleManualUpdateCheck = async () => {
-    sound.playPop();
-    setManualCheckStatus('checking');
-    const res = await checkForAppUpdate();
-    if (res.hasUpdate) {
-      setManualCheckStatus('update-available');
-    } else if (!res.isOnline) {
-      setManualCheckStatus('offline');
-      setTimeout(() => setManualCheckStatus(null), 3000);
-    } else {
-      setManualCheckStatus('latest');
-      setTimeout(() => setManualCheckStatus(null), 3000);
-    }
-  };
 
   useEffect(() => {
     let isMounted = true;
@@ -1179,49 +1161,7 @@ export const HomePage: React.FC = () => {
         </div>
       </main>
 
-      {/* フッター: バージョン表記と設定へのリンク */}
-      <footer className={styles.homeFooter} data-testid="home-footer-version">
-        <span>みならい獣医さんの中学受験カルテ v{APP_VERSION} ({BUILD_TIMESTAMP})</span>
 
-        {/* 手動バージョン更新チェックボタン */}
-        <button
-          onClick={handleManualUpdateCheck}
-          disabled={manualCheckStatus === 'checking'}
-          className={`${styles.footerUpdateBtn} ${manualCheckStatus === 'update-available' ? styles.footerUpdateBtnActive : ''}`}
-          title="最新バージョンがないかサーバーを確認します"
-          data-testid="manual-update-check-btn"
-        >
-          {manualCheckStatus === 'checking'
-            ? '🔄 確認中...'
-            : manualCheckStatus === 'update-available'
-            ? '🚀 新バージョンあり！'
-            : manualCheckStatus === 'latest'
-            ? '✅ 最新版です'
-            : manualCheckStatus === 'offline'
-            ? '⚠️ オフライン'
-            : '🔄 更新をチェック'}
-        </button>
-
-        <button
-          onClick={() => {
-            sound.playPop();
-            setShowParentModal(true);
-          }}
-          className={styles.footerParentBtn}
-          data-testid="footer-parent-btn"
-        >
-          👨‍⚕️ 指導医ログ
-        </button>
-        <button
-          onClick={() => {
-            sound.playPop();
-            navigate('/settings');
-          }}
-          className={styles.footerLinkBtn}
-        >
-          ⚙️ 設定・キャッシュ更新
-        </button>
-      </footer>
 
       {/* 動物カルテモーダル */}
       {showStampModal && (

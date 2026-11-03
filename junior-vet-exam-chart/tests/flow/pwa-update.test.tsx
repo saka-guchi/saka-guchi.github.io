@@ -1,3 +1,5 @@
+import { MemoryRouter } from 'react-router-dom';
+import { SettingsPage } from '../../src/pages/SettingsPage';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import React from 'react';
@@ -90,7 +92,7 @@ describe('PWA Version Update & Automatic Check Feature', () => {
     expect(screen.queryByTestId('app-update-banner')).not.toBeInTheDocument();
   });
 
-  it('renders manual update check button on HomePage footer and triggers check', async () => {
+  it('renders manual update check button on SettingsPage and triggers check', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -98,18 +100,23 @@ describe('PWA Version Update & Automatic Check Feature', () => {
       }),
     } as any);
 
-    render(<App />);
+    render(
+      <MemoryRouter initialEntries={['/settings']}>
+        <SettingsPage />
+      </MemoryRouter>
+    );
 
-    const manualCheckBtn = screen.getByTestId('manual-update-check-btn');
+    const manualCheckBtn = screen.getByTestId('settings-check-update-btn');
     expect(manualCheckBtn).toBeInTheDocument();
-    expect(manualCheckBtn).toHaveTextContent('🔄 更新をチェック');
+    expect(manualCheckBtn).toHaveTextContent('🔄 新規バージョンをチェック');
 
     await act(async () => {
       fireEvent.click(manualCheckBtn);
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('manual-update-check-btn')).toHaveTextContent('✅ 最新版です');
+      expect(screen.getByTestId('settings-update-result-box')).toBeInTheDocument();
+      expect(screen.getByTestId('settings-update-result-box')).toHaveTextContent('現在お使いのバージョンは最新です');
     });
   });
 });
