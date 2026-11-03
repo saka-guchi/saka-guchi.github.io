@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter } from 'react-router-dom';
 import { ALL_PROGRESS_SKILLS } from '../../src/data/all-skills';
 import { THEME_ENHANCEMENTS } from '../../src/data/vet-curriculum-enhancement';
 import { FOCUS_CURRICULUM_QUESTIONS } from '../../src/data/focus-curriculum-questions';
@@ -74,17 +74,10 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
 
   it('FinalChallengePage で国語選択時、読解アシストバーや不要バナーが表示されず統一フォントで表示され、漢字グリッドや文字数カウンターが動作すること', async () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={['/final-challenge?year=2022&subject=kokugo']}>
         <FinalChallengePage />
-      </BrowserRouter>
+      </MemoryRouter>
     );
-
-    // 2022年度タブをクリック
-    fireEvent.click(screen.getByTestId('year-tab-2022'));
-    // 国語タブをクリック
-    const kokugoTab = screen.getByTestId('subject-tab-kokugo');
-    expect(kokugoTab).toBeInTheDocument();
-    fireEvent.click(kokugoTab);
 
     // 読解アシストバーおよび不要な図表モードバナーが表示されないこと（全科目統一）
     expect(screen.queryByText('📖 読解アシスト:')).toBeNull();
@@ -112,15 +105,10 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
 
   it('問題用紙（左側）に問7などの選択問題の選択肢（ア〜エ）が提示され、解答用紙でワンタップ入力できること', async () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={['/final-challenge?year=2022&subject=kokugo']}>
         <FinalChallengePage />
-      </BrowserRouter>
+      </MemoryRouter>
     );
-
-    // 2022年度タブをクリック
-    fireEvent.click(screen.getByTestId('year-tab-2022'));
-    // 国語タブをクリック
-    fireEvent.click(screen.getByTestId('subject-tab-kokugo'));
 
     // 14ページ（大問3 問7）へ移動
     const nextBtn = screen.getByTestId('next-page-btn');
@@ -159,15 +147,10 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
 
   it('原本スキャンモード切り替え時、初期表示で全体Fitサイズになり、拡大してもテキストモードにズームが干渉しないこと', async () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={['/final-challenge?year=2026&subject=rika']}>
         <FinalChallengePage />
-      </BrowserRouter>
+      </MemoryRouter>
     );
-
-    // 2026年度タブをクリック
-    fireEvent.click(screen.getByTestId('year-tab-2026'));
-    // 理科タブをクリック
-    fireEvent.click(screen.getByTestId('subject-tab-rika'));
 
     // 原本スキャンタブをクリック
     const scanTab = screen.getByText('📸 原本スキャン');
@@ -197,71 +180,40 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
     expect(mockContainer?.getAttribute('style') || '').not.toContain('scale');
   });
 
-  it('2023年度は国語が存在しないため教科タブに国語が表示されず、他年度では表示されること', async () => {
-    render(
-      <BrowserRouter>
-        <FinalChallengePage />
-      </BrowserRouter>
-    );
+  it('2023年度は国語過去問が存在しないためデータ定義に含まれず、他年度（2022, 2024, 2025, 2026）では国語が提供されること', async () => {
+    const { FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT } = await import('../../src/data/final-challenge-data');
 
-    // 2024年度（国語あり）
-    fireEvent.click(screen.getByTestId('year-tab-2024'));
-    expect(screen.getByTestId('subject-tab-kokugo')).toBeInTheDocument();
+    // 2023年度: 国語なし（sections が空配列）
+    expect(FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[2023].kokugo?.sections.length ?? 0).toBe(0);
+    // 理科・算数・社会は存在すること
+    expect(FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[2023].rika.sections.length).toBeGreaterThan(0);
+    expect(FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[2023].sansu.sections.length).toBeGreaterThan(0);
+    expect(FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[2023].shakai.sections.length).toBeGreaterThan(0);
 
-    // 2023年度（国語なし）に切り替え
-    fireEvent.click(screen.getByTestId('year-tab-2023'));
-    expect(screen.queryByTestId('subject-tab-kokugo')).toBeNull();
-    // 理科・算数・社会は表示されること
-    expect(screen.getByTestId('subject-tab-rika')).toBeInTheDocument();
-    expect(screen.getByTestId('subject-tab-sansu')).toBeInTheDocument();
-    expect(screen.getByTestId('subject-tab-shakai')).toBeInTheDocument();
-
-    // 2022年度（国語あり）に切り替え
-    fireEvent.click(screen.getByTestId('year-tab-2022'));
-    expect(screen.getByTestId('subject-tab-kokugo')).toBeInTheDocument();
+    // 2022, 2024, 2025, 2026年度: 国語あり
+    for (const yr of [2022, 2024, 2025, 2026] as const) {
+      expect(FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[yr].kokugo?.sections.length).toBeGreaterThan(0);
+    }
   });
 
-  it('国語選択時は同等未見問題（Stage 2）が非対応として選択不可（disabled）になり、Stage 2から国語に切り替えた場合はStage 1へ自動復帰すること', async () => {
+  it('ドクター認定試験はStage 1（過去問本番）のみ提供され、ヘッダーにStage 1/2切り替えタブが存在しないこと', async () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={['/final-challenge?year=2024&subject=rika']}>
         <FinalChallengePage />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
-    // 2024年度タブをクリック
-    fireEvent.click(screen.getByTestId('year-tab-2024'));
-
-    // 理科選択時: Stage 2 タブは活性化（クリック可能）
-    const stage2Tab = screen.getByTestId('stage-2-tab');
-    expect(stage2Tab).not.toBeDisabled();
-    fireEvent.click(stage2Tab);
-    // Stage 2モード表示になっていること
-    expect(screen.getByText('✨ 同等未見問題モード（オリジナル出題）')).toBeInTheDocument();
-
-    // Stage 2の状態で国語タブをクリック
-    const kokugoTab = screen.getByTestId('subject-tab-kokugo');
-    fireEvent.click(kokugoTab);
-
-    // 国語はStage 2非対応のため、Stage 1へ自動復帰し、Stage 2タブが無効化（disabled）されていること
-    expect(stage2Tab).toBeDisabled();
-    expect(stage2Tab).toHaveTextContent(/非対応/);
-    expect(screen.queryByText('✨ 同等未見問題モード（オリジナル出題）')).toBeNull();
-
-    // disabled状態のStage 2タブをクリックしても遷移しないこと
-    fireEvent.click(stage2Tab);
-    expect(screen.queryByText('✨ 同等未見問題モード（オリジナル出題）')).toBeNull();
+    // Stage 1 / Stage 2 切り替えタブが存在しないこと
+    expect(screen.queryByTestId('stage-1-tab')).toBeNull();
+    expect(screen.queryByTestId('stage-2-tab')).toBeNull();
   });
 
   it('原本スキャン表示時、左右見開き（2ページ並び）を選択でき、左右ページが横並び表示され見開き単位でページめくりができること', async () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={['/final-challenge?year=2026&subject=rika']}>
         <FinalChallengePage />
-      </BrowserRouter>
+      </MemoryRouter>
     );
-
-    // 2026年度 理科（原本スキャンが初期表示）
-    fireEvent.click(screen.getByTestId('year-tab-2026'));
-    fireEvent.click(screen.getByTestId('subject-tab-rika'));
 
     // 初期状態は「1ページ」表示で、exam-page-image が存在すること
     expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
@@ -294,14 +246,10 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
 
   it('国語の見開き表示では、右開き冊子の仕様に合わせて左右が反転し「左: P2 / 右: P1」で配置されること', async () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={['/final-challenge?year=2022&subject=kokugo']}>
         <FinalChallengePage />
-      </BrowserRouter>
+      </MemoryRouter>
     );
-
-    // 2022年度 国語を選択
-    fireEvent.click(screen.getByTestId('year-tab-2022'));
-    fireEvent.click(screen.getByTestId('subject-tab-kokugo'));
 
     // 原本スキャンが表示されていることを確認
     expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();

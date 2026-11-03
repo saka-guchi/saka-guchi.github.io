@@ -38,7 +38,16 @@ export const FinalChallengePage: React.FC = () => {
 
   const [currentYear, setCurrentYear] = useState<ExamYear>(validYear);
   const [currentSubject, setCurrentSubject] = useState<Subject>(validSubject);
-  const [stage, setStage] = useState<1 | 2>(1);
+  const [stage] = useState<1 | 2>(1); // Stage 1（過去問本番）のみ提供
+
+  // URLクエリパラメータの変更に合わせて年度・教科を同期
+  useEffect(() => {
+    setCurrentYear(validYear);
+    setCurrentSubject(validSubject);
+    setCurrentPage(1);
+    setAnswers({});
+    setRubricChecks({});
+  }, [validYear, validSubject]);
   const [examHistory, setExamHistory] = useState<FinalChallengeResult[]>([]);
 
   // 教科ごとの残り時間（秒）: 理科30分、算数50分、社会30分、国語50分（各教科独立して保持し、切り替え時も経過時間を維持）
@@ -95,37 +104,7 @@ export const FinalChallengePage: React.FC = () => {
     });
   }, []);
 
-  // 年度切り替え（その年度に存在しない科目が選択されている場合は理科等へ安全フォールバック）
-  const handleYearChange = (newYear: ExamYear) => {
-    if (newYear === currentYear) return;
-    sound.playPop();
-    const targetYearData = FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[newYear] || FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[2024];
-    const newAvailable = (['rika', 'sansu', 'shakai', 'kokugo'] as Subject[]).filter(sub => {
-      const d = targetYearData[sub];
-      return d && d.sections && d.sections.length > 0;
-    });
 
-    if (!newAvailable.includes(currentSubject)) {
-      setCurrentSubject(newAvailable[0] || 'rika');
-    }
-    setCurrentYear(newYear);
-    setCurrentPage(1);
-    setAnswers({});
-    setRubricChecks({});
-    setSubjectTimes(getInitialTimes(newYear));
-  };
-
-  // 科目切り替え（各教科の残り時間は保持されるためリセットされません）
-  const handleSubjectChange = (newSubject: Subject) => {
-    if (newSubject === currentSubject) return;
-    sound.playPop();
-    // 国語は同等未見問題（Stage 2）非対応のため、Stage 1へ自動復帰
-    if (newSubject === 'kokugo' && stage === 2) {
-      setStage(1);
-    }
-    setCurrentSubject(newSubject);
-    setCurrentPage(1);
-  };
 
   // タイマー: 現在選択中の教科の残り時間を毎秒カウントダウン
   useEffect(() => {
@@ -315,7 +294,7 @@ export const FinalChallengePage: React.FC = () => {
   return (
     <div className={styles.container} data-testid="final-challenge-page">
       <header className={styles.header}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <button
             className={styles.iconBtn}
             onClick={() => navigate('/')}
@@ -325,46 +304,27 @@ export const FinalChallengePage: React.FC = () => {
             ←
           </button>
 
-          {/* 年度切り替えセグメントコントロール */}
-          <div className={styles.subjectTabs} data-testid="challenge-year-tabs" style={{ background: '#f1f5f9' }}>
-            {SUPPORTED_EXAM_YEARS.map(yr => (
-              <button
-                key={yr}
-                className={`${styles.subjectTab} ${currentYear === yr ? styles.activeSubjectTab : ''}`}
-                onClick={() => handleYearChange(yr)}
-                data-testid={`year-tab-${yr}`}
-                style={{ padding: '6px 14px', fontSize: '13px' }}
-              >
-                📅 {yr}年度
-              </button>
-            ))}
-          </div>
-
-          {/* 教科切り替えタブ（その年度に問題が存在する教科のみ表示: 2023年は国語なし） */}
-          <div className={styles.subjectTabs} data-testid="challenge-subject-tabs">
-            {(['rika', 'sansu', 'shakai', 'kokugo'] as Subject[])
-              .filter(sub => {
-                const subData = currentYearData[sub];
-                return subData && subData.sections && subData.sections.length > 0;
-              })
-              .map(sub => {
-                const info = currentYearData[sub];
-                return (
-                  <button
-                    key={sub}
-                    className={`${styles.subjectTab} ${currentSubject === sub ? styles.activeSubjectTab : ''}`}
-                    onClick={() => handleSubjectChange(sub)}
-                    data-testid={`subject-tab-${sub}`}
-                  >
-                    {info.icon} {info.subjectLabel}
-                  </button>
-                );
-              })}
+          {/* 受験中の年度・教科タイトル表示 */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '15px',
+              fontWeight: 800,
+              color: 'var(--text-main)',
+            }}
+            data-testid="challenge-exam-badge"
+          >
+            <span>📅 {currentYear}年度</span>
+            <span style={{ color: 'var(--primary)', fontWeight: 800 }}>
+              {currentSubjectData.icon} {currentSubjectData.subjectLabel}
+            </span>
           </div>
         </div>
 
-        {/* 制限時間タイマー（各教科独立・残り時間により警告色） */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        {/* 制限時間タイマー & 最高スコア */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginLeft: 'auto' }}>
           <div
             className={`${styles.timerBadge} ${
               isTimeCritical ? styles.timerCritical : isTimeWarning ? styles.timerWarning : ''
@@ -411,29 +371,6 @@ export const FinalChallengePage: React.FC = () => {
               <span>未受験</span>
             )}
           </div>
-        </div>
-
-        <div className={styles.stageTabs}>
-          <button
-            className={`${styles.stageTab} ${stage === 1 ? styles.activeTab : ''}`}
-            onClick={() => setStage(1)}
-            data-testid="stage-1-tab"
-          >
-            Stage 1（過去問本番）
-          </button>
-          <button
-            className={`${styles.stageTab} ${stage === 2 ? styles.activeTab : ''}`}
-            onClick={() => {
-              if (currentSubject === 'kokugo') return;
-              setStage(2);
-            }}
-            disabled={currentSubject === 'kokugo'}
-            title={currentSubject === 'kokugo' ? '国語は同等未見問題（Stage 2）非対応です' : undefined}
-            style={currentSubject === 'kokugo' ? { opacity: 0.45, cursor: 'not-allowed' } : undefined}
-            data-testid="stage-2-tab"
-          >
-            Stage 2（同等未見問題{currentSubject === 'kokugo' ? '・非対応' : ''}）
-          </button>
         </div>
       </header>
 
