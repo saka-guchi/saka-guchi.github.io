@@ -172,6 +172,10 @@
 - 保護者画面には「お子さんを責めたり詮索したりせず、家庭の安心基地を整えるヒントとして活用する。見守っていることを共有し、無理に聞き出さない」という約束を常設すること。
 - 外部送信やAI呼び出しを一切行わず、完全端末内正規表現で深刻な危機（自傷・希死念慮等）を検知し、公的無料相談窓口（文科省24時間子供SOSダイヤル `0120-0-78310` 等）を常設すること。
 
+### ㉟ package.json 更新時の依存関係保持と npm ci 整合性の必須検証
+- バージョン番号引き上げ時（`package.json` 更新時）は、ファイル全体の上書きを固く禁止し、`"version"` フィールドのみをピンポイントで編集すること。`/dependencies` や `/devDependencies` の定義を誤って削らないこと。
+- パッケージファイルに触れた後は、必ずコミット・プッシュ前にローカルで `npm ci` を実行し、`package-lock.json` と完全一致（Exit Code 0）でクリーンインストールが通ることを検証すること（GitHub Actions CI/CD での `npm ci` 失敗を未然に防止すること）。
+
 ### ㉝ CI/CD環境（jsdom）におけるWeb Crypto API補完とGitHub Pagesデプロイルールの遵守
 - `jsdom` 環境では `window.crypto.subtle` が標準で未実装であるため、テストセットアップ（`tests/setup.ts`）で必ず Node.js の `webcrypto` を `window.crypto` および `window.crypto.subtle` へ明示的にポリフィルし、Ubuntu CI環境でのテスト失敗・ビルド中断を防止すること。
 - GitHub Pages 環境保護ルール（`main` ブランチのみ許可）に準拠するため、デプロイワークフロー（`deploy.yml`）のプッシュトリガーは `branches: [main]` に限定すること。タグプッシュ等で二重起動させて `concurrency` によるキャンセル・拒絶（reject）を発生させないこと。

@@ -3,6 +3,17 @@
 本ドキュメントは、開発・運用中に発生した不具合の根本原因と再発防止策をまとめた知見集です。
 今後の機能追加・改修時における品質担保の指針として参照してください。
 
+### ㊵ package.json 更新時の依存関係整合性担保と npm ci 実行検証（CI/CDビルド破壊の防止）
+* **事象**:
+  * バージョン引き上げ時、GitHub Actions（Deploy to GitHub Pages）の `Install dependencies` ステップにおいて `npm error EUSAGE: npm ci can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync.` が発生し、デプロイが中断した。
+* **原因**:
+  * バージョン番号変更時に `package.json` 全体を不用意にテンプレート等で上書きしてしまい、既存の `devDependencies`（`@axe-core/playwright`, `eslint`, `fake-indexeddb`, `tsx` 等）が削られて `package-lock.json` との整合性が失われた。
+  * ローカルでの事前検証において、既に `node_modules` が存在する環境下での `npm test` のみで安心し、CI環境と同じ `npm ci` の実行検証を怠っていた。
+* **再発防止策・運用ルール**:
+  * **バージョン更新時の最小限編集**: `package.json` のバージョン変更時はファイル全体の上書きを固く禁止し、`"version"` フィールドのみをピンポイントで書き換えること。`dependencies` および `devDependencies` の定義を絶対に破壊しないこと。
+  * **プッシュ前の `npm ci` 整合性検証の義務化**: `package.json` または `package-lock.json` に変更が及んだ場合、必ずプッシュ前にローカルで `npm ci` を実行し、完全一致（Exit Code 0）を確認すること。
+  * **CI/CDと同等のクリーンインストール確認**: 不明な依存エラーを防止するため、CIパイプラインのファーストステップである `npm ci` をデプロイ前チェック手順として厳格に運用すること。
+
 ### ㉞ こころ機能におけるデータ基盤の安全分離とクライアント完結型プライバシー保護
 * **事象**:
   * 子どもと保護者が同じ端末（タブレット・スマホ等）で利用するシングルデバイス・ローカル完結型PWAにおいて、子どものモヤモヤ・自由記述メモなどのセンシティブな内面が保護者画面から見えてしまうプライバシー侵害リスクがあった。
