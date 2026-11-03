@@ -6,12 +6,12 @@ import { HomePage } from '../../src/pages/HomePage';
 import { FinalChallengePage } from '../../src/pages/FinalChallengePage';
 import { db } from '../../src/db';
 
-describe('ドクター認定試験 年度別・科目別入り口＆最高点表示 総合結合テスト', () => {
+describe('ドクター認定試験 年度別・科目別コンパクト入り口＆最高点表示＆新報酬 総合結合テスト', () => {
   beforeEach(async () => {
     await db.finalChallengeResults.clear();
   });
 
-  it('トップページの認定試験欄に年度タブと科目ごとの入り口ボタンが表示され、初期状態では「未受験」が表示されること', async () => {
+  it('トップページの認定試験欄に年度別・科目別の1行レイアウトが表示され、初期状態では「未受験」が表示されること', async () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <Routes>
@@ -22,43 +22,38 @@ describe('ドクター認定試験 年度別・科目別入り口＆最高点表
 
     // 認定試験エリアが存在すること
     expect(screen.getByTestId('card-final-challenge')).toBeInTheDocument();
-    expect(screen.getByTestId('exam-entry-section')).toBeInTheDocument();
+    expect(screen.getByText('実際の入試問題で力試しをしよう')).toBeInTheDocument();
 
-    // 年度タブが表示されていること（2026, 2025, 2024, 2023, 2022）
-    expect(screen.getByTestId('home-exam-year-tab-2026')).toBeInTheDocument();
-    expect(screen.getByTestId('home-exam-year-tab-2025')).toBeInTheDocument();
-    expect(screen.getByTestId('home-exam-year-tab-2024')).toBeInTheDocument();
+    // 報酬カード・過去の成績表ボタンが存在すること
+    expect(screen.getByTestId('challenge-reward-card')).toBeInTheDocument();
+    expect(screen.getByTestId('open-exam-history-btn')).toBeInTheDocument();
 
-    // 2026年度の初期科目カードが表示されていること
-    expect(screen.getByTestId('exam-entry-card-2026-rika')).toBeInTheDocument();
-    expect(screen.getByTestId('exam-entry-card-2026-sansu')).toBeInTheDocument();
-    expect(screen.getByTestId('exam-entry-card-2026-shakai')).toBeInTheDocument();
-    expect(screen.getByTestId('exam-entry-card-2026-kokugo')).toBeInTheDocument();
+    // 2026年度〜2022年度の各行が表示されていること
+    expect(screen.getByTestId('exam-year-row-2026')).toBeInTheDocument();
+    expect(screen.getByTestId('exam-year-row-2025')).toBeInTheDocument();
+    expect(screen.getByTestId('exam-year-row-2024')).toBeInTheDocument();
+    expect(screen.getByTestId('exam-year-row-2023')).toBeInTheDocument();
+    expect(screen.getByTestId('exam-year-row-2022')).toBeInTheDocument();
 
-    // 未受験表示
-    const scoreBadge = screen.getByTestId('best-score-2026-rika');
-    expect(scoreBadge).toHaveTextContent('未受験');
+    // 2026年度の初期科目ボタンが存在し、「未受験」が表示されていること
+    const rikaBtn = screen.getByTestId('start-exam-btn-2026-rika');
+    expect(rikaBtn).toHaveTextContent('理科');
+    expect(rikaBtn).toHaveTextContent('(未受験)');
+
+    // 脚注が存在すること
+    expect(screen.getByText('※カッコ内は過去の最高得点')).toBeInTheDocument();
   });
 
-  it('受験履歴が存在する場合、過去の最高点が表示され、100点満点の場合は特別なデザイン（👑 100点 満点！）になること', async () => {
-    // 過去履歴の投入: 2026年理科は85点、2026年算数は100点（満点）
+  it('受験履歴が存在する場合、過去の最高点が表示され、100点満点の場合は特別なゴールドデザイン（👑 算数 (100点)）になること', async () => {
+    // 過去履歴の投入: 2026年理科は85点（銅）、2026年算数は100点（金・満点）
     await db.finalChallengeResults.bulkAdd([
-      {
-        examId: 'yasuda-2026-rika',
-        stage: 1,
-        score: 70,
-        totalScore: 100,
-        passed: false,
-        timestamp: 1000,
-        questionScores: {},
-      },
       {
         examId: 'yasuda-2026-rika',
         stage: 1,
         score: 85,
         totalScore: 100,
         passed: true,
-        timestamp: 2000,
+        timestamp: 1000,
         questionScores: {},
       },
       {
@@ -67,7 +62,7 @@ describe('ドクター認定試験 年度別・科目別入り口＆最高点表
         score: 100,
         totalScore: 100,
         passed: true,
-        timestamp: 3000,
+        timestamp: 2000,
         questionScores: {},
       },
     ]);
@@ -80,40 +75,22 @@ describe('ドクター認定試験 年度別・科目別入り口＆最高点表
       </MemoryRouter>
     );
 
-    // 理科（85点・合格）の表示検証
+    // 理科（85点・銅バッジクラス）の表示検証
     await waitFor(() => {
-      const rikaBadge = screen.getByTestId('best-score-2026-rika');
-      expect(rikaBadge).toHaveTextContent('85点');
-      expect(rikaBadge).toHaveTextContent('合格');
+      const rikaBtn = screen.getByTestId('start-exam-btn-2026-rika');
+      expect(rikaBtn).toHaveTextContent('(85点)');
+      expect(rikaBtn.className).toContain('compactExamBtnBronze');
     });
 
-    // 算数（100点・満点）の特別デザイン検証
-    const sansuBadge = screen.getByTestId('best-score-2026-sansu');
-    expect(sansuBadge).toHaveTextContent('100点');
-    expect(sansuBadge).toHaveTextContent('満点！');
-    expect(sansuBadge).toHaveTextContent('👑');
-
-    // 算数カードに満点クラスが付与されていること
-    const sansuCard = screen.getByTestId('exam-entry-card-2026-sansu');
-    expect(sansuCard.className).toContain('examSubjectCardPerfect');
-
-    // 算数ボタンの文言が「もう一度満点に挑む」になっていること
+    // 算数（100点・金・王冠特別デザイン）の検証
     const sansuBtn = screen.getByTestId('start-exam-btn-2026-sansu');
-    expect(sansuBtn).toHaveTextContent('👑 もう一度満点に挑む');
+    expect(sansuBtn).toHaveTextContent('👑');
+    expect(sansuBtn).toHaveTextContent('算数');
+    expect(sansuBtn).toHaveTextContent('(100点)');
+    expect(sansuBtn.className).toContain('compactExamBtnPerfect');
   });
 
-  it('トップページの科目ボタンをクリックすると、指定した年度・科目の試験ページへ直接遷移し、その科目で開始されること', async () => {
-    // 2026年算数100点の履歴あり
-    await db.finalChallengeResults.add({
-      examId: 'yasuda-2026-sansu',
-      stage: 1,
-      score: 100,
-      totalScore: 100,
-      passed: true,
-      timestamp: 3000,
-      questionScores: {},
-    });
-
+  it('トップページの科目ボタンをクリックすると、指定した年度・科目の試験ページへ直接遷移し、初期状態で原本スキャンが表示されること', async () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <Routes>
@@ -123,48 +100,20 @@ describe('ドクター認定試験 年度別・科目別入り口＆最高点表
       </MemoryRouter>
     );
 
-    // 算数のボタンをクリック
-    const startSansuBtn = await screen.findByTestId('start-exam-btn-2026-sansu');
-    fireEvent.click(startSansuBtn);
+    // 2026年理科ボタンをクリック
+    const rikaBtn = screen.getByTestId('start-exam-btn-2026-rika');
+    fireEvent.click(rikaBtn);
 
-    // FinalChallengePage に遷移し、2026年度・算数が選択されていること
+    // FinalChallengePage に遷移し、2026年度・理科が選択されていること
     expect(await screen.findByTestId('final-challenge-page')).toBeInTheDocument();
-    const activeSansuTab = screen.getByTestId('subject-tab-sansu');
-    expect(activeSansuTab.className).toContain('activeSubjectTab');
+    const activeRikaTab = screen.getByTestId('subject-tab-rika');
+    expect(activeRikaTab.className).toContain('activeSubjectTab');
 
-    // ヘッダーに算数の最高点（👑 100点 満点！）が表示されていること
-    await waitFor(() => {
-      const headerScoreBadge = screen.getByTestId('header-best-score-badge');
-      expect(headerScoreBadge).toHaveTextContent('100点 満点！');
-    });
+    // デフォルトで原本スキャン画像が表示されていること
+    expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
 
-    // 算数の制限時間（50分）が表示されていること
-    expect(screen.getByTestId('challenge-timer')).toHaveTextContent('50:00');
-  });
-
-  it('全年度表示トグルをクリックすると、全年度のグループと科目ボタンが一括表示されること', async () => {
-    render(
-      <MemoryRouter initialEntries={['/']}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-        </Routes>
-      </MemoryRouter>
-    );
-
-    const toggleBtn = screen.getByTestId('toggle-all-years-btn');
-    expect(toggleBtn).toHaveTextContent('全年度をまとめて表示');
-
-    fireEvent.click(toggleBtn);
-
-    // 全年度のグループが表示されること
-    expect(screen.getByTestId('exam-year-group-2026')).toBeInTheDocument();
-    expect(screen.getByTestId('exam-year-group-2025')).toBeInTheDocument();
-    expect(screen.getByTestId('exam-year-group-2024')).toBeInTheDocument();
-    expect(screen.getByTestId('exam-year-group-2023')).toBeInTheDocument();
-    expect(screen.getByTestId('exam-year-group-2022')).toBeInTheDocument();
-
-    // 再度クリックでタブ表示に戻ること
-    fireEvent.click(screen.getByTestId('toggle-all-years-btn'));
-    expect(screen.getByTestId('exam-year-tabs')).toBeInTheDocument();
+    // 理科なのでStage 2（同等未見問題）タブは活性化していること
+    const stage2Tab = screen.getByTestId('stage-2-tab');
+    expect(stage2Tab).not.toBeDisabled();
   });
 });

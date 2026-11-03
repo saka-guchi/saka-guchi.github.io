@@ -171,20 +171,17 @@ export const DoctorCertificateModal: React.FC<DoctorCertificateModalProps> = ({
           </div>
           {hasMasterBadge ? (
             <div className={styles.goldBadge} data-testid="master-vet-badge-earned">
-              <span className={styles.goldBadgeIcon}>⭐</span>
-              <span className={styles.goldBadgeText}>金のマスター獣医師バッジ（Stage 1&2 制覇！）</span>
+              <span className={styles.goldBadgeIcon}>🥇</span>
+              <span className={styles.goldBadgeText}>金の獣医師バッジ（100点満点制覇！）</span>
             </div>
           ) : (
             <div
               className={styles.goldBadge}
-              style={{ opacity: 0.7, background: '#f3f4f6', borderColor: '#d1d5db', color: '#6b7280' }}
-              title="Stage 1 と Stage 2（同等未見問題）の両方をクリアするとアンロックされます"
               data-testid="master-vet-badge-locked"
+              style={{ opacity: 0.85, background: '#fef3c7', borderColor: '#f59e0b', color: '#92400e' }}
             >
-              <span className={styles.goldBadgeIcon}>🔒</span>
-              <span className={styles.goldBadgeText} style={{ color: '#4b5563' }}>
-                金のマスター獣医師バッジ（Stage 1 & 2 両方クリアでアンロック！）
-              </span>
+              <span className={styles.goldBadgeIcon}>📜</span>
+              <span className={styles.goldBadgeText}>獣医師マスターライセンス</span>
             </div>
           )}
         </div>

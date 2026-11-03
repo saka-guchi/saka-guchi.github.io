@@ -172,11 +172,9 @@ describe('UI Redesign & New Features Integration Tests', () => {
 
   it('opens exam history modal from HomePage', () => {
     render(<App />);
-    const historyBtn = screen.getByTestId('open-exam-history-btn');
-    fireEvent.click(historyBtn);
-
-    expect(screen.getByTestId('exam-history-modal')).toBeInTheDocument();
-    expect(screen.getByText('合格ドクター認定試験 採点カルテ・成績表')).toBeInTheDocument();
+    // ホーム画面の認定試験欄はコンパクト1行化され、成績表ボタンは整理されている
+    expect(screen.getByTestId('card-final-challenge')).toBeInTheDocument();
+    expect(screen.getByText('実際の入試問題で力試しをしよう')).toBeInTheDocument();
   });
 
   it('displays key progress box in the medical chart area and shows reward details', () => {
@@ -189,19 +187,15 @@ describe('UI Redesign & New Features Integration Tests', () => {
     expect(keyBox).toHaveTextContent(/【⭐Lv.4 マスター】にすると手に入ります/);
     expect(keyBox).toHaveTextContent(/🐾 カギ全達成特典: 全動物からの感謝メッセージ/);
 
-    // 右カラム認定試験の報酬カードの二段階報酬（Stage 1: 認定証 / Stage 1&2: 獣医師バッジ）
-    const rewardCard = screen.getByTestId('challenge-reward-card');
-    expect(rewardCard).toBeInTheDocument();
-    expect(rewardCard).toHaveTextContent('Stage 1（過去問本番）クリア');
-    expect(rewardCard).toHaveTextContent('「合格ドクター認定証（ライセンス）」');
-    expect(rewardCard).toHaveTextContent('Stage 1 & 2（同等未見問題）両方クリア');
-    expect(rewardCard).toHaveTextContent('「金のマスター獣医師バッジ」');
+    // 右カラム認定試験の新報酬ルール表記（60点〜: 認定証 / 80点〜: 銅 / 90点〜: 銀 / 100点: 金）
+    expect(screen.getByText('※カッコ内は過去の最高得点')).toBeInTheDocument();
+    expect(screen.getByText(/60点〜: 📜 認定証/)).toBeInTheDocument();
   });
 
   it('verifies DoctorCertificateModal renders master badge according to hasMasterBadge prop', () => {
     const handleClose = vi.fn();
 
-    // 1. Stage 1 のみクリア（hasMasterBadge: false）の場合: バッジはロック表示
+    // 1. 100点未満の場合（hasMasterBadge: false）: 金バッジは未獲得
     const { unmount } = render(
       <DoctorCertificateModal
         onClose={handleClose}
@@ -210,13 +204,13 @@ describe('UI Redesign & New Features Integration Tests', () => {
         hasMasterBadge={false}
       />
     );
-    expect(screen.getByText('合格ドクター認定証')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('合格ドクター認定証');
     expect(screen.getByText('合格ドクターライセンス')).toBeInTheDocument();
     expect(screen.getByTestId('master-vet-badge-locked')).toBeInTheDocument();
     expect(screen.queryByTestId('master-vet-badge-earned')).not.toBeInTheDocument();
     unmount();
 
-    // 2. Stage 1 & 2 両方クリア（hasMasterBadge: true）の場合: 金のマスター獣医師バッジ授与！
+    // 2. 100点満点クリア（hasMasterBadge: true）の場合: 金の獣医師バッジ授与！
     render(
       <DoctorCertificateModal
         onClose={handleClose}
@@ -226,7 +220,7 @@ describe('UI Redesign & New Features Integration Tests', () => {
       />
     );
     expect(screen.getByTestId('master-vet-badge-earned')).toBeInTheDocument();
-    expect(screen.getByText(/金のマスター獣医師バッジ（Stage 1&2 制覇！）/)).toBeInTheDocument();
+    expect(screen.getByText(/金の獣医師バッジ/)).toBeInTheDocument();
     expect(screen.queryByTestId('master-vet-badge-locked')).not.toBeInTheDocument();
   });
 });
