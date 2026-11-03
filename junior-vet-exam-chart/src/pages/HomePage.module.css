@@ -2549,3 +2549,101 @@
   border-color: #059669;
   color: #a7f3d0;
 }
+
+/* 症例スタディ リード文（右カラム認定試験と完全統一） */
+.caseStudyLead {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin: 4px 0 14px 0;
+}
+
+/* 合格のカギ 科目別内訳バッジ一覧 */
+.keyProgressBreakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(245, 158, 11, 0.4);
+}
+
+.keyBreakdownItem {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.6);
+  color: #92400e;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  white-space: nowrap;
+}
+
+.keyBreakdownItemActive {
+  background: #fef3c7;
+  color: #78350f;
+  border-color: #f59e0b;
+  font-weight: 800;
+}
+
+/* サクッと要点暗記カード 導線バナー */
+.triageBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.triageBannerContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.triageBannerHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.triageBannerIcon {
+  font-size: 16px;
+}
+
+.triageBannerTitle {
+  font-size: 13px;
+  font-weight: 800;
+  color: #78350f;
+}
+
+.triageSubjectTag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  background: #ffffff;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.triageBannerDesc {
+  font-size: 11px;
+  color: #92400e;
+  margin: 3px 0 0 0;
+  line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+  .triageBanner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+}

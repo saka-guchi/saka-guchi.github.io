@@ -85,11 +85,16 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '20px' }}>⚡</span>
             <div>
-              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 'bold', color: 'var(--text)' }}>
-                トリアージ・カード
-              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 'bold', color: 'var(--text)' }}>
+                  要点暗記カード
+                </h3>
+                <span style={{ fontSize: '11px', fontWeight: '700', background: 'rgba(0,0,0,0.06)', padding: '2px 6px', borderRadius: '4px', color: 'var(--text-subtle)' }}>
+                  トリアージ・カード
+                </span>
+              </div>
               <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                カードをタップして裏返す（{currentIndex + 1} / {keys.length} 症例）
+                カードをタップして裏返す（{currentIndex + 1} / {keys.length} 単元）
               </div>
             </div>
           </div>

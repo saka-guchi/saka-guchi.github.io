@@ -715,7 +715,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                           <span style={{ fontSize: '13px', fontWeight: 'bold', color: sub.color }}>{sub.label}</span>
                           <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                            合格のカギ: <strong>{sub.mastered}</strong> / {sub.count} テーマ達成 ({percent}%)
+                            全快マスター: <strong>{sub.mastered}</strong> / {sub.count} テーマ達成 ({percent}%)
                           </span>
                         </div>
                         <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>

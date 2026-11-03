@@ -297,11 +297,20 @@ export const HomePage: React.FC = () => {
   const masteredCount = filteredSkills.filter(s => s.isMastered).length;
   const remainingCount = filteredSkills.length - masteredCount;
 
-  // 各教科のスキル数カウント
+  // 全科目の合計マスター数および各教科のマスター数・スキル数
+  const totalMasteredCount = enrichedSkills.filter(s => s.isMastered).length;
+  const totalSkillsCount = enrichedSkills.length;
+  const totalRemainingCount = totalSkillsCount - totalMasteredCount;
+
   const rikaCount = enrichedSkills.filter(s => s.subject === 'rika').length;
   const sansuCount = enrichedSkills.filter(s => s.subject === 'sansu').length;
   const shakaiCount = enrichedSkills.filter(s => s.subject === 'shakai').length;
   const kokugoCount = enrichedSkills.filter(s => s.subject === 'kokugo').length;
+
+  const rikaMasteredCount = enrichedSkills.filter(s => s.subject === 'rika' && s.isMastered).length;
+  const sansuMasteredCount = enrichedSkills.filter(s => s.subject === 'sansu' && s.isMastered).length;
+  const shakaiMasteredCount = enrichedSkills.filter(s => s.subject === 'shakai' && s.isMastered).length;
+  const kokugoMasteredCount = enrichedSkills.filter(s => s.subject === 'kokugo' && s.isMastered).length;
 
   const themeIcons: Record<ThemeType, string> = {
     default: '🩺 クリニック',
@@ -763,28 +772,25 @@ export const HomePage: React.FC = () => {
           >
             <div className={styles.caseStudyHeaderRow}>
               <h3 className={`${styles.cardTitle} ${styles.caseStudyTitle}`}>
-                🩺 症例スタディ（全{ALL_PROGRESS_SKILLS.length}テーマ）
+                🩺 症例スタディ
               </h3>
             </div>
 
-            {/* 合格のカギ（Lv.4マスター）の進度と集め方の説明（カルテ領域に配置） */}
-            <div className={styles.keyProgressBox} data-testid="key-progress-box">
-              <div className={styles.keyProgressHeader}>
-                <strong className={styles.keyProgressTitle}>
-                  🔑 合格のカギ: {masteredCount} / {filteredSkills.length} 個
-                </strong>
-                <span className={styles.keyProgressSubject}>
-                  {selectedSkillSubject === 'rika' ? '理科' : selectedSkillSubject === 'sansu' ? '算数' : selectedSkillSubject === 'shakai' ? '社会' : '国語'}
+            <p className={styles.caseStudyLead}>
+              科目ごとの単元をすべて攻略しよう
+            </p>
+
+            {/* 症例スタディ 挑戦のごほうびカード（認定試験カードと完全統一） */}
+            <div className={styles.rewardCard} data-testid="key-progress-box">
+              <div className={styles.rewardTitle}>🎖️ 挑戦のごほうび</div>
+              <p style={{ margin: '6px 0 10px 0', fontSize: '13px', lineHeight: '1.6', color: 'var(--text)' }}>
+                各科目のすべての症例理解度が<strong>【⭐Lv.4 マスター】</strong>になると、<strong>「動物からの感謝メッセージ」</strong>が届くよ！
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', paddingTop: '8px', borderTop: '1px dashed rgba(245, 158, 11, 0.4)' }}>
+                <span style={{ fontSize: '12px', color: '#92400e', fontWeight: '700' }}>
+                  全教科マスター進度: <strong>{totalMasteredCount} / {totalSkillsCount} テーマ</strong>
                 </span>
-              </div>
-              <div className={styles.keyProgressDesc}>
-                【集め方】下の症例スタディでテーマを学習し、<strong>【⭐Lv.4 マスター】</strong>にすると手に入ります。
-              </div>
-              <div className={styles.keyProgressFooter}>
-                <span className={styles.keyProgressRewardTitle}>
-                  🐾 カギ全達成特典: 全動物からの感謝メッセージ
-                </span>
-                {masteredCount >= filteredSkills.length && filteredSkills.length > 0 ? (
+                {totalMasteredCount >= totalSkillsCount && totalSkillsCount > 0 ? (
                   <button
                     onClick={() => {
                       sound.playChime();
@@ -793,39 +799,54 @@ export const HomePage: React.FC = () => {
                     className={styles.allAnimalsBtn}
                     data-testid="all-animals-message-btn"
                   >
-                    🎉 メッセージを見る！
+                    🎉 感謝メッセージを見る！
                   </button>
                 ) : (
                   <span className={styles.keyRemainingBadge}>
-                    🔒 あと {remainingCount} 個
+                    あと {totalRemainingCount} テーマで達成！
                   </span>
                 )}
               </div>
             </div>
 
-            {/* 小学生向け科目別フィルター ＆ トリアージ・カード導線 */}
-            <div className={styles.skillFilterHeaderRow}>
-              <div className={styles.categoryFilterRow} data-testid="skill-subject-filter-row">
-                {[
-                  { id: 'rika', label: `🧪 理科 (${rikaCount})` },
-                  { id: 'sansu', label: `📐 算数 (${sansuCount})` },
-                  { id: 'shakai', label: `🗾 社会 (${shakaiCount})` },
-                  { id: 'kokugo', label: `📖 国語 (${kokugoCount})` },
-                ].map(cat => (
-                  <button
-                    key={cat.id}
-                    className={`${styles.categoryFilterBtn} ${selectedSkillSubject === cat.id ? styles.categoryFilterBtnActive : ''}`}
-                    onClick={() => {
-                      sound.playPop();
-                      setSelectedSkillSubject(cat.id as any);
-                    }}
-                    data-testid={`skill-subject-btn-${cat.id}`}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
+            {/* 小学生向け科目別フィルター */}
+            <div className={styles.categoryFilterRow} data-testid="skill-subject-filter-row">
+              {[
+                { id: 'rika', label: `🧪 理科 (${rikaCount})` },
+                { id: 'sansu', label: `📐 算数 (${sansuCount})` },
+                { id: 'shakai', label: `🗾 社会 (${shakaiCount})` },
+                { id: 'kokugo', label: `📖 国語 (${kokugoCount})` },
+              ].map(cat => (
+                <button
+                  key={cat.id}
+                  className={`${styles.categoryFilterBtn} ${selectedSkillSubject === cat.id ? styles.categoryFilterBtnActive : ''}`}
+                  onClick={() => {
+                    sound.playPop();
+                    setSelectedSkillSubject(cat.id as any);
+                  }}
+                  data-testid={`skill-subject-btn-${cat.id}`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
 
+            {/* サクッと要点暗記カード（トリアージ・カード）導線バナー */}
+            <div className={styles.triageBanner} data-testid="triage-card-banner">
+              <div className={styles.triageBannerContent}>
+                <div className={styles.triageBannerHeader}>
+                  <span className={styles.triageBannerIcon}>📇</span>
+                  <strong className={styles.triageBannerTitle}>
+                    要点暗記カード
+                  </strong>
+                  <span className={styles.triageSubjectTag}>
+                    {selectedSkillSubject === 'rika' ? '🧪 理科' : selectedSkillSubject === 'sansu' ? '📐 算数' : selectedSkillSubject === 'shakai' ? '🗾 社会' : '📖 国語'}
+                  </span>
+                </div>
+                <p className={styles.triageBannerDesc}>
+                  スキマ時間に重要急所をパッと思い出して、記憶キープ度をチャージしよう！
+                </p>
+              </div>
               <button
                 className={styles.triageCardLaunchBtn}
                 onClick={() => {
@@ -836,7 +857,7 @@ export const HomePage: React.FC = () => {
                 title="全症例の急所・重症度をサクッと確認できるフラッシュカード"
                 data-testid="launch-triage-card-btn"
               >
-                <span>📇 トリアージ・カード ❯</span>
+                <span>📇 カードをめくる ❯</span>
               </button>
             </div>
 
@@ -1733,13 +1754,13 @@ export const HomePage: React.FC = () => {
                   lv: 'Lv.3',
                   name: '🍀 なっとく理由',
                   desc: '「なぜそうなるのか」の理由や、解く手順までしっかり説明できるレベル！',
-                  howToUp: '💡 場面が変わった応用問題に正解で【⭐Lv.4マスター】達成！🔑合格のカギを獲得！',
+                  howToUp: '💡 場面が変わった応用問題に正解で【⭐Lv.4マスター】達成！',
                 },
                 {
                   stage: 'M4',
                   lv: 'Lv.4',
                   name: '⭐ カルテマスター',
-                  desc: '数字や問題の場面が変わった【初めて見る応用問題】でも自力で解けるレベル！🔑合格のカギ獲得済み。',
+                  desc: '数字や問題の場面が変わった【初めて見る応用問題】でも自力で解けるレベル！',
                   howToUp: '💡 1日後・3日後の復習で記憶メーターを高くキープすると【Lv.5】へ！',
                 },
                 {
@@ -1807,7 +1828,7 @@ export const HomePage: React.FC = () => {
                     全動物たちからの特別感謝メッセージ
                   </h3>
                   <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                    全テーマの合格のカギ（⭐Lv.4マスター）達成おめでとう！
+                    全テーマの【⭐Lv.4マスター】達成おめでとう！
                   </div>
                 </div>
               </div>
