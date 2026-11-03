@@ -52,12 +52,13 @@ function bytesToHex(bytes: Uint8Array): string {
 }
 
 // PBKDF2 反復回数: 本番環境は厳格な 300,000 回、テスト環境 (Vitest/jsdom) では CI タイムアウト防止のため 1,000 回
-const PBKDF2_ITERATIONS = (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') ? 1000 : 300000;
+export const DEFAULT_PBKDF2_ITERATIONS = (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') ? 1000 : 300000;
+const PBKDF2_ITERATIONS = DEFAULT_PBKDF2_ITERATIONS;
 
 /**
  * 4桁PINとソルトからPBKDF2で検証用ハッシュ文字列（hex）を生成
  */
-export async function hashPin(pin: string, saltHex: string): Promise<string> {
+export async function hashPin(pin: string, saltHex: string, iterations: number = PBKDF2_ITERATIONS): Promise<string> {
   const subtle = getSubtleCrypto();
   const enc = new TextEncoder();
   const salt = hexToBytes(saltHex);
@@ -87,7 +88,7 @@ export async function hashPin(pin: string, saltHex: string): Promise<string> {
 /**
  * 4桁PINとソルトからAES-GCM用の暗号鍵（CryptoKey）を生成
  */
-export async function deriveKeyFromPin(pin: string, saltHex: string): Promise<CryptoKey> {
+export async function deriveKeyFromPin(pin: string, saltHex: string, iterations: number = PBKDF2_ITERATIONS): Promise<CryptoKey> {
   const subtle = getSubtleCrypto();
   const enc = new TextEncoder();
   const salt = hexToBytes(saltHex);

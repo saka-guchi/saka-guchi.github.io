@@ -45,6 +45,9 @@ export interface CrisisSupportContact {
   hours: string;
   description: string;
   isFreeCall: boolean;
+  url: string;
+  verifiedDate: string;
+  verified: boolean;
 }
 
 export const OFFICIAL_CRISIS_CONTACTS: CrisisSupportContact[] = [
@@ -52,15 +55,21 @@ export const OFFICIAL_CRISIS_CONTACTS: CrisisSupportContact[] = [
     name: '文部科学省 24時間子供SOSダイヤル',
     phone: '0120-0-78310',
     hours: '24時間 年中無休',
-    description: 'いじめや人間関係、学校のことなど、どんな悩みでも24時間いつでも話せます。',
+    description: 'いじめや学校のこと、不安など、いつでも話せます。',
     isFreeCall: true,
+    url: 'https://www.mext.go.jp/a_menu/shotou/seitoshidou/06112210.htm',
+    verifiedDate: '2026-11-03',
+    verified: true,
   },
   {
     name: 'チャイルドライン',
     phone: '0120-99-7777',
     hours: '毎日 16:00〜21:00',
-    description: '18才までの子どもがかける専用の電話です。話したいこと、何でも話せます。',
+    description: '18才までの子どもがかける専用電話です。名前は言わなくてOK。',
     isFreeCall: true,
+    url: 'https://childline.or.jp/',
+    verifiedDate: '2026-11-03',
+    verified: true,
   },
   {
     name: '法務省 こどもの人権110番',
@@ -68,6 +77,9 @@ export const OFFICIAL_CRISIS_CONTACTS: CrisisSupportContact[] = [
     hours: '平日 8:30〜17:15',
     description: 'いじめや体罰など、人権に関わる困りごとを相談できます。',
     isFreeCall: true,
+    url: 'https://www.moj.go.jp/JINKEN/jinken112.html',
+    verifiedDate: '2026-11-03',
+    verified: true,
   },
 ];
 

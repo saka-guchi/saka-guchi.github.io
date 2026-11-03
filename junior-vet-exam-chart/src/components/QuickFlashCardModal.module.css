@@ -53,14 +53,14 @@
 .cardPerspective {
   perspective: 1000px;
   width: 100%;
-  min-height: 380px;
+  min-height: 480px;
   cursor: pointer;
 }
 
 .cardInner {
   position: relative;
   width: 100%;
-  min-height: 380px;
+  min-height: 480px;
   text-align: center;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   transform-style: preserve-3d;
@@ -75,7 +75,9 @@
   inset: 0;
   backface-visibility: hidden;
   border-radius: var(--radius-lg);
-  padding: 20px 18px;
+  padding: 18px 16px;
+  overflow-y: auto;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

@@ -145,6 +145,15 @@ export interface MetaChildLock {
   enabled: boolean;
   salt: string; // hex
   testHash: string; // hex
+  iterations?: number;
+}
+
+
+export interface ParentAuditLogEntry {
+  action: 'pin_set' | 'pin_reset' | 'care_signal_ack';
+  timestamp: string; // ISO 8601
+  label: string; // 日本語ラベル
+  formattedDateJst: string; // YYYY/MM/DD HH:mm (JST)
 }
 
 export interface MetaParentPin {
@@ -153,6 +162,7 @@ export interface MetaParentPin {
   testHash: string; // hex
   failedCount: number;
   lockedUntil?: number; // timestamp ms
+  iterations?: number;
 }
 
 /**
@@ -179,6 +189,7 @@ export const MENTAL_STORAGE_KEYS = {
   META_PROMISES_AGREED: 'jvet:meta:promises_agreed',
   META_CHILD_LOCK: 'jvet:meta:child_lock',
   META_PARENT_PIN: 'jvet:meta:parent_pin',
+  META_PARENT_AUDIT_LOGS: 'jvet:meta:parent_audit_logs',
   META_SCHEMA_VERSION: 'jvet:meta:schema_version',
 
   // Backup

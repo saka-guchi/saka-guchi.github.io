@@ -19,6 +19,7 @@ import {
   generateSaltHex,
   hashPin,
   deriveKeyFromPin,
+  DEFAULT_PBKDF2_ITERATIONS,
   encryptData,
   decryptData,
   EncryptedPayload,
@@ -91,19 +92,20 @@ export function lockChild(): void {
 /**
  * 4桁PINを入力してロック解除
  */
-export async function unlockChild(pin: string): Promise<boolean> {
+export async function unlockChild(pin: string, iterationsOverride?: number): Promise<boolean> {
   const meta = getChildLockMeta();
   if (!meta || !meta.enabled) {
     return true; // 設定されていなければアンロック状態
   }
 
-  const computedHash = await hashPin(pin, meta.salt);
+  const iters = iterationsOverride || meta.iterations || DEFAULT_PBKDF2_ITERATIONS;
+  const computedHash = await hashPin(pin, meta.salt, iters);
   if (computedHash !== meta.testHash) {
     return false;
   }
 
   // 暗号鍵を導出してメモリに保持
-  memoryKey = await deriveKeyFromPin(pin, meta.salt);
+  memoryKey = await deriveKeyFromPin(pin, meta.salt, iters);
   resetInactivityTimer();
   return true;
 }
@@ -111,10 +113,10 @@ export async function unlockChild(pin: string): Promise<boolean> {
 /**
  * ひみつのカギ（4桁PIN）を新規設定
  */
-export async function setChildLock(pin: string): Promise<void> {
+export async function setChildLock(pin: string, iterations: number = DEFAULT_PBKDF2_ITERATIONS): Promise<void> {
   const salt = generateSaltHex(16);
-  const testHash = await hashPin(pin, salt);
-  const key = await deriveKeyFromPin(pin, salt);
+  const testHash = await hashPin(pin, salt, iterations);
+  const key = await deriveKeyFromPin(pin, salt, iterations);
 
   // 既存の平文データをバンドルして暗号化BLOBへ移行
   const currentBundle = readUnencryptedBundle();
@@ -331,3 +333,38 @@ export async function savePrivateWeatherDetails(
   await savePrivateBundle(bundle);
 }
 
+
+/**
+ * ひみつのカギを忘れた場合の初期化（Privateデータ完全消去＆カギ解除）
+ * ※暗号化鍵が失われたため、暗号化された本人専用データは復元不可能となり完全消去されます
+ */
+export function resetChildLockAndWipePrivate(): void {
+  lockChild();
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    window.localStorage.removeItem(MENTAL_STORAGE_KEYS.META_CHILD_LOCK);
+    window.localStorage.removeItem(MENTAL_STORAGE_KEYS.PRIVATE_SORTING_CARDS);
+    window.localStorage.removeItem(MENTAL_STORAGE_KEYS.PRIVATE_COPING_RECORDS);
+    window.localStorage.removeItem(MENTAL_STORAGE_KEYS.PRIVATE_PHILOSOPHY_ANSWERS);
+    window.localStorage.removeItem(MENTAL_STORAGE_KEYS.PRIVATE_WEATHER_DETAILS);
+    window.localStorage.removeItem(MENTAL_STORAGE_KEYS.PRIVATE_ENCRYPTED_BLOB);
+  } catch (e) {
+    console.error('[private-store] Failed to reset child lock:', e);
+  }
+}
+
+/**
+ * こころの記録をすべて削除（本人専用 + 共有 + メタ情報 全初期化）
+ */
+export function clearAllMentalCareData(): void {
+  lockChild();
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    const keysToRemove = Object.values(MENTAL_STORAGE_KEYS);
+    for (const k of keysToRemove) {
+      window.localStorage.removeItem(k);
+    }
+  } catch (e) {
+    console.error('[private-store] Failed to clear all mental care data:', e);
+  }
+}

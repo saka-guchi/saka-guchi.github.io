@@ -97,6 +97,10 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
     // 解説フィードバックが表示され、まわりの箱にチップが入ること
     expect(screen.getByText(/相手の課題/)).toBeInTheDocument();
 
+    // 【重要】クリック後に例題が次のカード（模試の時間）へ正しく切り替わっていることを検証（固定ハードコードの根絶）
+    expect(screen.getByText(/模試の時間が足りなくて/)).toBeInTheDocument();
+    expect(screen.getByText(/例題 2 \/ 9/)).toBeInTheDocument();
+
     // 独自のモヤモヤ自由追加フォームのテスト
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: '友達から返事が遅くて不安' } });
@@ -131,7 +135,7 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
     // マイお守りフィルター
     const filterSavedBtn = screen.getByTestId('filter-saved-coping');
     fireEvent.click(filterSavedBtn);
-    expect(screen.getByText(/いらない紙を思いっきりビリビリ破く/)).toBeInTheDocument();
+    expect(screen.getAllByText(/いらない紙を思いっきりビリビリ破く/)[0]).toBeInTheDocument();
 
     // やってみたボタン
     const tryButtons = screen.getAllByText('✨ やってみた！');
@@ -195,7 +199,7 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
       })
     );
 
-    render(<ParentDashboardModal onClose={() => {}} />);
+    const { unmount } = render(<ParentDashboardModal onClose={() => {}} />);
 
     // 「こころの見守り処方箋」タブをクリック
     const tabMental = screen.getByTestId('parent-tab-mental');
@@ -218,5 +222,7 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
     // 完了トーストが表示されること
     expect(screen.getByTestId('parent-action-done-toast')).toBeInTheDocument();
     expect(screen.getByText(/ナイスサポート！お子さんの心の安全基地が守られました/)).toBeInTheDocument();
+
+    unmount();
   });
 });

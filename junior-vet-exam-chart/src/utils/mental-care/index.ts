@@ -35,6 +35,9 @@ export {
   setParentPin,
   verifyParentPin,
   resetParentPinAndSharedData,
+  getParentAuditLogs,
+  recordParentAuditLog,
+  getParentPinLockoutStatus,
 } from './shared-store';
 
 // 子ども専用プライベートストア (private-store)
@@ -54,6 +57,8 @@ export {
   savePrivatePhilosophyAnswers,
   getPrivateWeatherDetails,
   savePrivateWeatherDetails,
+  resetChildLockAndWipePrivate,
+  clearAllMentalCareData,
 } from './private-store';
 
 // コア操作（子どもアクション時の保存 & 射影）
