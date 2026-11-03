@@ -33,7 +33,7 @@ describe('合格カルテ完成度の解説（マウスオーバー＆クリッ�
     // 100%にするための3つのアクションが記載されていること
     expect(screen.getByTestId('action-item-focus')).toHaveTextContent(/症例の「特訓問題」を解いて正解する/);
     expect(screen.getByTestId('action-item-flashcard')).toHaveTextContent(/「トリアージ・カード」をサクッとめくって復習する/);
-    expect(screen.getByTestId('action-item-daily')).toHaveTextContent(/「本日の回診」を毎日解く/);
+    expect(screen.getByTestId('action-item-daily')).toHaveTextContent(/「本日の診察」を毎日解く/);
 
     // 閉じるボタンで閉じられること
     const closeBtn = screen.getByTestId('close-completion-help-btn');

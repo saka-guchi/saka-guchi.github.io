@@ -436,9 +436,9 @@ export const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* ゾーン1: 上段2カラム（本日の回診 と 知識の処方箋） */}
+        {/* ゾーン1: 上段2カラム（本日の診察 と 知識の処方箋） */}
         <div className={styles.topCardsGrid}>
-          {/* 左カラム: 本日の回診 */}
+          {/* 左カラム: 本日の診察 */}
           <section className={styles.todayCard} data-testid="today-study-card">
             <div className={styles.todayCardContent} data-testid="card-breakdown">
               <div className={styles.badgeRow}>
@@ -573,10 +573,10 @@ export const HomePage: React.FC = () => {
           <div className={styles.stampLeft}>
             <div>
               <div className={styles.stampHeaderTitle}>
-                🐾 元気にした動物たちのカルテ（本日の回診: {earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹 ＋ 症例全快: {allMasteredSkills.length} / {enrichedSkills.length} 匹）
+                🐾 元気にした動物たちのカルテ（本日の診察: {earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹 ＋ 症例全快: {allMasteredSkills.length} / {enrichedSkills.length} 匹）
               </div>
               <div className={styles.stampNextHint}>
-                👉 本日の回診で【{nextStamp.icon} {nextStamp.name}】、症例特訓（Lv.4マスター）で【患者動物たち】が全快カルテになるよ！
+                👉 本日の診察で【{nextStamp.icon} {nextStamp.name}】、症例特訓（Lv.4マスター）で【患者動物たち】が全快カルテになるよ！
               </div>
             </div>
 
@@ -588,7 +588,7 @@ export const HomePage: React.FC = () => {
                 onClick={() => setStampPreviewType('daily')}
                 data-testid="preview-tab-daily"
               >
-                📅 本日の回診（{earnedStampIds.length} / {ANIMAL_STAMPS.length}）
+                📅 本日の診察（{earnedStampIds.length} / {ANIMAL_STAMPS.length}）
               </button>
               <button
                 type="button"
@@ -1162,7 +1162,7 @@ export const HomePage: React.FC = () => {
                 }}
                 data-testid="stamp-tab-daily"
               >
-                📅 本日の回診カルテ（{earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹）
+                📅 本日の診察カルテ（{earnedStampIds.length} / {ANIMAL_STAMPS.length} 匹）
               </button>
               <button
                 type="button"
@@ -1549,7 +1549,7 @@ export const HomePage: React.FC = () => {
                   <span style={{ fontSize: '26px' }}>🐾</span>
                   <div style={{ flex: 1 }}>
                     <div className={styles.modalActionTitle}>
-                      ③ 「本日の回診」を毎日解く（100%キープ！）
+                      ③ 「本日の診察」を毎日解く（100%キープ！）
                     </div>
                     <div className={styles.modalActionDesc}>
                       忘却曲線で減りかけた単元が自動で優先出題されるので、毎日1回解くだけで100%をずっとキープできます！

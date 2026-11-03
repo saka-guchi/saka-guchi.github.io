@@ -17,9 +17,10 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
     vi.clearAllMocks();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     cleanup();
     vi.clearAllTimers();
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
   it('ホーム画面のヘッダーボタンおよびバナーからこころの相談室全画面ページへ遷移でき、戻るボタンで復帰できること', async () => {
@@ -73,7 +74,9 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
 
     expect(screen.getByTestId('weather-checkin-bar')).toBeInTheDocument();
     const rainBtn = screen.getByTestId('weather-btn-rainy');
-    fireEvent.click(rainBtn);
+    await act(async () => {
+      fireEvent.click(rainBtn);
+    });
 
     expect(screen.getByTestId('weather-toast')).toBeInTheDocument();
     expect(screen.getByText(/お天気を記録したよ！/)).toBeInTheDocument();
@@ -91,7 +94,9 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
 
     // 「まわりの箱（変えられない）」へ仕分け
     const btnSortOthers = screen.getByTestId('btn-sort-others');
-    fireEvent.click(btnSortOthers);
+    await act(async () => {
+      fireEvent.click(btnSortOthers);
+    });
 
     // 解説フィードバックが表示され、まわりの箱にチップが入ること
     expect(screen.getByText(/相手の課題/)).toBeInTheDocument();
@@ -104,7 +109,9 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: '友達から返事が遅くて不安' } });
     const addBtn = screen.getByTestId('btn-add-custom-sort');
-    fireEvent.click(addBtn);
+    await act(async () => {
+      fireEvent.click(addBtn);
+    });
 
     expect(screen.getByText(/友達から返事が遅くて不安/)).toBeInTheDocument();
   });
@@ -118,27 +125,37 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
 
     // コーピングタブに切り替え
     const tabCoping = screen.getByTestId('tab-coping');
-    fireEvent.click(tabCoping);
+    await act(async () => {
+      fireEvent.click(tabCoping);
+    });
 
     // コーピングレシピが表示されていること
     expect(screen.getByText(/冷たいお水をゆっくり一口飲む/)).toBeInTheDocument();
 
     // ガチャボタンのクリック
     const gachaBtn = screen.getByTestId('btn-coping-gacha');
-    fireEvent.click(gachaBtn);
+    await act(async () => {
+      fireEvent.click(gachaBtn);
+    });
 
     // マイお守り登録トグル（cope-2を登録）
     const saveBtn = screen.getByTestId('save-coping-cope-2');
-    fireEvent.click(saveBtn);
+    await act(async () => {
+      fireEvent.click(saveBtn);
+    });
 
     // マイお守りフィルター
     const filterSavedBtn = screen.getByTestId('filter-saved-coping');
-    fireEvent.click(filterSavedBtn);
+    await act(async () => {
+      fireEvent.click(filterSavedBtn);
+    });
     expect(screen.getAllByText(/いらない紙を思いっきりビリビリ破く/)[0]).toBeInTheDocument();
 
     // やってみたボタン
     const tryButtons = screen.getAllByText('✨ やってみた！');
-    fireEvent.click(tryButtons[0]);
+    await act(async () => {
+      fireEvent.click(tryButtons[0]);
+    });
     expect(screen.getByText(/試したね！えらい！/)).toBeInTheDocument();
   });
 
@@ -151,7 +168,9 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
 
     // 哲学対話タブに切り替え
     const tabPhilosophy = screen.getByTestId('tab-philosophy');
-    fireEvent.click(tabPhilosophy);
+    await act(async () => {
+      fireEvent.click(tabPhilosophy);
+    });
 
     // 4つのテーマが表示されていること（文献ベースの怒りと一次感情トピックを含む）
     expect(screen.getByText(/「えこひいき」って、なんでこんなにモヤモヤするんだろう？/)).toBeInTheDocument();
@@ -161,26 +180,38 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
 
     // ステップ1の選択肢をクリック
     const choiceBtn0 = screen.getByTestId('choice-btn-0');
-    fireEvent.click(choiceBtn0);
+    await act(async () => {
+      fireEvent.click(choiceBtn0);
+    });
 
     // リアクションカードが表示されること
     expect(screen.getByTestId('reaction-card')).toBeInTheDocument();
 
     // 次のステップへ進む
     const nextBtn1 = screen.getByTestId('btn-next-step');
-    fireEvent.click(nextBtn1);
+    await act(async () => {
+      fireEvent.click(nextBtn1);
+    });
 
     // ステップ2の選択肢をクリック
     const choiceBtnStep2 = screen.getByTestId('choice-btn-0');
-    fireEvent.click(choiceBtnStep2);
+    await act(async () => {
+      fireEvent.click(choiceBtnStep2);
+    });
     const nextBtn2 = screen.getByTestId('btn-next-step');
-    fireEvent.click(nextBtn2);
+    await act(async () => {
+      fireEvent.click(nextBtn2);
+    });
 
     // ステップ3の選択肢をクリック
     const choiceBtnStep3 = screen.getByTestId('choice-btn-0');
-    fireEvent.click(choiceBtnStep3);
+    await act(async () => {
+      fireEvent.click(choiceBtnStep3);
+    });
     const nextBtn3 = screen.getByTestId('btn-next-step');
-    fireEvent.click(nextBtn3);
+    await act(async () => {
+      fireEvent.click(nextBtn3);
+    });
 
     // 処方箋カードが表示されること
     expect(screen.getByTestId('prescription-card')).toBeInTheDocument();
