@@ -1005,14 +1005,14 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* 右カラム: 🏆 合格ドクター認定試験 */}
+          {/* 右カラム: 🏆 獣医師チャレンジ */}
           <div
             className={`${styles.card} ${mobileBottomTab !== 'exam' ? styles.cardHiddenOnMobile : ''}`}
             data-testid="card-final-challenge"
           >
             <div className={styles.examHeaderRow}>
               <div className={styles.areaHeaderRow}>
-                <h2 className={styles.areaTitle}>🏆 獣医師認定試験</h2>
+                <h2 className={styles.areaTitle}>🏆 獣医師チャレンジ</h2>
               </div>
             </div>
 
@@ -1689,7 +1689,7 @@ export const HomePage: React.FC = () => {
                   lv: 'Lv.5',
                   name: '👑 かんぺき定着',
                   desc: '1日後や3日後に復習しても忘れていない、本物の実力がついた証拠！',
-                  howToUp: '💡 本番形式の「獣医師認定試験」で満点をとると最高峰【Lv.6】へ！',
+                  howToUp: '💡 本番形式の「獣医師チャレンジ」で満点をとると最高峰【Lv.6】へ！',
                 },
                 {
                   stage: 'M6',
