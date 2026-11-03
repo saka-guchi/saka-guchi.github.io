@@ -57,6 +57,7 @@ export const FinalChallengePage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1); // p.1 (表紙) から開始
   const [scanZoom, setScanZoom] = useState(100); // 原本スキャン画像専用ズーム（100%=全体表示Fit）
   const [viewMode, setViewMode] = useState<'text' | 'image'>('image');
+  const [pageLayout, setPageLayout] = useState<'single' | 'spread'>('single'); // 原本スキャン時の「1ページ」/「見開き（2ページ）」
   const [storedPack, setStoredPack] = useState<StoredPack | null>(BUILTIN_YASUDA_PACK);
 
   // 回答状態: slotId -> 入力値
@@ -224,14 +225,21 @@ export const FinalChallengePage: React.FC = () => {
   };
 
   // 現在ページの画像（インポート済みの場合またはpublicフォールバック）
-  const padPage = String(currentPage).padStart(3, '0');
-  const pageImageKey = `images/pages/${currentYear}/${currentSubject}/mondai_p${padPage}.webp`;
-  const pageImageAltKey = `images/pages/${currentYear}/${currentSubject}/mondai_p${padPage}.png`;
-  const publicFallback = `${import.meta.env.BASE_URL}pages/${currentYear}/${currentSubject}/mondai_p${padPage}.webp`;
-  const pageImageData =
-    storedPack?.images?.[pageImageKey] ||
-    storedPack?.images?.[pageImageAltKey] ||
-    publicFallback;
+  const getPageImageUrl = (pageNumber: number): string | null => {
+    if (pageNumber < 1 || pageNumber > currentTotalPages) return null;
+    const pad = String(pageNumber).padStart(3, '0');
+    const pageImageKey = `images/pages/${currentYear}/${currentSubject}/mondai_p${pad}.webp`;
+    const pageImageAltKey = `images/pages/${currentYear}/${currentSubject}/mondai_p${pad}.png`;
+    const publicFallback = `${import.meta.env.BASE_URL}pages/${currentYear}/${currentSubject}/mondai_p${pad}.webp`;
+    return (
+      storedPack?.images?.[pageImageKey] ||
+      storedPack?.images?.[pageImageAltKey] ||
+      publicFallback
+    );
+  };
+
+  const pageImageData = getPageImageUrl(currentPage);
+  const nextPageImageData = currentPage < currentTotalPages ? getPageImageUrl(currentPage + 1) : null;
 
   // 傍線部ジャンプ用マップ（スロット番号・傍線部番号とページ番号の対応）
   const kokugoUnderlinePages: Record<string, { page: number; elementId: string }> = {
@@ -435,25 +443,57 @@ export const FinalChallengePage: React.FC = () => {
           <div className={styles.pdfControls}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span data-testid="page-indicator">
-                ページ: {currentPage} / {currentTotalPages}
+                ページ: {pageLayout === 'spread' && nextPageImageData ? `${currentPage}-${currentPage + 1}` : currentPage} / {currentTotalPages}
               </span>
               <button
                 className={styles.pageBtn}
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage(p => Math.max(1, pageLayout === 'spread' ? p - 2 : p - 1))}
                 disabled={currentPage <= 1}
                 data-testid="prev-page-btn"
+                title={pageLayout === 'spread' ? '前の見開きへ' : '前のページへ'}
               >
-                ◀ 前のページ
+                ◀ 前の{pageLayout === 'spread' ? '見開き' : 'ページ'}
               </button>
               <button
                 className={styles.pageBtn}
-                onClick={() => setCurrentPage(p => Math.min(currentTotalPages, p + 1))}
-                disabled={currentPage >= currentTotalPages}
+                onClick={() => setCurrentPage(p => Math.min(currentTotalPages, pageLayout === 'spread' ? p + 2 : p + 1))}
+                disabled={pageLayout === 'spread' ? currentPage >= currentTotalPages || currentPage + 1 >= currentTotalPages : currentPage >= currentTotalPages}
                 data-testid="next-page-btn"
+                title={pageLayout === 'spread' ? '次の見開きへ' : '次のページへ'}
               >
-                次のページ ▶
+                次の{pageLayout === 'spread' ? '見開き' : 'ページ'} ▶
               </button>
             </div>
+
+            {/* 単ページ / 見開き（2ページ）切り替えボタン */}
+            {stage === 1 && viewMode === 'image' && pageImageData && (
+              <div style={{ display: 'flex', gap: '2px', background: 'var(--surface-subtle)', padding: '2px', borderRadius: '6px' }}>
+                <button
+                  className={`${styles.pageBtn} ${pageLayout === 'single' ? styles.activeTab : ''}`}
+                  onClick={() => {
+                    sound.playPop();
+                    setPageLayout('single');
+                  }}
+                  data-testid="layout-single-btn"
+                  title="1ページ単独表示"
+                  style={{ fontSize: '11px', padding: '3px 8px', background: pageLayout === 'single' ? '#DBEAFE' : 'transparent' }}
+                >
+                  📄 1ページ
+                </button>
+                <button
+                  className={`${styles.pageBtn} ${pageLayout === 'spread' ? styles.activeTab : ''}`}
+                  onClick={() => {
+                    sound.playPop();
+                    setPageLayout('spread');
+                  }}
+                  data-testid="layout-spread-btn"
+                  title="左右見開き（2ページ並び）で表示"
+                  style={{ fontSize: '11px', padding: '3px 8px', background: pageLayout === 'spread' ? '#DBEAFE' : 'transparent' }}
+                >
+                  📖 見開き
+                </button>
+              </div>
+            )}
 
             {/* 原本スキャン時のズーム操作（初期はウィンドウに収まる全体表示Fit、必要な時に拡大） */}
             {stage === 1 && viewMode === 'image' && pageImageData && (
@@ -528,27 +568,74 @@ export const FinalChallengePage: React.FC = () => {
           <div className={styles.pageWrapper}>
             {stage === 1 ? (
               viewMode === 'image' && pageImageData ? (
-                /* 画像がある場合は実ページ画像を表示（初期状態はウィンドウ内に収まる全体表示Fit、スクロールバーなし） */
-                <div
-                  className={styles.scanImageContainer}
-                  style={{
-                    alignItems: scanZoom > 100 ? 'flex-start' : 'center',
-                  }}
-                >
-                  <img
-                    src={pageImageData}
-                    alt={`問題用紙 p.${currentPage}`}
-                    className={styles.pageImage}
+                pageLayout === 'spread' ? (
+                  /* 左右見開き（2ページ並び）表示（ウィンドウ内に美しくフィット） */
+                  <div
+                    className={styles.scanSpreadContainer}
                     style={{
-                      transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
-                      transformOrigin: 'top center',
-                      maxWidth: scanZoom > 100 ? 'none' : '100%',
-                      maxHeight: scanZoom > 100 ? 'none' : '100%',
-                      width: scanZoom > 100 ? `${scanZoom}%` : 'auto',
+                      alignItems: scanZoom > 100 ? 'flex-start' : 'center',
                     }}
-                    data-testid="exam-page-image"
-                  />
-                </div>
+                    data-testid="scan-spread-container"
+                  >
+                    {/* 左ページ */}
+                    <div className={styles.spreadPageCol}>
+                      <span className={styles.spreadPageLabel}>p.{currentPage}</span>
+                      <img
+                        src={pageImageData}
+                        alt={`問題用紙 p.${currentPage}`}
+                        className={styles.spreadPageImage}
+                        style={{
+                          transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
+                          transformOrigin: 'top center',
+                          maxWidth: scanZoom > 100 ? 'none' : '100%',
+                          maxHeight: scanZoom > 100 ? 'none' : 'calc(100% - 22px)',
+                        }}
+                        data-testid="exam-page-image-left"
+                      />
+                    </div>
+
+                    {/* 右ページ（存在する場合） */}
+                    {nextPageImageData && (
+                      <div className={styles.spreadPageCol}>
+                        <span className={styles.spreadPageLabel}>p.{currentPage + 1}</span>
+                        <img
+                          src={nextPageImageData}
+                          alt={`問題用紙 p.${currentPage + 1}`}
+                          className={styles.spreadPageImage}
+                          style={{
+                            transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
+                            transformOrigin: 'top center',
+                            maxWidth: scanZoom > 100 ? 'none' : '100%',
+                            maxHeight: scanZoom > 100 ? 'none' : 'calc(100% - 22px)',
+                          }}
+                          data-testid="exam-page-image-right"
+                        />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* 単一ページ表示（初期状態はウィンドウ内に収まる全体表示Fit、スクロールバーなし） */
+                  <div
+                    className={styles.scanImageContainer}
+                    style={{
+                      alignItems: scanZoom > 100 ? 'flex-start' : 'center',
+                    }}
+                  >
+                    <img
+                      src={pageImageData}
+                      alt={`問題用紙 p.${currentPage}`}
+                      className={styles.pageImage}
+                      style={{
+                        transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
+                        transformOrigin: 'top center',
+                        maxWidth: scanZoom > 100 ? 'none' : '100%',
+                        maxHeight: scanZoom > 100 ? 'none' : '100%',
+                        width: scanZoom > 100 ? `${scanZoom}%` : 'auto',
+                      }}
+                      data-testid="exam-page-image"
+                    />
+                  </div>
+                )
               ) : (
                 /* テキスト・図表・設問表示（ズーム影響を受けず常に標準サイズで快適に閲覧可能） */
                 <div className={styles.samplePdfMock}>

@@ -251,4 +251,44 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
     fireEvent.click(stage2Tab);
     expect(screen.queryByText('✨ 同等未見問題モード（オリジナル出題）')).toBeNull();
   });
+
+  it('原本スキャン表示時、左右見開き（2ページ並び）を選択でき、左右ページが横並び表示され見開き単位でページめくりができること', async () => {
+    render(
+      <BrowserRouter>
+        <FinalChallengePage />
+      </BrowserRouter>
+    );
+
+    // 2026年度 理科（原本スキャンが初期表示）
+    fireEvent.click(screen.getByTestId('year-tab-2026'));
+    fireEvent.click(screen.getByTestId('subject-tab-rika'));
+
+    // 初期状態は「1ページ」表示で、exam-page-image が存在すること
+    expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
+    expect(screen.getByTestId('layout-single-btn')).toBeInTheDocument();
+    expect(screen.getByTestId('layout-spread-btn')).toBeInTheDocument();
+
+    // 「📖 見開き」ボタンをクリック
+    fireEvent.click(screen.getByTestId('layout-spread-btn'));
+
+    // 見開きコンテナが表示され、左ページ(p.1)と右ページ(p.2)が表示されていること
+    expect(screen.getByTestId('scan-spread-container')).toBeInTheDocument();
+    expect(screen.getByTestId('exam-page-image-left')).toBeInTheDocument();
+    expect(screen.getByTestId('exam-page-image-right')).toBeInTheDocument();
+
+    // ページインジケーターが見開き表記（ページ: 1-2 / 6）になっていること
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent(/ページ: 1-2 \/ 6/);
+
+    // 「次の見開き ▶」ボタンをクリックして2ページ進むこと（p.3-4）
+    const nextBtn = screen.getByTestId('next-page-btn');
+    expect(nextBtn).toHaveTextContent(/次の見開き/);
+    fireEvent.click(nextBtn);
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent(/ページ: 3-4 \/ 6/);
+
+    // 「📄 1ページ」ボタンをクリックして単一ページ表示へ復帰できること
+    fireEvent.click(screen.getByTestId('layout-single-btn'));
+    expect(screen.queryByTestId('scan-spread-container')).toBeNull();
+    expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent(/ページ: 3 \/ 6/);
+  });
 });
