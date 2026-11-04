@@ -67,32 +67,42 @@ describe('UI Redesign & New Features Integration Tests', () => {
     fireEvent.click(screen.getByTestId('toggle-unmastered-skills-btn'));
 
     // 初期状態では「理科 (12)」がデフォルト選択され、理科のテーマが表示
-    expect(screen.getByText('🧪 理科 (12)')).toBeInTheDocument();
+    expect(screen.getByText('🧪 理科 (あと12)')).toBeInTheDocument();
     expect(screen.getByText('維管束の配置（内道外師）')).toBeInTheDocument();
     expect(screen.queryByText('つるかめ算と消去算の条件整理')).not.toBeInTheDocument();
 
     // 国語ボタンが存在することを確認
-    expect(screen.getByText('📖 国語 (10)')).toBeInTheDocument();
+    expect(screen.getByText('📖 国語 (あと10)')).toBeInTheDocument();
 
-    // 「📐 算数 (17)」をクリック
-    const sansuBtn = screen.getByText('📐 算数 (17)');
+    // 「📐 算数 (あと17)」をクリック
+    const sansuBtn = screen.getByText('📐 算数 (あと17)');
     fireEvent.click(sansuBtn);
 
     // 算数のテーマが表示され、理科のテーマが表示されていないことを確認
     expect(screen.getByText('つるかめ算と消去算の条件整理')).toBeInTheDocument();
     expect(screen.queryByText('維管束の配置（内道外師）')).not.toBeInTheDocument();
 
-    // 「📖 国語 (10)」をクリック
-    const kokugoBtn = screen.getByText('📖 国語 (10)');
+    // 「📖 国語 (あと10)」をクリック
+    const kokugoBtn = screen.getByText('📖 国語 (あと10)');
     fireEvent.click(kokugoBtn);
     expect(screen.getByText('漢字の書き取りと部首・同音異義語')).toBeInTheDocument();
     expect(screen.queryByText('つるかめ算と消去算の条件整理')).not.toBeInTheDocument();
 
-    // 再度「🧪 理科 (12)」をクリックして理科に戻る
-    const rikaBtn = screen.getByText('🧪 理科 (12)');
+    // 再度「🧪 理科 (あと12)」をクリックして理科に戻る
+    const rikaBtn = screen.getByText('🧪 理科 (あと12)');
     fireEvent.click(rikaBtn);
     expect(screen.getByText('維管束の配置（内道外師）')).toBeInTheDocument();
     expect(screen.queryByText('つるかめ算と消去算の条件整理')).not.toBeInTheDocument();
+  });
+
+  it('updates remaining count on subject filter tab when a skill is mastered to Lv.4 (Lv.4未達残件の動的表示)', () => {
+    // 理科のスキル1つをLv.4マスター（M4）に設定
+    setSkillStage('skill-rika-plant-vascular', 'M4');
+
+    render(<App />);
+
+    // 「🧪 理科 (あと11)」と表示され、未達残数が1減っていること
+    expect(screen.getByText('🧪 理科 (あと11)')).toBeInTheDocument();
   });
 
   it('opens and flips triage flashcard modal', () => {

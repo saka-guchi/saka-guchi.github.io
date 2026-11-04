@@ -264,6 +264,11 @@ export const HomePage: React.FC = () => {
   const shakaiMasteredCount = enrichedSkills.filter(s => s.subject === 'shakai' && s.isMastered).length;
   const kokugoMasteredCount = enrichedSkills.filter(s => s.subject === 'kokugo' && s.isMastered).length;
 
+  const rikaRemainingCount = rikaCount - rikaMasteredCount;
+  const sansuRemainingCount = sansuCount - sansuMasteredCount;
+  const shakaiRemainingCount = shakaiCount - shakaiMasteredCount;
+  const kokugoRemainingCount = kokugoCount - kokugoMasteredCount;
+
   const themeIcons: Record<ThemeType, string> = {
     default: '🩺 クリニック',
     sakura: '🌸 サクラ',
@@ -712,10 +717,10 @@ export const HomePage: React.FC = () => {
             {/* 小学生向け科目別フィルター */}
             <div className={styles.categoryFilterRow} data-testid="skill-subject-filter-row">
               {[
-                { id: 'rika', label: `🧪 理科 (${rikaCount})` },
-                { id: 'sansu', label: `📐 算数 (${sansuCount})` },
-                { id: 'shakai', label: `🗾 社会 (${shakaiCount})` },
-                { id: 'kokugo', label: `📖 国語 (${kokugoCount})` },
+                { id: 'rika', label: `🧪 理科 (あと${rikaRemainingCount})` },
+                { id: 'sansu', label: `📐 算数 (あと${sansuRemainingCount})` },
+                { id: 'shakai', label: `🗾 社会 (あと${shakaiRemainingCount})` },
+                { id: 'kokugo', label: `📖 国語 (あと${kokugoRemainingCount})` },
               ].map(cat => (
                 <button
                   key={cat.id}
