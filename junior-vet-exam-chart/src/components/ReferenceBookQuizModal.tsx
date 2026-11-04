@@ -1,3 +1,4 @@
+import { PauseConfirmModal } from './PauseConfirmModal';
 import { recordDailyStudyCompleted } from '../utils/progress-analytics';
 import React, { useState, useMemo } from 'react';
 import styles from './ReferenceBookQuizModal.module.css';
@@ -51,6 +52,7 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
   const [correctCount, setCorrectCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [showKeywordHint, setShowKeywordHint] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   const currentFigure: HistoryFigureData = sessionQuestions[currentIndex];
   const progress = getRefBookProgress(bookId);
@@ -95,9 +97,9 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
   const progressPercent = Math.round(((currentIndex + (isAnswered ? 1 : 0)) / sessionQuestions.length) * 100);
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay} onClick={() => setIsPaused(true)}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
-        {/* フル画面ヘッダー（左上統一戻るボタン完備） */}
+        {/* フル画面ヘッダー（左上統一戻るボタン完備・右側重複✕ボタン削除） */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
             <button
@@ -105,7 +107,7 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
               className={styles.backBtn}
               onClick={() => {
                 sound.playPop();
-                onClose();
+                setIsPaused(true);
               }}
               aria-label="ホームへ戻る"
               data-testid="refbook-back-btn"
@@ -116,9 +118,6 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
             <span className={styles.subjectBadge}>{bookInfo.subjectLabel}</span>
             <h3 className={styles.modalTitle}>{bookInfo.shortTitle}</h3>
           </div>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="閉じる">
-            ✕
-          </button>
         </div>
 
         {!isFinished ? (
@@ -290,6 +289,19 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
             </div>
           </div>
         )}
+              {/* 一時停止・中断確認ポップアップ */}
+        <PauseConfirmModal
+          isOpen={isPaused}
+          onResume={() => setIsPaused(false)}
+          onSaveAndQuit={() => {
+            setIsPaused(false);
+            onClose();
+          }}
+          onResetAndQuit={() => {
+            setIsPaused(false);
+            onClose();
+          }}
+        />
       </div>
     </div>
   );

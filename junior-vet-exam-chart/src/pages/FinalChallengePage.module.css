@@ -16,6 +16,39 @@
   padding: 0 24px;
 }
 
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm, 8px);
+  border: 1px solid var(--border, #cbd5e1);
+  background: #ffffff;
+  color: #1e293b;
+  font-size: var(--font-size-caption, 13px);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.backBtn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.modeBadge {
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: var(--font-size-caption, 12px);
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm, 6px);
+  white-space: nowrap;
+}
+
 .iconBtn {
   width: var(--tap-min-size);
   height: var(--tap-min-size);
