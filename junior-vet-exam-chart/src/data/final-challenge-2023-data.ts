@@ -307,7 +307,7 @@ export const FINAL_CHALLENGE_2023_RIKA_SECTIONS: ChallengeSection[] = [
           'エ 効率が良いです',
           'オ 加熱させられない鍋もあります',
         ],
-        stage2Prompt: 'IH調理器の原理について誤っている下線部を選びなさい。',
+        stage2Prompt: 'IH調理器の原理について説明した以下の文のうち、科学的に誤っているものを一つ選びなさい。',
         stage2Options: [
           'ア コイルに流れる電流は常に一定方向で強さも一定である',
           'イ プレート自体は火を出さない',

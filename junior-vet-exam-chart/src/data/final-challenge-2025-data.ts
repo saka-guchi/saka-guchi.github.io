@@ -1153,7 +1153,7 @@ export const FINAL_CHALLENGE_2025_KOKUGO_SECTIONS: ChallengeSection[] = [
         label: '問一 ⑩',
         answerType: 'term',
         correctAnswer: 'の',
-        stage2Prompt: '次の下線部の漢字の読み（送り仮名を除く）をひらがなで答えなさい。\n「伸」るか反るかの大勝負を仕掛ける。',
+        stage2Prompt: '次の「　」で囲まれた漢字の読み（送り仮名を除く）をひらがなで答えなさい。\n「伸」るか反るかの大勝負を仕掛ける。',
         stage2CorrectAnswer: 'の',
       },
     ],

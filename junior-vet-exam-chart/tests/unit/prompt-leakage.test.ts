@@ -240,6 +240,23 @@ describe('Prompt Leakage & Fidelity Unit Tests', () => {
     const lrtSlot = shakaiSlots.find((s) => s.id === 'shakai-2023-03-04');
     expect(lrtSlot?.correctAnswer).toBe('線状降水帯');
   });
+
+  it('guarantees that all single questions with "下線" have proper context text and no orphaned references', async () => {
+    const { ALL_CURRICULUM_QUESTIONS } = await import('../../src/data/curriculum');
+
+    ALL_CURRICULUM_QUESTIONS.forEach((q) => {
+      // 「下線部〇〇に関連して」「下線部〇〇について」などの宙に浮いた前置きが残っていないこと
+      expect(q.prompt).not.toMatch(/下線部[A-Z0-9①-⑩]+(?:に関連して|について|の数値は)/);
+
+      // 「下線」が含まれる場合、問題文自体に対応する文章（「」）が提示されていること
+      if (q.prompt.includes('下線')) {
+        expect(
+          q.prompt.includes('「') && q.prompt.includes('」'),
+          `Question [${q.id}] mentions "下線" but does not provide context text in quotes: "${q.prompt}"`
+        ).toBe(true);
+      }
+    });
+  });
 });
 
 

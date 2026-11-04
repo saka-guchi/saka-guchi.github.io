@@ -317,7 +317,7 @@ export const FINAL_CHALLENGE_SECTIONS: ChallengeSection[] = [
           '④: 球体にかかる浮力が小さくなる',
         ],
         correctAnswer: '②',
-        stage2Prompt: 'ガリレオ温度計の説明文のうち、誤っている下線部の番号を選びなさい。',
+        stage2Prompt: 'ガリレオ温度計の説明について、誤っているものを①〜④の中から選びなさい。',
         stage2CorrectAnswer: '②',
       },
       {
@@ -333,7 +333,7 @@ export const FINAL_CHALLENGE_SECTIONS: ChallengeSection[] = [
           '「20℃以下」または「20度より低い」と正しく訂正できた',
           '球体の浮き沈みと温度の関係を正しく表現できた',
         ],
-        stage2Prompt: '誤っている下線部②の内容を、正しい温度表現に訂正して書きなさい。',
+        stage2Prompt: 'ガリレオ温度計で、誤っている②「気温は24℃以上である」を、正しい温度表現に訂正して書きなさい。',
         stage2CorrectAnswer: '20℃ 以下',
       },
     ],

@@ -1006,7 +1006,7 @@ export const FINAL_CHALLENGE_2026_KOKUGO_SECTIONS: ChallengeSection[] = [
         label: '問⑩',
         answerType: 'term',
         correctAnswer: 'ほが',
-        stage2Prompt: '次の下線部の漢字の読み（送り仮名を除く）をひらがなで答えなさい。\n「朗」らかな笑顔を見せる。',
+        stage2Prompt: '次の「　」で囲まれた漢字の読み（送り仮名を除く）をひらがなで答えなさい。\n「朗」らかな笑顔を見せる。',
         stage2CorrectAnswer: 'ほが',
       },
     ],
