@@ -180,34 +180,6 @@ export const StudyPage: React.FC = () => {
       <main className={styles.mainArea}>
         {/* 左: 問題エリア（第22章仕様: 問題文と図） */}
         <section className={styles.questionArea} data-testid="question-area">
-          <div className={styles.skillHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className={styles.skillBadge}>🩺 今日のカルテ項目: {currentQ.skillTitle}</span>
-            <button
-              type="button"
-              onClick={() => {
-                sound.playPop();
-                setShowReportModal(true);
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '12px',
-                color: 'var(--text-subtle)',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '2px 8px',
-                borderRadius: 'var(--radius-pill)',
-                transition: 'background 150ms ease',
-              }}
-              title="問題や答えについて指導医（保護者の方）に相談メモを送る"
-              data-testid="header-report-btn"
-            >
-              <span>💬</span>
-              <span>指導医に相談</span>
-            </button>
-          </div>
 
           <QuestionPromptView
             key={`prompt-${currentQ.id}`}

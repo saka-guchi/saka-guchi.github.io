@@ -112,7 +112,7 @@ describe('StudyPage Hints and Report Feature', () => {
     );
 
     // ヘッダーの「💬 おうちの人に相談」ボタンが存在すること
-    const consultBtn = screen.getByTestId('header-report-btn');
+    const consultBtn = screen.getByTestId('open-question-report-btn');
     expect(consultBtn).toBeInTheDocument();
     fireEvent.click(consultBtn);
 
