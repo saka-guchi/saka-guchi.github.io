@@ -48,7 +48,7 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
   const [isAnswered, setIsAnswered] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
-  const [showKeywordHint, setShowKeywordHint] = useState(true);
+  const [showKeywordHint, setShowKeywordHint] = useState(false);
 
   const currentFigure: HistoryFigureData = sessionQuestions[currentIndex];
   const progress = getRefBookProgress(bookId);
@@ -76,6 +76,7 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
       setCurrentIndex(i => i + 1);
       setSelectedAnswer(null);
       setIsAnswered(false);
+      setShowKeywordHint(false);
     } else {
       // 終了
       recordRefBookSessionClear(bookId);
@@ -272,6 +273,7 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
                   setIsAnswered(false);
                   setCorrectCount(0);
                   setIsFinished(false);
+                  setShowKeywordHint(false);
                 }}
               >
                 🔄 もう1回特訓する（別の10問）
