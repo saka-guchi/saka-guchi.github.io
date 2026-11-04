@@ -106,176 +106,222 @@ export const FINAL_CHALLENGE_2026_RIKA_SECTIONS: ChallengeSection[] = [
   },
   {
     sectionNumber: 2,
-    title: '大問2: カーボンニュートラルと気体の性質',
-    pageRange: 'p.3〜4',
-    leadText: '温室効果ガスの削減、水素の燃焼と発生実験、アンモニア混焼発電についての問題です。',
+    title: "大問2: カーボンニュートラルと気体の性質",
+    pageRange: "p.3〜4",
+    leadText: "温室効果ガスの削減、再生可能エネルギー、水素とアンモニアの性質、混焼技術についての問題です。",
     slots: [
       {
-        id: 'rika-2026-02-01',
+        id: "rika-2026-02-01-choice",
         section: 2,
-        questionNumber: '1',
+        questionNumber: "1",
+        partNumber: "記号",
         pageNumber: 3,
-        label: '問1 (温室効果の働き)',
-        answerType: 'open',
-        correctAnswer: '地表から放射される熱を大気中の気体が吸収し、再び地表に向けて放射して気温を保つ働き。',
-        rubricItems: [
-          '地表からの熱を吸収する点',
-          '宇宙へ逃げる熱を閉じ込め保温する点',
+        label: "問1 [記号] (選択)",
+        answerType: "choice",
+        correctAnswer: "ウ",
+        options: [
+          "ア 空気がなくなる",
+          "イ とても暑くなってしまう",
+          "ウ とても寒くなってしまう",
+          "エ 何も変わらない"
         ],
-        stage2Prompt: '地球の平均気温が生物の生存に適した温度に保たれている大気の仕組みを答えなさい。',
-        stage2CorrectAnswer: '温室効果ガスが地表から逃げる熱を吸収して大気を適温に保温しているため。',
+        stage2Prompt: "温室効果ガスがすべて失われた場合、地球の環境はどうなるかア〜エから選びなさい。",
+        stage2Options: [
+          "ア 空気がなくなる",
+          "イ とても暑くなってしまう",
+          "ウ とても寒くなってしまう",
+          "エ 何も変わらない"
+        ],
+        stage2CorrectAnswer: "ウ"
       },
       {
-        id: 'rika-2026-02-02',
+        id: "rika-2026-02-01-reason",
         section: 2,
-        questionNumber: '2',
+        questionNumber: "1",
+        partNumber: "理由",
         pageNumber: 3,
-        label: '問2 (水素の燃焼)',
-        answerType: 'choice',
-        correctAnswer: 'ウ',
-        options: ['ア 二酸化炭素', 'イ 一酸化炭素', 'ウ 水', 'エ ちっ素'],
-        stage2Prompt: '水素が空気中で燃焼したときに生成する物質を選びなさい。',
-        stage2Options: ['ア 炭酸ナトリウム', 'イ 二酸化硫黄', 'ウ 水（水蒸気）', 'エ 酸化カルシウム'],
-        stage2CorrectAnswer: 'ウ',
+        label: "問1 [理由] (15字以内)",
+        answerType: "open",
+        correctAnswer: "熱を逃がさないようにする",
+        rubricItems: [
+          "熱を逃がさない、熱を保つ、保温する働きに触れている点",
+          "「温室効果ガスは地球の〜役割があるから」につながる文脈（15字以内）である点"
+        ],
+        stage2Prompt: "「温室効果ガスは地球の（ 15字以内 ）役割があるから」の空らんに適する言葉を答えなさい。",
+        stage2CorrectAnswer: "熱を逃がさないようにする"
       },
       {
-        id: 'rika-2026-02-03',
+        id: "rika-2026-02-02",
         section: 2,
-        questionNumber: '3',
+        questionNumber: "2",
         pageNumber: 3,
-        label: '問3 (水素発生の薬品)',
-        answerType: 'open',
-        correctAnswer: '亜鉛（または鉄、アルミニウム）とうすい塩酸（またはうすい硫酸）',
-        rubricItems: [
-          '金属名（亜鉛、鉄、マグネシウム、アルミニウムのいずれか）',
-          '酸性水溶液（うすい塩酸、うすい硫酸のいずれか）',
+        label: "問2 (再生可能エネルギー)",
+        answerType: "choice",
+        correctAnswer: "ウ",
+        options: [
+          "ア 太陽の光を利用してソーラーパネルで電気をつくる",
+          "イ 地球の地下にある熱を利用して電気をつくる",
+          "ウ 化石燃料を燃やして電気をつくる",
+          "エ 動植物から生まれた資源を燃やす、またはガスに変えて電気をつくる"
         ],
-        stage2Prompt: '実験室で水素気体を発生させる際に用いる薬品の代表的な組み合わせを答えなさい。',
-        stage2CorrectAnswer: '亜鉛にうすい塩酸を加える。',
+        stage2Prompt: "再生可能エネルギーに当てはまらないものを次のア〜エから選びなさい。",
+        stage2Options: [
+          "ア 太陽光発電",
+          "イ 地熱発電",
+          "ウ 石炭火力発電",
+          "エ バイオマス発電"
+        ],
+        stage2CorrectAnswer: "ウ"
       },
       {
-        id: 'rika-2026-02-04',
+        id: "rika-2026-02-03",
         section: 2,
-        questionNumber: '4',
+        questionNumber: "3",
         pageNumber: 4,
-        label: '問4 (アンモニアの集め方)',
-        answerType: 'open',
-        correctAnswer: '水に非常に溶けやすく、空気よりも密度が小さい（軽い）性質があるため。',
+        label: "問3 (水素発生の薬品)",
+        answerType: "open",
+        correctAnswer: "亜鉛とうすい塩酸",
         rubricItems: [
-          '水に極めて溶けやすい点',
-          '空気より軽い点',
+          "金属名（亜鉛、鉄、アルミニウム、マグネシウムのいずれか）",
+          "酸（うすい塩酸、うすい硫酸のいずれか）"
         ],
-        stage2Prompt: 'アンモニアの捕集に水上置換法が使えず、上方置換法を用いる理由を答えなさい。',
-        stage2CorrectAnswer: '水に溶けやすく、空気より軽いため。',
+        stage2Prompt: "実験室で水素を発生させるときに使用する薬品の組み合わせを1つ答えなさい。",
+        stage2CorrectAnswer: "亜鉛とうすい塩酸"
       },
       {
-        id: 'rika-2026-02-05',
+        id: "rika-2026-02-04",
         section: 2,
-        questionNumber: '5',
+        questionNumber: "4",
         pageNumber: 4,
-        label: '問5 (混焼比率と質量)',
-        answerType: 'open',
-        correctAnswer: 'CO2削減率: 30%, アンモニア質量: 170g',
+        label: "問4 (水素とアンモニアの共通性質)",
+        answerType: "open",
+        correctAnswer: "空気より軽いという性質。",
         rubricItems: [
-          '削減割合（30%）の計算',
-          '所要アンモニア量（170g）の導出',
+          "空気より密度が小さい・軽いという性質に触れている点"
         ],
-        stage2Prompt: '火力発電所で燃料の3割をアンモニアに代替したときの二酸化炭素排出削減率を求めなさい。',
-        stage2CorrectAnswer: '約30％の排出削減となる。',
+        stage2Prompt: "水素とアンモニアの2つの気体に共通した性質を簡単に答えなさい。",
+        stage2CorrectAnswer: "空気より軽いという性質。"
       },
       {
-        id: 'rika-2026-02-06',
+        id: "rika-2026-02-05-co2",
         section: 2,
-        questionNumber: '6',
+        questionNumber: "5",
+        partNumber: "CO2削減率",
         pageNumber: 4,
-        label: '問6 (アンモニアの課題)',
-        answerType: 'open',
-        correctAnswer: '天然に産出する石炭とは異なり、アンモニアを人工的に製造・運搬する過程で大量のエネルギーやコストがかかる点。',
-        rubricItems: [
-          '石炭のように自然界からそのまま採掘できない点',
-          'アンモニアの合成や運搬に多くのエネルギーやコストを要する点',
-        ],
-        stage2Prompt: '次世代燃料としてのアンモニア利用において、実用化の課題となる点を説明しなさい。',
-        stage2CorrectAnswer: '製造過程でCO2を出さないグリーンアンモニアの製造コストやエネルギー消費が大きい点。',
+        label: "問5 [CO2削減率] (％)",
+        answerType: "numeric",
+        correctAnswer: "30",
+        stage2Prompt: "炭を380gから114g減らしたとき、二酸化炭素の排出を何％減らせるか整数で答えなさい。",
+        stage2CorrectAnswer: "30"
       },
-    ],
+      {
+        id: "rika-2026-02-05-ammonia",
+        section: 2,
+        questionNumber: "5",
+        partNumber: "アンモニア質量",
+        pageNumber: 4,
+        label: "問5 [アンモニア質量] (g)",
+        answerType: "numeric",
+        correctAnswer: "170",
+        stage2Prompt: "減らした炭と同じ熱エネルギーを得るために混焼する必要のあるアンモニアの質量（g）を整数で答えなさい。",
+        stage2CorrectAnswer: "170"
+      },
+      {
+        id: "rika-2026-02-06",
+        section: 2,
+        questionNumber: "6",
+        pageNumber: 4,
+        label: "問6 (アンモニアの課題 50字以内)",
+        answerType: "open",
+        correctAnswer: "自然から得られる石炭と異なり、アンモニアを作るのには手間やエネルギーが必要だから。",
+        rubricItems: [
+          "自然界から採掘できる石炭と異なる点に触れている",
+          "アンモニアを作るのに手間やエネルギー・コストがかかる点に触れている",
+          "50字以内で説明できている点"
+        ],
+        stage2Prompt: "石炭とアンモニアの入手手段の違いに着目し、アンモニア混焼の実用化の課題を説明しなさい。",
+        stage2CorrectAnswer: "自然から採掘できる石炭と異なり、アンモニアは製造に多大なエネルギーが必要だから。"
+      }
+    ]
   },
   {
     sectionNumber: 3,
-    title: '大問3: 音の性質とモノコード・共鳴',
-    pageRange: 'p.5〜6',
-    leadText: '弦の振動と音の高さ・大きさ、ペットボトル内の空気柱の共鳴についての問題です。',
+    title: "大問3: 音の性質とモノコード・空気柱",
+    pageRange: "p.5〜6",
+    leadText: "モノコードの弦の振動と音の高さ・倍音、ペットボトル内の空気柱の共鳴についての問題です。",
     slots: [
       {
-        id: 'rika-2026-03-01',
+        id: "rika-2026-03-01",
         section: 3,
-        questionNumber: '1',
+        questionNumber: "1",
         pageNumber: 5,
-        label: '問1 (高い音を出す工夫)',
-        answerType: 'open',
-        correctAnswer: '弦を強く張る（または弦を短くする、弦を細くする）。',
+        label: "問1 (高い音を出す方法 2つ)",
+        answerType: "open",
+        correctAnswer: "弦を強く張る、弦を細くする",
         rubricItems: [
-          '弦の張りを強くする点に言及している',
+          "「弦を強く張る」「弦を細くする」の2点に言及している"
         ],
-        stage2Prompt: 'モノコードで高い音を出すための弦の調節方法を答えなさい。',
-        stage2CorrectAnswer: '弦を強く張るか、ことじを動かして弦の長さを短くする。',
+        stage2Prompt: "モノコードで弦の長さを短くする以外に、高い音を出す方法を2つ答えなさい。",
+        stage2CorrectAnswer: "弦を強く張る、弦を細くする"
       },
       {
-        id: 'rika-2026-03-02',
+        id: "rika-2026-03-02",
         section: 3,
-        questionNumber: '2',
+        questionNumber: "2",
         pageNumber: 5,
-        label: '問2 (振幅の変化)',
-        answerType: 'term',
-        correctAnswer: '大きくなる',
-        stage2Prompt: 'モノコードの弦を強くはじいて大きな音を出したとき、波形の振幅はどうなりますか。',
-        stage2CorrectAnswer: '大きくなる',
+        label: "問2 (押さえる位置 2か所)",
+        answerType: "term",
+        correctAnswer: "16cm, 32cm",
+        stage2Prompt: "長さ48cmの弦で元の振動数の3倍の音を出すために押さえる位置（こまからの距離2か所）を答えなさい。",
+        stage2CorrectAnswer: "16cm, 32cm"
       },
       {
-        id: 'rika-2026-03-03',
+        id: "rika-2026-03-03",
         section: 3,
-        questionNumber: '3',
+        questionNumber: "3",
         pageNumber: 6,
-        label: '問3 (空気柱と音の高さ)',
-        answerType: 'open',
-        correctAnswer: '水の量を増やすとペットボトル内の空気の部分（空気柱）が短くなり、振動数が多くなって高い音が出る。',
+        label: "問3 (アより低い音が出るものすべて)",
+        answerType: "term",
+        correctAnswer: "ウ、エ、オ",
+        stage2Prompt: "図3のペットボトルのうち、アのペットボトルよりも低い音が出るものをすべて選び記号で答えなさい。",
+        stage2CorrectAnswer: "ウ、エ、オ"
+      },
+      {
+        id: "rika-2026-03-04-1",
+        section: 3,
+        questionNumber: "4",
+        partNumber: "誤り1",
+        pageNumber: 6,
+        label: "問4 [誤り1] (番号と訂正)",
+        answerType: "open",
+        correctAnswer: "番号: ②, 訂正: 3か所",
         rubricItems: [
-          '空気柱（空気の部分）が短くなる点',
-          '振動数が多くなって音が高くなる点',
+          "下線部番号②を指摘している点",
+          "正しい内容（3か所）に訂正している点"
         ],
-        stage2Prompt: '試験管に水を入れて口に息を吹きかけたとき、水が多いほど高い音が出る理由を説明しなさい。',
-        stage2CorrectAnswer: '振動する空気の長さが短くなり、1秒あたりの振動数が増加するため。',
+        stage2Prompt: "ギターの弦の長さと音の高さについて「4倍音のハーモニクスを起こせる位置は4か所ある」という説明の誤りを訂正しなさい。",
+        stage2CorrectAnswer: "3か所"
       },
       {
-        id: 'rika-2026-03-04',
+        id: "rika-2026-03-04-2",
         section: 3,
-        questionNumber: '4',
+        questionNumber: "4",
+        partNumber: "誤り2",
         pageNumber: 6,
-        label: '問4 (共鳴の規則性)',
-        answerType: 'choice',
-        correctAnswer: 'イ',
-        options: [
-          'ア 空気の体積が大きいほど高い音が鳴る',
-          'イ 空気の長さが短いほど振動数が多くなり高い音が鳴る',
-          'ウ 水の温度が高いほど音の大きさが小さくなる',
-          'エ ペットボトルの材質が重いほど音が低くなる',
+        label: "問4 [誤り2] (番号と訂正)",
+        answerType: "open",
+        correctAnswer: "番号: ④, 訂正: 高い",
+        rubricItems: [
+          "下線部番号④を指摘している点",
+          "正しい内容（高い）に訂正している点"
         ],
-        stage2Prompt: '管楽器や空気柱の共鳴における音の高さの規則性を選びなさい。',
-        stage2Options: [
-          'ア 管が長いほど音が高くなる',
-          'イ 管が短いほど振動数が多くなり音が高くなる',
-          'ウ 空気の柱の長さと音の高さは無関係である',
-          'エ 息を強く吹くほど必ず振動数が半分になる',
-        ],
-        stage2CorrectAnswer: 'イ',
-      },
-    ],
-  },
+        stage2Prompt: "リコーダーの音の高さについて「指使いを変えずに息の吹き方を変えると、通常よりも低い音が出る」という説明の誤りを訂正しなさい。",
+        stage2CorrectAnswer: "高い（高い音が出る）"
+      }
+    ]
+  }
 ];
 
-// ==========================================
-// 2026年度 安田学園中学校 入学試験【算数】
-// ==========================================
 export const FINAL_CHALLENGE_2026_SANSU_SECTIONS: ChallengeSection[] = [
   {
     sectionNumber: 1,

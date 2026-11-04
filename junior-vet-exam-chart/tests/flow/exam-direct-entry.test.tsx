@@ -155,4 +155,26 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
     expect(screen.getByText("[ウ]")).toBeInTheDocument();
     expect(screen.getByText("[エ]")).toBeInTheDocument();
   });
+
+  it("2026年度理科大問2問1で選択肢ボタンと理由記述欄の両方が正しく表示されること", async () => {
+    render(
+      <MemoryRouter initialEntries={["/final-challenge?year=2026&subject=rika"]}>
+        <Routes>
+          <Route path="/final-challenge" element={<FinalChallengePage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByTestId("final-challenge-page")).toBeInTheDocument();
+
+    // 大問2 問1 [記号] (選択) スロットが存在し、選択肢ボタンが表示されている
+    expect(screen.getByTestId("slot-rika-2026-02-01-choice")).toBeInTheDocument();
+    expect(screen.getByTestId("quick-btn-rika-2026-02-01-choice-ア")).toBeInTheDocument();
+    expect(screen.getByTestId("quick-btn-rika-2026-02-01-choice-イ")).toBeInTheDocument();
+    expect(screen.getByTestId("quick-btn-rika-2026-02-01-choice-ウ")).toBeInTheDocument();
+    expect(screen.getByTestId("quick-btn-rika-2026-02-01-choice-エ")).toBeInTheDocument();
+
+    // 大問2 問1 [理由] (15字以内) スロットが存在し、記述欄が表示されている
+    expect(screen.getByTestId("slot-rika-2026-02-01-reason")).toBeInTheDocument();
+  });
 });
