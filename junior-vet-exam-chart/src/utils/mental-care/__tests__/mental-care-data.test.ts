@@ -6,6 +6,8 @@ import {
   recordMentalCheckin,
   recordCopingEffect,
   addSortingCard,
+  deleteSortingCard,
+  moveSortingCard,
   sendCareCardToParent,
   getSharedWeatherMap,
   getSharedWeeklySummaries,
@@ -183,6 +185,32 @@ describe('こころ機能 データ基盤 (Mental Care Data Foundation)', () => 
           expect(val).not.toContain('塾の席順が下がって悔しい');
         }
       }
+    });
+
+    it('間違って箱に入れたカードを別の箱へ移動できる（moveSortingCard）', async () => {
+      const { card } = await addSortingCard({
+        text: '先生の言葉が引っかかる',
+        box: 'myself',
+      });
+
+      await moveSortingCard(card.id, 'uncontrollable');
+      const privateCards = await getPrivateSortingCards();
+      const updated = privateCards.find((c) => c.id === card.id);
+      expect(updated?.box).toBe('uncontrollable');
+    });
+
+    it('間違って入れたカードを取り消し・削除できる（deleteSortingCard）', async () => {
+      const { card } = await addSortingCard({
+        text: '誤って入力したカード',
+        box: 'help',
+      });
+
+      let privateCards = await getPrivateSortingCards();
+      expect(privateCards.some((c) => c.id === card.id)).toBe(true);
+
+      await deleteSortingCard(card.id);
+      privateCards = await getPrivateSortingCards();
+      expect(privateCards.some((c) => c.id === card.id)).toBe(false);
     });
   });
 

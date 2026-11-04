@@ -73,6 +73,23 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
     );
 
     expect(screen.getByTestId('weather-checkin-bar')).toBeInTheDocument();
+
+    // ひとことメモが最初から表示されており入力できること
+    expect(screen.getByText('💬 ひとことメモを書く（任意）')).toBeInTheDocument();
+    const memoInput = screen.getByTestId('checkin-memo-input');
+    expect(memoInput).toBeInTheDocument();
+    fireEvent.change(memoInput, { target: { value: '今日はちょっと疲れた' } });
+
+    // 「おうちの人に見える」「今日は伝えない」の選択肢が切り替えられること
+    const shareBtn = screen.getByTestId('toggle-share-parent');
+    const privateBtn = screen.getByTestId('toggle-private-parent');
+    expect(shareBtn).toBeInTheDocument();
+    expect(privateBtn).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(privateBtn);
+    });
+
     const rainBtn = screen.getByTestId('weather-btn-rainy');
     await act(async () => {
       fireEvent.click(rainBtn);
@@ -105,15 +122,36 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
     expect(screen.getByText(/模試の時間が足りなくて/)).toBeInTheDocument();
     expect(screen.getByText(/例題 2 \/ 9/)).toBeInTheDocument();
 
-    // 独自のモヤモヤ自由追加フォームのテスト
-    const input = screen.getByRole('textbox');
+    // 独自のモヤモヤ自由追加フォームのテスト（最初から表示されるテキストエリア）
+    expect(screen.getByText('🌱 今日できる「小さな一歩」も一緒にメモする（任意）')).toBeInTheDocument();
+    const input = screen.getByTestId('input-custom-sort-text');
+    const nextStepInput = screen.getByTestId('input-custom-sort-next-step');
+    expect(nextStepInput).toBeInTheDocument();
+
     fireEvent.change(input, { target: { value: '友達から返事が遅くて不安' } });
-    const addBtn = screen.getByTestId('btn-add-custom-sort');
+    fireEvent.change(nextStepInput, { target: { value: '深呼吸して待ってみる' } });
+    const addBtn = screen.getByTestId('btn-box-myself');
     await act(async () => {
       fireEvent.click(addBtn);
     });
 
     expect(screen.getByText(/友達から返事が遅くて不安/)).toBeInTheDocument();
+    expect(screen.getByText(/一歩: 深呼吸して待ってみる/)).toBeInTheDocument();
+
+    // 箱の移動テスト（別の箱へ移動できること）
+    const moveHelpButtons = screen.getAllByText("🔵 手伝ってもらうへ");
+    expect(moveHelpButtons.length).toBeGreaterThan(0);
+    await act(async () => {
+      fireEvent.click(moveHelpButtons[0]);
+    });
+
+    // カードの取り消し・キャンセルテスト（✕ボタンでカードを削除できること）
+    const deleteButtons = screen.getAllByLabelText("このカードを取り消す");
+    const initialDeleteBtnCount = deleteButtons.length;
+    await act(async () => {
+      fireEvent.click(deleteButtons[0]);
+    });
+    expect(screen.getAllByLabelText("このカードを取り消す").length).toBe(initialDeleteBtnCount - 1);
   });
 
   it('タブ2: お守りコーピング図鑑でガチャ、マイお守り登録、お試しフィードバックが動作すること', async () => {

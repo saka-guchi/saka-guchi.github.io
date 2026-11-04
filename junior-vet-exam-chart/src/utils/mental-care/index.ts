@@ -66,6 +66,8 @@ export {
   recordMentalCheckin,
   recordCopingEffect,
   addSortingCard,
+  deleteSortingCard,
+  moveSortingCard,
   sendCareCardToParent,
   getPromisesAgreedMeta,
   agreeToPromises,

@@ -7,6 +7,7 @@
 
 import {
   WeatherType,
+  SortingBoxType,
   ParentRequestType,
   CopingEffectLevel,
   CopingCategoryKey,
@@ -263,6 +264,28 @@ export async function recordCopingEffect(params: RecordCopingEffectParams): Prom
  * モヤモヤ仕分けカードの追加・更新
  * ------------------------------------------------------------------
  */
+
+
+/**
+ * モヤモヤ仕分けカードの削除（キャンセル・取り消し）
+ */
+export async function deleteSortingCard(cardId: string): Promise<void> {
+  const cards = await getPrivateSortingCards();
+  const filtered = cards.filter((c) => c.id !== cardId);
+  await savePrivateSortingCards(filtered);
+}
+
+/**
+ * モヤモヤ仕分けカードの箱移動
+ */
+export async function moveSortingCard(
+  cardId: string,
+  newBox: SortingBoxType
+): Promise<void> {
+  const cards = await getPrivateSortingCards();
+  const updated = cards.map((c) => (c.id === cardId ? { ...c, box: newBox } : c));
+  await savePrivateSortingCards(updated);
+}
 
 export async function addSortingCard(
   card: Omit<PrivateSortingCard, 'id' | 'createdAt'>

@@ -17,6 +17,8 @@ import {
   recordMentalCheckin,
   recordCopingEffect,
   addSortingCard,
+  deleteSortingCard,
+  moveSortingCard,
   sendCareCardToParent,
   getPrivateWeatherDetails,
   getPrivateSortingCards,
@@ -73,8 +75,6 @@ export const MentalCarePage: React.FC = () => {
   const isMountedRef = useRef<boolean>(true);
   const toastTimerRef = useRef<any>(null);
   const [crisisAlertActive, setCrisisAlertActive] = useState(false);
-  const [showCheckinMemo, setShowCheckinMemo] = useState(false);
-  const [showNextStepInput, setShowNextStepInput] = useState(false);
 
   // 2. モヤモヤ仕分け状態
   const [sortingCards, setSortingCards] = useState<PrivateSortingCard[]>([]);
@@ -82,7 +82,12 @@ export const MentalCarePage: React.FC = () => {
   const [newCardNextStep, setNewCardNextStep] = useState('');
   const [selectedSortBox, setSelectedSortBox] = useState<SortingBoxType>('myself');
   const [sortingSampleIndex, setSortingSampleIndex] = useState(0);
-  const [sampleFeedback, setSampleFeedback] = useState<string | null>(null);
+  const [lastSortedFeedback, setLastSortedFeedback] = useState<{
+    sampleText: string;
+    recommendedBox: SortingBoxType;
+    selectedBox: SortingBoxType;
+    explanation: string;
+  } | null>(null);
 
   // 3. お守り図鑑状態
   const [filterDuration, setFilterDuration] = useState<number | 'all'>('all');
@@ -231,15 +236,16 @@ export const MentalCarePage: React.FC = () => {
   };
 
   // モヤモヤ仕分けの追加
-  const handleAddSortingCard = async () => {
+  const handleAddSortingCard = async (targetBox?: SortingBoxType) => {
     if (!newCardText.trim()) return;
+    const box = targetBox || selectedSortBox;
     sound.playPop();
     const textToAdd = newCardText.trim();
     const stepToAdd = newCardNextStep.trim() || undefined;
     const tempCard: PrivateSortingCard = {
       id: `temp_${Date.now()}`,
       text: textToAdd,
-      box: selectedSortBox,
+      box,
       nextStep: stepToAdd,
       createdAt: new Date().toISOString(),
     };
@@ -250,7 +256,7 @@ export const MentalCarePage: React.FC = () => {
 
     const { crisisDetected } = await addSortingCard({
       text: textToAdd,
-      box: selectedSortBox,
+      box,
       nextStep: stepToAdd,
     });
     if (crisisDetected) {
@@ -259,11 +265,95 @@ export const MentalCarePage: React.FC = () => {
     await loadAllData();
   };
 
+  // モヤモヤ仕分けカードの削除（キャンセル・取り消し）
+  const handleDeleteSortingCard = async (cardId: string) => {
+    sound.playPop();
+    setSortingCards((prev) => prev.filter((c) => c.id !== cardId));
+    await deleteSortingCard(cardId);
+    await loadAllData();
+  };
+
+  // モヤモヤ仕分けカードの箱移動
+  const handleMoveSortingCard = async (cardId: string, newBox: SortingBoxType) => {
+    sound.playPop();
+    setSortingCards((prev) =>
+      prev.map((c) => (c.id === cardId ? { ...c, box: newBox } : c))
+    );
+    await moveSortingCard(cardId, newBox);
+    await loadAllData();
+  };
+
+  // モヤモヤ仕分けカードのレンダリング
+  const renderSortingCard = (c: PrivateSortingCard) => (
+    <div key={c.id} className={styles.boxCardItem} data-testid={`sort-card-${c.id}`}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "8px" }}>
+        <div className={styles.boxCardText}>{c.text}</div>
+        <button
+          type="button"
+          data-testid={`btn-delete-card-${c.id}`}
+          className={styles.cardDeleteBtn}
+          onClick={() => handleDeleteSortingCard(c.id)}
+          aria-label="このカードを取り消す"
+          title="このカードを取り消す"
+        >
+          ✕
+        </button>
+      </div>
+      {c.nextStep && (
+        <div className={styles.boxCardNextStep}>
+          {c.box === "myself" ? "🌱 一歩: " : c.box === "help" ? "🤝 相談: " : "🌱 メモ: "}
+          {c.nextStep}
+        </div>
+      )}
+      <div className={styles.cardMoveRow}>
+        <span style={{ fontSize: "10px", color: "#64748B", fontWeight: 700 }}>移動:</span>
+        {c.box !== "myself" && (
+          <button
+            type="button"
+            data-testid={`btn-move-myself-${c.id}`}
+            className={`${styles.cardMoveBtn} ${styles.moveMyself}`}
+            onClick={() => handleMoveSortingCard(c.id, "myself")}
+            title="「じぶんで変えられる箱」へ移動"
+          >
+            🟢 じぶんで変えられるへ
+          </button>
+        )}
+        {c.box !== "help" && (
+          <button
+            type="button"
+            data-testid={`btn-move-help-${c.id}`}
+            className={`${styles.cardMoveBtn} ${styles.moveHelp}`}
+            onClick={() => handleMoveSortingCard(c.id, "help")}
+            title="「だれかに手伝ってもらう箱」へ移動"
+          >
+            🔵 手伝ってもらうへ
+          </button>
+        )}
+        {c.box !== "uncontrollable" && (
+          <button
+            type="button"
+            data-testid={`btn-move-uncontrollable-${c.id}`}
+            className={`${styles.cardMoveBtn} ${styles.moveUncontrollable}`}
+            onClick={() => handleMoveSortingCard(c.id, "uncontrollable")}
+            title="「変えられない箱」へ移動"
+          >
+            🟣 変えられないへ
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
   // サンプルカードの振り分け
   const handleSortSampleCard = async (box: SortingBoxType) => {
     sound.playPop();
     const sample = INITIAL_SORTING_CARDS[sortingSampleIndex % INITIAL_SORTING_CARDS.length];
-    setSampleFeedback(sample.explanation);
+    setLastSortedFeedback({
+      sampleText: sample.text,
+      recommendedBox: sample.box,
+      selectedBox: box,
+      explanation: sample.explanation,
+    });
     setSortingSampleIndex((prev) => prev + 1);
     await addSortingCard({
       text: sample.text,
@@ -402,87 +492,7 @@ export const MentalCarePage: React.FC = () => {
       .filter(Boolean) as CopingRecipe[];
   }, [copingRecords]);
 
-  // 天気別のおすすめカード（1〜2個だけ提示）
-  const recommendedActions = useMemo(() => {
-    switch (selectedWeather) {
-      case 'storm':
-        return [
-          {
-            title: '30秒で落ち着く深呼吸',
-            desc: '頭がいっぱいのときは、まず息をふーっと吐き出してみよう。',
-            actionText: '今すぐ深呼吸する ❯',
-            onAction: () => {
-              const rec = COPING_RECIPES.find((r) => r.id === 'breathing_count');
-              if (rec) handleStartTimer(rec);
-            },
-            icon: '🫧',
-          },
-          {
-            title: 'ひとりで抱え込まないでね',
-            desc: '信頼できる大人や相談窓口に話してみよう。',
-            actionText: '相談窓口を見る ❯',
-            onAction: () => setCrisisAlertActive(true),
-            icon: '🤝',
-          },
-        ];
-      case 'rainy':
-        return [
-          {
-            title: '温かい飲み物を味わう',
-            desc: 'ココアやお茶で胃を温めると、ほっと落ち着くよ。',
-            actionText: 'お守りを見る ❯',
-            onAction: () => {
-              setActiveTab('coping');
-              const rec = COPING_RECIPES.find((r) => r.id === 'warm_drink');
-              if (rec) handleStartTimer(rec);
-            },
-            icon: '🍵',
-          },
-          {
-            title: 'おうちの人にお願いカード',
-            desc: '「ちょっと話を聞いて」「そっとしておいて」を伝えてみよう。',
-            actionText: '伝えるカードを見る ❯',
-            onAction: () => setActiveTab('family'),
-            icon: '💌',
-          },
-        ];
-      case 'cloudy':
-        return [
-          {
-            title: 'モヤモヤ仕分けでスッキリ',
-            desc: '頭の中の引っかかりを「変えられる箱」「変えられない箱」に分けてみよう。',
-            actionText: '仕分けを始める ❯',
-            onAction: () => setActiveTab('puzzle'),
-            icon: '🧩',
-          },
-          {
-            title: 'ホー先生のなるほどノート',
-            desc: '「テストの点数」や「席順」について、少し立ち止まって考えてみよう。',
-            actionText: 'ノートを開く ❯',
-            onAction: () => setActiveTab('philosophy'),
-            icon: '🦉',
-          },
-        ];
-      case 'sunny':
-      default:
-        return [
-          {
-            title: '今日できたことを1つメモしよう',
-            desc: '小さくてもOK！ 頑張った自分をカルテに刻もう。',
-            actionText: '仕分けノートに書く ❯',
-            onAction: () => setActiveTab('puzzle'),
-            icon: '⭐',
-          },
-          {
-            title: '好きなお守りで気分キープ',
-            desc: '自分に効くお守りをもっと集めてみよう。',
-            actionText: 'お守り図鑑を見る ❯',
-            onAction: () => setActiveTab('coping'),
-            icon: '🧰',
-          },
-        ];
-    }
-  }, [selectedWeather]);
+
 
   const currentTopic = useMemo(() => {
     return PHILOSOPHY_TOPICS.find((t) => t.id === selectedTopicId) || PHILOSOPHY_TOPICS[0];
@@ -588,26 +598,38 @@ export const MentalCarePage: React.FC = () => {
             })}
           </div>
 
-          <div style={{ margin: '14px 0', background: 'var(--surface-subtle, #F1F5F9)', padding: '4px', borderRadius: '12px', display: 'flex', gap: '4px', border: '1px solid var(--border, #E2E8F0)' }}>
+          {/* ひとことメモ（最初からテキストエリアを表示＆記載を残す） */}
+          <div style={{ margin: '14px 0 12px 0' }}>
+            <label
+              htmlFor="checkin-memo-input"
+              style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#0F766E',
+                marginBottom: '6px',
+              }}
+            >
+              💬 ひとことメモを書く（任意）
+            </label>
+            <textarea
+              id="checkin-memo-input"
+              name="checkinMemo"
+              data-testid="checkin-memo-input"
+              className={styles.checkinMemoTextarea}
+              placeholder="今日あったことや今の気持ち（自分だけの秘密だよ）"
+              value={checkinMemo}
+              onChange={(e) => setCheckinMemo(e.target.value)}
+              rows={2}
+            />
+          </div>
+
+          {/* おうちの人への共有設定（モヤモヤ仕分け風選択肢） */}
+          <div className={styles.shareChoiceRow}>
             <button
               type="button"
               data-testid="toggle-share-parent"
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                borderRadius: '8px',
-                border: 'none',
-                background: shareWithParent ? '#0D9488' : 'transparent',
-                color: shareWithParent ? '#FFFFFF' : 'var(--text-subtle, #64748B)',
-                fontWeight: 800,
-                fontSize: '13px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                transition: 'all 0.15s ease',
-              }}
+              className={`${styles.shareChoiceBtn} ${shareWithParent ? styles.shareChoiceActiveShared : ""}`}
               onClick={() => setShareWithParent(true)}
             >
               <span>👨‍⚕️ おうちの人に見える</span>
@@ -616,47 +638,12 @@ export const MentalCarePage: React.FC = () => {
             <button
               type="button"
               data-testid="toggle-private-parent"
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                borderRadius: '8px',
-                border: 'none',
-                background: !shareWithParent ? '#475569' : 'transparent',
-                color: !shareWithParent ? '#FFFFFF' : 'var(--text-subtle, #64748B)',
-                fontWeight: 800,
-                fontSize: '13px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                transition: 'all 0.15s ease',
-              }}
+              className={`${styles.shareChoiceBtn} ${!shareWithParent ? styles.shareChoiceActivePrivate : ""}`}
               onClick={() => setShareWithParent(false)}
             >
               <span>🔒 今日は伝えない</span>
               {!shareWithParent && <span>✓</span>}
             </button>
-          </div>
-
-          <div style={{ marginBottom: '14px' }}>
-            {!showCheckinMemo ? (
-              <button
-                type="button"
-                style={{ border: 'none', background: 'transparent', fontSize: '13px', fontWeight: 700, color: '#0F766E', cursor: 'pointer', padding: '4px 0' }}
-                onClick={() => setShowCheckinMemo(true)}
-              >
-                💬 ひとことメモを書く（任意）
-              </button>
-            ) : (
-              <input
-                type="text"
-                className={styles.checkinMemoInput}
-                placeholder="今日あったことや今の気持ち（自分だけの秘密だよ）"
-                value={checkinMemo}
-                onChange={(e) => setCheckinMemo(e.target.value)}
-              />
-            )}
           </div>
 
           <button
@@ -677,64 +664,91 @@ export const MentalCarePage: React.FC = () => {
           )}
         </section>
 
-        {/* 2. 天気連動おすすめカード（迷わない主導線） */}
-        <section className={styles.recommendedSection}>
-          <h2 className={styles.sectionHeading}>
-            <span>✨</span> いまのあなたにおすすめの過ごし方
-          </h2>
-          <div className={styles.recommendedGrid}>
-            {recommendedActions.map((rec) => (
-              <div key={rec.title} className={styles.recommendCard}>
-                <div className={styles.recommendHeader}>
-                  <div className={styles.recommendIcon}>{rec.icon}</div>
-                  <div>
-                    <h3 className={styles.recommendTitle}>{rec.title}</h3>
-                    <p className={styles.recommendDesc}>{rec.desc}</p>
-                  </div>
-                </div>
-                <button type="button" className={styles.recommendActionBtn} onClick={rec.onAction}>
-                  {rec.actionText}
-                </button>
-              </div>
-            ))}
+        {/* 2. 機能タブ切り替え（状況・目的を教えるカード型セレクター） */}
+        <section aria-label="こころを整えるメニュー">
+          <div style={{ margin: '8px 0 10px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '15px' }}>🌿</span>
+            <span style={{ fontSize: '14px', fontWeight: 800, color: '#1E293B' }}>いまの気分や状況に合わせて選んでね</span>
           </div>
-        </section>
 
-        {/* 3. 機能タブ切り替え */}
-        <nav className={styles.tabNav}>
-          <button
-            type="button"
-            data-testid="tab-puzzle"
-            className={`${styles.tabBtn} ${activeTab === 'puzzle' ? styles.tabBtnActive : ''}`}
-            onClick={() => setActiveTab('puzzle')}
-          >
-            🧩 モヤモヤ仕分け
-          </button>
-          <button
-            type="button"
-            data-testid="tab-coping"
-            className={`${styles.tabBtn} ${activeTab === 'coping' ? styles.tabBtnActive : ''}`}
-            onClick={() => setActiveTab('coping')}
-          >
-            🧰 お守り図鑑
-          </button>
-          <button
-            type="button"
-            data-testid="tab-philosophy"
-            className={`${styles.tabBtn} ${activeTab === 'philosophy' ? styles.tabBtnActive : ''}`}
-            onClick={() => setActiveTab('philosophy')}
-          >
-            🦉 なるほどノート
-          </button>
-          <button
-            type="button"
-            data-testid="tab-family"
-            className={`${styles.tabBtn} ${activeTab === 'family' ? styles.tabBtnActive : ''}`}
-            onClick={() => setActiveTab('family')}
-          >
-            💌 おうちの人へ
-          </button>
-        </nav>
+          <nav className={styles.tabNav}>
+            {/* タブ1: モヤモヤ仕分け */}
+            <button
+              type="button"
+              data-testid="tab-puzzle"
+              className={`${styles.tabBtn} ${activeTab === 'puzzle' ? styles.tabBtnActive : ''}`}
+              onClick={() => setActiveTab('puzzle')}
+            >
+              <div className={styles.tabBtnHeader}>
+                <span className={styles.tabBtnIcon}>🧩</span>
+                <span className={styles.tabBtnTitle}>モヤモヤ仕分け</span>
+              </div>
+              <div className={styles.tabBtnSituation}>
+                💭 悩みや不安で頭がいっぱいのとき
+              </div>
+              <div className={styles.tabBtnDesc}>
+                変えられること・変えられないことを箱に分けて整理
+              </div>
+            </button>
+
+            {/* タブ2: 気分転換のお守り図鑑 */}
+            <button
+              type="button"
+              data-testid="tab-coping"
+              className={`${styles.tabBtn} ${activeTab === 'coping' ? styles.tabBtnActive : ''}`}
+              onClick={() => setActiveTab('coping')}
+            >
+              <div className={styles.tabBtnHeader}>
+                <span className={styles.tabBtnIcon}>🧰</span>
+                <span className={styles.tabBtnTitle}>気分転換のお守り図鑑</span>
+              </div>
+              <div className={styles.tabBtnSituation}>
+                ⚡ イライラ・緊張・今すぐ落ち着きたいとき
+              </div>
+              <div className={styles.tabBtnDesc}>
+                30秒深呼吸や水飲みなど、すぐ効くリフレッシュ技
+              </div>
+            </button>
+
+            {/* タブ3: ホー先生の相談ノート */}
+            <button
+              type="button"
+              data-testid="tab-philosophy"
+              className={`${styles.tabBtn} ${activeTab === 'philosophy' ? styles.tabBtnActive : ''}`}
+              onClick={() => setActiveTab('philosophy')}
+            >
+              <div className={styles.tabBtnHeader}>
+                <span className={styles.tabBtnIcon}>🦉</span>
+                <span className={styles.tabBtnTitle}>ホー先生の相談ノート</span>
+              </div>
+              <div className={styles.tabBtnSituation}>
+                🔍 なんでモヤモヤするのか知りたいとき
+              </div>
+              <div className={styles.tabBtnDesc}>
+                「えこひいき」「点数」「休み」を立ち止まって考える
+              </div>
+            </button>
+
+            {/* タブ4: おうちの人へお願いカード */}
+            <button
+              type="button"
+              data-testid="tab-family"
+              className={`${styles.tabBtn} ${activeTab === 'family' ? styles.tabBtnActive : ''}`}
+              onClick={() => setActiveTab('family')}
+            >
+              <div className={styles.tabBtnHeader}>
+                <span className={styles.tabBtnIcon}>💌</span>
+                <span className={styles.tabBtnTitle}>おうちの人へお願いカード</span>
+              </div>
+              <div className={styles.tabBtnSituation}>
+                🗣️ 話を聞いてほしい・手伝ってほしいとき
+              </div>
+              <div className={styles.tabBtnDesc}>
+                「ちょっと聞いて」「そっとしておいて」をカードで頼む
+              </div>
+            </button>
+          </nav>
+        </section>
 
         {/* =========================================================
             タブ1: モヤモヤ仕分け
@@ -743,33 +757,46 @@ export const MentalCarePage: React.FC = () => {
           <div className={styles.card}>
             {/* 入力欄（主役） */}
             <div className={styles.sortInputSection}>
-              <h3 className={styles.sortInputTitle}>✏️ いま気になっていることを入力して仕分けよう</h3>
-              <input
-                type="text"
-                className={styles.sortTextInput}
+              <label
+                htmlFor="sort-main-text-input"
+                className={styles.sortInputTitle}
+                style={{ display: 'block', marginBottom: '8px' }}
+              >
+                ✏️ いま気になっていることを入力して仕分けよう
+              </label>
+              <textarea
+                id="sort-main-text-input"
+                name="sortMainText"
+                data-testid="input-custom-sort-text"
+                className={styles.sortTextarea}
                 placeholder="例: 算数の模試で時間が足りなくて焦った"
                 value={newCardText}
                 onChange={(e) => setNewCardText(e.target.value)}
+                rows={2}
               />
               <div style={{ marginBottom: '12px' }}>
-                {!showNextStepInput ? (
-                  <button
-                    type="button"
-                    style={{ border: 'none', background: 'transparent', fontSize: '12px', fontWeight: 700, color: '#0F766E', cursor: 'pointer', padding: '2px 0' }}
-                    onClick={() => setShowNextStepInput(true)}
-                  >
-                    🌱 今日できる「小さな一歩」も一緒にメモする（任意）
-                  </button>
-                ) : (
-                  <input
-                    type="text"
-                    className={styles.sortTextInput}
-                    style={{ marginTop: '8px' }}
-                    placeholder="例: 計算問題を3問だけ解き直す"
-                    value={newCardNextStep}
-                    onChange={(e) => setNewCardNextStep(e.target.value)}
-                  />
-                )}
+                <label
+                  htmlFor="sort-next-step-input"
+                  style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    color: '#0F766E',
+                    marginBottom: '6px',
+                  }}
+                >
+                  🌱 今日できる「小さな一歩」も一緒にメモする（任意）
+                </label>
+                <textarea
+                  id="sort-next-step-input"
+                  name="sortNextStep"
+                  data-testid="input-custom-sort-next-step"
+                  className={styles.sortTextarea}
+                  placeholder="例: 計算問題を3問だけ解き直す"
+                  value={newCardNextStep}
+                  onChange={(e) => setNewCardNextStep(e.target.value)}
+                  rows={2}
+                />
               </div>
               <div className={styles.boxChoiceRow}>
                 <button
@@ -778,7 +805,7 @@ export const MentalCarePage: React.FC = () => {
                   className={`${styles.boxBtn} ${styles.boxMyself}`}
                   onClick={() => {
                     setSelectedSortBox('myself');
-                    handleAddSortingCard();
+                    handleAddSortingCard('myself');
                   }}
                 >
                   🟢 じぶんで変えられる箱へ
@@ -789,7 +816,7 @@ export const MentalCarePage: React.FC = () => {
                   className={`${styles.boxBtn} ${styles.boxHelp}`}
                   onClick={() => {
                     setSelectedSortBox('help');
-                    handleAddSortingCard();
+                    handleAddSortingCard('help');
                   }}
                 >
                   🔵 手伝ってもらう箱へ
@@ -800,21 +827,12 @@ export const MentalCarePage: React.FC = () => {
                   className={`${styles.boxBtn} ${styles.boxUncontrollable}`}
                   onClick={() => {
                     setSelectedSortBox('uncontrollable');
-                    handleAddSortingCard();
+                    handleAddSortingCard('uncontrollable');
                   }}
                 >
                   🟣 変えられない箱へ
                 </button>
               </div>
-              <button
-                type="button"
-                data-testid="btn-add-custom-sort"
-                className={styles.recommendActionBtn}
-                style={{ marginTop: '10px', width: '100%' }}
-                onClick={handleAddSortingCard}
-              >
-                カードを箱に保存する ❯
-              </button>
             </div>
 
             {/* サンプルカードの練習 */}
@@ -830,39 +848,67 @@ export const MentalCarePage: React.FC = () => {
               <p style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 700, color: '#1E293B', lineHeight: 1.5 }}>
                 {INITIAL_SORTING_CARDS[sortingSampleIndex % INITIAL_SORTING_CARDS.length]?.text}
               </p>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div className={styles.boxChoiceRow}>
                 <button
                   type="button"
                   data-testid="btn-sort-self"
-                  className={styles.recommendActionBtn}
-                  style={{ background: '#16A34A' }}
+                  className={`${styles.boxBtn} ${styles.boxMyself}`}
                   onClick={() => handleSortSampleCard('myself')}
                 >
-                  🟢 じぶん
+                  🟢 じぶんで変えられる箱へ
                 </button>
                 <button
                   type="button"
                   data-testid="btn-sort-sample-help"
-                  className={styles.recommendActionBtn}
-                  style={{ background: '#0284C7' }}
+                  className={`${styles.boxBtn} ${styles.boxHelp}`}
                   onClick={() => handleSortSampleCard('help')}
                 >
-                  🔵 手伝ってもらう
+                  🔵 手伝ってもらう箱へ
                 </button>
                 <button
                   type="button"
                   data-testid="btn-sort-others"
-                  className={styles.recommendActionBtn}
-                  style={{ background: '#7E22CE' }}
+                  className={`${styles.boxBtn} ${styles.boxUncontrollable}`}
                   onClick={() => handleSortSampleCard('uncontrollable')}
                 >
-                  🟣 変えられない
+                  🟣 変えられない箱へ
                 </button>
               </div>
-              {sampleFeedback && (
-                <div style={{ marginTop: '10px', fontSize: '12px', color: '#334155', background: 'white', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E2E8F0', lineHeight: 1.5 }}>
-                  <div style={{ fontWeight: 800, color: '#0F766E', marginBottom: '2px' }}>💡 直前の例題の解説:</div>
-                  <div>{sampleFeedback}</div>
+              {lastSortedFeedback && (
+                <div style={{ marginTop: '12px', fontSize: '13px', color: '#334155', background: '#FFFFFF', padding: '12px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', lineHeight: 1.6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, color: '#0F766E', marginBottom: '6px' }}>
+                    <span>💡</span>
+                    <span>直前に解いた例題の解説:</span>
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#475569', background: '#F8FAFC', padding: '8px 10px', borderRadius: '8px', marginBottom: '8px', borderLeft: '3px solid #CBD5E1' }}>
+                    <span style={{ fontWeight: 700 }}>問題: </span>
+                    {lastSortedFeedback.sampleText}
+                  </div>
+                  <div style={{ marginBottom: '6px', fontSize: '13px', fontWeight: 800 }}>
+                    おすすめの箱: {
+                      lastSortedFeedback.recommendedBox === 'myself'
+                        ? '🟢 じぶんで変えられる'
+                        : lastSortedFeedback.recommendedBox === 'help'
+                        ? '🔵 手伝ってもらう'
+                        : '🟣 変えられない'
+                    }
+                    {lastSortedFeedback.selectedBox === lastSortedFeedback.recommendedBox ? (
+                      <span style={{ color: '#16A34A', marginLeft: '6px' }}>（ナイス仕分け！🎯）</span>
+                    ) : (
+                      <span style={{ color: '#64748B', marginLeft: '6px', fontSize: '12px', fontWeight: 700 }}>
+                        （選んだ箱: {
+                          lastSortedFeedback.selectedBox === 'myself'
+                            ? '🟢 じぶんで変えられる'
+                            : lastSortedFeedback.selectedBox === 'help'
+                            ? '🔵 手伝ってもらう'
+                            : '🟣 変えられない'
+                        }）
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#334155', lineHeight: 1.5 }}>
+                    {lastSortedFeedback.explanation}
+                  </div>
                 </div>
               )}
             </div>
@@ -875,45 +921,25 @@ export const MentalCarePage: React.FC = () => {
                   <span>🟢 じぶんで変えられる</span>
                   <span>{sortingCards.filter((c) => c.box === 'myself').length}件</span>
                 </div>
-                {sortingCards
-                  .filter((c) => c.box === 'myself')
-                  .map((c) => (
-                    <div key={c.id} className={styles.boxCardItem}>
-                      <div className={styles.boxCardText}>{c.text}</div>
-                      {c.nextStep && <div className={styles.boxCardNextStep}>🌱 一歩: {c.nextStep}</div>}
-                    </div>
-                  ))}
+                {sortingCards.filter((c) => c.box === 'myself').map(renderSortingCard)}
               </div>
 
               {/* 手伝ってもらう箱 */}
               <div className={`${styles.boxColumn} ${styles.boxColumnHelp}`}>
                 <div className={styles.boxColumnHeader} style={{ color: '#0369A1' }}>
-                  <span>🔵 だれかに手伝ってもらう</span>
+                  <span>🔵 手伝ってもらう</span>
                   <span>{sortingCards.filter((c) => c.box === 'help').length}件</span>
                 </div>
-                {sortingCards
-                  .filter((c) => c.box === 'help')
-                  .map((c) => (
-                    <div key={c.id} className={styles.boxCardItem}>
-                      <div className={styles.boxCardText}>{c.text}</div>
-                      {c.nextStep && <div className={styles.boxCardNextStep}>🤝 相談: {c.nextStep}</div>}
-                    </div>
-                  ))}
+                {sortingCards.filter((c) => c.box === 'help').map(renderSortingCard)}
               </div>
 
               {/* 変えられない箱 */}
               <div className={`${styles.boxColumn} ${styles.boxColumnUncontrollable}`}>
                 <div className={styles.boxColumnHeader} style={{ color: '#7E22CE' }}>
-                  <span>🟣 変えられない（手放す）</span>
+                  <span>🟣 変えられない</span>
                   <span>{sortingCards.filter((c) => c.box === 'uncontrollable').length}件</span>
                 </div>
-                {sortingCards
-                  .filter((c) => c.box === 'uncontrollable')
-                  .map((c) => (
-                    <div key={c.id} className={styles.boxCardItem}>
-                      <div className={styles.boxCardText}>{c.text}</div>
-                    </div>
-                  ))}
+                {sortingCards.filter((c) => c.box === 'uncontrollable').map(renderSortingCard)}
               </div>
             </div>
           </div>
