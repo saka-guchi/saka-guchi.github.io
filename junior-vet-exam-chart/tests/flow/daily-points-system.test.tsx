@@ -98,6 +98,10 @@ describe('獣医師ストーリー ＆ どうぶつ元気のもと統合 UI/UX �
     expect(card).toHaveTextContent('どうぶつ元気のもと獲得！');
     expect(card).toHaveTextContent('+8元気のもと 獲得！');
 
+    // 本日の診察からはスタンプ取得の対象外（今日のスタンプ獲得カードは表示されないこと）
+    expect(screen.queryByTestId('earned-animal-stamp-card')).not.toBeInTheDocument();
+    expect(screen.queryByText(/今日のスタンプゲット！/)).not.toBeInTheDocument();
+
     // localStorageに保存
     expect(getTotalPoints()).toBe(8);
     const bySource = getPointsBySourceMap();

@@ -42,6 +42,9 @@ describe('ResultPage Mistake Review Feature', () => {
       </BrowserRouter>
     );
 
+    // ヘッダータイトルが「本日の診察結果」であること
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('本日の診察結果');
+
     // 間違えた問題振り返りセクションが存在する
     const mistakeSection = screen.getByTestId('mistake-review-section');
     expect(mistakeSection).toBeInTheDocument();

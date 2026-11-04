@@ -5,9 +5,9 @@ import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
 import { getMemoryRetention } from '../utils/memory-retention';
 import { getTodayStudyStats, type TodayStudyStats } from '../utils/progress-analytics';
 import { getPointsSummary, type PointsSummary } from '../utils/points-manager';
-import { ANIMAL_STAMPS, getEarnedStampIds } from '../data/animal-stamps';
 import { REFERENCE_BOOKS, type ReferenceBookInfo } from '../data/extra-history-80';
 import { getRefBookProgress, type RefBookProgress } from '../utils/reference-book-store';
+import { getSkillStage } from '../utils/mastery-helper';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
 import type { FinalChallengeResult } from '../types';
@@ -392,8 +392,11 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
     };
   });
 
-  // 動物シール
-  const earnedStamps = getEarnedStampIds();
+  // 元気にした動物たち（症例全快数）
+  const masteredAnimalCount = ALL_PROGRESS_SKILLS.filter(s => {
+    const stage = getSkillStage(s.id, s.stage);
+    return stage === 'M4' || stage === 'M5';
+  }).length;
 
   // お約束メモの保存
   const handleSaveGoal = () => {
@@ -641,7 +644,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                     {todayStats.totalAttempts} 問
                   </div>
                   <div style={{ fontSize: '10px', color: '#be185d' }}>
-                    総時間 約{todayStats.totalMinutes}分 / 動物 {earnedStamps.length}匹
+                    総時間 約{todayStats.totalMinutes}分 / 元気にした動物 {masteredAnimalCount}匹
                   </div>
                   <div style={{ fontSize: '10px', color: '#9d174d', fontWeight: 'bold', marginTop: '4px', borderTop: '1px dashed #fbcfe8', paddingTop: '3px' }} data-testid="summary-points-status">
                     🐾 元気のもと: {pointsSummary.totalPoints}こ（{pointsSummary.currentRank.badge} {pointsSummary.currentRank.title}）

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore, type SessionAnswerRecord } from '../store/appStore';
-import { awardDailyStudyStamp, type AnimalStamp } from '../data/animal-stamps';
 import { getFormatBadge } from '../components/formats/QuestionRenderer';
 import { getQuestionSource } from '../utils/source-helper';
 import { db } from '../db';
@@ -155,7 +154,6 @@ export const ResultPage: React.FC = () => {
     promotedSkillInfo,
     resetSession,
   } = useAppStore();
-  const [earnedStamp, setEarnedStamp] = useState<AnimalStamp | null>(null);
   const [pointsResult, setPointsResult] = useState<AwardPointsResult | null>(null);
   const [pointsSummary, setPointsSummary] = useState<PointsSummary | null>(null);
   const [showNotebookModal, setShowNotebookModal] = useState(false);
@@ -164,10 +162,6 @@ export const ResultPage: React.FC = () => {
   useEffect(() => {
     if (hasAwardedRef.current) return;
     hasAwardedRef.current = true;
-
-    // 動物スタンプの付与
-    const stamp = awardDailyStudyStamp();
-    setEarnedStamp(stamp);
 
     // 元気のもと付与（症例スタディ or 本日の診察）
     const isFocus = !!promotedSkillInfo;
@@ -265,7 +259,7 @@ export const ResultPage: React.FC = () => {
         >
           ←
         </button>
-        <h1 className={styles.headerTitle}>本日の学習カルテ</h1>
+        <h1 className={styles.headerTitle}>本日の診察結果</h1>
         <div style={{ width: '48px' }} />
       </header>
 
@@ -314,6 +308,27 @@ export const ResultPage: React.FC = () => {
               <div style={{ fontSize: '14px', color: '#a21caf', marginTop: '4px' }}>
                 ステージが <strong>{promotedSkillInfo.prevStage}</strong> から <strong>{promotedSkillInfo.newStage}</strong> へ成長しました！
               </div>
+              {promotedSkillInfo.isMastered && (
+                <div
+                  style={{
+                    marginTop: '10px',
+                    padding: '10px 14px',
+                    background: '#fef3c7',
+                    borderRadius: '10px',
+                    border: '1.5px solid #f59e0b',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    color: '#92400e',
+                    textAlign: 'left',
+                  }}
+                  data-testid="skill-mastered-bonus"
+                >
+                  <div>👑 ⭐Lv.4マスター（症例全快）達成！合格のカギ（🔑）を獲得！</div>
+                  <div style={{ fontSize: '12px', color: '#b45309', marginTop: '4px' }}>
+                    🐾 カルテの動物が元気に全快しました！ホーム画面の「元気にした動物たち」からメッセージを確認してね！
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -368,51 +383,6 @@ export const ResultPage: React.FC = () => {
                     <strong>{pointsSummary.pointsToNextRank} pt</strong>！
                   </div>
                 )}
-              </div>
-            </div>
-          )}
-
-          {/* 動物スタンプ獲得カード */}
-          {earnedStamp && (
-            <div
-              style={{
-                margin: '10px 0',
-                padding: '16px 20px',
-                background: 'linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%)',
-                border: '2px solid #86efac',
-                borderRadius: '16px',
-                textAlign: 'left',
-                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.1)',
-                width: '100%',
-              }}
-              data-testid="earned-animal-stamp-card"
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <span style={{ fontSize: '42px' }}>{earnedStamp.icon}</span>
-                <div>
-                  <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#059669' }}>
-                    🐾 今日のスタンプゲット！
-                  </div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--text)' }}>
-                    {earnedStamp.name} が元気に！
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#166534', marginTop: '2px' }}>
-                    {earnedStamp.cheerMessage}
-                  </div>
-                </div>
-              </div>
-              <div
-                style={{
-                  marginTop: '10px',
-                  padding: '8px 12px',
-                  background: '#ffffff',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                  color: '#475569',
-                  border: '1px solid #e2e8f0',
-                }}
-              >
-                {earnedStamp.vetFact}
               </div>
             </div>
           )}

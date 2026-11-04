@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { App } from '../../src/App';
 import { DoctorCertificateModal } from '../../src/components/DoctorCertificateModal';
 import { useAppStore } from '../../src/store/appStore';
+import { setSkillStage } from '../../src/utils/mastery-helper';
 
 describe('UI Redesign & New Features Integration Tests', () => {
   beforeEach(() => {
@@ -138,34 +139,36 @@ describe('UI Redesign & New Features Integration Tests', () => {
   });
 
   it('keeps opened stamp message open when clicked again or when another stamp is clicked', () => {
-    localStorage.setItem('junior_vet_earned_stamps', JSON.stringify(['stamp-dog-shiba', 'stamp-cat-mike']));
+    // 症例スタディでマスターした動物たちを設定
+    setSkillStage('skill-rika-plant-vascular', 'M4');
+    setSkillStage('skill-sansu-tsurukame-elimination', 'M4');
     render(<App />);
-    // スタンプ帳ボタンをクリック
+    // カルテボタンをクリック
     const stampAlbumBtn = screen.getByTestId('open-stamp-book-btn');
     fireEvent.click(stampAlbumBtn);
 
     // カルテモーダルが開く
     expect(screen.getByText('🐾 元気にした動物たちのカルテ')).toBeInTheDocument();
 
-    // 獲得済みスタンプ1（stamp-dog-shiba）
-    const dogStamp = screen.getByTestId('animal-stamp-stamp-dog-shiba');
-    fireEvent.click(dogStamp);
+    // 獲得済み症例動物1（skill-rika-plant-vascular: ウサギのロップくん）
+    const rabbitCard = screen.getByTestId('chart-animal-stamp-skill-rika-plant-vascular');
+    fireEvent.click(rabbitCard);
 
     // クリック後にメッセージと豆知識が飛び出す！
-    expect(screen.getByTestId('stamp-cheer-stamp-dog-shiba')).toBeInTheDocument();
-    expect(screen.getByTestId('stamp-fact-stamp-dog-shiba')).toBeInTheDocument();
+    expect(screen.getByTestId('chart-stamp-cheer-skill-rika-plant-vascular')).toBeInTheDocument();
+    expect(screen.getByTestId('chart-stamp-fact-skill-rika-plant-vascular')).toBeInTheDocument();
 
     // 再度クリックしても閉じずに「開きっぱなし」が維持されること！
-    fireEvent.click(dogStamp);
-    expect(screen.getByTestId('stamp-cheer-stamp-dog-shiba')).toBeInTheDocument();
+    fireEvent.click(rabbitCard);
+    expect(screen.getByTestId('chart-stamp-cheer-skill-rika-plant-vascular')).toBeInTheDocument();
 
-    // 別の獲得済みスタンプ2（stamp-cat-mike）をクリック
-    const catStamp = screen.getByTestId('animal-stamp-stamp-cat-mike');
-    fireEvent.click(catStamp);
+    // 別の獲得済み症例動物2（skill-sansu-tsurukame-elimination: カメのカメ吉）をクリック
+    const turtleCard = screen.getByTestId('chart-animal-stamp-skill-sansu-tsurukame-elimination');
+    fireEvent.click(turtleCard);
 
-    // スタンプ2が開くだけでなく、スタンプ1も閉じずに「両方開きっぱなし」になっていること！
-    expect(screen.getByTestId('stamp-cheer-stamp-dog-shiba')).toBeInTheDocument();
-    expect(screen.getByTestId('stamp-cheer-stamp-cat-mike')).toBeInTheDocument();
+    // 動物2が開くだけでなく、動物1も閉じずに「両方開きっぱなし」になっていること！
+    expect(screen.getByTestId('chart-stamp-cheer-skill-rika-plant-vascular')).toBeInTheDocument();
+    expect(screen.getByTestId('chart-stamp-cheer-skill-sansu-tsurukame-elimination')).toBeInTheDocument();
   });
 
   it('opens exam history modal from HomePage', () => {
