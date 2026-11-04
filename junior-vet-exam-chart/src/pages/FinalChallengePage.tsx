@@ -1,3 +1,4 @@
+import { PauseConfirmModal } from '../components/PauseConfirmModal';
 import { recordDailyStudyCompleted } from '../utils/progress-analytics';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -65,6 +66,7 @@ export const FinalChallengePage: React.FC = () => {
 
   const [subjectTimes, setSubjectTimes] = useState<Record<Subject, number>>(getInitialTimes(validYear));
   const [showTimeUpModal, setShowTimeUpModal] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // p.1 (表紙) から開始
   const [scanZoom, setScanZoom] = useState(100); // 原本スキャン画像専用ズーム（100%=全体表示Fit）
   const [viewMode, setViewMode] = useState<'text' | 'image'>('image');
@@ -111,7 +113,7 @@ export const FinalChallengePage: React.FC = () => {
   // タイマー: 現在選択中の教科の残り時間を毎秒カウントダウン
   useEffect(() => {
     // 採点モーダル・認定証・タイムアップモーダル表示中はタイマーを一時停止
-    if (showScoringModal || showCertModal || showTimeUpModal) return;
+    if (showScoringModal || showCertModal || showTimeUpModal || isPaused) return;
 
     const timer = setInterval(() => {
       setSubjectTimes(prev => {
@@ -127,7 +129,7 @@ export const FinalChallengePage: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentSubject, showScoringModal, showCertModal, showTimeUpModal]);
+  }, [currentSubject, showScoringModal, showCertModal, showTimeUpModal, isPaused]);
 
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
@@ -301,23 +303,29 @@ export const FinalChallengePage: React.FC = () => {
   return (
     <div className={styles.container} data-testid="final-challenge-page">
       <header className={styles.header}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <button
-            className={styles.iconBtn}
-            onClick={() => navigate('/')}
-            aria-label="戻る"
+            type="button"
+            className={styles.backBtn}
+            onClick={() => {
+              sound.playPop();
+              setIsPaused(true);
+            }}
+            aria-label="戻る・中断"
             data-testid="challenge-back-btn"
           >
-            ←
+            ← 戻る
           </button>
+
+          <span className={styles.modeBadge}>👑 合格ドクター認定試験</span>
 
           {/* 受験中の年度・教科タイトル表示 */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              fontSize: '15px',
+              gap: '6px',
+              fontSize: '14px',
               fontWeight: 800,
               color: 'var(--text-main)',
             }}
@@ -1471,6 +1479,32 @@ export const FinalChallengePage: React.FC = () => {
       {showHistoryModal && (
         <FinalExamHistoryModal onClose={() => setShowHistoryModal(false)} />
       )}
+
+      {/* 試験一時停止・中断確認ポップアップ */}
+      <PauseConfirmModal
+        isOpen={isPaused}
+        title="試験を一時停止中"
+        description={
+          <>
+            試験タイマーと進行を一時停止しています。<br />
+            一息ついて、どうするか選んでね。
+          </>
+        }
+        resumeLabel="▶ 試験をつづける"
+        saveQuitLabel="💾 ここまでの解答を残してホームへ"
+        saveQuitTitle="解答した内容を保存してホームへ戻ります"
+        resetLabel="🔄 この試験をリセットして最初から（ホームへ）"
+        onResume={() => setIsPaused(false)}
+        onSaveAndQuit={() => {
+          setIsPaused(false);
+          navigate('/');
+        }}
+        onResetAndQuit={() => {
+          setAnswers({});
+          setIsPaused(false);
+          navigate('/');
+        }}
+      />
     </div>
   );
 };

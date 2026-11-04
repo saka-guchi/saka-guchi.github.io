@@ -116,7 +116,7 @@ describe('Screen Flow Integration Tests', () => {
     const startBtn = screen.getByTestId('start-study-btn');
     fireEvent.click(startBtn);
 
-    const pauseBtn = screen.getByTestId('study-pause-btn');
+    const pauseBtn = screen.getByTestId('study-back-btn');
     expect(pauseBtn).toBeInTheDocument();
     fireEvent.click(pauseBtn);
 

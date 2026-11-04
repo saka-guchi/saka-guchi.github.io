@@ -287,28 +287,6 @@ export const HomePage: React.FC = () => {
         <div className={styles.headerRight}>
           {/* ステータス情報バッジ群（カウントダウン・連続日数・完成度） */}
           <div className={styles.headerStatusGroup}>
-            {/* どうぶつ元気のもと総合ステータス（全医療活動で蓄積・クリックでストーリー日誌表示） */}
-            <div
-              className={styles.pointsBadge}
-              onClick={() => {
-                sound.playPop();
-                setShowPointsNotebookModal(true);
-              }}
-              title={`どうぶつ元気のもと: きょう ${pointsSummary.todayPoints}こ / 累計 ${pointsSummary.totalPoints}こ。クリックで獣医師ストーリー手帳を表示！`}
-              data-testid="header-points-badge"
-              role="button"
-              tabIndex={0}
-              aria-label={`どうぶつ元気のもと きょう ${pointsSummary.todayPoints} こ、累計 ${pointsSummary.totalPoints} こ。クリックで手帳を表示`}
-            >
-              <span>🐾</span>
-              <span>
-                きょう <strong className={styles.pointsBadgeToday}>+{pointsSummary.todayPoints}</strong> こ
-              </span>
-              <span style={{ opacity: 0.5 }}>|</span>
-              <span>
-                累計 <strong className={styles.pointsBadgeTotal}>{pointsSummary.totalPoints}</strong> こ
-              </span>
-            </div>
             {/* 受験カウントダウン */}
             <div
               className={styles.countdownBadge}
@@ -535,8 +513,23 @@ export const HomePage: React.FC = () => {
                 <div className={styles.storyRankDesc}>{pointsSummary.currentRank.description}</div>
               </div>
             </div>
-            <button
-              type="button"
+            <div className={styles.storyRankActions}>
+              {/* どうぶつ元気のもとステータス表示（情報バッジ・非ボタン） */}
+              <div
+                className={styles.pointsBadge}
+                title={`どうぶつ元気のもと: きょう ${pointsSummary.todayPoints}こ / 累計 ${pointsSummary.totalPoints}こ`}
+                data-testid="header-points-badge"
+              >
+                <span>🐾</span>
+                <span>
+                  きょう <strong className={styles.pointsBadgeToday}>+{pointsSummary.todayPoints}</strong> こ
+                </span>
+                <span style={{ opacity: 0.5 }}>|</span>
+                <span>
+                  累計 <strong className={styles.pointsBadgeTotal}>{pointsSummary.totalPoints}</strong> こ
+                </span>
+              </div>
+              <button type="button"
               className={styles.storyNotebookBtn}
               onClick={() => {
                 sound.playPop();
@@ -547,6 +540,7 @@ export const HomePage: React.FC = () => {
             >
               📖 手帳を見る ❯
             </button>
+            </div>
           </div>
 
           {/* ストーリー抜粋 */}

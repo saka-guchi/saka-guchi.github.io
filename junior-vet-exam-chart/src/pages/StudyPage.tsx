@@ -1,3 +1,4 @@
+import { PauseConfirmModal } from '../components/PauseConfirmModal';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
@@ -6,6 +7,21 @@ import { getQuestionSource } from '../utils/source-helper';
 import { sound } from '../utils/sound-effects';
 import { addQuestionReport } from '../utils/question-reports';
 import styles from './StudyPage.module.css';
+
+function getSubjectJaWithIcon(subject?: string): string {
+  switch (subject) {
+    case 'rika':
+      return '🧪 理科';
+    case 'sansu':
+      return '📐 算数';
+    case 'shakai':
+      return '🗾 社会';
+    case 'kokugo':
+      return '📖 国語';
+    default:
+      return '総合';
+  }
+}
 
 export const StudyPage: React.FC = () => {
   const navigate = useNavigate();
@@ -142,37 +158,37 @@ export const StudyPage: React.FC = () => {
     <div className={styles.pageLayout} data-testid="study-page">
       {/* ヘッダー */}
       <header className={styles.header} data-testid="study-header">
-        <button
-          className={styles.iconBtn}
-          onClick={() => {
-            sound.playPop();
-            setIsPaused(true);
-          }}
-          aria-label="戻る・中断"
-          data-testid="study-back-btn"
-        >
-          ←
-        </button>
-
-        <div className={styles.headerCenter}>
-          <span className={styles.counterText} data-testid="study-progress-counter">
-            {currentIndex + 1} / {totalQuestions}
+        <div className={styles.headerLeft}>
+          <button
+            type="button"
+            className={styles.backBtn}
+            onClick={() => {
+              sound.playPop();
+              setIsPaused(true);
+            }}
+            aria-label="戻る・中断"
+            data-testid="study-back-btn"
+          >
+            ← 戻る
+          </button>
+          <span className={styles.modeBadge}>🩺 本日の診察</span>
+          <span className={styles.subjectBadge}>
+            出題教科：{getSubjectJaWithIcon(currentQ.subject)}
           </span>
-          <div className={styles.progressBarBg}>
-            <div className={styles.progressBarFill} style={{ width: `${progressPercent}%` }} />
-          </div>
+          <h3 className={styles.headerTitle} title={currentQ.category || currentQ.skillTitle}>
+            {currentQ.category || currentQ.skillTitle}
+          </h3>
         </div>
 
         <div className={styles.headerRight}>
-          <span className={styles.categoryBadge}>{currentQ.category}</span>
-          <button
-            className={styles.iconBtn}
-            onClick={() => setIsPaused(true)}
-            aria-label="一時停止"
-            data-testid="study-pause-btn"
-          >
-            ⏸
-          </button>
+          <div className={styles.progressContainer}>
+            <span className={styles.progressLabel} data-testid="study-progress-counter">
+              問 {currentIndex + 1} / {totalQuestions}
+            </span>
+            <div className={styles.progressBarBg}>
+              <div className={styles.progressBarFill} style={{ width: `${progressPercent}%` }} />
+            </div>
+          </div>
         </div>
       </header>
 
@@ -180,34 +196,6 @@ export const StudyPage: React.FC = () => {
       <main className={styles.mainArea}>
         {/* 左: 問題エリア（第22章仕様: 問題文と図） */}
         <section className={styles.questionArea} data-testid="question-area">
-          <div className={styles.skillHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className={styles.skillBadge}>🩺 今日のカルテ項目: {currentQ.skillTitle}</span>
-            <button
-              type="button"
-              onClick={() => {
-                sound.playPop();
-                setShowReportModal(true);
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '12px',
-                color: 'var(--text-subtle)',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '2px 8px',
-                borderRadius: 'var(--radius-pill)',
-                transition: 'background 150ms ease',
-              }}
-              title="問題や答えについて指導医（保護者の方）に相談メモを送る"
-              data-testid="header-report-btn"
-            >
-              <span>💬</span>
-              <span>指導医に相談</span>
-            </button>
-          </div>
 
           <QuestionPromptView
             key={`prompt-${currentQ.id}`}
@@ -542,110 +530,19 @@ export const StudyPage: React.FC = () => {
       </footer>
 
       {/* 一時停止・中断確認モーダル */}
-      {isPaused && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0, 0, 0, 0.6)',
-            backdropFilter: 'blur(3px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '20px',
-          }}
-          data-testid="study-pause-modal"
-        >
-          <div
-            style={{
-              background: 'var(--surface)',
-              borderRadius: '20px',
-              maxWidth: '440px',
-              width: '100%',
-              padding: '28px 24px',
-              textAlign: 'center',
-              boxShadow: 'var(--shadow-card)',
-              border: '1px solid var(--border)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '14px',
-            }}
-          >
-            <div style={{ fontSize: '44px', lineHeight: 1 }}>☕</div>
-            <h2 style={{ font: 'var(--font-heading)', margin: 0, color: 'var(--text)' }}>
-              一時停止中
-            </h2>
-            <p style={{ font: 'var(--font-body)', color: 'var(--text-subtle)', margin: 0, lineHeight: '1.6', fontSize: '14px' }}>
-              タイマーと学習を停止しています。<br />
-              一息ついて、どうするか選んでね。
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginTop: '6px' }}>
-              {/* 1. 学習を再開する */}
-              <button
-                className={styles.mainBtn}
-                style={{ width: '100%', justifyContent: 'center', height: '48px', fontSize: '15px' }}
-                onClick={() => setIsPaused(false)}
-                data-testid="study-resume-btn"
-              >
-                ▶ 学習をつづける
-              </button>
-
-              {/* 2. ここまでの記録を保存してホームへ */}
-              <button
-                type="button"
-                className={styles.subBtn}
-                style={{
-                  width: '100%',
-                  justifyContent: 'center',
-                  height: '46px',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  background: 'var(--surface-subtle)',
-                  borderColor: 'var(--border)',
-                  color: 'var(--text)',
-                }}
-                onClick={() => {
-                  setIsPaused(false);
-                  navigate('/');
-                }}
-                data-testid="study-pause-quit-btn"
-                title="今日解いた問題の正解・不正解はカルテに保存されます"
-              >
-                💾 ここまでの記録を残してホームへ
-              </button>
-
-              {/* 3. この学習をやめる（最初からやり直す） */}
-              <button
-                type="button"
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--text-subtle)',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  padding: '8px',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  transition: 'color 0.15s ease',
-                }}
-                onMouseOver={e => (e.currentTarget.style.color = '#ef4444')}
-                onMouseOut={e => (e.currentTarget.style.color = 'var(--text-subtle)')}
-                onClick={() => {
-                  resetSession();
-                  setIsPaused(false);
-                  navigate('/');
-                }}
-                data-testid="study-pause-reset-btn"
-              >
-                🔄 この学習をリセットして最初から（ホームへ）
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <PauseConfirmModal
+        isOpen={isPaused}
+        onResume={() => setIsPaused(false)}
+        onSaveAndQuit={() => {
+          setIsPaused(false);
+          navigate('/');
+        }}
+        onResetAndQuit={() => {
+          resetSession();
+          setIsPaused(false);
+          navigate('/');
+        }}
+      />
 
       {/* おうちの人（保護者カルテ）への問題チェック依頼モーダル */}
       {showReportModal && (
