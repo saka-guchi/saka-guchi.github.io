@@ -93,6 +93,14 @@ describe('スマホ・タブレット向けスクロールレスUI/UX 結合テ�
       // モーダルが開き、レベルアップ方法が明記されていること
       expect(screen.getByText('知識のレベル（Lv）ってなに？')).toBeInTheDocument();
       expect(screen.getByText(/場面が変わった応用問題に正解で/)).toBeInTheDocument();
+
+      // Lv.1〜Lv.4（カルテマスターまで）が存在し、Lv.5・Lv.6（獣医師チャレンジ側の領域）は削除されていること
+      expect(screen.getByTestId('level-help-item-M1')).toBeInTheDocument();
+      expect(screen.getByTestId('level-help-item-M2')).toBeInTheDocument();
+      expect(screen.getByTestId('level-help-item-M3')).toBeInTheDocument();
+      expect(screen.getByTestId('level-help-item-M4')).toBeInTheDocument();
+      expect(screen.queryByTestId('level-help-item-M5')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('level-help-item-M6')).not.toBeInTheDocument();
     });
 
     it('未達成テーマ（治療中の症例）がデフォルトで折りたたまれており、クリックで開閉できる', () => {

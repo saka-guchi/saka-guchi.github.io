@@ -81,7 +81,7 @@ export function promoteSkillStage(
     case 'M1': next = 'M2'; break;
     case 'M2': next = 'M3'; break;
     case 'M3': next = 'M4'; break;
-    case 'M4': next = 'M5'; break;
+    case 'M4': next = 'M4'; break;
     default: next = 'M4'; break;
   }
 
