@@ -15,12 +15,12 @@ import { fireConfetti } from '../utils/confetti';
 import { getDaysUntilExam } from '../utils/countdown-helper';
 import { AnimatedVetPet } from '../components/AnimatedVetPet';
 import { ReferenceBookQuizModal } from '../components/ReferenceBookQuizModal';
-import { REFERENCE_BOOKS } from '../data/extra-history-80';
-import { getRefBookProgress } from '../utils/reference-book-store';
 import type { Subject, FinalChallengeResult } from '../types';
 import { db } from '../db';
 import { SUPPORTED_EXAM_YEARS, FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT, type ExamYear } from '../data/final-challenge-data';
 import { getAllExamScoreSummaries } from '../utils/exam-scores';
+import { getPointsSummary, type PointsSummary } from '../utils/points-manager';
+import { PointsNotebookModal } from '../components/PointsNotebookModal';
 import styles from './HomePage.module.css';
 
 type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
@@ -44,6 +44,8 @@ export const HomePage: React.FC = () => {
   const [showCompletionHelpModal, setShowCompletionHelpModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [examHistory, setExamHistory] = useState<FinalChallengeResult[]>([]);
+  const [pointsSummary, setPointsSummary] = useState<PointsSummary>(() => getPointsSummary());
+  const [showPointsNotebookModal, setShowPointsNotebookModal] = useState<boolean>(false);
   const [selectedExamYear, setSelectedExamYear] = useState<ExamYear>(2026);
   const [showAllExamYears, setShowAllExamYears] = useState(false);
 
@@ -110,6 +112,12 @@ export const HomePage: React.FC = () => {
     window.addEventListener('skill-stage-updated', handleSkillStageUpdate);
     window.addEventListener('study-streak-updated', handleStreakUpdate);
 
+    const handlePointsUpdate = () => {
+      if (!isMounted) return;
+      setPointsSummary(getPointsSummary());
+    };
+    window.addEventListener('junior-vet-points-updated', handlePointsUpdate);
+
     // 初期マウント時のストリーク計算
     calculateStreakDays().then(val => {
       if (isMounted) setStudyStreak(val);
@@ -120,6 +128,7 @@ export const HomePage: React.FC = () => {
       window.removeEventListener('memory-retention-updated', handleRetentionUpdate);
       window.removeEventListener('skill-stage-updated', handleSkillStageUpdate);
       window.removeEventListener('study-streak-updated', handleStreakUpdate);
+      window.removeEventListener('junior-vet-points-updated', handlePointsUpdate);
     };
   }, []);
 
@@ -172,49 +181,21 @@ export const HomePage: React.FC = () => {
 
   const isAllSubjectsSelected = selectedStudySubjects.length === ALL_STUDY_SUBJECTS.length;
 
-  const handleSelectAllSubjects = () => {
-    sound.playPop();
-    setSelectedStudySubjects([...ALL_STUDY_SUBJECTS]);
-  };
-
   const handleToggleSubject = (sub: Subject) => {
     sound.playPop();
-    // 全教科選択されている状態で特定科目をタップした場合は、その科目のみを選択（直感的な絞り込み操作）
-    if (isAllSubjectsSelected) {
-      setSelectedStudySubjects([sub]);
-      return;
-    }
-
     if (selectedStudySubjects.includes(sub)) {
-      // 既に選択中の科目をタップした場合:
+      // 既に選択中の科目をタップした場合: 2教科以上あれば解除（最低1教科は常に選択維持）
       if (selectedStudySubjects.length > 1) {
-        // 残り2科目以上あれば解除
         setSelectedStudySubjects(selectedStudySubjects.filter(s => s !== sub));
-      } else {
-        // 最後の1科目を解除しようとした場合は全教科選択に戻す（必ず1科目以上選ばれる）
-        setSelectedStudySubjects([...ALL_STUDY_SUBJECTS]);
       }
     } else {
-      // 未選択の科目をタップして追加（複数選択）
-      const next = [...selectedStudySubjects, sub];
-      setSelectedStudySubjects(next);
+      // 未選択の科目をタップして追加
+      setSelectedStudySubjects([...selectedStudySubjects, sub]);
     }
   };
 
   const getStartButtonLabel = () => {
-    if (isAllSubjectsSelected) {
-      return '▶ 本日の診察をはじめる（10問）';
-    }
-    const subjectNames: Record<Subject, { label: string; icon: string }> = {
-      rika: { label: '理科', icon: '🧪' },
-      sansu: { label: '算数', icon: '📐' },
-      shakai: { label: '社会', icon: '🗾' },
-      kokugo: { label: '国語', icon: '📖' },
-    };
-    const sortedSelected = ALL_STUDY_SUBJECTS.filter(s => selectedStudySubjects.includes(s));
-    const labels = sortedSelected.map(s => subjectNames[s]?.label || s).join('・');
-    const icons = sortedSelected.map(s => subjectNames[s]?.icon || '').join('');
-    return `▶ ${labels}の診察をはじめる（10問） ${icons || '🐾'}`;
+    return '▶ 本日の診察をはじめる（10問）';
   };
 
   const handleStartToday = () => {
@@ -316,6 +297,28 @@ export const HomePage: React.FC = () => {
         <div className={styles.headerRight}>
           {/* ステータス情報バッジ群（カウントダウン・連続日数・完成度） */}
           <div className={styles.headerStatusGroup}>
+            {/* どうぶつ元気のもと総合ステータス（全医療活動で蓄積・クリックでストーリー日誌表示） */}
+            <div
+              className={styles.pointsBadge}
+              onClick={() => {
+                sound.playPop();
+                setShowPointsNotebookModal(true);
+              }}
+              title={`どうぶつ元気のもと: きょう ${pointsSummary.todayPoints}こ / 累計 ${pointsSummary.totalPoints}こ。クリックで獣医師ストーリー手帳を表示！`}
+              data-testid="header-points-badge"
+              role="button"
+              tabIndex={0}
+              aria-label={`どうぶつ元気のもと きょう ${pointsSummary.todayPoints} こ、累計 ${pointsSummary.totalPoints} こ。クリックで手帳を表示`}
+            >
+              <span>🐾</span>
+              <span>
+                きょう <strong className={styles.pointsBadgeToday}>+{pointsSummary.todayPoints}</strong> こ
+              </span>
+              <span style={{ opacity: 0.5 }}>|</span>
+              <span>
+                累計 <strong className={styles.pointsBadgeTotal}>{pointsSummary.totalPoints}</strong> こ
+              </span>
+            </div>
             {/* 受験カウントダウン */}
             <div
               className={styles.countdownBadge}
@@ -446,7 +449,7 @@ export const HomePage: React.FC = () => {
                 <span className={styles.areaEstimatedTime}>⏱️ 目安: 約5分</span>
               </div>
               <p className={styles.areaDescription}>
-                今日復習すべき10問を忘却曲線に合わせて自動出題
+                忘れてそうな入試問題が出題されるよ
               </p>
 
               {/* 出題教科セグメントコントロール（複数選択対応・トグルUI） */}
@@ -460,16 +463,6 @@ export const HomePage: React.FC = () => {
                   </span>
                 </div>
                 <div className={styles.categoryFilterRow} role="group" aria-label="出題教科の選択（複数選択可能）">
-                  <button
-                    key="all"
-                    type="button"
-                    className={`${styles.categoryFilterBtn} ${isAllSubjectsSelected ? styles.categoryFilterBtnActive : ''}`}
-                    onClick={handleSelectAllSubjects}
-                    data-testid="study-subject-all"
-                    title="全教科をまとめて出題"
-                  >
-                    {isAllSubjectsSelected ? '✓ 🌟 全教科' : '🌟 全教科'}
-                  </button>
                   {[
                     { id: 'rika' as Subject, label: '理科', icon: '🧪' },
                     { id: 'sansu' as Subject, label: '算数', icon: '📐' },
@@ -491,6 +484,41 @@ export const HomePage: React.FC = () => {
                       </button>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* 本日の診察で集める「元気のもと」ステータス＆目標カード */}
+              <div
+                className={styles.todayPointsCard}
+                onClick={() => {
+                  sound.playPop();
+                  setShowPointsNotebookModal(true);
+                }}
+                title="クリックでどうぶつ元気のもと手帳・目標一覧を表示！"
+                data-testid="today-points-card"
+                role="button"
+                tabIndex={0}
+                aria-label={`どうぶつ元気のもと: きょう ${pointsSummary.todayPoints}こ、累計 ${pointsSummary.totalPoints}こ。クリックで手帳を表示`}
+              >
+                <div className={styles.todayPointsCardHeader}>
+                  <div className={styles.todayPointsMainStatus}>
+                    <span className={styles.todayPointsIcon}>🐾</span>
+                    <span className={styles.todayPointsLabel}>元気のもと:</span>
+                    <span className={styles.todayPointsToday} data-testid="today-points-today-val">
+                      きょう <strong>+{pointsSummary.todayPoints}</strong> こ
+                    </span>
+                    <span className={styles.todayPointsDivider}>|</span>
+                    <span className={styles.todayPointsTotal} data-testid="today-points-total-val">
+                      累計 <strong>{pointsSummary.totalPoints}</strong> こ
+                    </span>
+                  </div>
+                  <span className={styles.todayPointsNotebookLink}>手帳を見る ❯</span>
+                </div>
+                <div className={styles.todayPointsGoalRow} data-testid="today-points-goal-row">
+                  <span>
+                    🎯 1問正解＝1元気のもと / ランク: {pointsSummary.currentRank.badge} {pointsSummary.currentRank.title}
+                    {pointsSummary.nextRank && `（あと${pointsSummary.pointsToNextRank}こで昇格！）`}
+                  </span>
                 </div>
               </div>
             </div>
@@ -515,7 +543,7 @@ export const HomePage: React.FC = () => {
                 <span className={styles.areaEstimatedTime}>⏱️ 目安: 約3分</span>
               </div>
               <p className={styles.areaDescription}>
-                名作参考書から厳選した重要知識をクイズで定着
+                いろんな参考書の知識を吸収しよう
               </p>
 
               <div className={styles.extraBookInfoRow}>
@@ -523,26 +551,7 @@ export const HomePage: React.FC = () => {
                 <span className={styles.extraSubjectPill}>🗾 社会</span>
               </div>
 
-              {/* 学習進捗・達成度 */}
-              {(() => {
-                const histProg = getRefBookProgress('history-80');
-                const book = REFERENCE_BOOKS[0];
-                return (
-                  <div className={styles.extraProgressRow} data-testid="extra-history-progress">
-                    <span className={styles.extraProgressLabel}>
-                      💊 処方状況:
-                    </span>
-                    <span className={styles.extraProgressValue}>
-                      {histProg.masteredIds.length} / {book.availableQuestionsCount} 人
-                    </span>
-                    {histProg.clearedSessionsCount > 0 && (
-                      <span className={styles.extraClearedBadge}>
-                        （完了 {histProg.clearedSessionsCount} 回）
-                      </span>
-                    )}
-                  </div>
-                );
-              })()}
+
             </div>
 
             <div className={styles.extraActions}>
@@ -554,7 +563,7 @@ export const HomePage: React.FC = () => {
                 }}
                 data-testid="start-extra-book-btn"
               >
-                💊 歴史人物80にチャレンジ（10問） ❯
+                ▶ 知識の処方箋をつくる（10問）
               </button>
             </div>
           </section>
@@ -1867,6 +1876,11 @@ export const HomePage: React.FC = () => {
             navigate('/study');
           }}
         />
+      )}
+
+      {/* どうぶつ元気のもと手帳モーダル */}
+      {showPointsNotebookModal && (
+        <PointsNotebookModal onClose={() => setShowPointsNotebookModal(false)} />
       )}
 
       {/* 知識の処方箋・名作参考書特訓モーダル */}

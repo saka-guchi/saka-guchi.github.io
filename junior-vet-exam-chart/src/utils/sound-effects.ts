@@ -175,6 +175,11 @@ class SoundEffects {
   }
 
   // 動物の喜び（ピピピッ！）
+  // レベルアップ音（昇格ファンファーレ）
+  public playLevelUp() {
+    this.playFanfare();
+  }
+
   public playAnimalHappy() {
     if (!this.enabled) return;
     try {

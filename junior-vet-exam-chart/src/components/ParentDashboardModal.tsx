@@ -4,6 +4,7 @@ import { ALL_PROGRESS_SKILLS } from '../data/all-skills';
 import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
 import { getMemoryRetention } from '../utils/memory-retention';
 import { getTodayStudyStats, type TodayStudyStats } from '../utils/progress-analytics';
+import { getPointsSummary, type PointsSummary } from '../utils/points-manager';
 import { ANIMAL_STAMPS, getEarnedStampIds } from '../data/animal-stamps';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
@@ -263,6 +264,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   const [totalCorrect, setTotalCorrect] = useState<number>(0);
 
   // 本日の学習量（時間、解答数、正答率、連続日数、累計）
+  const [pointsSummary, setPointsSummary] = useState<PointsSummary>(() => getPointsSummary());
   const [todayStats, setTodayStats] = useState<TodayStudyStats>({
     questionCount: 0,
     studyMinutes: 0,

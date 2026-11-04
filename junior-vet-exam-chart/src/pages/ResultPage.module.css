@@ -353,4 +353,147 @@
   }
 }
 
+/* 元気のもと獲得カード */
+.pointsAwardCard {
+  width: 100%;
+  margin: 6px 0;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+  border: 2px solid #34d399;
+  border-radius: var(--radius-lg);
+  text-align: left;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
+.pointsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pointsTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: #065f46;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pointsNotebookBtn {
+  background: #ffffff;
+  border: 1px solid #6ee7b7;
+  color: #047857;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pointsNotebookBtn:hover {
+  background: #d1fae5;
+  transform: translateY(-1px);
+}
+
+.pointsMainRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #a7f3d0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .pointsMainRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+.pointsGainedArea {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.pointsGainedLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #047857;
+  white-space: nowrap;
+}
+
+.pointsGainedNumber {
+  font-size: 28px;
+  font-weight: 900;
+  color: #059669;
+  font-variant-numeric: tabular-nums;
+}
+
+.pointsGainedUnit {
+  font-size: 14px;
+  font-weight: 800;
+  color: #059669;
+  white-space: nowrap;
+}
+
+.pointsTotalsArea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #334155;
+  flex-wrap: wrap;
+}
+
+.pointsTotalItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.pointsTotalItem strong {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.pointsRankRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #065f46;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 8px 12px;
+  border-radius: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rankUpBanner {
+  width: 100%;
+  margin: 12px 0;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #fefce8 0%, #fef08a 100%);
+  border: 2px solid #eab308;
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.25);
+}

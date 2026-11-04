@@ -21,6 +21,7 @@ import { DoctorCertificateModal } from '../components/DoctorCertificateModal';
 import { FinalExamHistoryModal } from '../components/FinalExamHistoryModal';
 import { getExamScoreSummary, getExamBadgeTier, getExamBadgeInfo } from '../utils/exam-scores';
 import { sound } from '../utils/sound-effects';
+import { awardSessionPoints } from '../utils/points-manager';
 import styles from './FinalChallengePage.module.css';
 
 export const FinalChallengePage: React.FC = () => {
