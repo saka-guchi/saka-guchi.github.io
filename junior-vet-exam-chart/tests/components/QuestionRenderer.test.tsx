@@ -159,12 +159,24 @@ describe('QuestionRenderer Component Tests (10 Formats)', () => {
   });
 
   // 10. Self Check
-  it('handles self check selection', () => {
+  it('reveals model answer and handles self check selection', () => {
     const q = SAMPLE_QUESTIONS.find(x => x.format === 'self_check')!;
     const handleAnswer = vi.fn();
     render(<QuestionRenderer question={q} onAnswer={handleAnswer} answered={false} userAnswer={null} />);
 
     expect(screen.getByTestId('format-self-check')).toBeInTheDocument();
+    // 初期状態では模範解答カードや判定ボタンは隠れており、答え合わせボタンが表示される
+    expect(screen.queryByTestId('self-check-answer-card')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('self-check-correct')).not.toBeInTheDocument();
+
+    const revealBtn = screen.getByTestId('self-check-reveal-btn');
+    expect(revealBtn).toBeInTheDocument();
+    fireEvent.click(revealBtn);
+
+    // 答え合わせボタン押下後は模範解答カードと判定ボタンが表示される
+    expect(screen.getByTestId('self-check-answer-card')).toBeInTheDocument();
+    expect(screen.getByTestId('self-check-answer-card')).toHaveTextContent(/96 cm2/);
+
     fireEvent.click(screen.getByTestId('self-check-correct'));
     expect(handleAnswer).toHaveBeenCalledWith('correct', true);
   });

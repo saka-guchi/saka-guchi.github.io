@@ -209,6 +209,9 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
   // 1. Recall Card
   const [recallRevealed, setRecallRevealed] = useState(false);
 
+  // 10. Self Check
+  const [selfCheckRevealed, setSelfCheckRevealed] = useState(false);
+
   // 6. Ordering
   const [orderItems, setOrderItems] = useState<any[]>([]);
 
@@ -227,6 +230,7 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
   // 問題が変わるたびに状態を初期化
   useEffect(() => {
     setRecallRevealed(false);
+    setSelfCheckRevealed(false);
     setSelectedLeft(null);
     setSelectedRight(null);
     setMatches({});
@@ -323,6 +327,21 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
         if (onSubmitActionRef) onSubmitActionRef.current = null;
         if (onActionStateChange) onActionStateChange(null);
       }
+    } else if (question.format === 'self_check') {
+      if (!selfCheckRevealed) {
+        const reveal = () => setSelfCheckRevealed(true);
+        if (onSubmitActionRef) onSubmitActionRef.current = reveal;
+        if (onActionStateChange) {
+          onActionStateChange({
+            label: '答え合わせ（模範解答を開く）',
+            ready: true,
+            onAction: reveal,
+          });
+        }
+      } else {
+        if (onSubmitActionRef) onSubmitActionRef.current = null;
+        if (onActionStateChange) onActionStateChange(null);
+      }
     } else if (question.format === 'matching') {
       const totalPairs = question.data?.leftItems?.length || 0;
       const matchedCount = Object.keys(matches).length;
@@ -355,6 +374,7 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
     question.id,
     answered,
     recallRevealed,
+    selfCheckRevealed,
     numericInput,
     matches,
     isAllMatched,
@@ -970,40 +990,117 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
 
   // 10. Self Check
   if (question.format === 'self_check') {
+    const modelAnswer = question.explanation?.resultSummary || question.correctAnswer;
+    const reasoning = question.explanation?.reasoning;
+
     return (
       <div className={styles.formatContainer} data-testid="format-self-check">
         <div style={{ font: 'var(--font-heading)', marginBottom: '8px' }}>紙に解いた後の自己判定</div>
         {!answered ? (
-          <div className={styles.selfCheckGrid}>
-            <button
-              className={styles.selfCheckBtn}
-              onClick={() => onAnswer('correct', true)}
-              data-testid="self-check-correct"
-            >
-              正解した
-            </button>
-            <button
-              className={styles.selfCheckBtn}
-              onClick={() => onAnswer('method_correct_calc_miss', false)}
-              data-testid="self-check-calc-miss"
-            >
-              解き方は合っていたが計算ミス
-            </button>
-            <button
-              className={styles.selfCheckBtn}
-              onClick={() => onAnswer('partial', false)}
-              data-testid="self-check-partial"
-            >
-              途中まで分かった
-            </button>
-            <button
-              className={styles.selfCheckBtn}
-              onClick={() => onAnswer('dont_know', false)}
-              data-testid="self-check-dont-know"
-            >
-              解き方が分からなかった
-            </button>
-          </div>
+          !selfCheckRevealed ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center', padding: '16px 8px' }}>
+              <div
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: '#eff6ff',
+                  border: '2px dashed var(--primary)',
+                  borderRadius: '12px',
+                  color: '#1e3a8a',
+                  fontSize: '13px',
+                  lineHeight: '1.6',
+                  textAlign: 'left',
+                }}
+              >
+                <div style={{ fontWeight: 800, fontSize: '14px', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  📝 この問題は【ノートや紙に解く問題】です
+                </div>
+                <div>
+                  ノートや紙に途中式・解答を書き終えたら、下の<strong>「答え合わせ（模範解答を開く）」</strong>を押してください。（分からない場合もそのまま開いて模範解答を確認できます）
+                </div>
+              </div>
+
+              {isStandalone && (
+                <button
+                  className={styles.choiceBtn}
+                  style={{
+                    justifyContent: 'center',
+                    width: '100%',
+                    fontWeight: 'bold',
+                    background: 'var(--primary-weak)',
+                    borderColor: 'var(--primary)',
+                    color: 'var(--primary)',
+                  }}
+                  onClick={() => setSelfCheckRevealed(true)}
+                  data-testid="self-check-reveal-btn"
+                >
+                  💡 答え合わせ（模範解答を開く）
+                </button>
+              )}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div
+                style={{
+                  padding: '16px',
+                  background: 'var(--primary-weak)',
+                  border: '1px solid var(--primary)',
+                  borderRadius: '12px',
+                }}
+                data-testid="self-check-answer-card"
+              >
+                <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary)', marginBottom: '4px' }}>
+                  📖 模範解答：
+                </div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-heading)', marginBottom: reasoning ? '8px' : '0' }}>
+                  {modelAnswer}
+                </div>
+                {reasoning && (
+                  <div style={{ fontSize: '13px', color: 'var(--text-subtle)', lineHeight: '1.5', paddingTop: '8px', borderTop: '1px solid rgba(0, 0, 0, 0.08)' }}>
+                    <span style={{ fontWeight: 'bold' }}>考え方：</span> {reasoning}
+                  </div>
+                )}
+              </div>
+
+              <div className={styles.selfCheckGrid}>
+                <div style={{ fontSize: '13px', color: 'var(--text-subtle)', marginBottom: '4px' }}>
+                  自分のノートの答えと見比べて自己判定を選んでください：
+                </div>
+                <button
+                  className={styles.selfCheckBtn}
+                  onClick={() => onAnswer('correct', true)}
+                  data-testid="self-check-correct"
+                >
+                  <span style={{ fontWeight: 'bold' }}>⭕ 正解した</span>
+                  <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>答えも考え方も合っていた</div>
+                </button>
+                <button
+                  className={styles.selfCheckBtn}
+                  onClick={() => onAnswer('method_correct_calc_miss', false)}
+                  data-testid="self-check-calc-miss"
+                >
+                  <span style={{ fontWeight: 'bold' }}>⚠️ 解き方は合っていたが計算ミス</span>
+                  <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>式や方針は合っていたが最後の計算を間違えた</div>
+                </button>
+                <button
+                  className={styles.selfCheckBtn}
+                  onClick={() => onAnswer('partial', false)}
+                  data-testid="self-check-partial"
+                >
+                  <span style={{ fontWeight: 'bold' }}>🔺 途中まで分かった</span>
+                  <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>最初のステップは合っていたが途中で手が止まった</div>
+                </button>
+                <button
+                  className={styles.selfCheckBtn}
+                  onClick={() => onAnswer('dont_know', false)}
+                  data-testid="self-check-dont-know"
+                >
+                  <span style={{ fontWeight: 'bold' }}>❌ 解き方が分からなかった</span>
+                  <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>最初の方針や公式が思い浮かばなかった</div>
+                </button>
+              </div>
+            </div>
+          )
         ) : null}
       </div>
     );

@@ -45,8 +45,10 @@ describe('Screen Flow Integration Tests', () => {
         const correctBtn = screen.getByTestId('recall-correct-btn');
         fireEvent.click(correctBtn);
       } else {
-        const selfCheckBtn = screen.queryByTestId('self-check-correct');
-        if (selfCheckBtn) {
+        const selfCheckReveal = screen.queryByTestId('self-check-reveal-btn');
+        if (selfCheckReveal) {
+          fireEvent.click(selfCheckReveal);
+          const selfCheckBtn = screen.getByTestId('self-check-correct');
           fireEvent.click(selfCheckBtn);
         } else {
           const numericKey = screen.queryByTestId('key-1');

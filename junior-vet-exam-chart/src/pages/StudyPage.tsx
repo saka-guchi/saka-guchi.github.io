@@ -530,6 +530,8 @@ export const StudyPage: React.FC = () => {
                   ? 'numeric-submit-btn'
                   : currentQ?.format === 'diagram_touch'
                   ? 'diagram-submit-btn'
+                  : currentQ?.format === 'self_check'
+                  ? 'self-check-reveal-btn'
                   : 'study-submit-action-btn'
               }
             >
