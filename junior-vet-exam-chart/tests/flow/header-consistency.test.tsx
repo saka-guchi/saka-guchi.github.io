@@ -68,6 +68,41 @@ describe('学習・試験画面 ヘッダー統一＆中断ポップアップ統
       fireEvent.click(screen.getByTestId('study-resume-btn'));
       expect(screen.queryByTestId('study-pause-modal')).not.toBeInTheDocument();
     });
+    it('症例特訓セッション（currentFocusSkillIdが存在）の場合、モードバッジが「🐾 症例スタディ」と表示されること', () => {
+      useAppStore.setState({
+        currentFocusSkillId: 'rika-plant-01',
+        currentSessionQuestions: [
+          {
+            id: 'focus-rika-plant-01',
+            subject: 'rika',
+            format: 'multiple_choice',
+            prompt: '植物のつくりとはたらきの問題',
+            category: '植物のつくりとはたらき',
+            skillTitle: '植物のつくりとはたらき',
+            choices: [
+              { id: 'a', label: 'ア', text: '主根', isCorrect: true },
+            ],
+            correctAnswer: 'a',
+            hints: [{ level: 1, text: 'ヒント1' }, { level: 2, text: 'ヒント2' }],
+            explanation: { resultSummary: '', keyTakeaway: '', reasoning: '' },
+          } as any,
+        ],
+        currentIndex: 0,
+        recallPhase: false,
+      });
+
+      render(
+        <MemoryRouter>
+          <StudyPage />
+        </MemoryRouter>
+      );
+
+      // モードバッジが「🐾 症例スタディ」であること
+      const badge = screen.getByTestId('study-mode-badge');
+      expect(badge).toBeInTheDocument();
+      expect(badge).toHaveTextContent('🐾 症例スタディ');
+      expect(screen.getByText('出題教科：🧪 理科')).toBeInTheDocument();
+    });
   });
 
   describe('2. 知識の処方箋 (ReferenceBookQuizModal)', () => {

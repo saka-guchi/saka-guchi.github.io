@@ -36,3 +36,4 @@ export const DEPRECATED_TERMS = [
   '合格ドクター認定試験',
   '獣医師認定試験',
 ] as const;
+

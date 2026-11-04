@@ -35,6 +35,7 @@ export const StudyPage: React.FC = () => {
     currentAnswered,
     currentUserAnswer,
     currentIsCorrect,
+    currentFocusSkillId,
     revealChoices,
     showHint,
     recordAnswer,
@@ -152,6 +153,10 @@ export const StudyPage: React.FC = () => {
     }
   };
 
+  const isCaseStudyFocus = Boolean(currentFocusSkillId);
+  const modeBadgeText = isCaseStudyFocus
+    ? APP_TERMS.CASE_STUDY_WITH_ICON
+    : APP_TERMS.DAILY_CONSULTATION_WITH_ICON;
   const totalQuestions = currentSessionQuestions.length;
   const progressPercent = Math.round(((currentIndex + 1) / totalQuestions) * 100);
 
@@ -172,7 +177,12 @@ export const StudyPage: React.FC = () => {
           >
             ← 戻る
           </button>
-          <span className={styles.modeBadge}>{APP_TERMS.DAILY_CONSULTATION_WITH_ICON}</span>
+          <span
+            className={isCaseStudyFocus ? styles.modeBadgeCaseStudy : styles.modeBadge}
+            data-testid="study-mode-badge"
+          >
+            {modeBadgeText}
+          </span>
           <span className={styles.subjectBadge}>
             出題教科：{getSubjectJaWithIcon(currentQ.subject)}
           </span>

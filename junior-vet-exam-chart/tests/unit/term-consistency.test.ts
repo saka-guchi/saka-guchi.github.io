@@ -57,3 +57,4 @@ describe('再発防止: 用語統制＆旧定義名混入防止テスト (ルー
     expect(violations).toHaveLength(0);
   });
 });
+
