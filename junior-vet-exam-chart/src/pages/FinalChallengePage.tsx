@@ -870,68 +870,76 @@ export const FinalChallengePage: React.FC = () => {
           </div>
 
           <div className={styles.slotList}>
-            {currentSections.map(sec => (
-              <div key={sec.sectionNumber} className={styles.sectionGroup}>
-                <div className={styles.sectionHeader}>{sec.title} ({sec.pageRange})</div>
+            {currentSections.map(sec => {
+              const rikaSubSlots = currentSubject === 'rika' && sec.sectionNumber === 1
+                ? sec.slots.filter(s => s.questionNumber === '1')
+                : [];
+              const isRikaSubGroup = rikaSubSlots.length > 1 && rikaSubSlots.some(s => Boolean(s.partNumber));
 
-                {/* 理科問1のような小問集合はスッキリ並べる */}
-                {currentSubject === 'rika' && sec.sectionNumber === 1 && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>大問{sec.sectionNumber} 問1</div>
-                    <div className={styles.subSlotGrid}>
-                      {sec.slots.filter(s => s.questionNumber === '1').map(slot => (
-                        <div key={slot.id} className={styles.slotItem}>
-                          <label htmlFor={`slot-input-${slot.id}`} style={{ fontWeight: 'bold' }}>[{slot.partNumber}]</label>
-                          <input
-                            id={`slot-input-${slot.id}`}
-                            name={`slot_${slot.id}`}
-                            type="text"
-                            placeholder="語句を入力"
-                            className={styles.textInput}
-                            value={answers[slot.id] || ''}
-                            onChange={e => handleInputChange(slot.id, e.target.value)}
-                            data-testid={`slot-${slot.id}`}
-                            autoComplete="off"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              return (
+                <div key={sec.sectionNumber} className={styles.sectionGroup}>
+                  <div className={styles.sectionHeader}>{sec.title} ({sec.pageRange})</div>
 
-                {/* 国語大問1の漢字10問（書き取り・読み）は専用グリッドでスッキリ配置 */}
-                {currentSubject === 'kokugo' && sec.sectionNumber === 1 && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#be123c', marginBottom: '6px' }}>
-                      ✏️ 漢字の書き取り（①〜⑤）と読み（⑥〜⑩）
+                  {/* 理科問1のような小問集合はスッキリ並べる（小問が複数かつ枝記号がある場合のみ） */}
+                  {isRikaSubGroup && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>大問{sec.sectionNumber} 問1</div>
+                      <div className={styles.subSlotGrid}>
+                        {rikaSubSlots.map(slot => (
+                          <div key={slot.id} className={styles.slotItem}>
+                            <label htmlFor={`slot-input-${slot.id}`} style={{ fontWeight: 'bold' }}>
+                              {slot.partNumber ? `[${slot.partNumber}]` : slot.label}
+                            </label>
+                            <input
+                              id={`slot-input-${slot.id}`}
+                              name={`slot_${slot.id}`}
+                              type="text"
+                              placeholder="語句を入力"
+                              className={styles.textInput}
+                              value={answers[slot.id] || ''}
+                              onChange={e => handleInputChange(slot.id, e.target.value)}
+                              data-testid={`slot-${slot.id}`}
+                              autoComplete="off"
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className={styles.kanjiGrid}>
-                      {sec.slots.map(slot => (
-                        <div key={slot.id} className={styles.kanjiItem}>
-                          <label htmlFor={`kanji-input-${slot.id}`} style={{ fontWeight: 'bold', fontSize: '12px', color: 'var(--text)' }}>
-                            {slot.label}
-                          </label>
-                          <input
-                            id={`kanji-input-${slot.id}`}
-                            name={`kanji_${slot.id}`}
-                            type="text"
-                            placeholder={slot.id.endsWith('01') || slot.id.endsWith('02') || slot.id.endsWith('03') || slot.id.endsWith('04') || slot.id.endsWith('05') ? '漢字を入力' : 'ひらがなで入力'}
-                            className={styles.textInput}
-                            style={{ height: '38px', fontSize: '14px' }}
-                            value={answers[slot.id] || ''}
-                            onChange={e => handleInputChange(slot.id, e.target.value)}
-                            data-testid={`slot-${slot.id}`}
-                            autoComplete="off"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {/* その他の設問 */}
-                {sec.slots
-                  .filter(s => !(currentSubject === 'rika' && sec.sectionNumber === 1 && s.questionNumber === '1'))
+                  {/* 国語大問1の漢字10問（書き取り・読み）は専用グリッドでスッキリ配置 */}
+                  {currentSubject === 'kokugo' && sec.sectionNumber === 1 && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#be123c', marginBottom: '6px' }}>
+                        ✏️ 漢字の書き取り（①〜⑤）と読み（⑥〜⑩）
+                      </div>
+                      <div className={styles.kanjiGrid}>
+                        {sec.slots.map(slot => (
+                          <div key={slot.id} className={styles.kanjiItem}>
+                            <label htmlFor={`kanji-input-${slot.id}`} style={{ fontWeight: 'bold', fontSize: '12px', color: 'var(--text)' }}>
+                              {slot.label}
+                            </label>
+                            <input
+                              id={`kanji-input-${slot.id}`}
+                              name={`kanji_${slot.id}`}
+                              type="text"
+                              placeholder={slot.id.endsWith('01') || slot.id.endsWith('02') || slot.id.endsWith('03') || slot.id.endsWith('04') || slot.id.endsWith('05') ? '漢字を入力' : 'ひらがなで入力'}
+                              className={styles.textInput}
+                              style={{ height: '38px', fontSize: '14px' }}
+                              value={answers[slot.id] || ''}
+                              onChange={e => handleInputChange(slot.id, e.target.value)}
+                              data-testid={`slot-${slot.id}`}
+                              autoComplete="off"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* その他の設問 */}
+                  {sec.slots
+                    .filter(s => !(isRikaSubGroup && s.questionNumber === '1'))
                   .filter(s => !(currentSubject === 'kokugo' && sec.sectionNumber === 1))
                   .map(slot => {
                     const currentAns = answers[slot.id] || '';
@@ -970,7 +978,7 @@ export const FinalChallengePage: React.FC = () => {
                               placeholder={
                                 currentSubject === 'kokugo'
                                   ? '記述の答えを入力（提出時に採点要素・キーワード判定が確認できます）'
-                                  : 'ノートや紙に記述後、提出時に自己採点要素を確認します'
+                                  : '記述の答えを入力（提出時に自己採点要素を確認できます）'
                               }
                               className={styles.textArea}
                               style={{ height: currentSubject === 'kokugo' ? '90px' : '70px' }}
@@ -1099,8 +1107,9 @@ export const FinalChallengePage: React.FC = () => {
                       </div>
                     );
                   })}
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
 
           <div style={{ marginTop: '12px', textAlign: 'center' }}>

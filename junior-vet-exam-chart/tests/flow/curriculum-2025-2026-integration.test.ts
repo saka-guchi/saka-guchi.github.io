@@ -137,7 +137,7 @@ describe("2024〜2026年度 安田学園過去問データ統合テスト", () =
       const shakaiSlots = data2026.shakai.sections.flatMap(s => s.slots);
       const kokugoSlots = data2026.kokugo.sections.flatMap(s => s.slots);
 
-      expect(rikaSlots.length).toBe(16);
+      expect(rikaSlots.length).toBe(19); // 原本解答用紙の全欄（大問2問1/問5、大問3問4の小問分割）と完全一致
       expect(sansuSlots.length).toBe(16);
       expect(shakaiSlots.length).toBe(23);
       expect(kokugoSlots.length).toBe(25);

@@ -52,7 +52,7 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
 
     const slot6Textarea = screen.getByTestId('slot-rika-2024-01-06');
     expect(slot6Textarea.tagName).toBe('TEXTAREA');
-    expect(slot6Textarea).toHaveAttribute('placeholder', 'ノートや紙に記述後、提出時に自己採点要素を確認します');
+    expect(slot6Textarea).toHaveAttribute('placeholder', '記述の答えを入力（提出時に自己採点要素を確認できます）');
 
     // 4. 次のページへ進むと p.2 (大問1) が表示されること（初期表示は原本スキャン画像）
     fireEvent.click(screen.getByTestId('next-page-btn'));
