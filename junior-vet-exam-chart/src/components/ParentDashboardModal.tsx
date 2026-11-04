@@ -757,7 +757,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                 </div>
               </div>
 
-              {/* 合格ドクター認定試験のスコア推移グラフ */}
+              {/* 獣医師チャレンジのスコア推移グラフ */}
               {/* 知識の処方箋マスター進度（名作参考書特訓） */}
               <div style={{ background: 'var(--surface-subtle)', borderRadius: '14px', padding: '16px', border: '1px solid var(--border)' }} data-testid="prescription-progress-section">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -849,11 +849,11 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                 </div>
               </div>
 
-              {/* 合格ドクター認定試験のスコア推移グラフ */}
+              {/* 獣医師チャレンジのスコア推移グラフ */}
               <div style={{ background: 'var(--surface-subtle)', borderRadius: '14px', padding: '16px', border: '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text)', fontWeight: 'bold' }}>
-                    🎯 本番認定試験の得点推移（実力判定）
+                    🏆 獣医師チャレンジの得点推移（実力判定）
                   </h4>
                   <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 'bold' }}>
                     ―― 合格ライン (80点)
@@ -862,7 +862,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
 
                 {examResults.length === 0 ? (
                   <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-subtle)', fontSize: '12px' }}>
-                    まだ認定試験のデータがありません。ホーム画面の「合格ドクター認定試験」を受験すると、ここに点数の伸びが折れ線グラフで記録されます。
+                    まだ認定試験のデータがありません。ホーム画面の「獣医師チャレンジ」を受験すると、ここに点数の伸びが折れ線グラフで記録されます。
                   </div>
                 ) : (
                   <div style={{ width: '100%', height: '140px' }}>

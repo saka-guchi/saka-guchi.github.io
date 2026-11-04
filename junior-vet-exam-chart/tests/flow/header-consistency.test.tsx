@@ -107,7 +107,7 @@ describe('学習・試験画面 ヘッダー統一＆中断ポップアップ統
   });
 
   describe('3. ドクター認定試験 (FinalChallengePage)', () => {
-    it('ヘッダーが「← 戻る」「👑 合格ドクター認定試験」デザインになり、戻るを押すと即座に離脱せず一時停止モーダルが表示されること', () => {
+    it('ヘッダーが「← 戻る」「🏆 獣医師チャレンジ」デザインになり、戻るを押すと即座に離脱せず一時停止モーダルが表示されること', () => {
       render(
         <MemoryRouter initialEntries={['/final-challenge?year=2024&subject=rika']}>
           <Routes>
@@ -122,8 +122,8 @@ describe('学習・試験画面 ヘッダー統一＆中断ポップアップ統
       expect(backBtn).toBeInTheDocument();
       expect(backBtn).toHaveTextContent('← 戻る');
 
-      // 2. 「👑 合格ドクター認定試験」バッジが表示されていること
-      expect(screen.getByText('👑 合格ドクター認定試験')).toBeInTheDocument();
+      // 2. 「🏆 獣医師チャレンジ」バッジが表示されていること
+      expect(screen.getByText('🏆 獣医師チャレンジ')).toBeInTheDocument();
 
       // 3. 「← 戻る」を押しても即座にホームに遷移せず、一時停止モーダルが表示されること
       fireEvent.click(backBtn);

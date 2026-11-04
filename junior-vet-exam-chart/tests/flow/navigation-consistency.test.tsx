@@ -37,7 +37,7 @@ describe('Global Navigation Consistency Tests', () => {
     expect(settingsBackBtn).toHaveTextContent('←');
     unmountSettings();
 
-    // 3. FinalChallengePage (合格ドクター認定試験画面)
+    // 3. FinalChallengePage (獣医師チャレンジ画面)
     const { unmount: unmountChallenge } = render(
       <BrowserRouter>
         <FinalChallengePage />

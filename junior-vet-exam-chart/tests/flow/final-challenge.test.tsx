@@ -188,7 +188,7 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     fireEvent.click(screen.getByTestId('view-history-from-result-btn'));
     await waitFor(() => {
       expect(screen.getByTestId('exam-history-modal')).toBeInTheDocument();
-      expect(screen.getByText('合格ドクター認定試験 採点カルテ・成績表')).toBeInTheDocument();
+      expect(screen.getByText('🏆 獣医師チャレンジ 採点カルテ・成績表')).toBeInTheDocument();
     });
   });
 
