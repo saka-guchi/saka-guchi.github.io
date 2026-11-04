@@ -6,6 +6,8 @@ import { getMemoryRetention } from '../utils/memory-retention';
 import { getTodayStudyStats, type TodayStudyStats } from '../utils/progress-analytics';
 import { getPointsSummary, type PointsSummary } from '../utils/points-manager';
 import { ANIMAL_STAMPS, getEarnedStampIds } from '../data/animal-stamps';
+import { REFERENCE_BOOKS, type ReferenceBookInfo } from '../data/extra-history-80';
+import { getRefBookProgress, type RefBookProgress } from '../utils/reference-book-store';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
 import type { FinalChallengeResult } from '../types';
@@ -265,6 +267,15 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
 
   // 本日の学習量（時間、解答数、正答率、連続日数、累計）
   const [pointsSummary, setPointsSummary] = useState<PointsSummary>(() => getPointsSummary());
+  const [refBookProgressList, setRefBookProgressList] = useState<{
+    book: ReferenceBookInfo;
+    progress: RefBookProgress;
+  }[]>(() => {
+    return REFERENCE_BOOKS.map(book => ({
+      book,
+      progress: getRefBookProgress(book.id),
+    }));
+  });
   const [todayStats, setTodayStats] = useState<TodayStudyStats>({
     questionCount: 0,
     studyMinutes: 0,
@@ -333,6 +344,20 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
 
     // 4. 今日の学習データ集計
     getTodayStudyStats().then(setTodayStats);
+
+    const handlePointsUpdate = () => {
+      setPointsSummary(getPointsSummary());
+      setRefBookProgressList(
+        REFERENCE_BOOKS.map(book => ({
+          book,
+          progress: getRefBookProgress(book.id),
+        }))
+      );
+    };
+    window.addEventListener('junior-vet-points-updated', handlePointsUpdate);
+    return () => {
+      window.removeEventListener('junior-vet-points-updated', handlePointsUpdate);
+    };
   }, []);
 
   // 教科別マスター進度
@@ -518,10 +543,10 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
           {(() => {
             const unresolvedCount = reports.filter(r => !r.resolved).length;
             return [
-              { id: 'charts', label: '📈 成績', badge: 0 },
-              { id: 'advice', label: '🐱 声かけ', badge: 0 },
+              { id: 'charts', label: '📈 成績カルテ', badge: 0 },
+              { id: 'advice', label: '🐱 声かけヒント', badge: 0 },
               { id: 'mental', label: `💚 こころ${careSignal?.active ? ' 🔴' : ''}`, badge: careSignal?.active ? 1 : 0 },
-              { id: 'print', label: '🖨️ 印刷', badge: 0 },
+              { id: 'print', label: '🖨️ 弱点処方箋・印刷', badge: 0 },
               {
                 id: 'reports',
                 label: `🛠️ 修正依頼${unresolvedCount > 0 ? ` (${unresolvedCount})` : ''}`,
@@ -578,7 +603,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
           {activeTab === 'charts' && (
             <>
               {/* サマリーカード 4枚（本日の学習実績を最優先表示） */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+              <div className={styles.summaryGrid}>
                 {/* 1. 今日の学習時間（最重要・緑系） */}
                 <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: '12px', padding: '12px', textAlign: 'center', boxShadow: '0 2px 6px rgba(34, 197, 94, 0.08)' }}>
                   <div style={{ fontSize: '11px', color: '#166534', fontWeight: 'bold' }}>⏱️ 本日の学習時間</div>
@@ -620,6 +645,9 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                   </div>
                   <div style={{ fontSize: '10px', color: '#be185d' }}>
                     総時間 約{todayStats.totalMinutes}分 / 動物 {earnedStamps.length}匹
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#9d174d', fontWeight: 'bold', marginTop: '4px', borderTop: '1px dashed #fbcfe8', paddingTop: '3px' }} data-testid="summary-points-status">
+                    🐾 元気のもと: {pointsSummary.totalPoints}こ（{pointsSummary.currentRank.badge} {pointsSummary.currentRank.title}）
                   </div>
                 </div>
               </div>
@@ -701,7 +729,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
               {/* 4教科の理解度・マスター進度（全テーマ） */}
               <div style={{ background: 'var(--surface-subtle)', borderRadius: '14px', padding: '16px', border: '1px solid var(--border)' }}>
                 <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--text)', fontWeight: 'bold' }}>
-                  📊 4教科のマスター進度（全{ALL_PROGRESS_SKILLS.length}テーマ）
+                  📊 4教科の症例カルテ全快進度（全{ALL_PROGRESS_SKILLS.length}テーマ）
                 </h4>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -717,12 +745,104 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                           <span style={{ fontSize: '13px', fontWeight: 'bold', color: sub.color }}>{sub.label}</span>
                           <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                            全快マスター: <strong>{sub.mastered}</strong> / {sub.count} テーマ達成 ({percent}%)
+                            全快: <strong>{sub.mastered}</strong> / {sub.count} 症例達成 ({percent}%)
                           </span>
                         </div>
                         <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
                           <div style={{ width: `${Math.max(8, percent)}%`, height: '100%', background: sub.color, transition: 'width 0.4s ease' }} />
                         </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 合格ドクター認定試験のスコア推移グラフ */}
+              {/* 知識の処方箋マスター進度（名作参考書特訓） */}
+              <div style={{ background: 'var(--surface-subtle)', borderRadius: '14px', padding: '16px', border: '1px solid var(--border)' }} data-testid="prescription-progress-section">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text)', fontWeight: 'bold' }}>
+                    💊 知識の処方箋マスター進度（名作参考書特訓）
+                  </h4>
+                  <span style={{ fontSize: '11px', color: '#0d9488', fontWeight: 'bold' }}>
+                    入試頻出の特効知識を処方！
+                  </span>
+                </div>
+                <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: 'var(--text-subtle)', lineHeight: 1.4 }}>
+                  名作参考書から厳選した重要知識をクイズ形式で特訓した進捗です。
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {refBookProgressList.map(({ book, progress }) => {
+                    const isAvailable = book.status === 'available';
+                    const masteredCount = progress.masteredIds.length;
+                    const totalCount = book.availableQuestionsCount;
+                    const percent = totalCount > 0 ? Math.round((masteredCount / totalCount) * 100) : 0;
+
+                    return (
+                      <div
+                        key={book.id}
+                        style={{
+                          background: 'var(--surface)',
+                          padding: '12px 14px',
+                          borderRadius: '10px',
+                          border: '1px solid var(--border)',
+                          opacity: isAvailable ? 1 : 0.75,
+                        }}
+                        data-testid={`prescription-card-${book.id}`}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', flexWrap: 'wrap', gap: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '16px' }}>{book.coverEmoji}</span>
+                            <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text)' }}>
+                              {book.title}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: '10px',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                background: isAvailable ? '#ccfbf1' : '#f1f5f9',
+                                color: isAvailable ? '#0f766e' : '#64748b',
+                                fontWeight: 'bold',
+                              }}
+                            >
+                              {book.badgeText}
+                            </span>
+                          </div>
+                          <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
+                            {isAvailable ? (
+                              <>
+                                処方完了: <strong>{masteredCount}</strong> / {totalCount} 人 ({percent}%)
+                                {progress.clearedSessionsCount > 0 && (
+                                  <span style={{ marginLeft: '6px', color: '#0d9488', fontWeight: 'bold' }}>
+                                    （完了 {progress.clearedSessionsCount}回）
+                                  </span>
+                                )}
+                              </>
+                            ) : (
+                              <span style={{ color: '#94a3b8' }}>近日調合予定</span>
+                            )}
+                          </span>
+                        </div>
+
+                        {/* プログレスバー */}
+                        <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div
+                            style={{
+                              width: isAvailable ? `${Math.max(masteredCount > 0 ? 8 : 0, percent)}%` : '0%',
+                              height: '100%',
+                              background: 'linear-gradient(90deg, #14b8a6 0%, #0d9488 100%)',
+                              transition: 'width 0.4s ease',
+                            }}
+                          />
+                        </div>
+
+                        {isAvailable && progress.lastStudiedAt && (
+                          <div style={{ fontSize: '10px', color: 'var(--text-subtle)', textAlign: 'right', marginTop: '4px' }}>
+                            最終処方日時: {progress.lastStudiedAt}
+                          </div>
+                        )}
                       </div>
                     );
                   })}

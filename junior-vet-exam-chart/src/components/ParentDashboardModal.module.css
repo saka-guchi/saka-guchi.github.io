@@ -245,3 +245,23 @@
     line-height: 1.25;
   }
 }
+
+/* サマリーカード用グリッド（レスポンシブ対応） */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+@media (max-width: 380px) {
+  .summaryGrid {
+    gap: 6px;
+  }
+}

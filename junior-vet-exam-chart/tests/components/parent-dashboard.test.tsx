@@ -39,6 +39,16 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     expect(screen.getByText(/本日の解答数/)).toBeInTheDocument();
     expect(screen.getByText(/連続学習日数/)).toBeInTheDocument();
     expect(screen.getByText(/累計学習実績/)).toBeInTheDocument();
+    expect(screen.getByTestId('summary-points-status')).toHaveTextContent(/元気のもと/);
+
+    // 4教科の症例カルテ全快進度（「全快マスター」ではなく「全快」統一）
+    expect(screen.getByText(/4教科の症例カルテ全快進度/)).toBeInTheDocument();
+    expect(screen.getAllByText(/全快:/).length).toBe(4);
+
+    // 知識の処方箋マスター進度セクション
+    expect(screen.getByTestId('prescription-progress-section')).toBeInTheDocument();
+    expect(screen.getByText(/知識の処方箋マスター進度/)).toBeInTheDocument();
+    expect(screen.getByTestId('prescription-card-history-80')).toBeInTheDocument();
 
     // 閉じるボタン
     const closeBtn = screen.getByLabelText('閉じる');
