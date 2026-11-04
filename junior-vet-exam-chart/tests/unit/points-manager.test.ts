@@ -15,7 +15,7 @@ describe('points-manager 獣医師ストーリー＆元気のもと基盤テス�
     localStorage.clear();
   });
 
-  it('初期状態では元気のもと0、たまご獣医、第1章であること', () => {
+  it('初期状態では元気のもと0、見学生、第1章であること', () => {
     expect(getTotalPoints()).toBe(0);
     expect(getDailyPointsMap()).toEqual({});
     expect(getTodayPoints()).toBe(0);
@@ -30,9 +30,9 @@ describe('points-manager 獣医師ストーリー＆元気のもと基盤テス�
       vet_challenge: 0,
     });
     expect(summary.currentRank.rankLevel).toBe(1);
-    expect(summary.currentRank.title).toBe('たまご獣医');
-    expect(summary.currentRank.storyChapter).toBe('第1章: どうぶつ病院へようこそ');
-    expect(summary.nextRank?.title).toBe('みならい獣医');
+    expect(summary.currentRank.title).toBe('見学生');
+    expect(summary.currentRank.storyChapter).toBe('第1章: 森の動物病院へようこそ');
+    expect(summary.nextRank?.title).toBe('研修医');
     expect(summary.pointsToNextRank).toBe(30);
     expect(summary.rankProgressPercent).toBe(0);
   });
@@ -59,8 +59,8 @@ describe('points-manager 獣医師ストーリー＆元気のもと基盤テス�
 
     const summary = getPointsSummary();
     expect(summary.totalPoints).toBe(48);
-    expect(summary.currentRank.title).toBe('みならい獣医'); // 30個以上でみならい獣医
-    expect(summary.currentRank.storyChapter).toBe('第2章: 心を通わせる聴診器');
+    expect(summary.currentRank.title).toBe('研修医'); // 30個以上で研修医
+    expect(summary.currentRank.storyChapter).toBe('第2章: はじめての聴診器');
   });
 
   it('日付が変わると今日の元気のもとは0から計算され、累計および分野別内訳は維持されること', () => {
@@ -86,8 +86,8 @@ describe('points-manager 獣医師ストーリー＆元気のもと基盤テス�
   it('最高ランクに達した場合のサマリー計算が安全であること', () => {
     awardSessionPoints(1000, 'vet_challenge');
     const summary = getPointsSummary();
-    expect(summary.currentRank.title).toBe('名医ゴールド獣医師');
-    expect(summary.currentRank.storyChapter).toBe('最終章: 黄金のライセンス');
+    expect(summary.currentRank.title).toBe('院長');
+    expect(summary.currentRank.storyChapter).toBe('最終章: 病院をまかされる日');
     expect(summary.nextRank).toBeNull();
     expect(summary.pointsToNextRank).toBe(0);
     expect(summary.rankProgressPercent).toBe(100);

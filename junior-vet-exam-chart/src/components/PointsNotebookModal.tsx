@@ -75,7 +75,7 @@ export const PointsNotebookModal: React.FC<PointsNotebookModalProps> = ({ onClos
           <div className={styles.headerTitleGroup}>
             <span className={styles.headerIcon}>🐾</span>
             <div>
-              <h2 className={styles.modalTitle}>どうぶつ元気のもと手帳 ＆ 獣医師カルテ日誌</h2>
+              <h2 className={styles.modalTitle}>どうぶつ元気のもと手帳</h2>
               <p className={styles.modalSubTitle}>
                 日々の診察・処方・症例スタディ・試験のすべてが、動物たちを救う力になります！
               </p>
@@ -128,46 +128,6 @@ export const PointsNotebookModal: React.FC<PointsNotebookModalProps> = ({ onClos
             </div>
           </div>
 
-          {/* 現在のランク ＆ ストーリー紹介カード */}
-          <div className={styles.currentRankCard} data-testid="current-rank-card">
-            <div className={styles.rankHeader}>
-              <div className={styles.rankBadgeIcon}>{summary.currentRank.badge}</div>
-              <div className={styles.rankInfo}>
-                <span className={styles.rankChapterTag}>{summary.currentRank.storyChapter}</span>
-                <div className={styles.rankTitle}>{summary.currentRank.title}</div>
-                <div className={styles.rankDesc}>{summary.currentRank.description}</div>
-              </div>
-            </div>
-
-            {/* ストーリー抜粋 */}
-            <div className={styles.rankStoryBox} data-testid="rank-story-excerpt">
-              📖 <strong>獣医師ストーリー:</strong> {summary.currentRank.storyExcerpt}
-            </div>
-
-            <div className={styles.rankProgressArea}>
-              <div className={styles.progressLabelRow}>
-                {summary.nextRank ? (
-                  <>
-                    <span>
-                      次の目標：<strong>{summary.nextRank.title}</strong>
-                    </span>
-                    <span>
-                      あと <strong>{summary.pointsToNextRank} こ</strong>
-                    </span>
-                  </>
-                ) : (
-                  <span>🏆 最高峰「名医ゴールド獣医師」到達！</span>
-                )}
-              </div>
-              <div className={styles.progressBarBg} aria-label="ランクアップ進捗バー">
-                <div
-                  className={styles.progressBarFill}
-                  style={{ width: `${summary.rankProgressPercent}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
           {/* 4大医療活動の歩み（カルテ日誌） */}
           <div data-testid="story-sources-section">
             <h3 className={styles.sectionTitle}>
@@ -201,7 +161,7 @@ export const PointsNotebookModal: React.FC<PointsNotebookModalProps> = ({ onClos
           <div>
             <h3 className={styles.sectionTitle}>
               <span>🗺️</span>
-              <span>獣医師ランク ＆ ストーリー一覧</span>
+              <span>獣医師ランク一覧</span>
             </h3>
             <div className={styles.ranksList}>
               {VET_RANKS.map(rank => {
@@ -224,12 +184,12 @@ export const PointsNotebookModal: React.FC<PointsNotebookModalProps> = ({ onClos
                             ({rank.minPoints} こ〜)
                           </span>
                         </div>
-                        <div className={styles.rankItemDesc}>{rank.storyChapter}</div>
+                        
                       </div>
                     </div>
                     <div className={styles.rankItemRight}>
                       {isCurrent && <span className={styles.rankStatusBadgeCurrent}>いまここ！</span>}
-                      {isCleared && <span className={styles.rankStatusBadgeCleared}>読了 ✓</span>}
+                      {isCleared && <span className={styles.rankStatusBadgeCleared}>達成 ✓</span>}
                       {isLocked && (
                         <span className={styles.rankStatusBadgeLocked}>
                           あと {Math.max(0, rank.minPoints - summary.totalPoints)} こ
@@ -278,7 +238,7 @@ export const PointsNotebookModal: React.FC<PointsNotebookModalProps> = ({ onClos
             onClick={handleClose}
             data-testid="modal-bottom-close-btn"
           >
-            日誌をとじる 🐾
+            手帳をとじる 🐾
           </button>
         </div>
       </div>

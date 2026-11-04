@@ -1,3 +1,4 @@
+import { recordDailyStudyCompleted } from '../utils/progress-analytics';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { db, type StoredPack } from '../db';
@@ -192,6 +193,11 @@ export const FinalChallengePage: React.FC = () => {
       passed,
       questionScores,
     });
+
+    // 元気のもと付与（合格で+20個、不合格でも努力賞として+5個）
+    const examPoints = passed ? 20 : 5;
+    awardSessionPoints(examPoints, 'vet_challenge');
+    recordDailyStudyCompleted().catch(() => {});
 
     setShowScoringModal(false);
     setLastExamResult({ score, passed, correctCount, totalQuestions });

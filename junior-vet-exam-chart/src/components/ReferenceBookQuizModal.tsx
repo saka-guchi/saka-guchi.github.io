@@ -1,3 +1,4 @@
+import { recordDailyStudyCompleted } from '../utils/progress-analytics';
 import React, { useState, useMemo } from 'react';
 import styles from './ReferenceBookQuizModal.module.css';
 import { REFERENCE_BOOKS, HISTORY_80_FIGURES, HistoryFigureData } from '../data/extra-history-80';
@@ -81,6 +82,10 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
     } else {
       // 終了
       recordRefBookSessionClear(bookId);
+      if (correctCount > 0) {
+        awardSessionPoints(correctCount, 'prescription');
+      }
+      recordDailyStudyCompleted().catch(() => {});
       if (onUpdate) onUpdate();
       sound.playFanfare();
       setIsFinished(true);

@@ -39,32 +39,69 @@ export function calculateExamChartCompletion(): number {
  * 連続学習日数（ストリーク）を算出する
  * データベースの dailySessions / attempts および localStorage の記録から厳密に判定
  */
+/**
+ * JST基準で指定した日付文字列（YYYY-MM-DD）の N 日前/後の日付文字列を計算する
+ */
+export function getShiftedJstDateString(dateStr: string, dayOffset: number): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  date.setUTCDate(date.getUTCDate() + dayOffset);
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(date.getUTCDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 export async function calculateStreakDays(): Promise<number> {
   try {
     const todayJst = getJstDateString(new Date());
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const yesterdayJst = getJstDateString(yesterday);
+    const yesterdayJst = getShiftedJstDateString(todayJst, -1);
 
-    // 1. IndexedDB から学習日一覧を取得
-    const sessions = await db.dailySessions.toArray();
     const completedDates = new Set<string>();
 
-    for (const s of sessions) {
-      if (s.completed && s.date) {
-        completedDates.add(s.date);
+    // 1. IndexedDB: dailySessions（本日の診察）
+    try {
+      const sessions = await db.dailySessions.toArray();
+      for (const s of sessions) {
+        if (s.completed && s.date) {
+          completedDates.add(s.date);
+        }
       }
-    }
+    } catch {}
 
-    // attempts からも日付を補完
-    const attempts = await db.attempts.toArray();
-    for (const a of attempts) {
-      if (a.timestamp) {
-        completedDates.add(getJstDateString(new Date(a.timestamp)));
+    // 2. IndexedDB: attempts（問題解答履歴）
+    try {
+      const attempts = await db.attempts.toArray();
+      for (const a of attempts) {
+        if (a.timestamp) {
+          completedDates.add(getJstDateString(new Date(a.timestamp)));
+        }
       }
-    }
+    } catch {}
 
-    // localStorage の記録も合算
+    // 3. IndexedDB: finalChallengeResults（獣医師チャレンジ認定試験）
+    try {
+      const exams = await db.finalChallengeResults.toArray();
+      for (const e of exams) {
+        if (e.timestamp) {
+          completedDates.add(getJstDateString(new Date(e.timestamp)));
+        }
+      }
+    } catch {}
+
+    // 4. localStorage: junior_vet_points_daily（元気のもと日別獲得履歴）
     if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const savedPoints = localStorage.getItem('junior_vet_points_daily');
+        if (savedPoints) {
+          const map = JSON.parse(savedPoints);
+          for (const d of Object.keys(map)) {
+            if (map[d] > 0) completedDates.add(d);
+          }
+        }
+      } catch {}
+
+      // 5. localStorage: LAST_STUDY_DATE_KEY
       const lastDate = localStorage.getItem(LAST_STUDY_DATE_KEY);
       if (lastDate) {
         completedDates.add(lastDate);
@@ -86,22 +123,19 @@ export async function calculateStreakDays(): Promise<number> {
 
     if (!hasStudiedToday && !hasStudiedYesterday) {
       // 連続学習が途切れている
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem(STREAK_STORAGE_KEY, '0');
+      }
       return 0;
     }
 
-    // 遡って何日連続しているかをカウント
+    // 遡って何日連続しているかを厳密にカウント
     let streak = 0;
-    let checkDate = hasStudiedToday ? new Date() : yesterday;
+    let checkDateStr = hasStudiedToday ? todayJst : yesterdayJst;
 
-    while (true) {
-      const checkDateStr = getJstDateString(checkDate);
-      if (completedDates.has(checkDateStr)) {
-        streak++;
-        // 1日前の日付へ
-        checkDate = new Date(checkDate.getTime() - 24 * 60 * 60 * 1000);
-      } else {
-        break;
-      }
+    while (completedDates.has(checkDateStr)) {
+      streak++;
+      checkDateStr = getShiftedJstDateString(checkDateStr, -1);
     }
 
     // localStorageへ最新値をキャッシュ

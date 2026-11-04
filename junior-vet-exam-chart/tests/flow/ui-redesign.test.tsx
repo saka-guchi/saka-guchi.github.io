@@ -133,10 +133,8 @@ describe('UI Redesign & New Features Integration Tests', () => {
       expect(screen.getByTestId('streak-badge')).toHaveTextContent('3日れんぞく！');
       expect(screen.getByTestId('exam-countdown-badge')).toHaveTextContent(/2027\/2\/1 本番まで あと \d+ 日！/);
     });
-    const completionEl = screen.getByTestId('completion-percent');
-    expect(completionEl).toBeInTheDocument();
-    // 固定値のダミーではなく、各単元の定着度平均値が数値%としてレンダリングされる
-    expect(completionEl.textContent).toMatch(/^\d+%$/);
+    // 合格カルテ完成度は元気のもと総合バッジ導入に伴いヘッダーから整理・削除されたこと
+    expect(screen.queryByTestId('completion-percent')).not.toBeInTheDocument();
   });
 
   it('keeps opened stamp message open when clicked again or when another stamp is clicked', () => {

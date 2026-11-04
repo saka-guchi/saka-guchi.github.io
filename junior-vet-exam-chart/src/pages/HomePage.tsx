@@ -81,7 +81,13 @@ export const HomePage: React.FC = () => {
 
   // 合格カルテ完成度（%）と連続学習日数（ストリーク）の動的計算
   const [completionPercent, setCompletionPercent] = useState<number>(() => calculateExamChartCompletion());
-  const [studyStreak, setStudyStreak] = useState<number>(0);
+  const [studyStreak, setStudyStreak] = useState<number>(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const saved = localStorage.getItem('junior_vet_study_streak');
+      return saved ? parseInt(saved, 10) || 0 : 0;
+    }
+    return 0;
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -335,29 +341,7 @@ export const HomePage: React.FC = () => {
               <span>{studyStreak > 0 ? `${studyStreak}日れんぞく！` : '今日からスタート！'}</span>
             </div>
 
-            {/* 合格カルテ完成度（クリックで100%にするための解説を表示） */}
-            <div
-              className={styles.progressGroup}
-              onClick={() => {
-                sound.playPop();
-                setShowCompletionHelpModal(true);
-              }}
-              title="合格カルテ完成度: 全56症例の「記憶メーター（定着度）」の平均値です。クリックで解説モーダルを表示！"
-              data-testid="completion-progress-group"
-              role="button"
-              tabIndex={0}
-              aria-label={`合格カルテ完成度 ${completionPercent}%。クリックで100%にする方法を表示`}
-            >
-              <div className={styles.progressLabel}>
-                <span className={styles.progressLabelTitle}>
-                  合格カルテ完成度 <span className={styles.helpIcon}>ⓘ</span>
-                </span>
-                <strong data-testid="completion-percent">{completionPercent}%</strong>
-              </div>
-              <div className={styles.progressBarBg} aria-label="攻略度進捗バー">
-                <div className={styles.progressBarFill} style={{ width: `${completionPercent}%` }} />
-              </div>
-            </div>
+
           </div>
 
           {/* 右上操作コントロール群 */}
@@ -446,7 +430,16 @@ export const HomePage: React.FC = () => {
             <div className={styles.todayCardContent} data-testid="card-breakdown">
               <div className={styles.areaHeaderRow}>
                 <h2 className={styles.areaTitle}>🩺 本日の診察</h2>
-                <span className={styles.areaEstimatedTime}>⏱️ 目安: 約5分</span>
+                <div className={styles.areaMetaGroup}>
+                  <span className={styles.areaEstimatedTime}>⏱️ 目安: 約5分</span>
+                  <span
+                    className={styles.areaPointsBadge}
+                    data-testid="reward-badge-daily"
+                    title="1問正解ごとに 元気のもと +1個（最大10個）"
+                  >
+                    🐾 元気のもと +1個
+                  </span>
+                </div>
               </div>
               <p className={styles.areaDescription}>
                 忘れてそうな入試問題が出題されるよ
@@ -487,40 +480,7 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* 本日の診察で集める「元気のもと」ステータス＆目標カード */}
-              <div
-                className={styles.todayPointsCard}
-                onClick={() => {
-                  sound.playPop();
-                  setShowPointsNotebookModal(true);
-                }}
-                title="クリックでどうぶつ元気のもと手帳・目標一覧を表示！"
-                data-testid="today-points-card"
-                role="button"
-                tabIndex={0}
-                aria-label={`どうぶつ元気のもと: きょう ${pointsSummary.todayPoints}こ、累計 ${pointsSummary.totalPoints}こ。クリックで手帳を表示`}
-              >
-                <div className={styles.todayPointsCardHeader}>
-                  <div className={styles.todayPointsMainStatus}>
-                    <span className={styles.todayPointsIcon}>🐾</span>
-                    <span className={styles.todayPointsLabel}>元気のもと:</span>
-                    <span className={styles.todayPointsToday} data-testid="today-points-today-val">
-                      きょう <strong>+{pointsSummary.todayPoints}</strong> こ
-                    </span>
-                    <span className={styles.todayPointsDivider}>|</span>
-                    <span className={styles.todayPointsTotal} data-testid="today-points-total-val">
-                      累計 <strong>{pointsSummary.totalPoints}</strong> こ
-                    </span>
-                  </div>
-                  <span className={styles.todayPointsNotebookLink}>手帳を見る ❯</span>
-                </div>
-                <div className={styles.todayPointsGoalRow} data-testid="today-points-goal-row">
-                  <span>
-                    🎯 1問正解＝1元気のもと / ランク: {pointsSummary.currentRank.badge} {pointsSummary.currentRank.title}
-                    {pointsSummary.nextRank && `（あと${pointsSummary.pointsToNextRank}こで昇格！）`}
-                  </span>
-                </div>
-              </div>
+
             </div>
 
             <div className={styles.todayActions}>
@@ -540,7 +500,16 @@ export const HomePage: React.FC = () => {
             <div className={styles.todayCardContent}>
               <div className={styles.areaHeaderRow}>
                 <h2 className={styles.areaTitle}>💊 知識の処方箋</h2>
-                <span className={styles.areaEstimatedTime}>⏱️ 目安: 約3分</span>
+                <div className={styles.areaMetaGroup}>
+                  <span className={styles.areaEstimatedTime}>⏱️ 目安: 約3分</span>
+                  <span
+                    className={styles.areaPointsBadge}
+                    data-testid="reward-badge-prescription"
+                    title="1問正解ごとに 元気のもと +1個（最大10個）"
+                  >
+                    🐾 元気のもと +1個
+                  </span>
+                </div>
               </div>
               <p className={styles.areaDescription}>
                 いろんな参考書の知識を吸収しよう
@@ -566,8 +535,61 @@ export const HomePage: React.FC = () => {
                 ▶ 知識の処方箋をつくる（10問）
               </button>
             </div>
-          </section>
-        </div>
+          </section>        </div>
+
+        {/* 獣医師ストーリー ＆ ランク成長カード（元気にした動物たちの直上） */}
+        <section className={styles.storyRankSection} data-testid="current-rank-card">
+          <div className={styles.storyRankHeader}>
+            <div className={styles.storyRankHeaderLeft}>
+              <div className={styles.storyRankBadgeIcon}>{pointsSummary.currentRank.badge}</div>
+              <div className={styles.storyRankInfo}>
+                <span className={styles.storyRankChapterTag}>{pointsSummary.currentRank.storyChapter}</span>
+                <div className={styles.storyRankTitle}>{pointsSummary.currentRank.title}</div>
+                <div className={styles.storyRankDesc}>{pointsSummary.currentRank.description}</div>
+              </div>
+            </div>
+            <button
+              type="button"
+              className={styles.storyNotebookBtn}
+              onClick={() => {
+                sound.playPop();
+                setShowPointsNotebookModal(true);
+              }}
+              title="どうぶつ元気のもと手帳を開く"
+              data-testid="story-card-notebook-btn"
+            >
+              📖 手帳を見る ❯
+            </button>
+          </div>
+
+          {/* ストーリー抜粋 */}
+          <div className={styles.storyRankBox} data-testid="rank-story-excerpt">
+            📖 <strong>獣医師ストーリー:</strong> {pointsSummary.currentRank.storyExcerpt}
+          </div>
+
+          <div className={styles.storyRankProgressArea}>
+            <div className={styles.storyProgressLabelRow}>
+              {pointsSummary.nextRank ? (
+                <>
+                  <span>
+                    次の目標：<strong>{pointsSummary.nextRank.title}</strong>
+                  </span>
+                  <span>
+                    あと <strong>{pointsSummary.pointsToNextRank} こ</strong>
+                  </span>
+                </>
+              ) : (
+                <span>🏆 「森の動物病院 院長」就任！</span>
+              )}
+            </div>
+            <div className={styles.storyProgressBarBg} aria-label="ランクアップ進捗バー">
+              <div
+                className={styles.storyProgressBarFill}
+                style={{ width: `${pointsSummary.rankProgressPercent}%` }}
+              />
+            </div>
+          </div>
+        </section>
 
         {/* ゾーン2: 元気にした動物たちのカルテ */}
         <section className={styles.stampSection}>
@@ -723,8 +745,17 @@ export const HomePage: React.FC = () => {
           >
             <div className={styles.caseStudyHeaderRow}>
               <div className={styles.areaHeaderRow}>
-              <h2 className={styles.areaTitle}>🩺 症例スタディ</h2>
-            </div>
+                <h2 className={styles.areaTitle}>🩺 症例スタディ</h2>
+                <div className={styles.areaMetaGroup}>
+                  <span
+                    className={styles.areaPointsBadge}
+                    data-testid="reward-badge-case-study"
+                    title="1問正解ごとに 元気のもと +1個（全快マスターでボーナス+5個！）"
+                  >
+                    🐾 元気のもと +1個
+                  </span>
+                </div>
+              </div>
             </div>
 
             <p className={styles.areaDescription}>
@@ -1022,6 +1053,15 @@ export const HomePage: React.FC = () => {
             <div className={styles.examHeaderRow}>
               <div className={styles.areaHeaderRow}>
                 <h2 className={styles.areaTitle}>🏆 獣医師チャレンジ</h2>
+                <div className={styles.areaMetaGroup}>
+                  <span
+                    className={styles.areaPointsBadge}
+                    data-testid="reward-badge-challenge"
+                    title="認定試験合格で 元気のもと +20個！"
+                  >
+                    🐾 元気のもと +20個
+                  </span>
+                </div>
               </div>
             </div>
 

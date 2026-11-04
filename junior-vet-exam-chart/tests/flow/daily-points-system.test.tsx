@@ -34,7 +34,7 @@ describe('獣医師ストーリー ＆ どうぶつ元気のもと統合 UI/UX �
     });
   });
 
-  it('1. ホーム画面のヘッダーに総合元気のもとバッジ、診察カード内にもステータスが表示されること', () => {
+  it('1. ホーム画面のヘッダーに総合元気のもとバッジが表示され、診察カード内の重複ボックスはヘッダーへ集約（非表示）されていること', () => {
     render(
       <MemoryRouter>
         <HomePage />
@@ -47,32 +47,31 @@ describe('獣医師ストーリー ＆ どうぶつ元気のもと統合 UI/UX �
     expect(headerBadge).toHaveTextContent(/きょう \+0 こ/);
     expect(headerBadge).toHaveTextContent(/累計 0 こ/);
 
-    // 本日の診察カード内のステータスカード
-    const pointsCard = screen.getByTestId('today-points-card');
-    expect(pointsCard).toBeInTheDocument();
-    expect(screen.getByTestId('today-points-today-val')).toHaveTextContent(/きょう \+0 こ/);
-    expect(screen.getByTestId('today-points-total-val')).toHaveTextContent(/累計 0 こ/);
-    expect(screen.getByTestId('today-points-goal-row')).toHaveTextContent('1問正解＝1元気のもと');
+    // 本日の診察カード内の重複ステータスボックスは削除されていること（ヘッダーからアクセス可能）
+    expect(screen.queryByTestId('today-points-card')).not.toBeInTheDocument();
   });
 
-  it('2. バッジまたはカードをクリックすると「どうぶつ元気のもと手帳」が開き、4大医療活動の歩みと獣医師ストーリーが確認できること', async () => {
+    it('2. トップページに現在のランクと獣医師ストーリーカードが表示され、手帳を開くと4大医療活動の歩みが確認できること', async () => {
     render(
       <MemoryRouter>
         <HomePage />
       </MemoryRouter>
     );
 
-    const headerBadge = screen.getByTestId('header-points-badge');
-    fireEvent.click(headerBadge);
+    // トップページに獣医師ストーリー＆ランクカードが表示されていること
+    expect(screen.getByTestId('current-rank-card')).toBeInTheDocument();
+    expect(screen.getByTestId('current-rank-card')).toHaveTextContent(/第1章/);
+    expect(screen.getByTestId('current-rank-card')).toHaveTextContent('見学生');
+    expect(screen.getByTestId('rank-story-excerpt')).toHaveTextContent(/獣医師ストーリー:/);
+
+    // カード内の「手帳を見る」ボタンをクリックすると手帳モーダルが開くこと
+    const storyNotebookBtn = screen.getByTestId('story-card-notebook-btn');
+    fireEvent.click(storyNotebookBtn);
 
     // 手帳モーダルが表示されていること
     const modal = screen.getByTestId('points-notebook-modal');
     expect(modal).toBeInTheDocument();
-    expect(screen.getByText(/どうぶつ元気のもと手帳 ＆ 獣医師カルテ日誌/)).toBeInTheDocument();
-
-    // 獣医師ストーリー抜粋
-    expect(screen.getByTestId('rank-story-excerpt')).toHaveTextContent(/獣医師ストーリー:/);
-    expect(screen.getByTestId('current-rank-card')).toHaveTextContent(/第1章/);
+    expect(screen.getByText(/どうぶつ元気のもと手帳/)).toBeInTheDocument();
 
     // 4大医療活動の歩みセクション
     expect(screen.getByTestId('story-sources-section')).toBeInTheDocument();
@@ -114,7 +113,7 @@ describe('獣医師ストーリー ＆ どうぶつ元気のもと統合 UI/UX �
     expect(bySource.prescription).toBe(10);
     expect(bySource.case_study).toBe(5);
     expect(bySource.vet_challenge).toBe(20);
-    expect(getTotalPoints()).toBe(35); // 30個以上で「みならい獣医」に昇格
+    expect(getTotalPoints()).toBe(35); // 30個以上で「研修医」に昇格
   });
 
   it('5. ランク昇格の閾値（30こ）を超えた場合、ランクアップ祝賀バナーが表示されること', () => {
@@ -129,7 +128,7 @@ describe('獣医師ストーリー ＆ どうぶつ元気のもと統合 UI/UX �
 
     expect(screen.getByTestId('rank-up-banner')).toBeInTheDocument();
     expect(screen.getByText(/獣医師ランクがアップしました！/)).toBeInTheDocument();
-    expect(screen.getByText(/【たまご獣医】から【みならい獣医 🐾】に昇格！/)).toBeInTheDocument();
+    expect(screen.getByText(/【見学生】から【研修医 🐾】に昇格！/)).toBeInTheDocument();
   });
 
   it('6. 設定画面（SettingsPage）で学習履歴をリセットすると元気のもと数と分野別内訳も0に初期化されること', async () => {
@@ -150,5 +149,29 @@ describe('獣医師ストーリー ＆ どうぶつ元気のもと統合 UI/UX �
       expect(getTotalPoints()).toBe(0);
       expect(getPointsBySourceMap().vet_challenge).toBe(0);
     });
+  });
+
+  it('7. 4大医療活動（本日の診察、処方箋、症例スタディ、獣医師チャレンジ）のヘッダー右側に元気のもと獲得数が表示されること', () => {
+    render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>
+    );
+
+    const dailyBadge = screen.getByTestId('reward-badge-daily');
+    expect(dailyBadge).toBeInTheDocument();
+    expect(dailyBadge).toHaveTextContent(/元気のもと \+1個/);
+
+    const prescriptionBadge = screen.getByTestId('reward-badge-prescription');
+    expect(prescriptionBadge).toBeInTheDocument();
+    expect(prescriptionBadge).toHaveTextContent(/元気のもと \+1個/);
+
+    const caseStudyBadge = screen.getByTestId('reward-badge-case-study');
+    expect(caseStudyBadge).toBeInTheDocument();
+    expect(caseStudyBadge).toHaveTextContent(/元気のもと \+1個/);
+
+    const challengeBadge = screen.getByTestId('reward-badge-challenge');
+    expect(challengeBadge).toBeInTheDocument();
+    expect(challengeBadge).toHaveTextContent(/元気のもと \+20個/);
   });
 });
