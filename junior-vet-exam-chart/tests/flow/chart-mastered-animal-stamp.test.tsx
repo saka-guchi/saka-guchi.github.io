@@ -11,7 +11,7 @@ describe('症例スタディマスター（全快）キャラクターのカル�
     vi.clearAllMocks();
   });
 
-  it('ホーム画面のカルテエリアで症例全快プレビューへ切り替えられる', async () => {
+  it('ホーム画面のカルテエリアに症例動物プレビューが直接表示され、全快した動物（ウサギのロップくん）が反映される', async () => {
     // ウサギのロップくん（維管束の配置）を M4（マスター）に設定
     setSkillStage('skill-rika-plant-vascular', 'M4');
 
@@ -22,13 +22,7 @@ describe('症例スタディマスター（全快）キャラクターのカル�
     );
 
     // カルテヘッダーに症例全快数が含まれていること
-    expect(screen.getByText(/元気にした動物たち/)).toBeInTheDocument();
-    expect(screen.getByText(/症例全快/)).toBeInTheDocument();
-
-    // プレビュータブ（症例全快）をクリック
-    const chartTab = screen.getByTestId('preview-tab-chart');
-    expect(chartTab).toBeInTheDocument();
-    fireEvent.click(chartTab);
+    expect(screen.getByText(/元気にした動物たち 1匹/)).toBeInTheDocument();
 
     // ウサギのロップくんのスロットが表示され、全快（🐰）になっていること
     const lopSlot = screen.getByTestId('preview-chart-stamp-skill-rika-plant-vascular');
@@ -36,7 +30,7 @@ describe('症例スタディマスター（全快）キャラクターのカル�
     expect(lopSlot).toHaveTextContent('🐰');
   });
 
-  it('カルテモーダルで「症例全快ドクターカルテ」タブを開き、ウサギのロップくんの全快メッセージと豆知識が飛び出す', async () => {
+  it('カルテモーダルを開くと症例全快ドクターカルテが表示され、ウサギのロップくんの全快メッセージと豆知識が飛び出す', async () => {
     // ウサギのロップくん（skill-rika-plant-vascular）を全快マスターに設定
     setSkillStage('skill-rika-plant-vascular', 'M4');
 
@@ -50,16 +44,7 @@ describe('症例スタディマスター（全快）キャラクターのカル�
     const openBtn = screen.getByTestId('open-stamp-book-btn');
     fireEvent.click(openBtn);
 
-    // モーダルが表示され、2つのタブが存在すること
-    const dailyTab = screen.getByTestId('stamp-tab-daily');
-    const chartTab = screen.getByTestId('stamp-tab-chart');
-    expect(dailyTab).toBeInTheDocument();
-    expect(chartTab).toBeInTheDocument();
-
-    // 症例全快タブをクリック
-    fireEvent.click(chartTab);
-
-    // カルテ全快グリッドが表示されること
+    // カルテ全快グリッドが直接表示されること
     expect(screen.getByTestId('chart-stamp-grid')).toBeInTheDocument();
 
     // ウサギのロップくんのスタンプカードが表示されていること
@@ -99,7 +84,6 @@ describe('症例スタディマスター（全快）キャラクターのカル�
 
     // カルテを開く
     fireEvent.click(screen.getByTestId('open-stamp-book-btn'));
-    fireEvent.click(screen.getByTestId('stamp-tab-chart'));
 
     // カメのカメ吉のスタンプカード
     const kameCard = screen.getByTestId('chart-animal-stamp-skill-sansu-tsurukame-elimination');
