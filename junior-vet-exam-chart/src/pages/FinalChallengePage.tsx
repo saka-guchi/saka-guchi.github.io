@@ -977,7 +977,7 @@ export const FinalChallengePage: React.FC = () => {
                               placeholder={
                                 currentSubject === 'kokugo'
                                   ? '記述の答えを入力（提出時に採点要素・キーワード判定が確認できます）'
-                                  : 'ノートや紙に記述後、提出時に自己採点要素を確認します'
+                                  : '記述の答えを入力（提出時に自己採点要素を確認できます）'
                               }
                               className={styles.textArea}
                               style={{ height: currentSubject === 'kokugo' ? '90px' : '70px' }}
