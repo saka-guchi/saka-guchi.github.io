@@ -29,7 +29,6 @@ import {
   getParentAuditLogs,
   getParentPinLockoutStatus,
   generateParentGuidance,
-  OFFICIAL_CRISIS_CONTACTS,
   type ParentAuditLogEntry,
   type WeatherType,
   type SharedCareSignal,
@@ -544,7 +543,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
             const unresolvedCount = reports.filter(r => !r.resolved).length;
             return [
               { id: 'charts', label: '📈 成績カルテ', badge: 0 },
-              { id: 'advice', label: '🐱 声かけヒント', badge: 0 },
+              { id: 'advice', label: '💬 コミュニケーション', badge: 0 },
               { id: 'mental', label: `💚 こころ${careSignal?.active ? ' 🔴' : ''}`, badge: careSignal?.active ? 1 : 0 },
               {
                 id: 'reports',
@@ -1102,40 +1101,212 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
             </>
           )}
 
+          {/* ================= タブ2: コミュニケーション ＆ お約束 ================= */}
           {activeTab === 'advice' && (
-            <>
-              {/* ナース猫ミケちゃんの声かけアドバイス */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} data-testid="parent-communication-tab">
+              {/* アクション完了フィードバック */}
+              {actionDoneToast && (
+                <div
+                  style={{
+                    background: '#f0fdf4',
+                    border: '1.5px solid #86efac',
+                    borderRadius: '12px',
+                    padding: '12px 16px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#166534',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    animation: 'fadeIn 0.2s ease',
+                  }}
+                  data-testid="parent-action-done-toast"
+                >
+                  <span>🎉</span>
+                  <span>{actionDoneToast}</span>
+                </div>
+              )}
+
+              {/* 1. ナース猫ミケちゃんからの「今日かけたい言葉（承認・共感フレーズ）」最適化統合カード */}
               <div
                 style={{
                   background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
                   border: '1.5px solid #fde68a',
                   borderRadius: '16px',
-                  padding: '16px 20px',
+                  padding: '18px 20px',
                   boxShadow: '0 4px 12px rgba(245, 158, 11, 0.08)',
                 }}
+                data-testid="recommended-phrases-card"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
                   <span style={{ fontSize: '32px' }}>🐱</span>
                   <div>
-                    <h4 style={{ margin: 0, fontSize: '15px', color: '#92400e', fontWeight: 'bold' }}>
-                      ナース猫ミケちゃんからの「今日のお子さんへの声かけヒント」
+                    <h4 style={{ margin: 0, fontSize: '15px', color: '#92400e', fontWeight: 800 }}>
+                      ナース猫ミケちゃんからの「今日のお子さんへの声かけヒント」（今日かけたい言葉）
                     </h4>
                     <div style={{ fontSize: '11px', color: '#b45309' }}>
-                      中学受験のモチベーションを高める具体的なほめ言葉
+                      中学受験のモチベーションを高める具体的なほめ言葉・承認フレーズ
                     </div>
                   </div>
                 </div>
 
-                <div style={{ background: '#ffffff', borderRadius: '12px', padding: '14px', border: '1px solid #fef08a', lineHeight: '1.6', fontSize: '13px', color: '#78350f' }}>
-                  <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>
-                    💡 今日のおすすめの褒め言葉：
-                  </p>
-                  <blockquote style={{ margin: '0 0 10px 0', paddingLeft: '12px', borderLeft: '3px solid #f59e0b', fontStyle: 'italic', color: '#1e293b' }}>
-                    「毎日ちゃんと5分カルテを開いて解いているのが本当に偉いね！コツコツ続ける力は、入試本番で一番大きな武器になるよ。」
-                  </blockquote>
-                  <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
-                    ※ 結果（点数）だけでなく、「毎日机に向かった行動」や「途中で諦めず考え直したプロセス」を具体的に認めてあげると、自己肯定感と学習意欲が劇的に高まります。
-                  </p>
+                {/* フレーズ一覧 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '12px' }}>
+                  {guidance.recommendedPhrases && guidance.recommendedPhrases.length > 0 ? (
+                    guidance.recommendedPhrases.map(phrase => (
+                      <div
+                        key={phrase.id}
+                        style={{
+                          background: '#ffffff',
+                          borderLeft: '4px solid #f59e0b',
+                          borderRadius: '10px',
+                          padding: '12px 14px',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                        }}
+                      >
+                        <div style={{ fontSize: '12px', fontWeight: 800, color: '#b45309', marginBottom: '4px' }}>
+                          💬 {phrase.title || phrase.situation}
+                        </div>
+                        <div style={{ fontSize: '13px', color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
+                          {phrase.detail || phrase.phrase}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div
+                      style={{
+                        background: '#ffffff',
+                        borderLeft: '4px solid #f59e0b',
+                        borderRadius: '10px',
+                        padding: '12px 14px',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                      }}
+                    >
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#b45309', marginBottom: '4px' }}>
+                        💬 努力と継続を認める声かけ
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
+                        「毎日ちゃんと5分カルテを開いて解いているのが本当に偉いね！コツコツ続ける力は、入試本番で一番大きな武器になるよ。」
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ミケちゃんのワンポイントアドバイス */}
+                <div
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    fontSize: '11px',
+                    color: '#78350f',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  💡 <strong>声かけのコツ:</strong> 結果（点数）だけでなく、「毎日机に向かった行動」や「途中で諦めず考え直したプロセス」を具体的に認めてあげると、自己肯定感と学習意欲が劇的に高まります。
+                </div>
+              </div>
+
+              {/* 2. 家庭でできるケア行動（親のアクション・チェックリスト） */}
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1.5px solid #fed7aa',
+                  borderRadius: '16px',
+                  padding: '18px 20px',
+                }}
+                data-testid="home-care-checklist-card"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '22px' }}>🍵</span>
+                    <h4 style={{ margin: 0, fontSize: '15px', color: '#9a3412', fontWeight: 800 }}>
+                      家庭でできるケア行動（親のアクション・チェックリスト）
+                    </h4>
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#c2410c', fontWeight: 700 }}>
+                    タップして実行をチェック ✅
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {guidance.careActions.map(action => {
+                    const isDone = !!parentChecklist[action.id];
+                    return (
+                      <div
+                        key={action.id}
+                        onClick={() => handleToggleParentAction(action.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '12px',
+                          background: isDone ? '#f0fdf4' : '#fff7ed',
+                          border: `1.5px solid ${isDone ? '#86efac' : '#fdba74'}`,
+                          borderRadius: '10px',
+                          padding: '10px 14px',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                        }}
+                        role="checkbox"
+                        aria-checked={isDone}
+                        data-testid={`parent-action-item-${action.id}`}
+                      >
+                        <span style={{ fontSize: '20px', lineHeight: 1 }}>
+                          {isDone ? '✅' : '⬜'}
+                        </span>
+                        <div style={{ flex: 1 }}>
+                          <div
+                            style={{
+                              fontSize: '13px',
+                              fontWeight: 800,
+                              color: isDone ? '#166534' : '#7c2d12',
+                              textDecoration: isDone ? 'line-through' : 'none',
+                            }}
+                          >
+                            {action.title}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#4b5563', marginTop: '2px', lineHeight: 1.4 }}>
+                            {action.desc || action.detail}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 3. 今は避けたほうがよいNGワード（理由と解説） */}
+              <div
+                style={{
+                  background: '#fff1f2',
+                  border: '1.5px solid #fecdd3',
+                  borderRadius: '16px',
+                  padding: '18px 20px',
+                }}
+                data-testid="ng-words-card"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '22px' }}>⚠️</span>
+                  <h4 style={{ margin: 0, fontSize: '15px', color: '#9f1239', fontWeight: 800 }}>
+                    今は避けたほうがよいNGワード（理由と解説）
+                  </h4>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {guidance.avoidPhrases.map((phrase, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #ffe4e6',
+                        borderRadius: '10px',
+                        padding: '10px 14px',
+                      }}
+                    >
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#e11d48' }}>
+                        {phrase}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -1239,9 +1410,10 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                   </div>
                 )}
               </div>
-            </>
+            </div>
           )}
 
+          {/* ================= タブ3: こころの見守り処方箋 ================= */}
           {activeTab === 'mental' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} data-testid="parent-mental-tab">
               {/* アクション完了フィードバック */}
@@ -1670,201 +1842,6 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                         {latestRequest.request === 'refresh' && '「いっしょに気分転換したい」'}
                       </div>
                     )}
-                  </div>
-
-                  {/* 2. 今日かけたい言葉（家庭での承認・共感フレーズ） */}
-                  <div
-                    style={{
-                      background: '#ffffff',
-                      border: '1.5px solid #bfdbfe',
-                      borderRadius: '16px',
-                      padding: '18px 20px',
-                    }}
-                    data-testid="recommended-phrases-card"
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '22px' }}>💬</span>
-                      <h4 style={{ margin: 0, fontSize: '15px', color: '#1e40af', fontWeight: 800 }}>
-                        今日かけたい言葉（家庭での承認・共感フレーズ）
-                      </h4>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      {guidance.recommendedPhrases.map(phrase => (
-                        <div
-                          key={phrase.id}
-                          style={{
-                            background: '#eff6ff',
-                            borderLeft: '4px solid #3b82f6',
-                            borderRadius: '8px',
-                            padding: '10px 14px',
-                          }}
-                        >
-                          <div style={{ fontSize: '12px', fontWeight: 800, color: '#1d4ed8', marginBottom: '2px' }}>
-                            {phrase.title || phrase.situation}
-                          </div>
-                          <div style={{ fontSize: '13px', color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
-                            {phrase.detail || phrase.phrase}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 3. 家庭でできる具体的なケア行動＆親のチェックリスト */}
-                  <div
-                    style={{
-                      background: '#ffffff',
-                      border: '1.5px solid #fed7aa',
-                      borderRadius: '16px',
-                      padding: '18px 20px',
-                    }}
-                    data-testid="home-care-checklist-card"
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '6px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '22px' }}>🍵</span>
-                        <h4 style={{ margin: 0, fontSize: '15px', color: '#9a3412', fontWeight: 800 }}>
-                          家庭でできるケア行動（親のアクション・チェックリスト）
-                        </h4>
-                      </div>
-                      <span style={{ fontSize: '11px', color: '#c2410c', fontWeight: 700 }}>
-                        タップして実行をチェック ✅
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {guidance.careActions.map(action => {
-                        const isDone = !!parentChecklist[action.id];
-                        return (
-                          <div
-                            key={action.id}
-                            onClick={() => handleToggleParentAction(action.id)}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'flex-start',
-                              gap: '12px',
-                              background: isDone ? '#f0fdf4' : '#fff7ed',
-                              border: `1.5px solid ${isDone ? '#86efac' : '#fdba74'}`,
-                              borderRadius: '10px',
-                              padding: '10px 14px',
-                              cursor: 'pointer',
-                              transition: 'all 0.15s ease',
-                            }}
-                            role="checkbox"
-                            aria-checked={isDone}
-                            data-testid={`parent-action-item-${action.id}`}
-                          >
-                            <span style={{ fontSize: '20px', lineHeight: 1 }}>
-                              {isDone ? '✅' : '⬜'}
-                            </span>
-                            <div style={{ flex: 1 }}>
-                              <div
-                                style={{
-                                  fontSize: '13px',
-                                  fontWeight: 800,
-                                  color: isDone ? '#166534' : '#7c2d12',
-                                  textDecoration: isDone ? 'line-through' : 'none',
-                                }}
-                              >
-                                {action.title}
-                              </div>
-                              <div style={{ fontSize: '12px', color: '#4b5563', marginTop: '2px', lineHeight: 1.4 }}>
-                                {action.desc || action.detail}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* 4. 言ってはいけないNGワード集 */}
-                  <div
-                    style={{
-                      background: '#fff1f2',
-                      border: '1.5px solid #fecdd3',
-                      borderRadius: '16px',
-                      padding: '18px 20px',
-                    }}
-                    data-testid="ng-words-card"
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '22px' }}>⚠️</span>
-                      <h4 style={{ margin: 0, fontSize: '15px', color: '#9f1239', fontWeight: 800 }}>
-                        今は避けたほうがよいNGワード（理由と解説）
-                      </h4>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {guidance.avoidPhrases.map((phrase, idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            background: '#ffffff',
-                            border: '1px solid #ffe4e6',
-                            borderRadius: '10px',
-                            padding: '10px 14px',
-                          }}
-                        >
-                          <div style={{ fontSize: '13px', fontWeight: 800, color: '#e11d48' }}>
-                            {phrase}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 5. こんなときは専門家へ（目安と無料の公的相談窓口） */}
-                  <div
-                    style={{
-                      background: '#f8fafc',
-                      border: '1.5px solid #cbd5e1',
-                      borderRadius: '16px',
-                      padding: '18px 20px',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '22px' }}>🏥</span>
-                      <h4 style={{ margin: 0, fontSize: '15px', color: '#334155', fontWeight: 800 }}>
-                        こんなときは専門家へ（相談の目安と公的窓口）
-                      </h4>
-                    </div>
-                    <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px 0', lineHeight: 1.5 }}>
-                      親御さんだけで抱え込まず、以下のサインが見られる場合はスクールカウンセラーや専門医療機関、公的相談窓口へご相談ください。
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
-                      {guidance.expertConsultationSignals.map((sig, idx) => (
-                        <div key={idx} style={{ fontSize: '12px', color: '#475569', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ color: '#ef4444' }}>•</span>
-                          <span>{sig}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div style={{ borderTop: '1px dashed #cbd5e1', paddingTop: '12px' }}>
-                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#1e293b', marginBottom: '6px' }}>
-                        📞 無料の公的相談窓口（24時間・匿名可）
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '8px' }}>
-                        {OFFICIAL_CRISIS_CONTACTS.map((c, idx) => (
-                          <div
-                            key={idx}
-                            style={{
-                              background: '#ffffff',
-                              border: '1px solid #e2e8f0',
-                              borderRadius: '8px',
-                              padding: '8px 12px',
-                              fontSize: '11px',
-                            }}
-                          >
-                            <div style={{ fontWeight: 700, color: '#0f172a' }}>{c.name}</div>
-                            <div style={{ color: '#0284c7', fontWeight: 800, fontSize: '13px', margin: '2px 0' }}>
-                              {c.phone}
-                            </div>
-                            <div style={{ color: '#64748b', fontSize: '10px' }}>{c.description}（{c.hours}）</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
                   </div>
 
                   {/* 6. お子さんからの「伝えるカード」＆直近のまとめ */}

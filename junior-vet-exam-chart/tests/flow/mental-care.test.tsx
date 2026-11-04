@@ -240,7 +240,12 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
     expect(screen.getByTestId('child-mental-forecast-card')).toBeInTheDocument();
     expect(screen.getByText(/あめ（つらい・心が雨降り）/)).toBeInTheDocument();
 
-    // 今日かけたい言葉カードとNGワードカードが表示されていること
+    // 「コミュニケーション」タブをクリック
+    const tabAdvice = screen.getByTestId('parent-tab-advice');
+    expect(tabAdvice).toBeInTheDocument();
+    fireEvent.click(tabAdvice);
+
+    // 今日かけたい言葉カード（ミケちゃんのほめ言葉最適化カード）とNGワードカードが表示されていること
     expect(screen.getByTestId('recommended-phrases-card')).toBeInTheDocument();
     expect(screen.getByTestId('ng-words-card')).toBeInTheDocument();
 
@@ -252,7 +257,6 @@ describe('こころの相談室・メンタルケア学習機能 総合結合テ
     // 完了トーストが表示されること
     expect(screen.getByTestId('parent-action-done-toast')).toBeInTheDocument();
     expect(screen.getByText(/ナイスサポート！お子さんの心の安全基地が守られました/)).toBeInTheDocument();
-
     unmount();
   });
 });
