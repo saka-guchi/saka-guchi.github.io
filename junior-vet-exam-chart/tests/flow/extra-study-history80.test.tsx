@@ -59,8 +59,20 @@ describe('知識の処方箋（名作参考書：歴史人物80）UI/UX 結合�
     expect(screen.getByText('歴史人物80 即答キーワード')).toBeInTheDocument();
     expect(screen.getAllByText('出題教科：🗾 社会').length).toBeGreaterThanOrEqual(1);
 
-    // 即答キーワード枠
+    // 即答キーワード枠（デフォルトで隠れていること）
     expect(screen.getByText('即答キーワード')).toBeInTheDocument();
+    expect(screen.getByText('みる 💡')).toBeInTheDocument();
+    expect(screen.getByText('ヒントをタップすると表示されるよ！')).toBeInTheDocument();
+
+    // 「みる 💡」をクリックするとキーワードが表示され、ボタンが「かくす 👁️」に切り替わること
+    fireEvent.click(screen.getByText('みる 💡'));
+    expect(screen.getByText('かくす 👁️')).toBeInTheDocument();
+    expect(screen.queryByText('ヒントをタップすると表示されるよ！')).not.toBeInTheDocument();
+
+    // 再度クリックすると再び隠れること
+    fireEvent.click(screen.getByText('かくす 👁️'));
+    expect(screen.getByText('みる 💡')).toBeInTheDocument();
+    expect(screen.getByText('ヒントをタップすると表示されるよ！')).toBeInTheDocument();
 
     // 4択ボタン（ア、イ、ウ、エ）が存在すること
     expect(screen.getByText('ア')).toBeInTheDocument();
@@ -94,8 +106,10 @@ describe('知識の処方箋（名作参考書：歴史人物80）UI/UX 結合�
     // 次へ進むボタンをクリック
     fireEvent.click(screen.getByText(/つぎの問題へ進む/));
 
-    // 問 2 / 10 に進むこと
+    // 問 2 / 10 に進み、即答キーワードが再びデフォルトで隠れていること
     expect(screen.getByText('問 2 / 10')).toBeInTheDocument();
+    expect(screen.getByText('みる 💡')).toBeInTheDocument();
+    expect(screen.getByText('ヒントをタップすると表示されるよ！')).toBeInTheDocument();
   });
 
   it('全80問の学校名出典が正しく中学校・中等部・中等科・普通部・中学部であること', () => {
