@@ -116,4 +116,43 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
     // Stage 1 のみ提供されるため、Stage切り替えタブはヘッダーに存在しないこと
     expect(screen.queryByTestId('stage-2-tab')).toBeNull();
   });
+
+  it("2026年度理科大問1で空のブラケット「[]」が表示されず、問1 (トキ) のラベルが正常に表示されること", async () => {
+    render(
+      <MemoryRouter initialEntries={["/final-challenge?year=2026&subject=rika"]}>
+        <Routes>
+          <Route path="/final-challenge" element={<FinalChallengePage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByTestId("final-challenge-page")).toBeInTheDocument();
+
+    // 2026年理科大問1スロット rika-2026-01-01 が通常設問として表示される
+    expect(screen.getByTestId("slot-rika-2026-01-01")).toBeInTheDocument();
+
+    // 空のブラケット「[]」が表示されていないこと
+    expect(screen.queryByText("[]")).toBeNull();
+
+    // 問1のラベル「大問1 問1 (トキ):」が表示されていること
+    expect(screen.getByText(/大問1 問1 \(トキ\):/)).toBeInTheDocument();
+  });
+
+  it("2024年度理科大問1では従来通り小問集合（[ア]〜[エ]）としてグリッド表示されること", async () => {
+    render(
+      <MemoryRouter initialEntries={["/final-challenge?year=2024&subject=rika"]}>
+        <Routes>
+          <Route path="/final-challenge" element={<FinalChallengePage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByTestId("final-challenge-page")).toBeInTheDocument();
+
+    // 2024年理科大問1の小問 [ア]〜[エ] が小問集合ラベルとして表示される
+    expect(screen.getByText("[ア]")).toBeInTheDocument();
+    expect(screen.getByText("[イ]")).toBeInTheDocument();
+    expect(screen.getByText("[ウ]")).toBeInTheDocument();
+    expect(screen.getByText("[エ]")).toBeInTheDocument();
+  });
 });
