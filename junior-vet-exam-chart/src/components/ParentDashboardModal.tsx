@@ -55,7 +55,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   onStartWeaknessQuiz,
   onInspectQuestion,
 }) => {
-  const [activeTab, setActiveTab] = useState<'charts' | 'advice' | 'mental' | 'print' | 'reports'>('charts');
+  const [activeTab, setActiveTab] = useState<'charts' | 'advice' | 'mental' | 'reports'>('charts');
 
   // こころ機能データ（保護者開示データのみ・private非参照）
   const [sharedWeatherMap, setSharedWeatherMap] = useState<SharedWeatherDaily>({});
@@ -521,7 +521,6 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
               { id: 'charts', label: '📈 成績', badge: 0 },
               { id: 'advice', label: '🐱 声かけ', badge: 0 },
               { id: 'mental', label: `💚 こころ${careSignal?.active ? ' 🔴' : ''}`, badge: careSignal?.active ? 1 : 0 },
-              { id: 'print', label: '🖨️ 印刷', badge: 0 },
               {
                 id: 'reports',
                 label: `🛠️ 修正依頼${unresolvedCount > 0 ? ` (${unresolvedCount})` : ''}`,
@@ -791,153 +790,6 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                   </div>
                 )}
               </div>
-            </>
-          )}
-
-          {/* ================= タブ2: 声かけヒント＆お約束 ================= */}
-          {activeTab === 'advice' && (
-            <>
-              {/* ナース猫ミケちゃんの声かけアドバイス */}
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
-                  border: '1.5px solid #fde68a',
-                  borderRadius: '16px',
-                  padding: '16px 20px',
-                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.08)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                  <span style={{ fontSize: '32px' }}>🐱</span>
-                  <div>
-                    <h4 style={{ margin: 0, fontSize: '15px', color: '#92400e', fontWeight: 'bold' }}>
-                      ナース猫ミケちゃんからの「今日のお子さんへの声かけヒント」
-                    </h4>
-                    <div style={{ fontSize: '11px', color: '#b45309' }}>
-                      中学受験のモチベーションを高める具体的なほめ言葉
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ background: '#ffffff', borderRadius: '12px', padding: '14px', border: '1px solid #fef08a', lineHeight: '1.6', fontSize: '13px', color: '#78350f' }}>
-                  <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>
-                    💡 今日のおすすめの褒め言葉：
-                  </p>
-                  <blockquote style={{ margin: '0 0 10px 0', paddingLeft: '12px', borderLeft: '3px solid #f59e0b', fontStyle: 'italic', color: '#1e293b' }}>
-                    「毎日ちゃんと5分カルテを開いて解いているのが本当に偉いね！コツコツ続ける力は、入試本番で一番大きな武器になるよ。」
-                  </blockquote>
-                  <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
-                    ※ 結果（点数）だけでなく、「毎日机に向かった行動」や「途中で諦めず考え直したプロセス」を具体的に認めてあげると、自己肯定感と学習意欲が劇的に高まります。
-                  </p>
-                </div>
-              </div>
-
-              {/* 親子のごほうび約束メモ */}
-              <div style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px 20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '24px' }}>🎁</span>
-                    <h4 style={{ margin: 0, fontSize: '15px', color: 'var(--text)', fontWeight: 'bold' }}>
-                      親子のごほうび約束メモ
-                    </h4>
-                  </div>
-                  {!isEditingGoal && (
-                    <button
-                      onClick={() => setIsEditingGoal(true)}
-                      style={{
-                        background: 'none',
-                        border: '1px solid var(--border)',
-                        borderRadius: '6px',
-                        padding: '4px 8px',
-                        fontSize: '11px',
-                        cursor: 'pointer',
-                        color: 'var(--primary)',
-                      }}
-                    >
-                      ✏️ 編集する
-                    </button>
-                  )}
-                </div>
-
-                {isEditingGoal ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <input
-                      id="parent-goal-input"
-                      name="parentGoal"
-                      type="text"
-                      value={editGoalText}
-                      onChange={e => setEditGoalText(e.target.value)}
-                      placeholder="例: 算数で80点取れたらケーキバイキング！"
-                      autoComplete="off"
-                      style={{
-                        width: '100%',
-                        padding: '10px',
-                        borderRadius: '8px',
-                        border: '1.5px solid var(--primary)',
-                        fontSize: '14px',
-                      }}
-                    />
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button
-                        onClick={() => setIsEditingGoal(false)}
-                        style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface)', fontSize: '12px' }}
-                      >
-                        キャンセル
-                      </button>
-                      <button
-                        onClick={handleSaveGoal}
-                        style={{ padding: '6px 16px', borderRadius: '6px', border: 'none', background: 'var(--primary)', color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
-                      >
-                        保存する
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      background: rewardAchieved ? '#dcfce7' : '#ffffff',
-                      border: `1.5px solid ${rewardAchieved ? '#86efac' : 'var(--border)'}`,
-                      borderRadius: '12px',
-                      padding: '14px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>現在の約束目標：</div>
-                      <div style={{ fontSize: '15px', fontWeight: 'bold', color: rewardAchieved ? '#15803d' : 'var(--text)', marginTop: '2px' }}>
-                        {rewardGoal}
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleToggleRewardAchieved}
-                      style={{
-                        background: rewardAchieved ? '#16a34a' : 'var(--surface-subtle)',
-                        color: rewardAchieved ? '#ffffff' : 'var(--text)',
-                        border: `1.5px solid ${rewardAchieved ? '#15803d' : 'var(--border)'}`,
-                        borderRadius: 'var(--radius-pill)',
-                        padding: '8px 16px',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                      }}
-                    >
-                      {rewardAchieved ? '🎉 約束達成！おめでとう！' : '⬜ 達成したらチェック！'}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-
-          {/* ================= タブ3: 弱点処方箋＆A4印刷 ================= */}
-          {activeTab === 'print' && (
-            <>
               {/* 現在の弱点テーマTOP3 */}
               <div style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px 20px' }}>
                 <h4 style={{ margin: '0 0 10px 0', fontSize: '15px', color: 'var(--text)', fontWeight: 'bold' }}>
@@ -1127,6 +979,147 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                 >
                   🖨️ A4弱点克服プリントを印刷（またはPDF保存）
                 </button>
+              </div>
+            </>
+          )}
+
+          {/* ================= タブ2: 声かけヒント＆お約束 ================= */}
+          {activeTab === 'advice' && (
+            <>
+              {/* ナース猫ミケちゃんの声かけアドバイス */}
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                  border: '1.5px solid #fde68a',
+                  borderRadius: '16px',
+                  padding: '16px 20px',
+                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.08)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <span style={{ fontSize: '32px' }}>🐱</span>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '15px', color: '#92400e', fontWeight: 'bold' }}>
+                      ナース猫ミケちゃんからの「今日のお子さんへの声かけヒント」
+                    </h4>
+                    <div style={{ fontSize: '11px', color: '#b45309' }}>
+                      中学受験のモチベーションを高める具体的なほめ言葉
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ background: '#ffffff', borderRadius: '12px', padding: '14px', border: '1px solid #fef08a', lineHeight: '1.6', fontSize: '13px', color: '#78350f' }}>
+                  <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>
+                    💡 今日のおすすめの褒め言葉：
+                  </p>
+                  <blockquote style={{ margin: '0 0 10px 0', paddingLeft: '12px', borderLeft: '3px solid #f59e0b', fontStyle: 'italic', color: '#1e293b' }}>
+                    「毎日ちゃんと5分カルテを開いて解いているのが本当に偉いね！コツコツ続ける力は、入試本番で一番大きな武器になるよ。」
+                  </blockquote>
+                  <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
+                    ※ 結果（点数）だけでなく、「毎日机に向かった行動」や「途中で諦めず考え直したプロセス」を具体的に認めてあげると、自己肯定感と学習意欲が劇的に高まります。
+                  </p>
+                </div>
+              </div>
+
+              {/* 親子のごほうび約束メモ */}
+              <div style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px 20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '24px' }}>🎁</span>
+                    <h4 style={{ margin: 0, fontSize: '15px', color: 'var(--text)', fontWeight: 'bold' }}>
+                      親子のごほうび約束メモ
+                    </h4>
+                  </div>
+                  {!isEditingGoal && (
+                    <button
+                      onClick={() => setIsEditingGoal(true)}
+                      style={{
+                        background: 'none',
+                        border: '1px solid var(--border)',
+                        borderRadius: '6px',
+                        padding: '4px 8px',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        color: 'var(--primary)',
+                      }}
+                    >
+                      ✏️ 編集する
+                    </button>
+                  )}
+                </div>
+
+                {isEditingGoal ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <input
+                      id="parent-goal-input"
+                      name="parentGoal"
+                      type="text"
+                      value={editGoalText}
+                      onChange={e => setEditGoalText(e.target.value)}
+                      placeholder="例: 算数で80点取れたらケーキバイキング！"
+                      autoComplete="off"
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        border: '1.5px solid var(--primary)',
+                        fontSize: '14px',
+                      }}
+                    />
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                      <button
+                        onClick={() => setIsEditingGoal(false)}
+                        style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface)', fontSize: '12px' }}
+                      >
+                        キャンセル
+                      </button>
+                      <button
+                        onClick={handleSaveGoal}
+                        style={{ padding: '6px 16px', borderRadius: '6px', border: 'none', background: 'var(--primary)', color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
+                      >
+                        保存する
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      background: rewardAchieved ? '#dcfce7' : '#ffffff',
+                      border: `1.5px solid ${rewardAchieved ? '#86efac' : 'var(--border)'}`,
+                      borderRadius: '12px',
+                      padding: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>現在の約束目標：</div>
+                      <div style={{ fontSize: '15px', fontWeight: 'bold', color: rewardAchieved ? '#15803d' : 'var(--text)', marginTop: '2px' }}>
+                        {rewardGoal}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleToggleRewardAchieved}
+                      style={{
+                        background: rewardAchieved ? '#16a34a' : 'var(--surface-subtle)',
+                        color: rewardAchieved ? '#ffffff' : 'var(--text)',
+                        border: `1.5px solid ${rewardAchieved ? '#15803d' : 'var(--border)'}`,
+                        borderRadius: 'var(--radius-pill)',
+                        padding: '8px 16px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      {rewardAchieved ? '🎉 約束達成！おめでとう！' : '⬜ 達成したらチェック！'}
+                    </button>
+                  </div>
+                )}
               </div>
             </>
           )}
