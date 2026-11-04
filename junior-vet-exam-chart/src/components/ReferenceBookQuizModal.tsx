@@ -3,6 +3,7 @@ import styles from './ReferenceBookQuizModal.module.css';
 import { REFERENCE_BOOKS, HISTORY_80_FIGURES, HistoryFigureData } from '../data/extra-history-80';
 import { getRefBookProgress, saveRefBookAnswer, recordRefBookSessionClear } from '../utils/reference-book-store';
 import { sound } from '../utils/sound-effects';
+import { awardSessionPoints } from '../utils/points-manager';
 
 interface Props {
   bookId: string;

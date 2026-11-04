@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore, type SessionAnswerRecord } from '../store/appStore';
 import { awardDailyStudyStamp, type AnimalStamp } from '../data/animal-stamps';
@@ -6,6 +6,10 @@ import { getFormatBadge } from '../components/formats/QuestionRenderer';
 import { getQuestionSource } from '../utils/source-helper';
 import { db } from '../db';
 import { recordDailyStudyCompleted } from '../utils/progress-analytics';
+import { awardSessionPoints, getPointsSummary, type AwardPointsResult, type PointsSummary } from '../utils/points-manager';
+import { PointsNotebookModal } from '../components/PointsNotebookModal';
+import { fireConfetti } from '../utils/confetti';
+import { sound } from '../utils/sound-effects';
 import styles from './ResultPage.module.css';
 
 // 教科ラベルのフォーマットヘルパー（小学生向け世界観の統一）
@@ -152,10 +156,35 @@ export const ResultPage: React.FC = () => {
     resetSession,
   } = useAppStore();
   const [earnedStamp, setEarnedStamp] = useState<AnimalStamp | null>(null);
+  const [pointsResult, setPointsResult] = useState<AwardPointsResult | null>(null);
+  const [pointsSummary, setPointsSummary] = useState<PointsSummary | null>(null);
+  const [showNotebookModal, setShowNotebookModal] = useState(false);
+  const hasAwardedRef = useRef(false);
 
   useEffect(() => {
+    if (hasAwardedRef.current) return;
+    hasAwardedRef.current = true;
+
+    // 動物スタンプの付与
     const stamp = awardDailyStudyStamp();
     setEarnedStamp(stamp);
+
+    // 元気のもと付与（症例スタディ or 本日の診察）
+    const isFocus = !!promotedSkillInfo;
+    let awardAmount = correctCount;
+    if (promotedSkillInfo?.isMastered) {
+      awardAmount += 5; // カルテ全快ボーナス！
+    }
+    const pResult = awardSessionPoints(awardAmount, isFocus ? 'case_study' : 'daily_exam');
+    setPointsResult(pResult);
+    const pSummary = getPointsSummary();
+    setPointsSummary(pSummary);
+
+    // ランクアップ時の祝賀演出
+    if (pResult.isRankUp) {
+      sound.playLevelUp();
+      fireConfetti({ count: 40 });
+    }
 
     // 日本時間（JST）の日付で日次セッションおよび学習記録を保存
     const todayJst = new Intl.DateTimeFormat('ja-JP', {
@@ -207,7 +236,7 @@ export const ResultPage: React.FC = () => {
 
     // 3. 今日の学習完了を記録し連続学習日数（ストリーク）を更新
     recordDailyStudyCompleted().catch(() => {});
-  }, []);
+  }, [correctCount, currentSessionQuestions, sessionResults, directRecallCount]);
 
   const total = currentSessionQuestions.length || 10;
   const choiceCorrectCount = Math.max(0, correctCount - directRecallCount);
@@ -248,156 +277,232 @@ export const ResultPage: React.FC = () => {
             今日のカルテが更新され、動物たちが元気になりました！
           </p>
 
-        {/* 単元特訓レベルアップ祝賀バナー */}
-        {promotedSkillInfo && (
-          <div
-            style={{
-              margin: '16px 0',
-              padding: '16px 20px',
-              background: 'linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%)',
-              border: '2px solid #d946ef',
-              borderRadius: '16px',
-              textAlign: 'center',
-              boxShadow: '0 4px 14px rgba(217, 70, 239, 0.2)',
-            }}
-            data-testid="promoted-skill-banner"
-          >
-            <div style={{ fontSize: '28px', marginBottom: '4px' }}>🆙 ⭐ 🎉</div>
-            <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#86198f' }}>
-              【{promotedSkillInfo.skillTitle}】がレベルアップ！
-            </div>
-            <div style={{ fontSize: '14px', color: '#a21caf', marginTop: '4px' }}>
-              ステージが <strong>{promotedSkillInfo.prevStage}</strong> から <strong>{promotedSkillInfo.newStage}</strong> へ成長しました！
-            </div>
-          </div>
-        )}
-
-        {/* 動物スタンプ獲得カード */}
-        {earnedStamp && (
-          <div
-            style={{
-              margin: '16px 0',
-              padding: '16px 20px',
-              background: 'linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%)',
-              border: '2px solid #86efac',
-              borderRadius: '16px',
-              textAlign: 'left',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.1)',
-            }}
-            data-testid="earned-animal-stamp-card"
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <span style={{ fontSize: '42px' }}>{earnedStamp.icon}</span>
-              <div>
-                <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#059669' }}>
-                  🐾 今日のスタンプゲット！
-                </div>
-                <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--text)' }}>
-                  {earnedStamp.name} が元気に！
-                </div>
-                <div style={{ fontSize: '13px', color: '#166534', marginTop: '2px' }}>
-                  {earnedStamp.cheerMessage}
-                </div>
+          {/* 獣医師ランクアップ祝賀バナー */}
+          {pointsResult?.isRankUp && (
+            <div className={styles.rankUpBanner} data-testid="rank-up-banner">
+              <div style={{ fontSize: '32px', marginBottom: '6px' }}>🏆 🌟 🎉</div>
+              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#854d0e' }}>
+                獣医師ランクがアップしました！
+              </div>
+              <div style={{ fontSize: '15px', color: '#713f12', marginTop: '4px' }}>
+                【{pointsResult.prevRank.title}】から【{pointsResult.newRank.title} {pointsResult.newRank.badge}】に昇格！
+              </div>
+              <div style={{ fontSize: '12px', color: '#a16207', marginTop: '4px' }}>
+                {pointsResult.newRank.description}
               </div>
             </div>
+          )}
+
+          {/* 単元特訓レベルアップ祝賀バナー */}
+          {promotedSkillInfo && (
             <div
               style={{
-                marginTop: '10px',
-                padding: '8px 12px',
-                background: '#ffffff',
-                borderRadius: '8px',
-                fontSize: '12px',
-                color: '#475569',
-                border: '1px solid #e2e8f0',
+                margin: '16px 0',
+                padding: '16px 20px',
+                background: 'linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%)',
+                border: '2px solid #d946ef',
+                borderRadius: '16px',
+                textAlign: 'center',
+                boxShadow: '0 4px 14px rgba(217, 70, 239, 0.2)',
               }}
+              data-testid="promoted-skill-banner"
             >
-              {earnedStamp.vetFact}
-            </div>
-          </div>
-        )}
-
-        <div className={styles.scoreRow}>
-          <div className={styles.scoreNumber}>
-            {correctCount} <span className={styles.scoreTotal}>/ {total} 問正解</span>
-          </div>
-        </div>
-
-        <div className={styles.statsGrid}>
-          <div className={styles.statBox}>
-            <div className={styles.statLabel}>自力でパッと思い出せた！</div>
-            <div className={styles.statValue} style={{ color: 'var(--primary)' }}>
-              {directRecallCount} 問
-            </div>
-            <div className={styles.statDesc}>すごい！最も実力が身につく解き方です</div>
-          </div>
-
-          <div className={styles.statBox}>
-            <div className={styles.statLabel}>ヒント・選択肢を見て正解！</div>
-            <div className={styles.statValue} style={{ color: 'var(--text)' }}>
-              {choiceCorrectCount} 問
-            </div>
-            <div className={styles.statDesc}>次は自力で思い出すのを目指そう</div>
-          </div>
-
-          <div className={styles.statBox}>
-            <div className={styles.statLabel}>もうすぐ覚えられる問題</div>
-            <div className={styles.statValue} style={{ color: 'var(--error)' }}>
-              {mistakeCount} 問
-            </div>
-            <div className={styles.statDesc}>明日の復習カルテで再チャレンジ！</div>
-          </div>
-        </div>
-
-        <div className={styles.nextReviewCard}>
-          <strong>📅 次回の復習予定</strong>
-          <p>明日：まちがえた問題（{mistakeCount}問）と、忘れかけの知識を中心に出題されます。</p>
-        </div>
-
-        {/* まちがえた問題の振り返りセクション */}
-        {mistakeResults.length > 0 ? (
-          <div className={styles.mistakeReviewSection} data-testid="mistake-review-section">
-            <div className={styles.mistakeSectionHeader}>
-              <div className={styles.mistakeSectionTitle}>
-                <span>📝 まちがえた問題の振り返り</span>
-                <span className={styles.mistakeCountBadge}>{mistakeResults.length} 問</span>
+              <div style={{ fontSize: '28px', marginBottom: '4px' }}>🆙 ⭐ 🎉</div>
+              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#86198f' }}>
+                【{promotedSkillInfo.skillTitle}】がレベルアップ！
               </div>
-              <p className={styles.mistakeSectionSubtext}>
-                自分の答えと正解・「考え方」を確認して、次は正解できるようにしよう！
-              </p>
-            </div>
-
-            <div className={styles.mistakeList}>
-              {mistakeResults.map((result, idx) => (
-                <MistakeReviewCard
-                  key={result.question.id || idx}
-                  record={result}
-                  index={idx}
-                />
-              ))}
-            </div>
-          </div>
-        ) : mistakeCount === 0 ? (
-          <div className={styles.allCorrectBanner} data-testid="all-correct-banner">
-            <span style={{ fontSize: '32px' }}>🌟</span>
-            <div>
-              <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--success)' }}>
-                まちがえた問題はありません！全問パーフェクト！
-              </div>
-              <div style={{ fontSize: '13px', color: 'var(--text-subtle)', marginTop: '2px' }}>
-                すばらしい集中力です！この調子でゴールドマスター獣医師を目指そう！
+              <div style={{ fontSize: '14px', color: '#a21caf', marginTop: '4px' }}>
+                ステージが <strong>{promotedSkillInfo.prevStage}</strong> から <strong>{promotedSkillInfo.newStage}</strong> へ成長しました！
               </div>
             </div>
-          </div>
-        ) : null}
+          )}
 
-        <div className={styles.actions}>
-          <button className={styles.homeBtn} onClick={handleGoHome} data-testid="result-home-btn">
-            ホームへ戻る 🐾
-          </button>
+          {/* どうぶつ元気のもと獲得カード */}
+          {pointsResult && (
+            <div className={styles.pointsAwardCard} data-testid="points-award-card">
+              <div className={styles.pointsHeader}>
+                <div className={styles.pointsTitle}>
+                  <span>🐾</span>
+                  <span>どうぶつ元気のもと獲得！</span>
+                </div>
+                <button
+                  type="button"
+                  className={styles.pointsNotebookBtn}
+                  onClick={() => setShowNotebookModal(true)}
+                  data-testid="open-points-notebook-btn"
+                  title="元気のもと手帳・目標ロードマップを見る"
+                >
+                  <span>元気のもと手帳を見る</span>
+                  <span>❯</span>
+                </button>
+              </div>
+
+              <div className={styles.pointsMainRow}>
+                <div className={styles.pointsGainedArea}>
+                  <span className={styles.pointsGainedLabel}>今回の診察で：</span>
+                  <span className={styles.pointsGainedNumber}>+{pointsResult.addedPoints}</span>
+                  <span className={styles.pointsGainedUnit}>元気のもと 獲得！</span>
+                </div>
+                <div className={styles.pointsTotalsArea}>
+                  <div className={styles.pointsTotalItem} data-testid="result-today-points">
+                    <span>きょうの合計:</span>
+                    <strong>{pointsResult.newTodayPoints} こ</strong>
+                  </div>
+                  <div className={styles.pointsTotalItem} data-testid="result-total-points">
+                    <span>累計:</span>
+                    <strong>{pointsResult.newTotalPoints} こ</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.pointsRankRow}>
+                <div>
+                  <span>現在のランク: </span>
+                  <strong>
+                    {pointsResult.newRank.badge} {pointsResult.newRank.title}
+                  </strong>
+                </div>
+                {pointsSummary?.nextRank && (
+                  <div style={{ color: '#047857', fontWeight: 600 }}>
+                    次の目標【{pointsSummary.nextRank.title}】まで あと{' '}
+                    <strong>{pointsSummary.pointsToNextRank} pt</strong>！
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 動物スタンプ獲得カード */}
+          {earnedStamp && (
+            <div
+              style={{
+                margin: '10px 0',
+                padding: '16px 20px',
+                background: 'linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%)',
+                border: '2px solid #86efac',
+                borderRadius: '16px',
+                textAlign: 'left',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.1)',
+                width: '100%',
+              }}
+              data-testid="earned-animal-stamp-card"
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <span style={{ fontSize: '42px' }}>{earnedStamp.icon}</span>
+                <div>
+                  <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#059669' }}>
+                    🐾 今日のスタンプゲット！
+                  </div>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--text)' }}>
+                    {earnedStamp.name} が元気に！
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#166534', marginTop: '2px' }}>
+                    {earnedStamp.cheerMessage}
+                  </div>
+                </div>
+              </div>
+              <div
+                style={{
+                  marginTop: '10px',
+                  padding: '8px 12px',
+                  background: '#ffffff',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  color: '#475569',
+                  border: '1px solid #e2e8f0',
+                }}
+              >
+                {earnedStamp.vetFact}
+              </div>
+            </div>
+          )}
+
+          <div className={styles.scoreRow}>
+            <div className={styles.scoreNumber}>
+              {correctCount} <span className={styles.scoreTotal}>/ {total} 問正解</span>
+            </div>
+          </div>
+
+          <div className={styles.statsGrid}>
+            <div className={styles.statBox}>
+              <div className={styles.statLabel}>自力でパッと思い出せた！</div>
+              <div className={styles.statValue} style={{ color: 'var(--primary)' }}>
+                {directRecallCount} 問
+              </div>
+              <div className={styles.statDesc}>すごい！最も実力が身につく解き方です</div>
+            </div>
+
+            <div className={styles.statBox}>
+              <div className={styles.statLabel}>ヒント・選択肢を見て正解！</div>
+              <div className={styles.statValue} style={{ color: 'var(--text)' }}>
+                {choiceCorrectCount} 問
+              </div>
+              <div className={styles.statDesc}>次は自力で思い出すのを目指そう</div>
+            </div>
+
+            <div className={styles.statBox}>
+              <div className={styles.statLabel}>もうすぐ覚えられる問題</div>
+              <div className={styles.statValue} style={{ color: 'var(--error)' }}>
+                {mistakeCount} 問
+              </div>
+              <div className={styles.statDesc}>明日の復習カルテで再チャレンジ！</div>
+            </div>
+          </div>
+
+          <div className={styles.nextReviewCard}>
+            <strong>📅 次回の復習予定</strong>
+            <p>明日：まちがえた問題（{mistakeCount}問）と、忘れかけの知識を中心に出題されます。</p>
+          </div>
+
+          {/* まちがえた問題の振り返りセクション */}
+          {mistakeResults.length > 0 ? (
+            <div className={styles.mistakeReviewSection} data-testid="mistake-review-section">
+              <div className={styles.mistakeSectionHeader}>
+                <div className={styles.mistakeSectionTitle}>
+                  <span>📝 まちがえた問題の振り返り</span>
+                  <span className={styles.mistakeCountBadge}>{mistakeResults.length} 問</span>
+                </div>
+                <p className={styles.mistakeSectionSubtext}>
+                  自分の答えと正解・「考え方」を確認して、次は正解できるようにしよう！
+                </p>
+              </div>
+
+              <div className={styles.mistakeList}>
+                {mistakeResults.map((result, idx) => (
+                  <MistakeReviewCard
+                    key={result.question.id || idx}
+                    record={result}
+                    index={idx}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : mistakeCount === 0 ? (
+            <div className={styles.allCorrectBanner} data-testid="all-correct-banner">
+              <span style={{ fontSize: '32px' }}>🌟</span>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--success)' }}>
+                  まちがえた問題はありません！全問パーフェクト！
+                </div>
+                <div style={{ fontSize: '13px', color: 'var(--text-subtle)', marginTop: '2px' }}>
+                  すばらしい集中力です！この調子でゴールドマスター獣医師を目指そう！
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          <div className={styles.actions}>
+            <button className={styles.homeBtn} onClick={handleGoHome} data-testid="result-home-btn">
+              ホームへ戻る 🐾
+            </button>
+          </div>
         </div>
-      </div>
       </main>
+
+      {/* どうぶつ元気のもと手帳モーダル */}
+      {showNotebookModal && (
+        <PointsNotebookModal onClose={() => setShowNotebookModal(false)} />
+      )}
     </div>
   );
 };
-

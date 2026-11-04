@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { HomePage } from '../../src/pages/HomePage';
@@ -27,13 +27,16 @@ describe('知識の処方箋（名作参考書：歴史人物80）UI/UX 結合�
     const extraCard = screen.getByTestId('section-extra-study');
     expect(extraCard).toBeInTheDocument();
     expect(screen.getByText('💊 知識の処方箋')).toBeInTheDocument();
+    expect(screen.getByText('いろんな参考書の知識を吸収しよう')).toBeInTheDocument();
     expect(screen.getByText('🗾 社会')).toBeInTheDocument();
     expect(screen.getByText('📕 歴史人物80')).toBeInTheDocument();
-    expect(screen.getByTestId('start-extra-book-btn')).toBeInTheDocument();
 
-    // 歴史人物80の母数が36人ではなく正真正銘の「80 人」と表示されていること
-    const progressRow = screen.getByTestId('extra-history-progress');
-    expect(progressRow).toHaveTextContent(/0 \/ 80 人/);
+    const startExtraBtn = screen.getByTestId('start-extra-book-btn');
+    expect(startExtraBtn).toBeInTheDocument();
+    expect(startExtraBtn).toHaveTextContent('▶ 知識の処方箋をつくる（10問）');
+
+    // 「処方状況」は元気のもと手帳側に統合されたため、ホームのカード内からは削除されていること
+    expect(screen.queryByTestId('extra-history-progress')).toBeNull();
   });
 
   it('全80人の歴史人物データが重複なく完全収録されていること', () => {
@@ -44,7 +47,7 @@ describe('知識の処方箋（名作参考書：歴史人物80）UI/UX 結合�
     expect(nameSet.size).toBe(80);
   });
 
-  it('「💊 歴史人物80 処方問題を解く！」をクリックするとクイズモーダルが開き、即答キーワード・学校名・4択が表示される', async () => {
+  it('「▶ 知識の処方箋をつくる（10問）」をクリックするとクイズモーダルが開き、即答キーワード・学校名・4択が表示される', async () => {
     render(
       <MemoryRouter>
         <HomePage />

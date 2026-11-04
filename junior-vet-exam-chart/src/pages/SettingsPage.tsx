@@ -165,7 +165,7 @@ export const SettingsPage: React.FC = () => {
       const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
-        if (k && (k.startsWith('junior_vet_memory_retention_') || k === 'junior_vet_earned_stamps')) {
+        if (k && (k.startsWith('junior_vet_memory_retention_') || k === 'junior_vet_earned_stamps' || k.startsWith('junior_vet_points'))) {
           keysToRemove.push(k);
         }
       }
