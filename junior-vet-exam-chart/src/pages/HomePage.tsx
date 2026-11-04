@@ -556,7 +556,7 @@ export const HomePage: React.FC = () => {
                     次の目標：<strong>{pointsSummary.nextRank.title}</strong>
                   </span>
                   <span>
-                    あと <strong>{pointsSummary.pointsToNextRank} こ</strong>
+                    元気のもと あと <strong>{pointsSummary.pointsToNextRank} こ</strong>
                   </span>
                 </>
               ) : (
