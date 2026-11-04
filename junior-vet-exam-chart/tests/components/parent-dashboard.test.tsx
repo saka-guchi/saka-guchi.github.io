@@ -31,7 +31,8 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     // 4つのタブ
     expect(screen.getByTestId('parent-tab-charts')).toBeInTheDocument();
     expect(screen.getByTestId('parent-tab-advice')).toBeInTheDocument();
-    expect(screen.getByTestId('parent-tab-print')).toBeInTheDocument();
+    expect(screen.getByTestId('parent-tab-mental')).toBeInTheDocument();
+    expect(screen.queryByTestId('parent-tab-print')).not.toBeInTheDocument();
     expect(screen.getByTestId('parent-tab-reports')).toBeInTheDocument();
 
     // 統計サマリーカード（本日の学習時間・本日の解答数が最優先）
@@ -39,6 +40,16 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     expect(screen.getByText(/本日の解答数/)).toBeInTheDocument();
     expect(screen.getByText(/連続学習日数/)).toBeInTheDocument();
     expect(screen.getByText(/累計学習実績/)).toBeInTheDocument();
+    expect(screen.getByTestId('summary-points-status')).toHaveTextContent(/元気のもと/);
+
+    // 4教科の症例カルテ全快進度（「全快マスター」ではなく「全快」統一）
+    expect(screen.getByText(/4教科の症例カルテ全快進度/)).toBeInTheDocument();
+    expect(screen.getAllByText(/全快:/).length).toBe(4);
+
+    // 知識の処方箋マスター進度セクション
+    expect(screen.getByTestId('prescription-progress-section')).toBeInTheDocument();
+    expect(screen.getByText(/知識の処方箋マスター進度/)).toBeInTheDocument();
+    expect(screen.getByTestId('prescription-card-history-80')).toBeInTheDocument();
 
     // 閉じるボタン
     const closeBtn = screen.getByLabelText('閉じる');
@@ -79,9 +90,9 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     expect(screen.getByText('🎉 約束達成！おめでとう！')).toBeInTheDocument();
     expect(localStorage.getItem('junior_vet_reward_achieved')).toBe('true');
 
-    // 「🖨️ 弱点処方箋＆A4印刷」タブに切り替え
-    const printTab = screen.getByTestId('parent-tab-print');
-    fireEvent.click(printTab);
+    // 「📈 成績」タブ（弱点処方箋＆A4印刷が統合）に切り替え
+    const chartsTab = screen.getByTestId('parent-tab-charts');
+    fireEvent.click(chartsTab);
 
     expect(screen.getByText(/A4弱点克服チェックシートを印刷/)).toBeInTheDocument();
     const printButton = screen.getByTestId('print-worksheet-btn');
@@ -105,9 +116,9 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     const handleStartWeakness = vi.fn();
     render(<ParentDashboardModal onClose={handleClose} onStartWeaknessQuiz={handleStartWeakness} />);
 
-    // タブ3へ移動
-    const printTab = screen.getByTestId('parent-tab-print');
-    fireEvent.click(printTab);
+    // 「📈 成績」タブ（弱点処方箋＆A4印刷が統合）に切り替え
+    const chartsTab = screen.getByTestId('parent-tab-charts');
+    fireEvent.click(chartsTab);
 
     // 弱点TOP3セクション内の指導ヒント展開ボタンを探す
     const guideBtns = screen.getAllByRole('button', { name: /急所・指導ヒントを見る/ });
@@ -166,9 +177,9 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
       expect(screen.getByRole('heading', { name: '指導医ログ' })).toBeInTheDocument();
     });
 
-    // タブ3へ移動
-    const printTab = screen.getByTestId('parent-tab-print');
-    fireEvent.click(printTab);
+    // 「📈 成績」タブ（弱点処方箋＆A4印刷が統合）に切り替え
+    const chartsTab = screen.getByTestId('parent-tab-charts');
+    fireEvent.click(chartsTab);
 
     // 指導ヒントを展開
     const guideBtns = screen.getAllByRole('button', { name: /急所・指導ヒントを見る/ });

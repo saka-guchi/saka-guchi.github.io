@@ -6,6 +6,8 @@ import { getMemoryRetention } from '../utils/memory-retention';
 import { getTodayStudyStats, type TodayStudyStats } from '../utils/progress-analytics';
 import { getPointsSummary, type PointsSummary } from '../utils/points-manager';
 import { ANIMAL_STAMPS, getEarnedStampIds } from '../data/animal-stamps';
+import { REFERENCE_BOOKS, type ReferenceBookInfo } from '../data/extra-history-80';
+import { getRefBookProgress, type RefBookProgress } from '../utils/reference-book-store';
 import { sound } from '../utils/sound-effects';
 import { fireConfetti } from '../utils/confetti';
 import type { FinalChallengeResult } from '../types';
@@ -27,7 +29,6 @@ import {
   getParentAuditLogs,
   getParentPinLockoutStatus,
   generateParentGuidance,
-  OFFICIAL_CRISIS_CONTACTS,
   type ParentAuditLogEntry,
   type WeatherType,
   type SharedCareSignal,
@@ -55,7 +56,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   onStartWeaknessQuiz,
   onInspectQuestion,
 }) => {
-  const [activeTab, setActiveTab] = useState<'charts' | 'advice' | 'mental' | 'print' | 'reports'>('charts');
+  const [activeTab, setActiveTab] = useState<'charts' | 'advice' | 'mental' | 'reports'>('charts');
 
   // こころ機能データ（保護者開示データのみ・private非参照）
   const [sharedWeatherMap, setSharedWeatherMap] = useState<SharedWeatherDaily>({});
@@ -265,6 +266,15 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
 
   // 本日の学習量（時間、解答数、正答率、連続日数、累計）
   const [pointsSummary, setPointsSummary] = useState<PointsSummary>(() => getPointsSummary());
+  const [refBookProgressList, setRefBookProgressList] = useState<{
+    book: ReferenceBookInfo;
+    progress: RefBookProgress;
+  }[]>(() => {
+    return REFERENCE_BOOKS.map(book => ({
+      book,
+      progress: getRefBookProgress(book.id),
+    }));
+  });
   const [todayStats, setTodayStats] = useState<TodayStudyStats>({
     questionCount: 0,
     studyMinutes: 0,
@@ -333,6 +343,20 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
 
     // 4. 今日の学習データ集計
     getTodayStudyStats().then(setTodayStats);
+
+    const handlePointsUpdate = () => {
+      setPointsSummary(getPointsSummary());
+      setRefBookProgressList(
+        REFERENCE_BOOKS.map(book => ({
+          book,
+          progress: getRefBookProgress(book.id),
+        }))
+      );
+    };
+    window.addEventListener('junior-vet-points-updated', handlePointsUpdate);
+    return () => {
+      window.removeEventListener('junior-vet-points-updated', handlePointsUpdate);
+    };
   }, []);
 
   // 教科別マスター進度
@@ -518,10 +542,9 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
           {(() => {
             const unresolvedCount = reports.filter(r => !r.resolved).length;
             return [
-              { id: 'charts', label: '📈 成績', badge: 0 },
-              { id: 'advice', label: '🐱 声かけ', badge: 0 },
+              { id: 'charts', label: '📈 成績カルテ', badge: 0 },
+              { id: 'advice', label: '💬 コミュニケーション', badge: 0 },
               { id: 'mental', label: `💚 こころ${careSignal?.active ? ' 🔴' : ''}`, badge: careSignal?.active ? 1 : 0 },
-              { id: 'print', label: '🖨️ 印刷', badge: 0 },
               {
                 id: 'reports',
                 label: `🛠️ 修正依頼${unresolvedCount > 0 ? ` (${unresolvedCount})` : ''}`,
@@ -574,11 +597,10 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
 
         {/* コンテンツエリア */}
         <div style={{ padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', flex: 1 }}>
-          {/* ================= タブ1: グラフ可視化 ================= */}
           {activeTab === 'charts' && (
             <>
               {/* サマリーカード 4枚（本日の学習実績を最優先表示） */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+              <div className={styles.summaryGrid}>
                 {/* 1. 今日の学習時間（最重要・緑系） */}
                 <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: '12px', padding: '12px', textAlign: 'center', boxShadow: '0 2px 6px rgba(34, 197, 94, 0.08)' }}>
                   <div style={{ fontSize: '11px', color: '#166534', fontWeight: 'bold' }}>⏱️ 本日の学習時間</div>
@@ -620,6 +642,9 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                   </div>
                   <div style={{ fontSize: '10px', color: '#be185d' }}>
                     総時間 約{todayStats.totalMinutes}分 / 動物 {earnedStamps.length}匹
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#9d174d', fontWeight: 'bold', marginTop: '4px', borderTop: '1px dashed #fbcfe8', paddingTop: '3px' }} data-testid="summary-points-status">
+                    🐾 元気のもと: {pointsSummary.totalPoints}こ（{pointsSummary.currentRank.badge} {pointsSummary.currentRank.title}）
                   </div>
                 </div>
               </div>
@@ -701,7 +726,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
               {/* 4教科の理解度・マスター進度（全テーマ） */}
               <div style={{ background: 'var(--surface-subtle)', borderRadius: '14px', padding: '16px', border: '1px solid var(--border)' }}>
                 <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--text)', fontWeight: 'bold' }}>
-                  📊 4教科のマスター進度（全{ALL_PROGRESS_SKILLS.length}テーマ）
+                  📊 4教科の症例カルテ全快進度（全{ALL_PROGRESS_SKILLS.length}テーマ）
                 </h4>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -717,12 +742,104 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                           <span style={{ fontSize: '13px', fontWeight: 'bold', color: sub.color }}>{sub.label}</span>
                           <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                            全快マスター: <strong>{sub.mastered}</strong> / {sub.count} テーマ達成 ({percent}%)
+                            全快: <strong>{sub.mastered}</strong> / {sub.count} 症例達成 ({percent}%)
                           </span>
                         </div>
                         <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
                           <div style={{ width: `${Math.max(8, percent)}%`, height: '100%', background: sub.color, transition: 'width 0.4s ease' }} />
                         </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 合格ドクター認定試験のスコア推移グラフ */}
+              {/* 知識の処方箋マスター進度（名作参考書特訓） */}
+              <div style={{ background: 'var(--surface-subtle)', borderRadius: '14px', padding: '16px', border: '1px solid var(--border)' }} data-testid="prescription-progress-section">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text)', fontWeight: 'bold' }}>
+                    💊 知識の処方箋マスター進度（名作参考書特訓）
+                  </h4>
+                  <span style={{ fontSize: '11px', color: '#0d9488', fontWeight: 'bold' }}>
+                    入試頻出の特効知識を処方！
+                  </span>
+                </div>
+                <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: 'var(--text-subtle)', lineHeight: 1.4 }}>
+                  名作参考書から厳選した重要知識をクイズ形式で特訓した進捗です。
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {refBookProgressList.map(({ book, progress }) => {
+                    const isAvailable = book.status === 'available';
+                    const masteredCount = progress.masteredIds.length;
+                    const totalCount = book.availableQuestionsCount;
+                    const percent = totalCount > 0 ? Math.round((masteredCount / totalCount) * 100) : 0;
+
+                    return (
+                      <div
+                        key={book.id}
+                        style={{
+                          background: 'var(--surface)',
+                          padding: '12px 14px',
+                          borderRadius: '10px',
+                          border: '1px solid var(--border)',
+                          opacity: isAvailable ? 1 : 0.75,
+                        }}
+                        data-testid={`prescription-card-${book.id}`}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', flexWrap: 'wrap', gap: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '16px' }}>{book.coverEmoji}</span>
+                            <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text)' }}>
+                              {book.title}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: '10px',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                background: isAvailable ? '#ccfbf1' : '#f1f5f9',
+                                color: isAvailable ? '#0f766e' : '#64748b',
+                                fontWeight: 'bold',
+                              }}
+                            >
+                              {book.badgeText}
+                            </span>
+                          </div>
+                          <span style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
+                            {isAvailable ? (
+                              <>
+                                処方完了: <strong>{masteredCount}</strong> / {totalCount} 人 ({percent}%)
+                                {progress.clearedSessionsCount > 0 && (
+                                  <span style={{ marginLeft: '6px', color: '#0d9488', fontWeight: 'bold' }}>
+                                    （完了 {progress.clearedSessionsCount}回）
+                                  </span>
+                                )}
+                              </>
+                            ) : (
+                              <span style={{ color: '#94a3b8' }}>近日調合予定</span>
+                            )}
+                          </span>
+                        </div>
+
+                        {/* プログレスバー */}
+                        <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div
+                            style={{
+                              width: isAvailable ? `${Math.max(masteredCount > 0 ? 8 : 0, percent)}%` : '0%',
+                              height: '100%',
+                              background: 'linear-gradient(90deg, #14b8a6 0%, #0d9488 100%)',
+                              transition: 'width 0.4s ease',
+                            }}
+                          />
+                        </div>
+
+                        {isAvailable && progress.lastStudiedAt && (
+                          <div style={{ fontSize: '10px', color: 'var(--text-subtle)', textAlign: 'right', marginTop: '4px' }}>
+                            最終処方日時: {progress.lastStudiedAt}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -791,153 +908,6 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                   </div>
                 )}
               </div>
-            </>
-          )}
-
-          {/* ================= タブ2: 声かけヒント＆お約束 ================= */}
-          {activeTab === 'advice' && (
-            <>
-              {/* ナース猫ミケちゃんの声かけアドバイス */}
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
-                  border: '1.5px solid #fde68a',
-                  borderRadius: '16px',
-                  padding: '16px 20px',
-                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.08)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                  <span style={{ fontSize: '32px' }}>🐱</span>
-                  <div>
-                    <h4 style={{ margin: 0, fontSize: '15px', color: '#92400e', fontWeight: 'bold' }}>
-                      ナース猫ミケちゃんからの「今日のお子さんへの声かけヒント」
-                    </h4>
-                    <div style={{ fontSize: '11px', color: '#b45309' }}>
-                      中学受験のモチベーションを高める具体的なほめ言葉
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ background: '#ffffff', borderRadius: '12px', padding: '14px', border: '1px solid #fef08a', lineHeight: '1.6', fontSize: '13px', color: '#78350f' }}>
-                  <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>
-                    💡 今日のおすすめの褒め言葉：
-                  </p>
-                  <blockquote style={{ margin: '0 0 10px 0', paddingLeft: '12px', borderLeft: '3px solid #f59e0b', fontStyle: 'italic', color: '#1e293b' }}>
-                    「毎日ちゃんと5分カルテを開いて解いているのが本当に偉いね！コツコツ続ける力は、入試本番で一番大きな武器になるよ。」
-                  </blockquote>
-                  <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
-                    ※ 結果（点数）だけでなく、「毎日机に向かった行動」や「途中で諦めず考え直したプロセス」を具体的に認めてあげると、自己肯定感と学習意欲が劇的に高まります。
-                  </p>
-                </div>
-              </div>
-
-              {/* 親子のごほうび約束メモ */}
-              <div style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px 20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '24px' }}>🎁</span>
-                    <h4 style={{ margin: 0, fontSize: '15px', color: 'var(--text)', fontWeight: 'bold' }}>
-                      親子のごほうび約束メモ
-                    </h4>
-                  </div>
-                  {!isEditingGoal && (
-                    <button
-                      onClick={() => setIsEditingGoal(true)}
-                      style={{
-                        background: 'none',
-                        border: '1px solid var(--border)',
-                        borderRadius: '6px',
-                        padding: '4px 8px',
-                        fontSize: '11px',
-                        cursor: 'pointer',
-                        color: 'var(--primary)',
-                      }}
-                    >
-                      ✏️ 編集する
-                    </button>
-                  )}
-                </div>
-
-                {isEditingGoal ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <input
-                      id="parent-goal-input"
-                      name="parentGoal"
-                      type="text"
-                      value={editGoalText}
-                      onChange={e => setEditGoalText(e.target.value)}
-                      placeholder="例: 算数で80点取れたらケーキバイキング！"
-                      autoComplete="off"
-                      style={{
-                        width: '100%',
-                        padding: '10px',
-                        borderRadius: '8px',
-                        border: '1.5px solid var(--primary)',
-                        fontSize: '14px',
-                      }}
-                    />
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button
-                        onClick={() => setIsEditingGoal(false)}
-                        style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface)', fontSize: '12px' }}
-                      >
-                        キャンセル
-                      </button>
-                      <button
-                        onClick={handleSaveGoal}
-                        style={{ padding: '6px 16px', borderRadius: '6px', border: 'none', background: 'var(--primary)', color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
-                      >
-                        保存する
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      background: rewardAchieved ? '#dcfce7' : '#ffffff',
-                      border: `1.5px solid ${rewardAchieved ? '#86efac' : 'var(--border)'}`,
-                      borderRadius: '12px',
-                      padding: '14px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>現在の約束目標：</div>
-                      <div style={{ fontSize: '15px', fontWeight: 'bold', color: rewardAchieved ? '#15803d' : 'var(--text)', marginTop: '2px' }}>
-                        {rewardGoal}
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleToggleRewardAchieved}
-                      style={{
-                        background: rewardAchieved ? '#16a34a' : 'var(--surface-subtle)',
-                        color: rewardAchieved ? '#ffffff' : 'var(--text)',
-                        border: `1.5px solid ${rewardAchieved ? '#15803d' : 'var(--border)'}`,
-                        borderRadius: 'var(--radius-pill)',
-                        padding: '8px 16px',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                      }}
-                    >
-                      {rewardAchieved ? '🎉 約束達成！おめでとう！' : '⬜ 達成したらチェック！'}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-
-          {/* ================= タブ3: 弱点処方箋＆A4印刷 ================= */}
-          {activeTab === 'print' && (
-            <>
               {/* 現在の弱点テーマTOP3 */}
               <div style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px 20px' }}>
                 <h4 style={{ margin: '0 0 10px 0', fontSize: '15px', color: 'var(--text)', fontWeight: 'bold' }}>
@@ -1129,6 +1099,318 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                 </button>
               </div>
             </>
+          )}
+
+          {/* ================= タブ2: コミュニケーション ＆ お約束 ================= */}
+          {activeTab === 'advice' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} data-testid="parent-communication-tab">
+              {/* アクション完了フィードバック */}
+              {actionDoneToast && (
+                <div
+                  style={{
+                    background: '#f0fdf4',
+                    border: '1.5px solid #86efac',
+                    borderRadius: '12px',
+                    padding: '12px 16px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#166534',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    animation: 'fadeIn 0.2s ease',
+                  }}
+                  data-testid="parent-action-done-toast"
+                >
+                  <span>🎉</span>
+                  <span>{actionDoneToast}</span>
+                </div>
+              )}
+
+              {/* 1. ナース猫ミケちゃんからの「今日かけたい言葉（承認・共感フレーズ）」最適化統合カード */}
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                  border: '1.5px solid #fde68a',
+                  borderRadius: '16px',
+                  padding: '18px 20px',
+                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.08)',
+                }}
+                data-testid="recommended-phrases-card"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                  <span style={{ fontSize: '32px' }}>🐱</span>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '15px', color: '#92400e', fontWeight: 800 }}>
+                      ナース猫ミケちゃんからの「今日のお子さんへの声かけヒント」（今日かけたい言葉）
+                    </h4>
+                    <div style={{ fontSize: '11px', color: '#b45309' }}>
+                      中学受験のモチベーションを高める具体的なほめ言葉・承認フレーズ
+                    </div>
+                  </div>
+                </div>
+
+                {/* フレーズ一覧 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '12px' }}>
+                  {guidance.recommendedPhrases && guidance.recommendedPhrases.length > 0 ? (
+                    guidance.recommendedPhrases.map(phrase => (
+                      <div
+                        key={phrase.id}
+                        style={{
+                          background: '#ffffff',
+                          borderLeft: '4px solid #f59e0b',
+                          borderRadius: '10px',
+                          padding: '12px 14px',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                        }}
+                      >
+                        <div style={{ fontSize: '12px', fontWeight: 800, color: '#b45309', marginBottom: '4px' }}>
+                          💬 {phrase.title || phrase.situation}
+                        </div>
+                        <div style={{ fontSize: '13px', color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
+                          {phrase.detail || phrase.phrase}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div
+                      style={{
+                        background: '#ffffff',
+                        borderLeft: '4px solid #f59e0b',
+                        borderRadius: '10px',
+                        padding: '12px 14px',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                      }}
+                    >
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#b45309', marginBottom: '4px' }}>
+                        💬 努力と継続を認める声かけ
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
+                        「毎日ちゃんと5分カルテを開いて解いているのが本当に偉いね！コツコツ続ける力は、入試本番で一番大きな武器になるよ。」
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ミケちゃんのワンポイントアドバイス */}
+                <div
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    fontSize: '11px',
+                    color: '#78350f',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  💡 <strong>声かけのコツ:</strong> 結果（点数）だけでなく、「毎日机に向かった行動」や「途中で諦めず考え直したプロセス」を具体的に認めてあげると、自己肯定感と学習意欲が劇的に高まります。
+                </div>
+              </div>
+
+              {/* 2. 家庭でできるケア行動（親のアクション・チェックリスト） */}
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1.5px solid #fed7aa',
+                  borderRadius: '16px',
+                  padding: '18px 20px',
+                }}
+                data-testid="home-care-checklist-card"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '22px' }}>🍵</span>
+                    <h4 style={{ margin: 0, fontSize: '15px', color: '#9a3412', fontWeight: 800 }}>
+                      家庭でできるケア行動（親のアクション・チェックリスト）
+                    </h4>
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#c2410c', fontWeight: 700 }}>
+                    タップして実行をチェック ✅
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {guidance.careActions.map(action => {
+                    const isDone = !!parentChecklist[action.id];
+                    return (
+                      <div
+                        key={action.id}
+                        onClick={() => handleToggleParentAction(action.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '12px',
+                          background: isDone ? '#f0fdf4' : '#fff7ed',
+                          border: `1.5px solid ${isDone ? '#86efac' : '#fdba74'}`,
+                          borderRadius: '10px',
+                          padding: '10px 14px',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                        }}
+                        role="checkbox"
+                        aria-checked={isDone}
+                        data-testid={`parent-action-item-${action.id}`}
+                      >
+                        <span style={{ fontSize: '20px', lineHeight: 1 }}>
+                          {isDone ? '✅' : '⬜'}
+                        </span>
+                        <div style={{ flex: 1 }}>
+                          <div
+                            style={{
+                              fontSize: '13px',
+                              fontWeight: 800,
+                              color: isDone ? '#166534' : '#7c2d12',
+                              textDecoration: isDone ? 'line-through' : 'none',
+                            }}
+                          >
+                            {action.title}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#4b5563', marginTop: '2px', lineHeight: 1.4 }}>
+                            {action.desc || action.detail}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 3. 今は避けたほうがよいNGワード（理由と解説） */}
+              <div
+                style={{
+                  background: '#fff1f2',
+                  border: '1.5px solid #fecdd3',
+                  borderRadius: '16px',
+                  padding: '18px 20px',
+                }}
+                data-testid="ng-words-card"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '22px' }}>⚠️</span>
+                  <h4 style={{ margin: 0, fontSize: '15px', color: '#9f1239', fontWeight: 800 }}>
+                    今は避けたほうがよいNGワード（理由と解説）
+                  </h4>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {guidance.avoidPhrases.map((phrase, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #ffe4e6',
+                        borderRadius: '10px',
+                        padding: '10px 14px',
+                      }}
+                    >
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#e11d48' }}>
+                        {phrase}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 親子のごほうび約束メモ */}
+              <div style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px 20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '24px' }}>🎁</span>
+                    <h4 style={{ margin: 0, fontSize: '15px', color: 'var(--text)', fontWeight: 'bold' }}>
+                      親子のごほうび約束メモ
+                    </h4>
+                  </div>
+                  {!isEditingGoal && (
+                    <button
+                      onClick={() => setIsEditingGoal(true)}
+                      style={{
+                        background: 'none',
+                        border: '1px solid var(--border)',
+                        borderRadius: '6px',
+                        padding: '4px 8px',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        color: 'var(--primary)',
+                      }}
+                    >
+                      ✏️ 編集する
+                    </button>
+                  )}
+                </div>
+
+                {isEditingGoal ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <input
+                      id="parent-goal-input"
+                      name="parentGoal"
+                      type="text"
+                      value={editGoalText}
+                      onChange={e => setEditGoalText(e.target.value)}
+                      placeholder="例: 算数で80点取れたらケーキバイキング！"
+                      autoComplete="off"
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        border: '1.5px solid var(--primary)',
+                        fontSize: '14px',
+                      }}
+                    />
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                      <button
+                        onClick={() => setIsEditingGoal(false)}
+                        style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface)', fontSize: '12px' }}
+                      >
+                        キャンセル
+                      </button>
+                      <button
+                        onClick={handleSaveGoal}
+                        style={{ padding: '6px 16px', borderRadius: '6px', border: 'none', background: 'var(--primary)', color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
+                      >
+                        保存する
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      background: rewardAchieved ? '#dcfce7' : '#ffffff',
+                      border: `1.5px solid ${rewardAchieved ? '#86efac' : 'var(--border)'}`,
+                      borderRadius: '12px',
+                      padding: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>現在の約束目標：</div>
+                      <div style={{ fontSize: '15px', fontWeight: 'bold', color: rewardAchieved ? '#15803d' : 'var(--text)', marginTop: '2px' }}>
+                        {rewardGoal}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleToggleRewardAchieved}
+                      style={{
+                        background: rewardAchieved ? '#16a34a' : 'var(--surface-subtle)',
+                        color: rewardAchieved ? '#ffffff' : 'var(--text)',
+                        border: `1.5px solid ${rewardAchieved ? '#15803d' : 'var(--border)'}`,
+                        borderRadius: 'var(--radius-pill)',
+                        padding: '8px 16px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      {rewardAchieved ? '🎉 約束達成！おめでとう！' : '⬜ 達成したらチェック！'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
           {/* ================= タブ3: こころの見守り処方箋 ================= */}
@@ -1562,201 +1844,6 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                     )}
                   </div>
 
-                  {/* 2. 今日かけたい言葉（家庭での承認・共感フレーズ） */}
-                  <div
-                    style={{
-                      background: '#ffffff',
-                      border: '1.5px solid #bfdbfe',
-                      borderRadius: '16px',
-                      padding: '18px 20px',
-                    }}
-                    data-testid="recommended-phrases-card"
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '22px' }}>💬</span>
-                      <h4 style={{ margin: 0, fontSize: '15px', color: '#1e40af', fontWeight: 800 }}>
-                        今日かけたい言葉（家庭での承認・共感フレーズ）
-                      </h4>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      {guidance.recommendedPhrases.map(phrase => (
-                        <div
-                          key={phrase.id}
-                          style={{
-                            background: '#eff6ff',
-                            borderLeft: '4px solid #3b82f6',
-                            borderRadius: '8px',
-                            padding: '10px 14px',
-                          }}
-                        >
-                          <div style={{ fontSize: '12px', fontWeight: 800, color: '#1d4ed8', marginBottom: '2px' }}>
-                            {phrase.title || phrase.situation}
-                          </div>
-                          <div style={{ fontSize: '13px', color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
-                            {phrase.detail || phrase.phrase}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 3. 家庭でできる具体的なケア行動＆親のチェックリスト */}
-                  <div
-                    style={{
-                      background: '#ffffff',
-                      border: '1.5px solid #fed7aa',
-                      borderRadius: '16px',
-                      padding: '18px 20px',
-                    }}
-                    data-testid="home-care-checklist-card"
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '6px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '22px' }}>🍵</span>
-                        <h4 style={{ margin: 0, fontSize: '15px', color: '#9a3412', fontWeight: 800 }}>
-                          家庭でできるケア行動（親のアクション・チェックリスト）
-                        </h4>
-                      </div>
-                      <span style={{ fontSize: '11px', color: '#c2410c', fontWeight: 700 }}>
-                        タップして実行をチェック ✅
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {guidance.careActions.map(action => {
-                        const isDone = !!parentChecklist[action.id];
-                        return (
-                          <div
-                            key={action.id}
-                            onClick={() => handleToggleParentAction(action.id)}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'flex-start',
-                              gap: '12px',
-                              background: isDone ? '#f0fdf4' : '#fff7ed',
-                              border: `1.5px solid ${isDone ? '#86efac' : '#fdba74'}`,
-                              borderRadius: '10px',
-                              padding: '10px 14px',
-                              cursor: 'pointer',
-                              transition: 'all 0.15s ease',
-                            }}
-                            role="checkbox"
-                            aria-checked={isDone}
-                            data-testid={`parent-action-item-${action.id}`}
-                          >
-                            <span style={{ fontSize: '20px', lineHeight: 1 }}>
-                              {isDone ? '✅' : '⬜'}
-                            </span>
-                            <div style={{ flex: 1 }}>
-                              <div
-                                style={{
-                                  fontSize: '13px',
-                                  fontWeight: 800,
-                                  color: isDone ? '#166534' : '#7c2d12',
-                                  textDecoration: isDone ? 'line-through' : 'none',
-                                }}
-                              >
-                                {action.title}
-                              </div>
-                              <div style={{ fontSize: '12px', color: '#4b5563', marginTop: '2px', lineHeight: 1.4 }}>
-                                {action.desc || action.detail}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* 4. 言ってはいけないNGワード集 */}
-                  <div
-                    style={{
-                      background: '#fff1f2',
-                      border: '1.5px solid #fecdd3',
-                      borderRadius: '16px',
-                      padding: '18px 20px',
-                    }}
-                    data-testid="ng-words-card"
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '22px' }}>⚠️</span>
-                      <h4 style={{ margin: 0, fontSize: '15px', color: '#9f1239', fontWeight: 800 }}>
-                        今は避けたほうがよいNGワード（理由と解説）
-                      </h4>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {guidance.avoidPhrases.map((phrase, idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            background: '#ffffff',
-                            border: '1px solid #ffe4e6',
-                            borderRadius: '10px',
-                            padding: '10px 14px',
-                          }}
-                        >
-                          <div style={{ fontSize: '13px', fontWeight: 800, color: '#e11d48' }}>
-                            {phrase}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 5. こんなときは専門家へ（目安と無料の公的相談窓口） */}
-                  <div
-                    style={{
-                      background: '#f8fafc',
-                      border: '1.5px solid #cbd5e1',
-                      borderRadius: '16px',
-                      padding: '18px 20px',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '22px' }}>🏥</span>
-                      <h4 style={{ margin: 0, fontSize: '15px', color: '#334155', fontWeight: 800 }}>
-                        こんなときは専門家へ（相談の目安と公的窓口）
-                      </h4>
-                    </div>
-                    <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px 0', lineHeight: 1.5 }}>
-                      親御さんだけで抱え込まず、以下のサインが見られる場合はスクールカウンセラーや専門医療機関、公的相談窓口へご相談ください。
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
-                      {guidance.expertConsultationSignals.map((sig, idx) => (
-                        <div key={idx} style={{ fontSize: '12px', color: '#475569', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ color: '#ef4444' }}>•</span>
-                          <span>{sig}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div style={{ borderTop: '1px dashed #cbd5e1', paddingTop: '12px' }}>
-                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#1e293b', marginBottom: '6px' }}>
-                        📞 無料の公的相談窓口（24時間・匿名可）
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '8px' }}>
-                        {OFFICIAL_CRISIS_CONTACTS.map((c, idx) => (
-                          <div
-                            key={idx}
-                            style={{
-                              background: '#ffffff',
-                              border: '1px solid #e2e8f0',
-                              borderRadius: '8px',
-                              padding: '8px 12px',
-                              fontSize: '11px',
-                            }}
-                          >
-                            <div style={{ fontWeight: 700, color: '#0f172a' }}>{c.name}</div>
-                            <div style={{ color: '#0284c7', fontWeight: 800, fontSize: '13px', margin: '2px 0' }}>
-                              {c.phone}
-                            </div>
-                            <div style={{ color: '#64748b', fontSize: '10px' }}>{c.description}（{c.hours}）</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
                   {/* 6. お子さんからの「伝えるカード」＆直近のまとめ */}
                   {(sharedCareCards.length > 0 || Object.keys(sharedWeeklySummaries).length > 0) && (
                     <div
@@ -1978,7 +2065,6 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
             </div>
           )}
 
-          {/* ================= タブ4: 問題修正依頼一覧 ================= */}
           {activeTab === 'reports' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} data-testid="parent-reports-tab">
               <div
