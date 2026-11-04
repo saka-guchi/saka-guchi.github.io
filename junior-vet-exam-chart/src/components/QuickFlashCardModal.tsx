@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { THEME_ENHANCEMENTS, ThemeEnhancement } from '../data/vet-curriculum-enhancement';
 import { getMemoryRetention, boostMemoryRetention } from '../utils/memory-retention';
 import { sound } from '../utils/sound-effects';
@@ -12,21 +12,64 @@ interface QuickFlashCardModalProps {
   onStartFocusSession?: (skillId: string) => void;
 }
 
+// Fisher-Yates シャッフル
+function shuffleArray<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
   initialSkillId,
   onClose,
   onRetentionUpdated,
   onStartFocusSession,
 }) => {
-  const keys = Object.keys(THEME_ENHANCEMENTS);
-  const initialIndex = initialSkillId ? Math.max(0, keys.indexOf(initialSkillId)) : 0;
+  // 案C: 忘れかけ単元（記憶定着度 retention % が低い順）優先＋同点シャッフル（スマート出題）
+  const orderedKeys = useMemo(() => {
+    const allKeys = Object.keys(THEME_ENHANCEMENTS);
+    const items = allKeys.map(k => ({
+      key: k,
+      retention: getMemoryRetention(THEME_ENHANCEMENTS[k]?.skillId || k),
+      subject: THEME_ENHANCEMENTS[k]?.subject,
+    }));
 
-  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+    const startItem = initialSkillId ? items.find(it => it.key === initialSkillId) : undefined;
+    const targetSubject = startItem?.subject;
+
+    // 同一教科を優先グループにする
+    const primaryGroup = targetSubject
+      ? items.filter(it => it.subject === targetSubject)
+      : items;
+    const secondaryGroup = targetSubject
+      ? items.filter(it => it.subject !== targetSubject)
+      : [];
+
+    const sortGroup = (group: typeof items, excludeKey?: string) => {
+      const filtered = excludeKey ? group.filter(it => it.key !== excludeKey) : group;
+      // まずシャッフルしてから retention 昇順ソート（同点はランダムに散らばる）
+      const shuffled = shuffleArray(filtered);
+      shuffled.sort((a, b) => a.retention - b.retention);
+      return shuffled.map(it => it.key);
+    };
+
+    const sortedPrimary = startItem
+      ? [startItem.key, ...sortGroup(primaryGroup, startItem.key)]
+      : sortGroup(primaryGroup);
+    const sortedSecondary = sortGroup(secondaryGroup);
+
+    return [...sortedPrimary, ...sortedSecondary];
+  }, [initialSkillId]);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [boostMessage, setBoostMessage] = useState<string | null>(null);
 
-  const currentKey = keys[currentIndex];
-  const item: ThemeEnhancement = THEME_ENHANCEMENTS[currentKey] || THEME_ENHANCEMENTS[keys[0]];
+  const currentKey = orderedKeys[currentIndex] || orderedKeys[0];
+  const item: ThemeEnhancement = THEME_ENHANCEMENTS[currentKey] || THEME_ENHANCEMENTS[Object.keys(THEME_ENHANCEMENTS)[0]];
 
   // 記憶メーター値（ローカルストレージと同期）
   const [retention, setRetention] = useState<number>(() => getMemoryRetention(item.skillId));
@@ -42,7 +85,7 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
   };
 
   const handleNext = () => {
-    if (currentIndex < keys.length - 1) {
+    if (currentIndex < orderedKeys.length - 1) {
       sound.playPop();
       setIsFlipped(false);
       setBoostMessage(null);
@@ -92,9 +135,12 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
                 <span style={{ fontSize: '11px', fontWeight: '700', background: 'rgba(0,0,0,0.06)', padding: '2px 6px', borderRadius: '4px', color: 'var(--text-subtle)' }}>
                   トリアージ・カード
                 </span>
+                <span style={{ fontSize: '11px', fontWeight: '700', background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '2px 6px', borderRadius: '4px' }} data-testid="smart-priority-badge">
+                  🧠 忘れかけ優先
+                </span>
               </div>
               <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                カードをタップして裏返す（{currentIndex + 1} / {keys.length} 単元）
+                カードをタップして裏返す（{currentIndex + 1} / {orderedKeys.length} 単元）
               </div>
             </div>
           </div>
@@ -260,7 +306,7 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
           <button
             className={styles.navBtn}
             onClick={handleNext}
-            disabled={currentIndex === keys.length - 1}
+            disabled={currentIndex === orderedKeys.length - 1}
           >
             次の症例 →
           </button>
