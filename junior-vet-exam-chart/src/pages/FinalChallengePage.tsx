@@ -1,3 +1,4 @@
+import { APP_TERMS } from '../constants/terms';
 import { PauseConfirmModal } from '../components/PauseConfirmModal';
 import { recordDailyStudyCompleted } from '../utils/progress-analytics';
 import React, { useState, useEffect } from 'react';
@@ -317,7 +318,7 @@ export const FinalChallengePage: React.FC = () => {
             ← 戻る
           </button>
 
-          <span className={styles.modeBadge}>👑 合格ドクター認定試験</span>
+          <span className={styles.modeBadge}>{APP_TERMS.VET_CHALLENGE_WITH_ICON}</span>
 
           {/* 受験中の年度・教科タイトル表示 */}
           <div

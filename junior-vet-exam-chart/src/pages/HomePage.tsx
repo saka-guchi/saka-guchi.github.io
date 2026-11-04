@@ -658,7 +658,7 @@ export const HomePage: React.FC = () => {
           </button>
         </div>
 
-        {/* ゾーン3: 下段2カラム（全テーマの症例スタディ と 獣医師認定試験） */}
+        {/* ゾーン3: 下段2カラム（全テーマの症例スタディ と 獣医師チャレンジ） */}
         <div className={styles.bottomCardsGrid}>
           {/* 左カラム: 🩺 症例スタディ（全テーマ） */}
           <div

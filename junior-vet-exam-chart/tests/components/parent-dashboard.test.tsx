@@ -62,7 +62,7 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
 
     // 最初はグラフタブが表示
     expect(screen.getByText(/直近14日間の学習問題数推移/)).toBeInTheDocument();
-    expect(screen.getByText(/本番認定試験の得点推移/)).toBeInTheDocument();
+    expect(screen.getByText(/獣医師チャレンジの得点推移/)).toBeInTheDocument();
 
     // 「🐱 ほめ言葉＆お約束」タブに切り替え
     const adviceTab = screen.getByTestId('parent-tab-advice');

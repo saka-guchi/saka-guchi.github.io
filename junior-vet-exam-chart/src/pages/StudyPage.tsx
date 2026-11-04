@@ -1,3 +1,4 @@
+import { APP_TERMS } from '../constants/terms';
 import { PauseConfirmModal } from '../components/PauseConfirmModal';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -171,7 +172,7 @@ export const StudyPage: React.FC = () => {
           >
             ← 戻る
           </button>
-          <span className={styles.modeBadge}>🩺 本日の診察</span>
+          <span className={styles.modeBadge}>{APP_TERMS.DAILY_CONSULTATION_WITH_ICON}</span>
           <span className={styles.subjectBadge}>
             出題教科：{getSubjectJaWithIcon(currentQ.subject)}
           </span>

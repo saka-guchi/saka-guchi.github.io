@@ -110,10 +110,10 @@ export const FinalExamHistoryModal: React.FC<FinalExamHistoryModalProps> = ({ on
               <span style={{ fontSize: '24px' }}>📋</span>
               <div>
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--text)' }}>
-                  合格ドクター認定試験 採点カルテ・成績表
+                  🏆 獣医師チャレンジ 採点カルテ・成績表
                 </h3>
                 <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
-                  これまでの本番模試・実力テストの受験記録（保護者の方への共有用）
+                  これまでの獣医師チャレンジの受験記録（保護者の方への共有用）
                 </div>
               </div>
             </div>
@@ -197,7 +197,7 @@ export const FinalExamHistoryModal: React.FC<FinalExamHistoryModalProps> = ({ on
                   }}
                 >
                   まだ認定試験の受験履歴がありません。<br />
-                  ホーム画面の「合格ドクター認定試験を受ける」から腕試しに挑戦してみましょう！
+                  ホーム画面の「🏆 獣医師チャレンジ」から腕試しに挑戦してみましょう！
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
