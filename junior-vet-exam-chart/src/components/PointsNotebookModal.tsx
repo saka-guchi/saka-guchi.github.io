@@ -1,3 +1,4 @@
+import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 import React, { useEffect, useMemo } from 'react';
 import {
   getPointsSummary,
@@ -15,6 +16,7 @@ interface PointsNotebookModalProps {
 }
 
 export const PointsNotebookModal: React.FC<PointsNotebookModalProps> = ({ onClose }) => {
+  useBodyScrollLock();
   const summary = useMemo(() => getPointsSummary(), []);
   const dailyMap = useMemo(() => getDailyPointsMap(), []);
   const todayJst = useMemo(() => getJstDateString(new Date()), []);

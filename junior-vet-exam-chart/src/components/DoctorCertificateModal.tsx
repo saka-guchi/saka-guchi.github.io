@@ -1,3 +1,4 @@
+import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 import React, { useState, useEffect } from 'react';
 import { fireConfetti } from '../utils/confetti';
 import { sound } from '../utils/sound-effects';
@@ -16,6 +17,7 @@ export const DoctorCertificateModal: React.FC<DoctorCertificateModalProps> = ({
   isPerfectScore = true,
   hasMasterBadge = false,
 }) => {
+  useBodyScrollLock();
   const [userName, setUserName] = useState('みならいドクター');
   const todayStr = new Date().toLocaleDateString('ja-JP', {
     year: 'numeric',

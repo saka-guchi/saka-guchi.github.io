@@ -22,6 +22,7 @@ import { getAllExamScoreSummaries } from '../utils/exam-scores';
 import { getPointsSummary, type PointsSummary } from '../utils/points-manager';
 import { PointsNotebookModal } from '../components/PointsNotebookModal';
 import styles from './HomePage.module.css';
+import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 
 type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
 
@@ -52,6 +53,13 @@ export const HomePage: React.FC = () => {
   }, [examHistory]);
   const [showParentModal, setShowParentModal] = useState(false);
   const [showAllAnimalsModal, setShowAllAnimalsModal] = useState(false);
+  const isAnyInlineModalOpen = Boolean(
+    showStampModal ||
+    showCompletionHelpModal ||
+    showLevelHelpModal ||
+    showAllAnimalsModal
+  );
+  useBodyScrollLock(isAnyInlineModalOpen);
   const [flashCardSkillId, setFlashCardSkillId] = useState<string | null>(null);
   const [activePatientSkillId, setActivePatientSkillId] = useState<string | null>(null);
   const [activeRefBookId, setActiveRefBookId] = useState<string | null>(null);

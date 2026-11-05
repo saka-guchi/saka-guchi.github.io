@@ -38,6 +38,7 @@ import {
   type SharedWeatherDaily,
   type SharedParentRequestMap,
 } from '../utils/mental-care';
+import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 
 interface ParentDashboardModalProps {
   onClose: () => void;
@@ -125,6 +126,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   onStartWeaknessQuiz,
   onInspectQuestion,
 }) => {
+  useBodyScrollLock();
   const [activeTab, setActiveTab] = useState<'charts' | 'advice' | 'mental' | 'reports'>('charts');
 
   // こころ機能データ（保護者開示データのみ・private非参照）
@@ -512,8 +514,8 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
           position: 'fixed',
           inset: 0,
           background: 'var(--bg-primary, #f8fafc)',
-          width: '100vw',
-          height: '100vh',
+          width: '100%',
+          height: '100%',
           zIndex: 1100,
           display: 'flex',
           flexDirection: 'column',

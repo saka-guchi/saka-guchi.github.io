@@ -1,3 +1,4 @@
+import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 import React, { useState, useEffect, useMemo } from 'react';
 import { THEME_ENHANCEMENTS, ThemeEnhancement } from '../data/vet-curriculum-enhancement';
 import { getMemoryRetention, boostMemoryRetention } from '../utils/memory-retention';
@@ -28,6 +29,7 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
   onRetentionUpdated,
   onStartFocusSession,
 }) => {
+  useBodyScrollLock();
   // 案C: 忘れかけ単元（記憶定着度 retention % が低い順）優先＋同点シャッフル（スマート出題）
   const orderedKeys = useMemo(() => {
     const allKeys = Object.keys(THEME_ENHANCEMENTS);
