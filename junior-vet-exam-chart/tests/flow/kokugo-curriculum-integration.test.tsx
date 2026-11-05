@@ -116,21 +116,9 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
       fireEvent.click(nextBtn);
     }
 
-    // 原本スキャン画像が表示されていること
+    // 原本スキャン画像が表示されていること（テキスト・図表切り替えは非表示）
     expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
-    // テキスト・図表タブに切り替えて問題文と選択肢を検証
-    fireEvent.click(screen.getByText('📐 テキスト・図表'));
-
-    // ページ14のタイトルが表示されていること
-    expect(screen.getByText(/三、大問 3 設問（問7）/)).toBeInTheDocument();
-
-    // 【最重要】問題用紙エリアに問7の選択肢ア〜エが表示されていること
-    const questionChoices = screen.getByTestId('question-choices-問7');
-    expect(questionChoices).toBeInTheDocument();
-    expect(questionChoices).toHaveTextContent(/ア 比喩や倒置法/);
-    expect(questionChoices).toHaveTextContent(/イ 一般的な見方/);
-    expect(questionChoices).toHaveTextContent(/ウ 読み手が感じる疑問/);
-    expect(questionChoices).toHaveTextContent(/エ 読み手に語りかけるような文体/);
+    expect(screen.queryByText('📐 テキスト・図表')).toBeNull();
 
     // 解答用紙側（右側）にワンタップ選択ボタン（ア・イ・ウ・エ）が存在し、手動入力inputは無くボタンのみで解答できること
     const quickBtnU = screen.getByTestId('quick-btn-kokugo-2022-03-07-ウ');
@@ -152,12 +140,9 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
       </MemoryRouter>
     );
 
-    // 原本スキャンタブをクリック
-    const scanTab = screen.getByText('📸 原本スキャン');
-    expect(scanTab).toBeInTheDocument();
-    fireEvent.click(scanTab);
-
-    // 原本スキャン画像が表示されていること
+    // 原本スキャン画像が表示されていること（切り替えタブは非表示）
+    expect(screen.queryByText('📸 原本スキャン')).toBeNull();
+    expect(screen.queryByText('📐 テキスト・図表')).toBeNull();
     const scanImg = screen.getByTestId('exam-page-image');
     expect(scanImg).toBeInTheDocument();
 
@@ -170,14 +155,9 @@ describe('国語科目追加＆2022年度安田学園過去問 UI/UX 総合テ�
     fireEvent.click(zoomInBtn);
     expect(screen.getByText('120%')).toBeInTheDocument();
 
-    // 再度「テキスト・図表」タブに戻る
-    const textTab = screen.getByText('📐 テキスト・図表');
-    fireEvent.click(textTab);
-
-    // テキスト問題用紙のコンテナ（samplePdfMock）に scale 縮小スタイルが適用されていないこと
-    const mockContainer = document.querySelector('[class*="samplePdfMock"]');
-    expect(mockContainer).toBeInTheDocument();
-    expect(mockContainer?.getAttribute('style') || '').not.toContain('scale');
+    // 全体表示ボタンで100%（全体）に戻せること
+    fireEvent.click(screen.getByText('全体表示'));
+    expect(screen.getByText('全体')).toBeInTheDocument();
   });
 
   it('2023年度は国語過去問が存在しないためデータ定義に含まれず、他年度（2022, 2024, 2025, 2026）では国語が提供されること', async () => {

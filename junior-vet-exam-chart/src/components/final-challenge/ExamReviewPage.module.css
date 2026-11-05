@@ -88,22 +88,24 @@
 
 .mainContent {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1400px; /* 1280px以上で間延びしない最大幅 */
   margin: 0 auto;
-  padding: 20px 16px;
+  padding: 16px 20px;
   box-sizing: border-box;
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 2. 点数エリア（状態A / 状態B） */
 .scoreCard {
   background: var(--surface, #ffffff);
   border: 1.5px solid var(--color-border, #e2e8f0);
-  border-radius: 20px;
-  padding: 24px 20px;
+  border-radius: 16px;
+  padding: 18px 20px;
   text-align: center;
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -113,23 +115,10 @@
   }
 }
 
-/* 状態A: 判定中 */
-.pendingScoreLabel {
-  font-size: 14px;
-  color: var(--color-text-muted, #596a82);
-  margin-bottom: 4px;
-}
-
-.pendingScoreValue {
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--color-text, #1e293b);
-  margin-bottom: 12px;
-}
-
+/* 状態A: 判定中（点数は出さず、進捗案内と枠・背景つきバーのみ） */
 .pendingInstruction {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
   color: var(--color-action, #2563eb);
   margin-bottom: 12px;
 }
@@ -137,12 +126,13 @@
 .progressBarContainer {
   width: 100%;
   max-width: 380px;
-  height: 12px;
-  background: var(--surface-subtle, #f1f5f9);
+  height: 14px;
+  background: #e2e8f0; /* 0のときも空に見えない中立背景 */
   border-radius: 9999px;
   margin: 0 auto 8px;
   overflow: hidden;
-  border: 1px solid var(--color-border, #e2e8f0);
+  border: 1.5px solid #cbd5e1; /* 枠線でバーの存在を明示 */
+  box-sizing: border-box;
 }
 
 .progressBarFill {
@@ -155,7 +145,7 @@
 .progressText {
   font-size: 13px;
   color: var(--color-text-muted, #596a82);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* 状態B: 結果 */
@@ -168,7 +158,7 @@
   border-radius: var(--radius-pill, 9999px);
   font-size: 14px;
   font-weight: 800;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .resultScoreRow {
@@ -176,18 +166,18 @@
   align-items: baseline;
   justify-content: center;
   gap: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .resultScoreLarge {
-  font-size: 52px;
+  font-size: 48px;
   font-weight: 900;
   line-height: 1;
   color: var(--color-text, #1e293b);
 }
 
 .resultScoreUnit {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--color-text-muted, #596a82);
 }
@@ -196,7 +186,7 @@
   font-size: 15px;
   font-weight: 700;
   color: var(--color-text, #1e293b);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 /* ミケちゃんの一言 */
@@ -207,14 +197,14 @@
   background: var(--surface-subtle, #f8fbfe);
   border: 1px solid var(--color-border, #e2e8f0);
   border-radius: 14px;
-  padding: 14px 18px;
+  padding: 12px 16px;
   text-align: left;
   max-width: 620px;
-  margin: 0 auto 14px;
+  margin: 0 auto 12px;
 }
 
 .mikeAvatar {
-  font-size: 36px;
+  font-size: 34px;
   line-height: 1;
   flex-shrink: 0;
 }
@@ -244,27 +234,87 @@
   font-weight: 600;
 }
 
-/* フィルターバー（もう少しの問題だけ見る） */
-.filterBar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 16px;
+/* 本体 2カラム構成（タブレット768px以上: 解答用紙と同じ比率 1fr : 380px〜440px） */
+.reviewTwoColBody {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 20px;
+  align-items: stretch;
+  height: calc(100vh - 220px);
+  min-height: 480px;
+  max-height: 820px;
 }
 
+@media (min-width: 768px) and (max-width: 1024px) {
+  .reviewTwoColBody {
+    grid-template-columns: 1fr 380px;
+  }
+}
+
+.leftProblemCol {
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.problemViewerPane {
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+}
+
+.rightReviewCol {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.rightColHeaderBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+.rightColTitle {
+  font-size: 17px;
+  font-weight: 800;
+  margin: 0;
+  color: var(--color-text, #1e293b);
+}
+
+/* フィルタートグル（もう少しの問題だけ見る：右カラム上部） */
 .filterToggleLabel {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--color-text, #1e293b);
   cursor: pointer;
-  padding: 8px 12px;
-  background: var(--surface, #ffffff);
+  padding: 6px 12px;
+  background: var(--surface-subtle, #f8fbfe);
   border: 1px solid var(--color-border, #e2e8f0);
   border-radius: var(--radius-pill, 9999px);
   min-height: 44px;
   box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .filterToggleCheckbox {
@@ -273,40 +323,38 @@
   cursor: pointer;
 }
 
-/* 3. 見直しリスト */
+/* 3. 見直しリスト（右カラム内） */
 .reviewList {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .sectionGroup {
   background: var(--surface, #ffffff);
   border: 1px solid var(--color-border, #e2e8f0);
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .sectionHeader {
   background: var(--surface-subtle, #f8fbfe);
   border-bottom: 1px solid var(--color-border, #e2e8f0);
-  padding: 12px 18px;
-  font-size: 15px;
+  padding: 10px 14px;
+}
+
+.sectionTitleText {
+  font-size: 14px;
   font-weight: 800;
   color: var(--color-text, #1e293b);
 }
 
-.columnHeaderRow {
-  display: grid;
-  grid-template-columns: 160px 1fr 1fr 120px;
-  gap: 16px;
-  padding: 8px 18px;
-  border-bottom: 1px solid var(--color-border, #e2e8f0);
+.sectionNoticeText {
+  margin-top: 4px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--color-text-muted, #596a82);
-  background: #fcfdff;
+  line-height: 1.5;
 }
 
 .itemsContainer {
@@ -316,10 +364,10 @@
 
 .reviewRow {
   display: grid;
-  grid-template-columns: 160px 1fr 1fr 120px;
-  gap: 16px;
+  grid-template-columns: minmax(86px, auto) 1fr 1fr auto;
+  gap: 8px;
   align-items: center;
-  padding: 16px 18px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--color-border, #e2e8f0);
   box-sizing: border-box;
 }
@@ -332,9 +380,10 @@
 .reviewRowOpen {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px 18px;
+  gap: 10px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--color-border, #e2e8f0);
+  box-sizing: border-box;
 }
 
 .reviewRowOpen:last-child {
@@ -343,41 +392,92 @@
 
 .openTopColumns {
   display: grid;
-  grid-template-columns: 160px 1fr 1fr 120px;
-  gap: 16px;
-  align-items: flex-start;
+  grid-template-columns: minmax(86px, auto) 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
   width: 100%;
 }
 
 .colQuestionName {
-  font-size: 14px;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+/* 設問ヘッダーボタン（タップで左を該当ページへ移動） */
+.questionJumpBtn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--color-text, #1e293b);
+  transition: background 0.15s ease;
+}
+
+.questionJumpBtn:hover {
+  background: #f1f5f9;
+}
+
+.questionJumpBtn:focus-visible {
+  outline: 2px solid var(--focus, #38bdf8);
+  outline-offset: 1px;
+}
+
+.questionShortLabel {
+  font-size: 13px;
+  font-weight: 800;
   color: var(--color-text, #1e293b);
 }
 
-.colLabelMobile {
-  display: none;
+.pageJumpLink {
   font-size: 11px;
-  color: var(--color-text-muted, #596a82);
+  font-weight: 700;
+  color: var(--color-action, #2563eb);
+  white-space: nowrap;
+}
+
+/* 入力欄に見えない読み取り専用の回答・正解表示（枠なし・薄い中立色背景） */
+.readOnlyAnswerCell {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: default;
+  user-select: text;
+  min-width: 0;
+}
+
+.cellCaption {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-text-muted, #64748b);
   margin-bottom: 2px;
 }
 
 .colAnswer {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text, #1e293b);
-  word-break: break-all;
+  word-break: break-word;
 }
 
 .emptyAnswer {
-  color: var(--color-text-muted, #596a82);
+  color: var(--color-text-muted, #64748b);
   font-style: italic;
 }
 
 .colCorrect {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
   color: var(--color-text, #1e293b);
-  word-break: break-all;
+  word-break: break-word;
 }
 
 .colJudgment {
@@ -385,60 +485,77 @@
   white-space: nowrap;
 }
 
-/* 判定バッジ */
+/* 判定バッジ（不正解・未入力に赤を使わない） */
 .badgeCorrect {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   background: var(--color-success-weak, #ecfdf5);
   color: var(--color-success-text, #065f46);
   border: 1px solid var(--color-success-border, #a7f3d0);
   border-radius: var(--radius-pill, 9999px);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .badgeNeedsWork {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   background: #f1f5f9;
   color: #334155;
   border: 1px solid #cbd5e1;
   border-radius: var(--radius-pill, 9999px);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
+  white-space: nowrap;
+}
+
+.badgeUnanswered {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-pill, 9999px);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .badgePending {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   background: #fffbeb;
   color: #92400e;
   border: 1px solid #fde68a;
   border-radius: var(--radius-pill, 9999px);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 /* 記述チェックボックス領域 */
 .rubricBox {
   background: var(--surface-subtle, #f8fbfe);
   border: 1px dashed var(--color-border, #e2e8f0);
-  border-radius: 12px;
-  padding: 14px 16px;
-  margin-top: 6px;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 2px;
 }
 
 .rubricInstruction {
   font-size: 13px;
   font-weight: 700;
   color: var(--color-text, #1e293b);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .rubricList {
@@ -458,10 +575,11 @@
   border: 1px solid var(--color-border, #e2e8f0);
   cursor: pointer;
   user-select: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-text, #1e293b);
   transition: background 0.15s ease, border-color 0.15s ease;
+  box-sizing: border-box;
 }
 
 .rubricLabel:hover {
@@ -523,6 +641,55 @@
   opacity: 0.7;
 }
 
+/* 767px以下（スマホ）: 縦積み（上:答え合わせ、下:折りたたみ問題） */
+.reviewStackedBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.reviewStackedBody .rightReviewCol {
+  height: auto;
+  overflow-y: visible;
+}
+
+.mobileProblemAccordion {
+  width: 100%;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 12px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.mobileProblemToggleBtn {
+  width: 100%;
+  min-height: 44px;
+  padding: 12px 16px;
+  background: var(--surface-subtle, #f8fbfe);
+  border: none;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-action, #2563eb);
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.mobileProblemBody {
+  padding: 12px;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
 /* 4. 下部固定バー */
 .bottomBar {
   position: fixed;
@@ -538,7 +705,7 @@
 }
 
 .bottomBarInner {
-  max-width: 1000px;
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -602,10 +769,9 @@
   transform: translateY(-1px);
 }
 
-/* レスポンシブ縦積み対応（幅768px以下・375px） */
-@media (max-width: 768px) {
-  .columnHeaderRow {
-    display: none;
+@media (max-width: 767px) {
+  .mainContent {
+    padding: 12px;
   }
 
   .reviewRow,
@@ -614,19 +780,18 @@
     gap: 8px;
   }
 
-  .colQuestionName {
-    font-size: 15px;
+  .questionJumpBtn {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
     border-bottom: 1px dashed var(--color-border, #e2e8f0);
-    padding-bottom: 4px;
-  }
-
-  .colLabelMobile {
-    display: block;
+    border-radius: 0;
   }
 
   .colJudgment {
     text-align: left;
-    margin-top: 4px;
+    margin-top: 2px;
   }
 
   .bottomBarInner {
@@ -643,7 +808,6 @@
     width: 100%;
   }
 }
-
 
 /* 副ボタン（枠線のみ）: 認定証を見る・つぎの一歩 */
 .certBtn,
@@ -685,8 +849,8 @@
   background: var(--surface, #ffffff);
   border: 1.5px solid var(--color-border, #e2e8f0);
   border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 20px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
   text-align: center;
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
   box-sizing: border-box;

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { selectNextStepRecommendation } from '../../src/utils/exam-review-helper';
+import {
+  selectNextStepRecommendation,
+  formatReviewSectionHeading,
+  formatReviewSlotLabel,
+} from '../../src/utils/exam-review-helper';
 import { EXAM_SLOT_SKILL_MAP, resolveSlotSkillId } from '../../src/data/exam-slot-skill-map';
 import type { MasteryStage } from '../../src/types';
 
@@ -157,6 +161,18 @@ describe('つぎの一歩 選定ユーティリティ (selectNextStepRecommendat
       expect(resLv4.subText).toBe('もう少しだった問題:1問');
       expect(resLv4.buttonText).toBe('この症例を復習する ❯');
     }
+  });
+
+  it('5. 見直しページ用 大問見出し・設問名の重複整形 (formatReviewSectionHeading / formatReviewSlotLabel)', () => {
+    expect(formatReviewSectionHeading(1, '大問1: 大問1: 計算・小問集合')).toBe('大問1 計算・小問集合');
+    expect(formatReviewSectionHeading(1, '大問 1: 植物の根・茎の構造と葉脈の比較')).toBe(
+      '大問1 植物の根・茎の構造と葉脈の比較'
+    );
+    expect(formatReviewSectionHeading(2, '')).toBe('大問2');
+
+    expect(formatReviewSlotLabel('大問1 大問1(1)')).toBe('(1)');
+    expect(formatReviewSlotLabel('大問1 (1)')).toBe('(1)');
+    expect(formatReviewSlotLabel('大問1 問1 [ア]')).toBe('問1 [ア]');
   });
 });
 

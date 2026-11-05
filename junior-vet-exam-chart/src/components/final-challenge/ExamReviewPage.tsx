@@ -1,12 +1,27 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import type { ExamYear, ChallengeSection, ChallengeSlot } from '../../data/final-challenge-data';
+import {
+  FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT,
+  type ExamYear,
+  type ChallengeSection,
+  type ChallengeSlot,
+} from '../../data/final-challenge-data';
+import {
+  STAGE1_PAGE_CONTENTS,
+  STAGE1_PAGE_CONTENTS_BY_SUBJECT,
+  STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT,
+  type PageContent,
+} from '../../data/final-challenge-pages';
 import type { Subject } from '../../types';
 import {
   getMikeFeedback,
   formatRubricItem,
   selectNextStepRecommendation,
+  formatReviewSectionHeading,
+  formatReviewSlotLabel,
 } from '../../utils/exam-review-helper';
 import { APP_TERMS } from '../../constants/terms';
+import { sound } from '../../utils/sound-effects';
+import { ExamProblemViewer } from './ExamProblemViewer';
 import styles from './ExamReviewPage.module.css';
 
 export interface ExamReviewPageProps {
@@ -27,6 +42,18 @@ export interface ExamReviewPageProps {
   onShowCertificate?: () => void;
   onStartSkillFocus?: (skillId: string) => void;
   onOpenSubjectCaseStudy?: (subject: Subject) => void;
+  // 左側問題表示用の連携props（親から渡されない単体テスト時も内部状態で安全に動作）
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: React.Dispatch<React.SetStateAction<number>>;
+  pageLayout?: 'single' | 'spread';
+  onPageLayoutChange?: (layout: 'single' | 'spread') => void;
+  scanZoom?: number;
+  onScanZoomChange?: React.Dispatch<React.SetStateAction<number>>;
+  viewMode?: 'text' | 'image';
+  onViewModeChange?: (mode: 'text' | 'image') => void;
+  getPageImageUrl?: (pageNumber: number) => string | null;
+  pageContents?: Record<number, PageContent>;
 }
 
 export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
@@ -47,9 +74,73 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
   onShowCertificate,
   onStartSkillFocus,
   onOpenSubjectCaseStudy,
+  currentPage: controlledPage,
+  totalPages: controlledTotalPages,
+  onPageChange: controlledOnPageChange,
+  pageLayout: controlledPageLayout,
+  onPageLayoutChange: controlledOnPageLayoutChange,
+  scanZoom: controlledScanZoom,
+  onScanZoomChange: controlledOnScanZoomChange,
+  viewMode: controlledViewMode,
+  onViewModeChange: controlledOnViewModeChange,
+  getPageImageUrl: controlledGetPageImageUrl,
+  pageContents: controlledPageContents,
 }) => {
   const [filterNeedsWorkOnly, setFilterNeedsWorkOnly] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // 左側ビューアのフォールバック状態（単体レンダリング時にも動作保証）
+  const [internalPage, setInternalPage] = useState(1);
+  const [internalLayout, setInternalLayout] = useState<'single' | 'spread'>('single');
+  const [internalZoom, setInternalZoom] = useState(100);
+  const [internalViewMode, setInternalViewMode] = useState<'text' | 'image'>('image');
+
+  const activePage = controlledPage ?? internalPage;
+  const setActivePage = controlledOnPageChange ?? setInternalPage;
+  const activeLayout = controlledPageLayout ?? internalLayout;
+  const setActiveLayout = controlledOnPageLayoutChange ?? setInternalLayout;
+  const activeZoom = controlledScanZoom ?? internalZoom;
+  const setActiveZoom = controlledOnScanZoomChange ?? setInternalZoom;
+  const activeViewMode = controlledViewMode ?? internalViewMode;
+  const setActiveViewMode = controlledOnViewModeChange ?? setInternalViewMode;
+
+  const activeTotalPages = useMemo(() => {
+    if (controlledTotalPages && controlledTotalPages > 0) return controlledTotalPages;
+    const subData = FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[year]?.[subject];
+    return subData?.totalPages || 7;
+  }, [controlledTotalPages, year, subject]);
+
+  const resolvePageImageUrl = (pageNumber: number): string | null => {
+    if (controlledGetPageImageUrl) return controlledGetPageImageUrl(pageNumber);
+    if (pageNumber < 1 || pageNumber > activeTotalPages) return null;
+    const pad = String(pageNumber).padStart(3, '0');
+    const baseUrl = typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : '/';
+    return `${baseUrl}pages/${year}/${subject}/mondai_p${pad}.webp`;
+  };
+
+  const activePageContents = useMemo(() => {
+    if (controlledPageContents) return controlledPageContents;
+    return (
+      STAGE1_PAGE_CONTENTS_BY_YEAR_AND_SUBJECT[year]?.[subject] ||
+      STAGE1_PAGE_CONTENTS_BY_SUBJECT[subject] ||
+      STAGE1_PAGE_CONTENTS
+    );
+  }, [controlledPageContents, year, subject]);
+
+  // 767px以下（スマホ・狭幅）の判定と原本折りたたみ状態（初期は閉じる）
+  const [isNarrowScreen, setIsNarrowScreen] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth <= 767 : false
+  );
+  const [isMobileProblemOpen, setIsMobileProblemOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleResize = () => {
+      setIsNarrowScreen(window.innerWidth <= 767);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // 全スロット一覧
   const allSlots = useMemo<ChallengeSlot[]>(() => {
@@ -61,7 +152,7 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
     return allSlots.filter((s) => s.answerType === 'open');
   }, [allSlots]);
 
-  // 各スロットの判定計算
+  // 各スロットの判定計算（点数計算ロジックは変更しない）
   const slotJudgments = useMemo(() => {
     const map: Record<
       string,
@@ -143,16 +234,49 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
         typeof window.matchMedia === 'function' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (typeof window.scrollTo === 'function') {
-        try { window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' }); } catch { /* jsdom */ }
+        try {
+          window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
+        } catch {
+          /* jsdom */
+        }
       }
     }
     prevFinalizedRef.current = isFinalized;
   }, [isFinalized]);
 
-  // 開発者向け文言のクリーンアップ（「第13章仕様」「Stage 1」など）
-  const cleanText = (text: string) => {
-    return text.replace(/（?第\d+章仕様）?/g, '').replace(/（?Stage\s*\d+.*?）?/gi, '').trim();
+  // 設問ヘッダータップ時に左の問題ページを移動する
+  const handleJumpToSlotPage = (pageNumber: number) => {
+    sound.playPop();
+    const targetPage = Math.max(1, Math.min(activeTotalPages, pageNumber || 1));
+    setActivePage(targetPage);
   };
+
+  const pageImageData = resolvePageImageUrl(activePage);
+  const nextPageImageData = activePage < activeTotalPages ? resolvePageImageUrl(activePage + 1) : null;
+  const currentPageContent = activePageContents[activePage];
+
+  const problemViewerElement = (
+    <ExamProblemViewer
+      stage={1}
+      currentYear={year}
+      currentSubject={subject}
+      currentSubjectLabel={subjectLabel}
+      currentPage={activePage}
+      currentTotalPages={activeTotalPages}
+      onPageChange={setActivePage}
+      pageLayout={activeLayout}
+      onPageLayoutChange={setActiveLayout}
+      scanZoom={activeZoom}
+      onScanZoomChange={setActiveZoom}
+      viewMode={activeViewMode}
+      onViewModeChange={setActiveViewMode}
+      pageImageData={pageImageData}
+      nextPageImageData={nextPageImageData}
+      currentPageContent={currentPageContent}
+      currentSections={sections}
+      className={styles.problemViewerPane}
+    />
+  );
 
   return (
     <div className={styles.container} ref={containerRef} data-testid="exam-review-page">
@@ -192,12 +316,8 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
           data-testid={isFinalized ? 'review-result-area' : 'review-pending-area'}
         >
           {!isFinalized ? (
-            /* 状態A: 判定中 */
+            /* 状態A: 判定中（点数は出さず、残り記述チェック案内と枠・背景つき進捗バーのみ） */
             <div>
-              <div className={styles.pendingScoreLabel}>いまの点数</div>
-              <div className={styles.pendingScoreValue} data-testid="pending-score-display">
-                {currentScore} 点
-              </div>
               <div className={styles.pendingInstruction}>
                 記述 あと{remainingOpenCount}問のチェックで、点数が決まるよ
               </div>
@@ -274,7 +394,7 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
           )}
         </section>
 
-        {/* 状態Bかつ「もう少し」が1問以上あるときのみ: 「つぎの一歩」カード */}
+        {/* 3. 状態Bかつ「もう少し」が1問以上あるときのみ: 「つぎの一歩」カード */}
         {isFinalized && nextStepRecommendation && (
           <section
             className={styles.nextStepCard}
@@ -312,180 +432,283 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
           </section>
         )}
 
-        {/* 状態Bのみ: 「もう少しの問題だけ見る」トグル */}
-        {isFinalized && (
-          <div className={styles.filterBar}>
-            <label className={styles.filterToggleLabel}>
-              <input
-                type="checkbox"
-                className={styles.filterToggleCheckbox}
-                checked={filterNeedsWorkOnly}
-                onChange={(e) => setFilterNeedsWorkOnly(e.target.checked)}
-                data-testid="filter-needs-work-toggle"
-              />
-              <span>もう少しの問題だけ見る</span>
-            </label>
-          </div>
-        )}
+        {/* 4. 本体: 2カラム（タブレット768px以上は左:原本 / 右:答え合わせ、767px以下は上:答え合わせ / 下:折りたたみ原本） */}
+        <div
+          className={isNarrowScreen ? styles.reviewStackedBody : styles.reviewTwoColBody}
+          data-testid="review-two-column-body"
+        >
+          {/* 左カラム: 原本スキャン表示（768px以上のみ左側に常時表示） */}
+          {!isNarrowScreen && (
+            <div className={styles.leftProblemCol} data-testid="review-left-problem-col">
+              {problemViewerElement}
+            </div>
+          )}
 
-        {/* 3. 見直しリスト */}
-        <section className={styles.reviewList} aria-label="問題の見直し一覧">
-          {sections.map((sec) => {
-            // フィルタ適用
-            const visibleSlots = sec.slots.filter((slot: ChallengeSlot) => {
-              if (!filterNeedsWorkOnly) return true;
-              return !slotJudgments[slot.id]?.isCorrect;
-            });
+          {/* 右カラム: 答え合わせ（採点用の新規部品） */}
+          <section
+            className={styles.rightReviewCol}
+            aria-label="問題の見直し一覧"
+            data-testid="review-answer-column"
+          >
+            <div className={styles.rightColHeaderBar}>
+              <h2 className={styles.rightColTitle}>答え合わせ</h2>
+              {/* 状態Bのみ: 「もう少しの問題だけ見る」トグルを右カラム上部に配置 */}
+              {isFinalized && (
+                <label className={styles.filterToggleLabel}>
+                  <input
+                    type="checkbox"
+                    id="filter-needs-work-toggle"
+                    name="filterNeedsWorkOnly"
+                    className={styles.filterToggleCheckbox}
+                    checked={filterNeedsWorkOnly}
+                    onChange={(e) => setFilterNeedsWorkOnly(e.target.checked)}
+                    data-testid="filter-needs-work-toggle"
+                  />
+                  <span>もう少しの問題だけ見る</span>
+                </label>
+              )}
+            </div>
 
-            if (visibleSlots.length === 0) return null;
+            <div className={styles.reviewList}>
+              {sections.map((sec) => {
+                // フィルタ適用
+                const visibleSlots = sec.slots.filter((slot: ChallengeSlot) => {
+                  if (!filterNeedsWorkOnly) return true;
+                  return !slotJudgments[slot.id]?.isCorrect;
+                });
 
-            return (
-              <div key={sec.sectionNumber} className={styles.sectionGroup}>
-                <div className={styles.sectionHeader}>
-                  大問 {sec.sectionNumber}
-                  {sec.title ? `: ${cleanText(sec.title)}` : ''}
-                </div>
-                <div className={styles.itemsContainer}>
-                  {visibleSlots.map((slot: ChallengeSlot) => {
-                    const judgment = slotJudgments[slot.id];
-                    const userAns = (answers[slot.id] || '').trim();
-                    const isOpen = slot.answerType === 'open';
+                if (visibleSlots.length === 0) return null;
 
-                    if (isOpen) {
-                      // 記述問題
-                      return (
+                const sectionHeading = formatReviewSectionHeading(sec.sectionNumber, sec.title);
+                const sectionLead = sec.leadText ? sec.leadText.trim() : '';
+
+                return (
+                  <div key={sec.sectionNumber} className={styles.sectionGroup}>
+                    <div
+                      className={styles.sectionHeader}
+                      data-testid={`review-section-header-${sec.sectionNumber}`}
+                    >
+                      <div className={styles.sectionTitleText}>{sectionHeading}</div>
+                      {sectionLead && (
                         <div
-                          key={slot.id}
-                          className={styles.reviewRowOpen}
-                          data-testid={`review-slot-${slot.id}`}
+                          className={styles.sectionNoticeText}
+                          data-testid={`review-section-notice-${sec.sectionNumber}`}
                         >
-                          <div className={styles.openTopColumns}>
-                            <div className={styles.colQuestionName}>
-                              {cleanText(`大問${slot.section} ${slot.label}`)}
-                            </div>
-                            <div className={styles.colAnswer}>
-                              <span className={styles.colLabelMobile}>あなたの答え: </span>
-                              {userAns ? (
-                                userAns
-                              ) : (
-                                <span className={styles.emptyAnswer}>(未入力)</span>
-                              )}
-                            </div>
-                            <div className={styles.colCorrect}>
-                              <span className={styles.colLabelMobile}>せいかい: </span>
-                              {slot.correctAnswer}
-                            </div>
-                            <div className={styles.colJudgment}>
-                              {judgment?.isEvaluated ? (
-                                judgment.isCorrect ? (
-                                  <span className={styles.badgeCorrect}>✓ せいかい</span>
-                                ) : (
-                                  <span className={styles.badgeNeedsWork}>✎ もう少し</span>
-                                )
-                              ) : (
-                                <span className={styles.badgePending} data-testid={`status-pending-${slot.id}`}>
-                                  まだ
-                                </span>
-                              )}
-                            </div>
-                          </div>
+                          {sectionLead}
+                        </div>
+                      )}
+                    </div>
 
-                          {/* ルーブリックチェックボックス */}
-                          <div className={styles.rubricBox}>
-                            <div className={styles.rubricInstruction}>
-                              書けていたらチェックしてね
-                            </div>
-                            <div className={styles.rubricList}>
-                              {slot.rubricItems?.map((item: string, rIdx: number) => {
-                                const isChecked = !!rubricChecks[slot.id]?.[rIdx];
-                                const isMarkedZero = !!markedZeroSlots[slot.id];
-                                const disabled = isFinalized;
+                    <div className={styles.itemsContainer}>
+                      {visibleSlots.map((slot: ChallengeSlot) => {
+                        const judgment = slotJudgments[slot.id];
+                        const userAns = (answers[slot.id] || '').trim();
+                        const isOpen = slot.answerType === 'open';
+                        const shortLabel = formatReviewSlotLabel(slot.label);
 
-                                return (
-                                  <label
-                                    key={rIdx}
-                                    className={`${styles.rubricLabel} ${
-                                      disabled ? styles.rubricLabelDisabled : ''
-                                    }`}
+                        if (isOpen) {
+                          // 記述問題
+                          return (
+                            <div
+                              key={slot.id}
+                              className={styles.reviewRowOpen}
+                              data-testid={`review-slot-${slot.id}`}
+                            >
+                              <div className={styles.openTopColumns}>
+                                <div className={styles.colQuestionName}>
+                                  <button
+                                    type="button"
+                                    className={styles.questionJumpBtn}
+                                    onClick={() => handleJumpToSlotPage(slot.pageNumber)}
+                                    data-testid={`jump-page-btn-${slot.id}`}
+                                    title={`問題用紙 p.${slot.pageNumber} を見る`}
                                   >
-                                    <input
-                                      type="checkbox"
-                                      id={`rubric-check-${slot.id}-${rIdx}`}
-                                      name={`rubric_${slot.id}_${rIdx}`}
-                                      className={styles.rubricCheckbox}
-                                      checked={!isMarkedZero && isChecked}
-                                      disabled={disabled}
-                                      onChange={(e) => {
-                                        onRubricChange(slot.id, rIdx, e.target.checked);
-                                      }}
-                                      data-testid={`rubric-check-${slot.id}-${rIdx}`}
-                                    />
-                                    <span>{formatRubricItem(item)}</span>
-                                  </label>
-                                );
-                              })}
-                            </div>
+                                    <span className={styles.questionShortLabel}>{shortLabel}</span>
+                                    <span className={styles.pageJumpLink}>p.{slot.pageNumber}を見る</span>
+                                  </button>
+                                </div>
 
-                            <div className={styles.rubricActions}>
+                                <div className={styles.readOnlyAnswerCell}>
+                                  <span className={styles.cellCaption}>あなたの答え</span>
+                                  <div className={styles.colAnswer}>
+                                    {userAns ? (
+                                      userAns
+                                    ) : (
+                                      <span className={styles.emptyAnswer}>(未入力)</span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className={styles.readOnlyAnswerCell}>
+                                  <span className={styles.cellCaption}>せいかい</span>
+                                  <div className={styles.colCorrect}>{slot.correctAnswer}</div>
+                                </div>
+
+                                <div className={styles.colJudgment}>
+                                  {judgment?.isEvaluated ? (
+                                    judgment.isCorrect ? (
+                                      <span className={styles.badgeCorrect}>✓ せいかい</span>
+                                    ) : (
+                                      <span className={styles.badgeNeedsWork}>✎ もう少し</span>
+                                    )
+                                  ) : (
+                                    <span
+                                      className={styles.badgePending}
+                                      data-testid={`status-pending-${slot.id}`}
+                                    >
+                                      まだ
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* ルーブリックチェックボックス */}
+                              <div className={styles.rubricBox}>
+                                <div className={styles.rubricInstruction}>
+                                  書けていたらチェックしてね
+                                </div>
+                                <div className={styles.rubricList}>
+                                  {slot.rubricItems?.map((item: string, rIdx: number) => {
+                                    const isChecked = !!rubricChecks[slot.id]?.[rIdx];
+                                    const isMarkedZero = !!markedZeroSlots[slot.id];
+                                    const disabled = isFinalized;
+
+                                    return (
+                                      <label
+                                        key={rIdx}
+                                        className={`${styles.rubricLabel} ${
+                                          disabled ? styles.rubricLabelDisabled : ''
+                                        }`}
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          id={`rubric-check-${slot.id}-${rIdx}`}
+                                          name={`rubric_${slot.id}_${rIdx}`}
+                                          className={styles.rubricCheckbox}
+                                          checked={!isMarkedZero && isChecked}
+                                          disabled={disabled}
+                                          onChange={(e) => {
+                                            onRubricChange(slot.id, rIdx, e.target.checked);
+                                          }}
+                                          data-testid={`rubric-check-${slot.id}-${rIdx}`}
+                                        />
+                                        <span>{formatRubricItem(item)}</span>
+                                      </label>
+                                    );
+                                  })}
+                                </div>
+
+                                <div className={styles.rubricActions}>
+                                  <button
+                                    type="button"
+                                    className={`${styles.noneBtn} ${
+                                      markedZeroSlots[slot.id] ? styles.noneBtnActive : ''
+                                    }`}
+                                    disabled={isFinalized}
+                                    onClick={() => onMarkZero(slot.id)}
+                                    data-testid={`mark-zero-btn-${slot.id}`}
+                                  >
+                                    {markedZeroSlots[slot.id]
+                                      ? '✓ どれも書けなかった'
+                                      : 'どれも書けなかった'}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // 選択肢・数値・語句問題（自動判定）
+                        return (
+                          <div
+                            key={slot.id}
+                            className={styles.reviewRow}
+                            data-testid={`review-slot-${slot.id}`}
+                          >
+                            <div className={styles.colQuestionName}>
                               <button
                                 type="button"
-                                className={`${styles.noneBtn} ${
-                                  markedZeroSlots[slot.id] ? styles.noneBtnActive : ''
-                                }`}
-                                disabled={isFinalized}
-                                onClick={() => onMarkZero(slot.id)}
-                                data-testid={`mark-zero-btn-${slot.id}`}
+                                className={styles.questionJumpBtn}
+                                onClick={() => handleJumpToSlotPage(slot.pageNumber)}
+                                data-testid={`jump-page-btn-${slot.id}`}
+                                title={`問題用紙 p.${slot.pageNumber} を見る`}
                               >
-                                {markedZeroSlots[slot.id]
-                                  ? '✓ どれも書けなかった'
-                                  : 'どれも書けなかった'}
+                                <span className={styles.questionShortLabel}>{shortLabel}</span>
+                                <span className={styles.pageJumpLink}>p.{slot.pageNumber}を見る</span>
                               </button>
                             </div>
-                          </div>
-                        </div>
-                      );
-                    }
 
-                    // 選択・数値問題
-                    return (
-                      <div
-                        key={slot.id}
-                        className={styles.reviewRow}
-                        data-testid={`review-slot-${slot.id}`}
-                      >
-                        <div className={styles.colQuestionName}>
-                          {cleanText(`大問${slot.section} ${slot.label}`)}
-                        </div>
-                        <div className={styles.colAnswer}>
-                          <span className={styles.colLabelMobile}>あなたの答え: </span>
-                          {userAns ? (
-                            userAns
-                          ) : (
-                            <span className={styles.emptyAnswer}>(未入力)</span>
-                          )}
-                        </div>
-                        <div className={styles.colCorrect}>
-                          <span className={styles.colLabelMobile}>せいかい: </span>
-                          {slot.correctAnswer}
-                        </div>
-                        <div className={styles.colJudgment}>
-                          {judgment?.isCorrect ? (
-                            <span className={styles.badgeCorrect}>✓ せいかい</span>
-                          ) : (
-                            <span className={styles.badgeNeedsWork}>✎ もう少し</span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                            <div className={styles.readOnlyAnswerCell}>
+                              <span className={styles.cellCaption}>あなたの答え</span>
+                              <div className={styles.colAnswer}>
+                                {userAns ? (
+                                  userAns
+                                ) : (
+                                  <span className={styles.emptyAnswer}>(未入力)</span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className={styles.readOnlyAnswerCell}>
+                              <span className={styles.cellCaption}>せいかい</span>
+                              <div className={styles.colCorrect}>{slot.correctAnswer}</div>
+                            </div>
+
+                            <div className={styles.colJudgment}>
+                              {judgment?.isCorrect ? (
+                                <span className={styles.badgeCorrect}>✓ せいかい</span>
+                              ) : !judgment?.isAnswered ? (
+                                <span
+                                  className={styles.badgeUnanswered}
+                                  data-testid={`status-unanswered-${slot.id}`}
+                                >
+                                  — かいていない
+                                </span>
+                              ) : (
+                                <span className={styles.badgeNeedsWork}>✎ もう少し</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* 767px以下（スマホ）: 下部に原本を折りたたみ配置（初期は閉じる） */}
+          {isNarrowScreen && (
+            <div
+              className={styles.mobileProblemAccordion}
+              data-testid="mobile-problem-collapsible"
+            >
+              <button
+                type="button"
+                className={styles.mobileProblemToggleBtn}
+                aria-expanded={isMobileProblemOpen}
+                onClick={() => setIsMobileProblemOpen((prev) => !prev)}
+                data-testid="mobile-problem-toggle"
+              >
+                {isMobileProblemOpen
+                  ? '▲ 問題用紙をとじる'
+                  : `▼ 問題用紙を見る (p.${activePage})`}
+              </button>
+              {isMobileProblemOpen && (
+                <div
+                  className={styles.mobileProblemBody}
+                  data-testid="mobile-problem-content"
+                >
+                  {problemViewerElement}
                 </div>
-              </div>
-            );
-          })}
-        </section>
+              )}
+            </div>
+          )}
+        </div>
       </main>
 
-      {/* 4. 下部固定バー */}
+      {/* 5. 下部固定バー */}
       <footer className={styles.bottomBar}>
         {!isFinalized ? (
           /* 状態A */
