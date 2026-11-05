@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 import { ANIMAL_STAMPS } from '../data/animal-stamps';
 import { getMasteryLevelInfo, getSkillStage, getNextGoalHint } from '../utils/mastery-helper';
@@ -21,6 +21,7 @@ import { SUPPORTED_EXAM_YEARS, FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT, type Ex
 import { getAllExamScoreSummaries } from '../utils/exam-scores';
 import { getPointsSummary, type PointsSummary } from '../utils/points-manager';
 import { PointsNotebookModal } from '../components/PointsNotebookModal';
+import { hasInProgressExam } from '../utils/final-challenge-storage';
 import styles from './HomePage.module.css';
 import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 
@@ -28,7 +29,8 @@ type ThemeType = 'default' | 'sakura' | 'mint' | 'lavender' | 'night';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { settings, startDailySession, startSkillFocusSession, startSingleQuestionSession } = useAppStore();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { settings, currentSessionQuestions, startDailySession, startSkillFocusSession, startSingleQuestionSession } = useAppStore();
   const daysUntilExam = getDaysUntilExam(settings.targetExamDate);
   const [showStampModal, setShowStampModal] = useState(false);
   // カルテ全快スタンプの教科フィルター
@@ -80,6 +82,50 @@ export const HomePage: React.FC = () => {
   const [showUnmasteredSkills, setShowUnmasteredSkills] = useState(false);
   const [, setRetentionTick] = useState(0);
   const [, setSkillStagesTick] = useState(0);
+
+  // 見直しページの「つぎの一歩」（第二段：教科単位の導線）からのクエリ遷移対応
+  useEffect(() => {
+    const param = searchParams.get('caseStudySubject');
+    if (!param) return;
+
+    const validSubjects: Subject[] = ['rika', 'sansu', 'shakai', 'kokugo'];
+    const isValid = (validSubjects as string[]).includes(param);
+
+    // クエリをURLから取り除く（replaceで置換）
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete('caseStudySubject');
+    setSearchParams(nextParams, { replace: true });
+
+    if (!isValid) return;
+
+    const targetSub = param as Subject;
+    setSelectedSkillSubject(targetSub);
+    setMobileBottomTab('progress');
+
+    // 治療中の症例（未全快）が1件以上あるときだけアコーディオンを開く
+    const hasUnmastered = ALL_PROGRESS_SKILLS.some((s) => {
+      if (s.subject !== targetSub) return false;
+      const st = getSkillStage(s.id, s.stage);
+      return st !== 'M4' && st !== 'M5' && st !== 'M6';
+    });
+    if (hasUnmastered) {
+      setShowUnmasteredSkills(true);
+    }
+
+    setTimeout(() => {
+      const el = document.querySelector('[data-testid="card-weakness"]');
+      if (el && typeof el.scrollIntoView === 'function') {
+        const prefersReduced =
+          typeof window.matchMedia === 'function' &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        try {
+          el.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+        } catch {
+          // jsdom fallback
+        }
+      }
+    }, 0);
+  }, [searchParams, setSearchParams]);
 
   // 合格カルテ完成度（%）と連続学習日数（ストリーク）の動的計算
   const [completionPercent, setCompletionPercent] = useState<number>(() => calculateExamChartCompletion());
@@ -199,12 +245,37 @@ export const HomePage: React.FC = () => {
     }
   };
 
+  const isDailyPaused = (() => {
+    try {
+      return localStorage.getItem('jvet:daily-session-paused') === '1';
+    } catch {
+      return false;
+    }
+  })();
+
+  const isRefBookPaused = (() => {
+    try {
+      return Boolean(localStorage.getItem('jvet:refbook-paused:history-80'));
+    } catch {
+      return false;
+    }
+  })();
+
   const getStartButtonLabel = () => {
-    return '▶ 本日の診察をはじめる（10問）';
+    return `${isDailyPaused ? '⏳' : '▶'} 本日の診察をはじめる（10問）`;
   };
 
   const handleStartToday = () => {
     sound.playChime();
+    if (isDailyPaused && currentSessionQuestions.length > 0) {
+      navigate('/study');
+      return;
+    }
+    try {
+      localStorage.removeItem('jvet:daily-session-paused');
+    } catch {
+      // ignore
+    }
     startDailySession(isAllSubjectsSelected ? undefined : selectedStudySubjects);
     navigate('/study');
   };
@@ -510,7 +581,7 @@ export const HomePage: React.FC = () => {
                 }}
                 data-testid="start-extra-book-btn"
               >
-                ▶ 知識の処方箋をつくる（10問）
+                {isRefBookPaused ? '⏳' : '▶'} 知識の処方箋をつくる（10問）
               </button>
             </div>
           </section>        </div>
@@ -1069,6 +1140,7 @@ export const HomePage: React.FC = () => {
                         const bestScore = summary?.bestScore ?? null;
                         const isPerfect = summary?.isPerfect ?? false;
                         const badgeTier = summary?.badgeTier ?? null;
+                        const isExamInProgress = hasInProgressExam(yr, sub);
 
                         const scoreText = isPerfect ? '100点' : bestScore !== null ? `${bestScore}点` : '—';
 
@@ -1095,7 +1167,7 @@ export const HomePage: React.FC = () => {
                             title={`${yr}年度 ${subData.subjectLabel}（過去最高得点: ${scoreText}）を受験`}
                           >
                             <span className={styles.compactBtnIcon}>
-                              {isPerfect ? '👑' : subData.icon}
+                              {isExamInProgress ? '⏳' : isPerfect ? '👑' : subData.icon}
                             </span>
                             <span className={styles.compactBtnName}>
                               {subData.subjectLabel}

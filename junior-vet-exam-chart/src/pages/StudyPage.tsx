@@ -149,6 +149,11 @@ export const StudyPage: React.FC = () => {
   const handleNext = () => {
     const hasMore = nextQuestion();
     if (!hasMore) {
+      try {
+        localStorage.removeItem('jvet:daily-session-paused');
+      } catch {
+        // ignore
+      }
       navigate('/result');
     }
   };
@@ -545,10 +550,22 @@ export const StudyPage: React.FC = () => {
         isOpen={isPaused}
         onResume={() => setIsPaused(false)}
         onSaveAndQuit={() => {
+          if (!currentFocusSkillId) {
+            try {
+              localStorage.setItem('jvet:daily-session-paused', '1');
+            } catch {
+              // ignore
+            }
+          }
           setIsPaused(false);
           navigate('/');
         }}
         onResetAndQuit={() => {
+          try {
+            localStorage.removeItem('jvet:daily-session-paused');
+          } catch {
+            // ignore
+          }
           resetSession();
           setIsPaused(false);
           navigate('/');

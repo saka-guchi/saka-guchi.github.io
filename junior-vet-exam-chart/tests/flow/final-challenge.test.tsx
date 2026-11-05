@@ -72,10 +72,10 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     expect(pdfArea).not.toHaveTextContent('組織㋓（道管）');
     expect(pdfArea).toHaveTextContent('図2の㋒と㋓のはたらきを簡単に説明しなさい。');
 
-    // 5. 提出ボタンを押すと記述採点モーダルが表示されること
+    // 5. 提出ボタンを押すと提出確認ダイアログが表示されること
     fireEvent.click(screen.getByTestId('submit-exam-btn'));
-    expect(screen.getByTestId('scoring-modal')).toBeInTheDocument();
-    expect(screen.getByText('記述問題の自己判定（第13章仕様）')).toBeInTheDocument();
+    expect(screen.getByTestId('submit-confirm-modal')).toBeInTheDocument();
+    expect(screen.getByText('こたえを出していい？')).toBeInTheDocument();
   });
 
   it('displays specified subjects Math and Social Studies via query parameters', () => {
@@ -136,15 +136,12 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
       vi.advanceTimersByTime(29 * 60 * 1000 + 51 * 1000);
     });
 
-    // タイムアップモーダルが表示されること
-    expect(screen.getByTestId('timeup-modal')).toBeInTheDocument();
-    expect(screen.getByText('試験時間が終了しました！')).toBeInTheDocument();
-
-    // 採点へ進むボタンをクリックすると採点モーダルへ遷移
-    fireEvent.click(screen.getByTestId('timeup-proceed-btn'));
-    expect(screen.getByTestId('scoring-modal')).toBeInTheDocument();
+    // ダイアログなしで自動提出され、見直しページへ進むこと
+    expect(screen.queryByTestId('timeup-modal')).toBeNull();
+    expect(screen.getByTestId('exam-review-page')).toBeInTheDocument();
 
     vi.useRealTimers();
+    localStorage.clear(); // 判定中データを次のテストへ持ち越さない
   });
 
   it('provides Stage 1 only and does not display Stage 1/2 switch tabs in header', () => {
@@ -162,34 +159,22 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
   });
 
-  it('displays in-app result modal and allows opening history modal after finalizing score', async () => {
+  it('shows the review page (not popups) after submitting and finalizing', async () => {
     const { waitFor } = await import('@testing-library/react');
-
     render(
       <MemoryRouter>
         <FinalChallengePage />
       </MemoryRouter>
     );
 
-    // 提出ボタンを押す
     fireEvent.click(screen.getByTestId('submit-exam-btn'));
-    expect(screen.getByTestId('scoring-modal')).toBeInTheDocument();
-
-    // 採点を確定
-    fireEvent.click(screen.getByTestId('finalize-score-btn'));
-
-    // ブラウザalertではなく、アプリ内リザルトモーダルが表示されること
+    fireEvent.click(screen.getByTestId('submit-proceed-btn'));
     await waitFor(() => {
-      expect(screen.getByTestId('exam-result-modal')).toBeInTheDocument();
-      expect(screen.getByTestId('result-score-display')).toBeInTheDocument();
+      expect(screen.getByTestId('exam-review-page')).toBeInTheDocument();
     });
-
-    // 「成績表を見る」ボタンを押すと、過去の採点カルテ・成績表モーダルが開くこと
-    fireEvent.click(screen.getByTestId('view-history-from-result-btn'));
-    await waitFor(() => {
-      expect(screen.getByTestId('exam-history-modal')).toBeInTheDocument();
-      expect(screen.getByText('🏆 獣医師チャレンジ 採点カルテ・成績表')).toBeInTheDocument();
-    });
+    expect(screen.queryByTestId('scoring-modal')).toBeNull();
+    expect(screen.queryByTestId('exam-result-modal')).toBeNull();
+    localStorage.clear(); // 判定中データを次のテストへ持ち越さない
   });
 
   it('displays exam paper and answer slots according to exam year in query params', () => {

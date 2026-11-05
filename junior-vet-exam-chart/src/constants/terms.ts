@@ -23,6 +23,9 @@ export const APP_TERMS = {
   VET_CHALLENGE: '獣医師チャレンジ',
   VET_CHALLENGE_WITH_ICON: '🏆 獣医師チャレンジ',
 
+  // 認定証
+  VIEW_CERTIFICATE: '認定証を見る',
+
   // ゲーミフィケーション・報酬
   GENKI_POINTS: 'どうぶつ元気のもと',
   GENKI_POINTS_WITH_ICON: '🐾 どうぶつ元気のもと',

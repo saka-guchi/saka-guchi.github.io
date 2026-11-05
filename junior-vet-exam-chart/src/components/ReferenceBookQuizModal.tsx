@@ -21,9 +21,33 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
   }, [bookId]);
 
   const [sessionKey, setSessionKey] = useState(0);
+  const pausedStorageKey = `jvet:refbook-paused:${bookId}`;
+  const [initialPaused] = useState<{
+    currentIndex: number;
+    selectedAnswer: string | null;
+    isAnswered: boolean;
+    correctCount: number;
+    showKeywordHint: boolean;
+    sessionQuestions: HistoryFigureData[];
+  } | null>(() => {
+    try {
+      const raw = localStorage.getItem(pausedStorageKey);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.sessionQuestions) && parsed.sessionQuestions.length > 0) {
+        return parsed;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  });
 
   // セッション用に10問シャッフル抽出し、各問題の選択肢（ア〜エ）も確実にランダムシャッフル
   const sessionQuestions = useMemo(() => {
+    if (sessionKey === 0 && initialPaused?.sessionQuestions) {
+      return initialPaused.sessionQuestions;
+    }
     const list = HISTORY_80_FIGURES.map(fig => {
       // 選択肢の配列をシャッフル（正解位置が「ア」固定になるのを防ぐ）
       const shuffledChoices = [...fig.question.choices];
@@ -46,14 +70,14 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
       [list[i], list[j]] = [list[j], list[i]];
     }
     return list.slice(0, 10);
-  }, [bookId, sessionKey]);
+  }, [bookId, sessionKey, initialPaused]);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [correctCount, setCorrectCount] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(initialPaused?.currentIndex ?? 0);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(initialPaused?.selectedAnswer ?? null);
+  const [isAnswered, setIsAnswered] = useState(initialPaused?.isAnswered ?? false);
+  const [correctCount, setCorrectCount] = useState(initialPaused?.correctCount ?? 0);
   const [isFinished, setIsFinished] = useState(false);
-  const [showKeywordHint, setShowKeywordHint] = useState(false);
+  const [showKeywordHint, setShowKeywordHint] = useState(initialPaused?.showKeywordHint ?? false);
   const [isPaused, setIsPaused] = useState(false);
 
   const currentFigure: HistoryFigureData = sessionQuestions[currentIndex];
@@ -85,6 +109,11 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
       setShowKeywordHint(false);
     } else {
       // 終了
+      try {
+        localStorage.removeItem(pausedStorageKey);
+      } catch {
+        // ignore
+      }
       recordRefBookSessionClear(bookId);
       if (correctCount > 0) {
         awardSessionPoints(correctCount, 'prescription');
@@ -291,15 +320,37 @@ export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpd
             </div>
           </div>
         )}
-              {/* 一時停止・中断確認ポップアップ */}
+        {/* 一時停止・中断確認ポップアップ */}
         <PauseConfirmModal
           isOpen={isPaused}
           onResume={() => setIsPaused(false)}
           onSaveAndQuit={() => {
+            try {
+              localStorage.setItem(
+                pausedStorageKey,
+                JSON.stringify({
+                  currentIndex,
+                  selectedAnswer,
+                  isAnswered,
+                  correctCount,
+                  showKeywordHint,
+                  sessionQuestions,
+                })
+              );
+            } catch {
+              // ignore
+            }
+            if (onUpdate) onUpdate();
             setIsPaused(false);
             onClose();
           }}
           onResetAndQuit={() => {
+            try {
+              localStorage.removeItem(pausedStorageKey);
+            } catch {
+              // ignore
+            }
+            if (onUpdate) onUpdate();
             setIsPaused(false);
             onClose();
           }}
