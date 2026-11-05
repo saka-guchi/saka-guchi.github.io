@@ -66,7 +66,7 @@ describe("2024〜2026年度 安田学園過去問データ統合テスト", () =
 
     it("各科目の大問数とスロット数が正しく定義されていること", () => {
       expect(data2025.rika.sections.length).toBe(3);
-      expect(data2025.sansu.sections.length).toBe(3);
+      expect(data2025.sansu.sections.length).toBe(4);
       expect(data2025.shakai.sections.length).toBe(3);
       expect(data2025.kokugo.sections.length).toBe(3);
 
@@ -78,7 +78,7 @@ describe("2024〜2026年度 安田学園過去問データ統合テスト", () =
       expect(rikaSlots.length).toBe(29);
       expect(sansuSlots.length).toBe(16);
       expect(shakaiSlots.length).toBe(23);
-      expect(kokugoSlots.length).toBe(20);
+      expect(kokugoSlots.length).toBe(27);
 
       // 全スロットに正解とStage 2問題・正解が設定されていること
       for (const slot of [...rikaSlots, ...sansuSlots, ...shakaiSlots, ...kokugoSlots]) {
@@ -140,7 +140,7 @@ describe("2024〜2026年度 安田学園過去問データ統合テスト", () =
       expect(rikaSlots.length).toBe(19); // 原本解答用紙の全欄（大問2問1/問5、大問3問4の小問分割）と完全一致
       expect(sansuSlots.length).toBe(16);
       expect(shakaiSlots.length).toBe(23);
-      expect(kokugoSlots.length).toBe(25);
+      expect(kokugoSlots.length).toBe(26);
 
       // 全スロットに正解とStage 2問題・正解が設定されていること
       for (const slot of [...rikaSlots, ...sansuSlots, ...shakaiSlots, ...kokugoSlots]) {

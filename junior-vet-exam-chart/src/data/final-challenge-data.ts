@@ -9,6 +9,7 @@ export interface ChallengeSlot {
   label: string; // 表示用ラベル（答えは含めない！）例: "問1 [ア]"
   answerType: 'term' | 'choice' | 'multi_choice' | 'numeric' | 'open';
   correctAnswer: string;
+  acceptableAnswers?: string[];
   options?: string[]; // 選択肢がある場合（Stage 1用、または共通）
   stage2Options?: string[]; // Stage 2独自の選択肢テキスト（Stage 2で選択肢が変わる場合や詳細テキスト）
   rubricItems?: string[]; // open 記述問題の自己採点要素
