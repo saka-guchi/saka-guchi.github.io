@@ -152,4 +152,24 @@ describe('知識の処方箋（名作参考書：歴史人物80）UI/UX 結合�
     );
     expect(choiceButtons.length).toBe(4);
   });
+  it('知識の処方箋モーダル起動時に body スクロールが hidden になり、二重スクロールバー／背面スクロール漏れを防止すること', () => {
+    document.body.style.overflow = '';
+    render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>
+    );
+
+    expect(document.body.style.overflow).toBe('');
+
+    // 知識の処方箋モーダルを開く
+    fireEvent.click(screen.getByTestId('start-extra-book-btn'));
+    expect(document.body.style.overflow).toBe('hidden');
+
+    // 中断確認でホームに戻る
+    fireEvent.click(screen.getByTestId('refbook-back-btn'));
+    fireEvent.click(screen.getByText('💾 ここまでの記録を残してホームへ'));
+    expect(document.body.style.overflow).toBe('');
+  });
+
 });

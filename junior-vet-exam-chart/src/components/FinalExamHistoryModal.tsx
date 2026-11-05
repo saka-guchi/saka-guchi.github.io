@@ -1,3 +1,4 @@
+import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 import React, { useState, useEffect } from 'react';
 import { db } from '../db';
 import type { FinalChallengeResult } from '../types';
@@ -9,6 +10,7 @@ interface FinalExamHistoryModalProps {
 }
 
 export const FinalExamHistoryModal: React.FC<FinalExamHistoryModalProps> = ({ onClose }) => {
+  useBodyScrollLock();
   const [history, setHistory] = useState<FinalChallengeResult[]>([]);
   const [selectedCertResult, setSelectedCertResult] = useState<FinalChallengeResult | null>(null);
 

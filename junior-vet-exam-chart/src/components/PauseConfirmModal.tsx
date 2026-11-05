@@ -1,3 +1,4 @@
+import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 import React from 'react';
 
 export interface PauseConfirmModalProps {

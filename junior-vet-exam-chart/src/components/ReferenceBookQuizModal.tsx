@@ -6,6 +6,7 @@ import { REFERENCE_BOOKS, HISTORY_80_FIGURES, HistoryFigureData } from '../data/
 import { getRefBookProgress, saveRefBookAnswer, recordRefBookSessionClear } from '../utils/reference-book-store';
 import { sound } from '../utils/sound-effects';
 import { awardSessionPoints } from '../utils/points-manager';
+import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 
 interface Props {
   bookId: string;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export const ReferenceBookQuizModal: React.FC<Props> = ({ bookId, onClose, onUpdate }) => {
+  useBodyScrollLock();
   const bookInfo = useMemo(() => {
     return REFERENCE_BOOKS.find(b => b.id === bookId) || REFERENCE_BOOKS[0];
   }, [bookId]);
