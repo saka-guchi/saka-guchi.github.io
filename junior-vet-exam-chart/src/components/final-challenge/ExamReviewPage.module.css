@@ -1,0 +1,719 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg, #f4f8fc);
+  color: var(--color-text, #1e293b);
+  padding-bottom: 96px; /* 固定フッター分 */
+  box-sizing: border-box;
+}
+
+/* 1. 固定ヘッダー */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  min-height: 56px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+.homeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-pill, 9999px);
+  padding: 8px 16px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.homeBtn:hover {
+  background: var(--surface-subtle, #f8fbfe);
+}
+
+.homeBtn:focus-visible {
+  outline: 3px solid var(--focus, #38bdf8);
+  outline-offset: 2px;
+}
+
+.examTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text, #1e293b);
+  text-align: center;
+  flex: 1;
+  margin: 0 12px;
+}
+
+.headerSpacer {
+  width: 100px; /* homeBtnとのバランス */
+}
+
+@media (max-width: 600px) {
+  .header {
+    padding: 10px 12px;
+  }
+  .headerSpacer {
+    width: 0;
+    display: none;
+  }
+  .examTitle {
+    font-size: 14px;
+  }
+}
+
+/* お知らせバナー（「つづきから見直すよ。」「時間になったので、出したよ」） */
+.noticeBanner {
+  background: #eff6ff;
+  border-bottom: 1px solid #bfdbfe;
+  color: #1e40af;
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.mainContent {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px 16px;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+/* 2. 点数エリア（状態A / 状態B） */
+.scoreCard {
+  background: var(--surface, #ffffff);
+  border: 1.5px solid var(--color-border, #e2e8f0);
+  border-radius: 20px;
+  padding: 24px 20px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  margin-bottom: 24px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scoreCard {
+    transition: none;
+  }
+}
+
+/* 状態A: 判定中 */
+.pendingScoreLabel {
+  font-size: 14px;
+  color: var(--color-text-muted, #596a82);
+  margin-bottom: 4px;
+}
+
+.pendingScoreValue {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--color-text, #1e293b);
+  margin-bottom: 12px;
+}
+
+.pendingInstruction {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-action, #2563eb);
+  margin-bottom: 12px;
+}
+
+.progressBarContainer {
+  width: 100%;
+  max-width: 380px;
+  height: 12px;
+  background: var(--surface-subtle, #f1f5f9);
+  border-radius: 9999px;
+  margin: 0 auto 8px;
+  overflow: hidden;
+  border: 1px solid var(--color-border, #e2e8f0);
+}
+
+.progressBarFill {
+  height: 100%;
+  background: var(--color-action, #2563eb);
+  border-radius: 9999px;
+  transition: width 0.25s ease;
+}
+
+.progressText {
+  font-size: 13px;
+  color: var(--color-text-muted, #596a82);
+  font-weight: 600;
+}
+
+/* 状態B: 結果 */
+.resultBadge {
+  display: inline-block;
+  padding: 4px 14px;
+  background: #fef3c7;
+  color: #78350f;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-pill, 9999px);
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.resultScoreRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.resultScoreLarge {
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--color-text, #1e293b);
+}
+
+.resultScoreUnit {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text-muted, #596a82);
+}
+
+.correctSummaryRow {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  margin-bottom: 16px;
+}
+
+/* ミケちゃんの一言 */
+.mikeCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface-subtle, #f8fbfe);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 14px;
+  padding: 14px 18px;
+  text-align: left;
+  max-width: 620px;
+  margin: 0 auto 14px;
+}
+
+.mikeAvatar {
+  font-size: 36px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.mikeContent {
+  flex: 1;
+}
+
+.mikeName {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-text-muted, #596a82);
+  margin-bottom: 4px;
+}
+
+.mikeMessage {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text, #1e293b);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.nextRewardNotice {
+  font-size: 13px;
+  color: var(--color-text-muted, #596a82);
+  font-weight: 600;
+}
+
+/* フィルターバー（もう少しの問題だけ見る） */
+.filterBar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.filterToggleLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  cursor: pointer;
+  padding: 8px 12px;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-pill, 9999px);
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.filterToggleCheckbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* 3. 見直しリスト */
+.reviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sectionGroup {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.sectionHeader {
+  background: var(--surface-subtle, #f8fbfe);
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text, #1e293b);
+}
+
+.columnHeaderRow {
+  display: grid;
+  grid-template-columns: 160px 1fr 1fr 120px;
+  gap: 16px;
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted, #596a82);
+  background: #fcfdff;
+}
+
+.itemsContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.reviewRow {
+  display: grid;
+  grid-template-columns: 160px 1fr 1fr 120px;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  box-sizing: border-box;
+}
+
+.reviewRow:last-child {
+  border-bottom: none;
+}
+
+/* 記述問題用（下部にルーブリックチェックを展開） */
+.reviewRowOpen {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+.reviewRowOpen:last-child {
+  border-bottom: none;
+}
+
+.openTopColumns {
+  display: grid;
+  grid-template-columns: 160px 1fr 1fr 120px;
+  gap: 16px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.colQuestionName {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+}
+
+.colLabelMobile {
+  display: none;
+  font-size: 11px;
+  color: var(--color-text-muted, #596a82);
+  margin-bottom: 2px;
+}
+
+.colAnswer {
+  font-size: 14px;
+  color: var(--color-text, #1e293b);
+  word-break: break-all;
+}
+
+.emptyAnswer {
+  color: var(--color-text-muted, #596a82);
+  font-style: italic;
+}
+
+.colCorrect {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  word-break: break-all;
+}
+
+.colJudgment {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* 判定バッジ */
+.badgeCorrect {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--color-success-weak, #ecfdf5);
+  color: var(--color-success-text, #065f46);
+  border: 1px solid var(--color-success-border, #a7f3d0);
+  border-radius: var(--radius-pill, 9999px);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.badgeNeedsWork {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-pill, 9999px);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.badgePending {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-pill, 9999px);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* 記述チェックボックス領域 */
+.rubricBox {
+  background: var(--surface-subtle, #f8fbfe);
+  border: 1px dashed var(--color-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 6px;
+}
+
+.rubricInstruction {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  margin-bottom: 10px;
+}
+
+.rubricList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rubricLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px; /* タップ領域44px以上 */
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  cursor: pointer;
+  user-select: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text, #1e293b);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.rubricLabel:hover {
+  background: #edf4fa;
+}
+
+.rubricLabelDisabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.rubricLabelDisabled:hover {
+  background: var(--surface, #ffffff);
+}
+
+.rubricCheckbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.rubricCheckbox:disabled {
+  cursor: default;
+}
+
+.rubricActions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.noneBtn {
+  min-height: 44px;
+  padding: 8px 16px;
+  background: var(--surface, #ffffff);
+  border: 1.5px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-pill, 9999px);
+  color: var(--color-text-muted, #596a82);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.noneBtn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: var(--color-text, #1e293b);
+}
+
+.noneBtnActive {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: var(--color-text, #1e293b);
+}
+
+.noneBtn:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+/* 4. 下部固定バー */
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--color-border, #e2e8f0);
+  padding: 12px 20px;
+  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.08);
+}
+
+.bottomBarInner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.bottomBarInnerSingle {
+  justify-content: center;
+}
+
+.remainingNotice {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-muted, #596a82);
+}
+
+.finalizeBtn {
+  min-height: 48px;
+  padding: 12px 32px;
+  background: var(--color-action, #2563eb) !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: var(--radius-pill, 9999px);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transition: all 0.15s ease;
+}
+
+.finalizeBtn:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.finalizeBtn:disabled {
+  background: #94a3b8 !important;
+  opacity: 0.7;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.homeActionBtn {
+  min-height: 48px;
+  padding: 12px 40px;
+  background: var(--color-action, #2563eb) !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: var(--radius-pill, 9999px);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transition: all 0.15s ease;
+}
+
+.homeActionBtn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+/* レスポンシブ縦積み対応（幅768px以下・375px） */
+@media (max-width: 768px) {
+  .columnHeaderRow {
+    display: none;
+  }
+
+  .reviewRow,
+  .openTopColumns {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .colQuestionName {
+    font-size: 15px;
+    border-bottom: 1px dashed var(--color-border, #e2e8f0);
+    padding-bottom: 4px;
+  }
+
+  .colLabelMobile {
+    display: block;
+  }
+
+  .colJudgment {
+    text-align: left;
+    margin-top: 4px;
+  }
+
+  .bottomBarInner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .remainingNotice {
+    text-align: center;
+  }
+
+  .finalizeBtn,
+  .homeActionBtn {
+    width: 100%;
+  }
+}
+
+
+/* 副ボタン（枠線のみ）: 認定証を見る・つぎの一歩 */
+.certBtn,
+.nextStepBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 24px;
+  background: transparent;
+  color: var(--color-action, #2563eb);
+  border: 2px solid var(--color-action, #2563eb);
+  border-radius: var(--radius-pill, 9999px);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+  box-sizing: border-box;
+}
+.certBtn {
+  margin: 0 0 12px;
+}
+.nextStepBtn {
+  margin: 0;
+}
+.certBtn:hover,
+.nextStepBtn:hover {
+  background: var(--color-action-weak, #eff6ff);
+}
+.certBtn:focus-visible,
+.nextStepBtn:focus-visible {
+  outline: 3px solid var(--focus, #38bdf8);
+  outline-offset: 2px;
+}
+
+/* つぎの一歩カード（状態B・もう少しが1問以上あるとき） */
+.nextStepCard {
+  background: var(--surface, #ffffff);
+  border: 1.5px solid var(--color-border, #e2e8f0);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+.nextStepHeading {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  margin: 0 0 8px;
+}
+
+.nextStepHeadline {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  line-height: 1.5;
+  margin: 0 0 6px;
+}
+
+.nextStepIcon {
+  font-size: 18px;
+}
+
+.nextStepSubtext {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted, #596a82);
+  margin-bottom: 14px;
+}
