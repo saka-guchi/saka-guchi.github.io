@@ -362,11 +362,11 @@
   flex-direction: column;
 }
 
+/* 短答・選択肢問題カード（上下積み） */
 .reviewRow {
-  display: grid;
-  grid-template-columns: minmax(86px, auto) 1fr 1fr auto;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
-  align-items: center;
   padding: 12px 14px;
   border-bottom: 1px solid var(--color-border, #e2e8f0);
   box-sizing: border-box;
@@ -376,12 +376,12 @@
   border-bottom: none;
 }
 
-/* 記述問題用（下部にルーブリックチェックを展開） */
+/* 記述問題用（上下積み＋下部にルーブリックチェックを展開） */
 .reviewRowOpen {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 12px 14px;
+  padding: 14px;
   border-bottom: 1px solid var(--color-border, #e2e8f0);
   box-sizing: border-box;
 }
@@ -390,28 +390,31 @@
   border-bottom: none;
 }
 
-.openTopColumns {
-  display: grid;
-  grid-template-columns: minmax(86px, auto) 1fr 1fr auto;
-  gap: 8px;
+/* 1段目: 設問ヘッダー（左）＋ 判定バッジ（右） */
+.slotHeaderRow {
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   width: 100%;
 }
 
 .colQuestionName {
   display: flex;
   align-items: center;
+  min-width: 0;
+  flex: 1;
 }
 
 /* 設問ヘッダーボタン（タップで左を該当ページへ移動） */
 .questionJumpBtn {
   display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 2px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
   min-height: 44px;
-  padding: 4px 8px;
+  padding: 6px 8px;
+  margin-left: -8px;
   background: transparent;
   border: none;
   border-radius: 6px;
@@ -419,6 +422,7 @@
   text-align: left;
   color: var(--color-text, #1e293b);
   transition: background 0.15s ease;
+  max-width: 100%;
 }
 
 .questionJumpBtn:hover {
@@ -431,39 +435,79 @@
 }
 
 .questionShortLabel {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
   color: var(--color-text, #1e293b);
+  line-height: 1.4;
 }
 
 .pageJumpLink {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--color-action, #2563eb);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
-/* 入力欄に見えない読み取り専用の回答・正解表示（枠なし・薄い中立色背景） */
+/* 2段目: 「あなたの答え（上）」と「せいかい（下）」の上下100%幅スタック */
+.answerStack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+/* 入力欄に見えない読み取り専用の回答・正解表示（枠なし・横幅100%・サイズ完全統一） */
 .readOnlyAnswerCell {
+  width: 100%;
+  box-sizing: border-box;
   background: #f1f5f9;
   border: none;
   border-radius: 8px;
-  padding: 6px 10px;
+  padding: 10px 12px;
+  min-height: 44px;
   cursor: default;
   user-select: text;
   min-width: 0;
 }
 
+/* 「せいかい」セルは視認性を高めるため清潔感のある淡いティント＋左端アクセント */
+.readOnlyAnswerCellCorrect {
+  background: #eff6ff;
+  border-left: 3px solid #93c5fd;
+}
+
+/* 記述問題用（ラベル上・本文下の複数行ゆったりボックス、最小高さを統一） */
+.readOnlyAnswerCellOpen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-height: 56px;
+}
+
+/* 短答・記号問題用（ラベル左固定幅・値右の1行スリムボックス、高さ完全一致） */
+.readOnlyAnswerCellCompact {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 8px 12px;
+}
+
 .cellCaption {
   display: block;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--color-text-muted, #64748b);
-  margin-bottom: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .colAnswer {
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.55;
   color: var(--color-text, #1e293b);
   word-break: break-word;
 }
@@ -474,7 +518,8 @@
 }
 
 .colCorrect {
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.55;
   font-weight: 800;
   color: var(--color-text, #1e293b);
   word-break: break-word;
@@ -483,6 +528,7 @@
 .colJudgment {
   text-align: right;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* 判定バッジ（不正解・未入力に赤を使わない） */
@@ -772,26 +818,6 @@
 @media (max-width: 767px) {
   .mainContent {
     padding: 12px;
-  }
-
-  .reviewRow,
-  .openTopColumns {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .questionJumpBtn {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    border-bottom: 1px dashed var(--color-border, #e2e8f0);
-    border-radius: 0;
-  }
-
-  .colJudgment {
-    text-align: left;
-    margin-top: 2px;
   }
 
   .bottomBarInner {
