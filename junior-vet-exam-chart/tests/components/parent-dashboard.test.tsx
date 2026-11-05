@@ -257,4 +257,92 @@ describe('ParentDashboardModal Component & Integration Tests', () => {
     const updated = getQuestionReports();
     expect(updated[0].resolved).toBe(true);
   });
+
+  it('renders exam chart with all 5 subject tabs including kokugo and reward lines correctly', async () => {
+    // 認定試験の履歴データを投入
+    await db.finalChallengeResults.bulkAdd([
+      {
+        examId: 'yasuda-2024-rika',
+        stage: 1,
+        timestamp: Date.now() - 3600000,
+        score: 65,
+        totalScore: 100,
+        passed: true,
+        questionScores: {},
+      },
+      {
+        examId: 'yasuda-2023-sansu',
+        stage: 1,
+        timestamp: Date.now() - 1800000,
+        score: 85,
+        totalScore: 100,
+        passed: true,
+        questionScores: {},
+      },
+      {
+        examId: 'yasuda-2022-kokugo',
+        stage: 2,
+        timestamp: Date.now(),
+        score: 90,
+        totalScore: 100,
+        passed: true,
+        questionScores: {},
+      },
+    ]);
+
+    render(<ParentDashboardModal onClose={() => {}} />);
+
+    // グラフタイトルの表示確認
+    expect(screen.getByText(/🏆 獣医師チャレンジの得点推移/)).toBeInTheDocument();
+
+    // 合格ライン (60点) とごほうび目標ラインの表示確認
+    expect(screen.getByText(/🎖️ 合格 \(60点\)/)).toBeInTheDocument();
+    expect(screen.getByText(/🥉 80点/)).toBeInTheDocument();
+    expect(screen.getByText(/🥈 90点/)).toBeInTheDocument();
+    expect(screen.getByText(/🥇 100点/)).toBeInTheDocument();
+
+    // 5つの教科セグメントボタン（すべて、理科、算数、社会、国語）の存在確認
+    const allTab = screen.getByTestId('exam-filter-all');
+    const rikaTab = screen.getByTestId('exam-filter-rika');
+    const sansuTab = screen.getByTestId('exam-filter-sansu');
+    const shakaiTab = screen.getByTestId('exam-filter-shakai');
+    const kokugoTab = screen.getByTestId('exam-filter-kokugo');
+
+    expect(allTab).toHaveTextContent('すべて');
+    expect(rikaTab).toHaveTextContent('理科');
+    expect(sansuTab).toHaveTextContent('算数');
+    expect(shakaiTab).toHaveTextContent('社会');
+    expect(kokugoTab).toHaveTextContent('国語');
+
+    // 「国語」タブに切り替え
+    fireEvent.click(kokugoTab);
+    expect(kokugoTab).toHaveAttribute('aria-selected', 'true');
+    expect(allTab).toHaveAttribute('aria-selected', 'false');
+
+    // 「国語」の詳細カードが表示されていること
+    await waitFor(() => {
+      expect(screen.getByText(/2022年度 Stage 2/)).toBeInTheDocument();
+      expect(screen.getByText(/🥈 銀のドクターバッジ獲得！/)).toBeInTheDocument();
+    });
+
+    // 「理科」タブに切り替え
+    fireEvent.click(rikaTab);
+    await waitFor(() => {
+      expect(screen.getByText(/2024年度 Stage 1/)).toBeInTheDocument();
+      expect(screen.getByText(/🎖️ 合格ドクター認定証 授与！/)).toBeInTheDocument();
+    });
+
+    // 「算数」タブに切り替え
+    fireEvent.click(sansuTab);
+    await waitFor(() => {
+      expect(screen.getByText(/2023年度 Stage 1/)).toBeInTheDocument();
+      expect(screen.getByText(/🥉 銅のドクターバッジ獲得！/)).toBeInTheDocument();
+    });
+
+    // 「社会」タブに切り替え（未受験の場合の温かい案内）
+    fireEvent.click(shakaiTab);
+    await waitFor(() => {
+      expect(screen.getByText(/まだ「🗾 社会」の受験データがありません/)).toBeInTheDocument();
+    });
+  });
 });
