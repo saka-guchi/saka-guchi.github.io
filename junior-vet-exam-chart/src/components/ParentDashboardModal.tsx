@@ -51,6 +51,75 @@ interface DailyCount {
   count: number;
 }
 
+// 獣医師チャレンジの科目抽出
+const getExamSubjectFromId = (examId: string): 'rika' | 'sansu' | 'shakai' | 'kokugo' => {
+  if (examId.includes('kokugo')) return 'kokugo';
+  if (examId.includes('sansu')) return 'sansu';
+  if (examId.includes('shakai')) return 'shakai';
+  return 'rika';
+};
+
+// 獣医師チャレンジの科目メタ情報
+const getExamSubjectMeta = (subjectOrExamId: string) => {
+  const sub = subjectOrExamId.includes('kokugo')
+    ? 'kokugo'
+    : subjectOrExamId.includes('sansu')
+    ? 'sansu'
+    : subjectOrExamId.includes('shakai')
+    ? 'shakai'
+    : subjectOrExamId === 'rika' || subjectOrExamId.includes('rika')
+    ? 'rika'
+    : (subjectOrExamId as 'rika' | 'sansu' | 'shakai' | 'kokugo');
+
+  switch (sub) {
+    case 'sansu':
+      return { subject: 'sansu' as const, label: '算数', icon: '📐', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' };
+    case 'shakai':
+      return { subject: 'shakai' as const, label: '社会', icon: '🗾', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' };
+    case 'kokugo':
+      return { subject: 'kokugo' as const, label: '国語', icon: '📖', color: '#e11d48', bg: '#fff1f2', border: '#fecdd3' };
+    case 'rika':
+    default:
+      return { subject: 'rika' as const, label: '理科', icon: '🧪', color: '#0d9488', bg: '#f0fdfa', border: '#99f6e4' };
+  }
+};
+
+// 獣医師チャレンジの年度抽出
+const getExamYearLabel = (examId: string): string => {
+  const match = examId.match(/202\d/);
+  return match ? `${match[0]}年度` : '';
+};
+
+// ごほうびバッジ情報の判定（60点合格、80点銅、90点銀、100点金）
+const getRewardBadgeInfo = (score: number) => {
+  if (score >= 100) return { label: '🥇 金のマスターバッジ獲得！', color: '#b45309', bg: '#fef3c7' };
+  if (score >= 90) return { label: '🥈 銀のドクターバッジ獲得！', color: '#475569', bg: '#f1f5f9' };
+  if (score >= 80) return { label: '🥉 銅のドクターバッジ獲得！', color: '#92400e', bg: '#ffedd5' };
+  if (score >= 60) return { label: '🎖️ 合格ドクター認定証 授与！', color: '#15803d', bg: '#dcfce7' };
+  return { label: `🐾 合格ラインまであと${60 - score}点`, color: '#64748b', bg: '#f8fafc' };
+};
+
+// JST 短縮日付 (MM/DD)
+const formatExamShortDate = (timestamp: number) => {
+  return new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    month: 'numeric',
+    day: 'numeric',
+  }).format(new Date(timestamp));
+};
+
+// JST 日時 (YYYY/MM/DD HH:mm)
+const formatExamDateTime = (timestamp: number) => {
+  return new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(timestamp));
+};
+
 export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
   onClose,
   onStartWeaknessQuiz,
@@ -260,6 +329,14 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
 
   const [reports, setReports] = useState<QuestionReportItem[]>(() => getQuestionReports());
   const [examResults, setExamResults] = useState<FinalChallengeResult[]>([]);
+  const [selectedExamSubject, setSelectedExamSubject] = useState<'all' | 'rika' | 'sansu' | 'shakai' | 'kokugo'>('all');
+  const [selectedExamPlotIndex, setSelectedExamPlotIndex] = useState<number | null>(null);
+
+  // 教科別フィルタリングされた認定試験履歴
+  const filteredExamResults = useMemo(() => {
+    if (selectedExamSubject === 'all') return examResults;
+    return examResults.filter(r => getExamSubjectFromId(r.examId) === selectedExamSubject);
+  }, [examResults, selectedExamSubject]);
   const [dailyCounts, setDailyCounts] = useState<DailyCount[]>([]);
   const [totalAttempts, setTotalAttempts] = useState<number>(0);
   const [totalCorrect, setTotalCorrect] = useState<number>(0);
@@ -851,64 +928,297 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
 
               {/* 獣医師チャレンジのスコア推移グラフ */}
               <div style={{ background: 'var(--surface-subtle)', borderRadius: '14px', padding: '16px', border: '1px solid var(--border)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
                   <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text)', fontWeight: 'bold' }}>
                     🏆 獣医師チャレンジの得点推移（実力判定）
                   </h4>
-                  <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 'bold' }}>
-                    ―― 合格ライン (80点)
-                  </span>
+                  {/* ごほうび基準ライン凡例 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', flexWrap: 'wrap' }}>
+                    <span style={{ color: '#15803d', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                      <span style={{ display: 'inline-block', width: '12px', height: '0', borderTop: '2px dashed #22c55e' }} />
+                      🎖️ 合格 (60点)
+                    </span>
+                    <span style={{ color: '#b45309', opacity: 0.85 }}>⋯ 🥉 80点</span>
+                    <span style={{ color: '#475569', opacity: 0.85 }}>⋯ 🥈 90点</span>
+                    <span style={{ color: '#ca8a04', opacity: 0.85 }}>⋯ 🥇 100点</span>
+                  </div>
                 </div>
 
-                {examResults.length === 0 ? (
+                {/* 教科切り替えセグメントコントロール */}
+                <div
+                  role="tablist"
+                  aria-label="獣医師チャレンジ 教科切り替え"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: '#e2e8f0',
+                    padding: '4px',
+                    borderRadius: '10px',
+                    marginBottom: '12px',
+                    overflowX: 'auto',
+                    WebkitOverflowScrolling: 'touch',
+                  }}
+                >
+                  {[
+                    { id: 'all' as const, label: 'すべて', icon: '🌈', color: '#334155', count: examResults.length },
+                    { id: 'rika' as const, label: '理科', icon: '🧪', color: '#0d9488', count: examResults.filter(r => r.examId.includes('rika')).length },
+                    { id: 'sansu' as const, label: '算数', icon: '📐', color: '#2563eb', count: examResults.filter(r => r.examId.includes('sansu')).length },
+                    { id: 'shakai' as const, label: '社会', icon: '🗾', color: '#16a34a', count: examResults.filter(r => r.examId.includes('shakai')).length },
+                    { id: 'kokugo' as const, label: '国語', icon: '📖', color: '#e11d48', count: examResults.filter(r => r.examId.includes('kokugo')).length },
+                  ].map(tab => {
+                    const isSelected = selectedExamSubject === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={isSelected}
+                        data-testid={`exam-filter-${tab.id}`}
+                        onClick={() => {
+                          setSelectedExamSubject(tab.id);
+                          setSelectedExamPlotIndex(null);
+                        }}
+                        style={{
+                          border: 'none',
+                          outline: 'none',
+                          cursor: 'pointer',
+                          padding: '6px 12px',
+                          borderRadius: '7px',
+                          fontSize: '12px',
+                          fontWeight: isSelected ? 'bold' : '500',
+                          background: isSelected ? '#ffffff' : 'transparent',
+                          color: isSelected ? tab.color : '#64748b',
+                          boxShadow: isSelected ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        <span>{tab.icon}</span>
+                        <span>{tab.label}</span>
+                        <span
+                          style={{
+                            fontSize: '10px',
+                            padding: '1px 5px',
+                            borderRadius: '10px',
+                            background: isSelected ? `${tab.color}18` : '#cbd5e1',
+                            color: isSelected ? tab.color : '#475569',
+                            fontWeight: 'bold',
+                          }}
+                        >
+                          {tab.count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {filteredExamResults.length === 0 ? (
                   <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-subtle)', fontSize: '12px' }}>
-                    まだ認定試験のデータがありません。ホーム画面の「獣医師チャレンジ」を受験すると、ここに点数の伸びが折れ線グラフで記録されます。
+                    {selectedExamSubject === 'all'
+                      ? 'まだ認定試験のデータがありません。ホーム画面の「獣医師チャレンジ」を受験すると、ここに点数の伸びが折れ線グラフで記録されます。'
+                      : `まだ「${selectedExamSubject === 'rika' ? '🧪 理科' : selectedExamSubject === 'sansu' ? '📐 算数' : selectedExamSubject === 'shakai' ? '🗾 社会' : '📖 国語'}」の受験データがありません。「獣医師チャレンジ」を受験すると、ここに教科別の点数推移が記録されます。`}
                   </div>
                 ) : (
-                  <div style={{ width: '100%', height: '140px' }}>
-                    <svg viewBox="0 0 540 140" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
-                      {/* 合格ライン 80点 */}
-                      <line x1="20" y1="40" x2="520" y2="40" stroke="#86efac" strokeWidth="1.5" strokeDasharray="4 3" />
-                      <text x="5" y="44" fontSize="10" fill="#16a34a" fontWeight="bold">80点</text>
+                  <>
+                    <div style={{ width: '100%', height: '175px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                      <svg viewBox="0 0 540 170" style={{ width: '100%', minWidth: '420px', height: '100%', overflow: 'visible' }}>
+                        {/* 100点 (金) */}
+                        <line x1="30" y1="25" x2="520" y2="25" stroke="#eab308" strokeWidth="1" strokeDasharray="2 3" opacity="0.45" />
+                        <text x="6" y="28" fontSize="9" fill="#ca8a04" fontWeight="600">100点</text>
 
-                      {/* 底辺 0点 */}
-                      <line x1="20" y1="120" x2="520" y2="120" stroke="#cbd5e1" strokeWidth="1" />
+                        {/* 80点 (銅) */}
+                        <line x1="30" y1="49" x2="520" y2="49" stroke="#f59e0b" strokeWidth="1" strokeDasharray="3 3" opacity="0.55" />
+                        <text x="12" y="52" fontSize="9" fill="#b45309" fontWeight="600">80点</text>
 
-                      {/* 折れ線プロット */}
-                      {(() => {
-                        const points = examResults.map((r, i) => {
-                          const x = 30 + (i / Math.max(1, examResults.length - 1)) * 480;
-                          const y = 120 - (r.score / 100) * 100;
-                          return { x, y, r };
-                        });
-                        const polylineStr = points.map(p => `${p.x},${p.y}`).join(' ');
+                        {/* 60点 (合格ライン 認定証) */}
+                        <line x1="30" y1="73" x2="520" y2="73" stroke="#22c55e" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <text x="6" y="76" fontSize="10" fill="#15803d" fontWeight="bold">60点</text>
 
-                        return (
-                          <>
-                            <polyline
-                              fill="none"
-                              stroke="#f59e0b"
-                              strokeWidth="3"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              points={polylineStr}
-                            />
-                            {points.map((p, idx) => (
-                              <g key={idx}>
-                                <circle cx={p.x} cy={p.y} r="5" fill="#f59e0b" stroke="#ffffff" strokeWidth="2" />
-                                <text x={p.x} y={p.y - 8} fontSize="10" fontWeight="bold" fill="#92400e" textAnchor="middle">
-                                  {p.r.score}点
-                                </text>
-                                <text x={p.x} y={134} fontSize="9" fill="#64748b" textAnchor="middle">
-                                  第{idx + 1}回
-                                </text>
-                              </g>
-                            ))}
-                          </>
-                        );
-                      })()}
-                    </svg>
-                  </div>
+                        {/* 底辺 0点 */}
+                        <line x1="30" y1="135" x2="520" y2="135" stroke="#cbd5e1" strokeWidth="1" />
+                        <text x="16" y="138" fontSize="9" fill="#94a3b8">0点</text>
+
+                        {/* 折れ線プロット */}
+                        {(() => {
+                          const activeIdx = selectedExamPlotIndex !== null && selectedExamPlotIndex < filteredExamResults.length
+                            ? selectedExamPlotIndex
+                            : filteredExamResults.length - 1;
+
+                          const points = filteredExamResults.map((r, i) => {
+                            const x = filteredExamResults.length === 1
+                              ? 275
+                              : 55 + (i / (filteredExamResults.length - 1)) * 445;
+                            const y = 135 - (Math.min(100, Math.max(0, r.score)) / 100) * 110;
+                            const subMeta = getExamSubjectMeta(r.examId);
+                            const yearLabel = getExamYearLabel(r.examId);
+                            const dateLabel = formatExamShortDate(r.timestamp);
+                            return { x, y, r, subMeta, yearLabel, dateLabel, origIndex: i };
+                          });
+
+                          const polylineStr = points.map(p => `${p.x},${p.y}`).join(' ');
+                          const lineColor = selectedExamSubject === 'all'
+                            ? '#f59e0b'
+                            : getExamSubjectMeta(selectedExamSubject).color;
+
+                          return (
+                            <>
+                              {points.length > 1 && (
+                                <polyline
+                                  fill="none"
+                                  stroke={lineColor}
+                                  strokeWidth="3"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  points={polylineStr}
+                                />
+                              )}
+                              {points.map((p, idx) => {
+                                const isSelected = activeIdx === idx;
+                                const isPassed = p.r.score >= 60;
+                                const ptColor = selectedExamSubject === 'all' ? p.subMeta.color : lineColor;
+
+                                return (
+                                  <g
+                                    key={idx}
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => setSelectedExamPlotIndex(idx)}
+                                  >
+                                    {/* 選択中の外側ハイライトリング */}
+                                    {isSelected && (
+                                      <circle
+                                        cx={p.x}
+                                        cy={p.y}
+                                        r="10"
+                                        fill={ptColor}
+                                        opacity="0.25"
+                                      />
+                                    )}
+                                    {/* 点本体 */}
+                                    <circle
+                                      cx={p.x}
+                                      cy={p.y}
+                                      r={isSelected ? 6 : 4.5}
+                                      fill={ptColor}
+                                      stroke="#ffffff"
+                                      strokeWidth={isSelected ? 2.5 : 2}
+                                    />
+                                    {/* 得点表示 */}
+                                    <text
+                                      x={p.x}
+                                      y={p.y - 9}
+                                      fontSize="10"
+                                      fontWeight="bold"
+                                      fill={isPassed ? '#15803d' : '#92400e'}
+                                      textAnchor="middle"
+                                    >
+                                      {p.r.score}点
+                                    </text>
+                                    {/* 横軸ラベル 1行目: 回数 & アイコン/年度 */}
+                                    <text
+                                      x={p.x}
+                                      y={148}
+                                      fontSize="9"
+                                      fontWeight={isSelected ? 'bold' : 'normal'}
+                                      fill={isSelected ? 'var(--text)' : '#64748b'}
+                                      textAnchor="middle"
+                                    >
+                                      {selectedExamSubject === 'all'
+                                        ? `${p.subMeta.icon}第${idx + 1}回`
+                                        : `第${idx + 1}回 (${p.yearLabel})`}
+                                    </text>
+                                    {/* 横軸ラベル 2行目: 日付 */}
+                                    <text
+                                      x={p.x}
+                                      y={160}
+                                      fontSize="8"
+                                      fill="#94a3b8"
+                                      textAnchor="middle"
+                                    >
+                                      {p.dateLabel}
+                                    </text>
+                                  </g>
+                                );
+                              })}
+                            </>
+                          );
+                        })()}
+                      </svg>
+                    </div>
+
+                    {/* 選択された試験回の詳細インスペクターカード */}
+                    {(() => {
+                      const activeIdx = selectedExamPlotIndex !== null && selectedExamPlotIndex < filteredExamResults.length
+                        ? selectedExamPlotIndex
+                        : filteredExamResults.length - 1;
+                      const activeResult = filteredExamResults[activeIdx];
+                      if (!activeResult) return null;
+                      const meta = getExamSubjectMeta(activeResult.examId);
+                      const year = getExamYearLabel(activeResult.examId);
+                      const dateStr = formatExamDateTime(activeResult.timestamp);
+                      const badge = getRewardBadgeInfo(activeResult.score);
+
+                      return (
+                        <div
+                          style={{
+                            marginTop: '10px',
+                            padding: '10px 14px',
+                            background: '#ffffff',
+                            borderRadius: '10px',
+                            border: `1.5px solid ${meta.border}`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            gap: '8px',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                            <span
+                              style={{
+                                padding: '3px 8px',
+                                borderRadius: '6px',
+                                background: meta.bg,
+                                color: meta.color,
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                              }}
+                            >
+                              {meta.icon} {meta.label}
+                            </span>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text)' }}>
+                              {year} Stage {activeResult.stage}
+                            </span>
+                            <span style={{ fontSize: '11px', color: '#64748b' }}>
+                              （{dateStr} 受験）
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '14px', fontWeight: 'bold', color: meta.color }}>
+                              {activeResult.score}点
+                            </span>
+                            <span
+                              style={{
+                                fontSize: '11px',
+                                fontWeight: 'bold',
+                                padding: '2px 8px',
+                                borderRadius: '12px',
+                                background: badge.bg,
+                                color: badge.color,
+                              }}
+                            >
+                              {badge.label}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </>
                 )}
               </div>
               {/* 現在の弱点テーマTOP3 */}
