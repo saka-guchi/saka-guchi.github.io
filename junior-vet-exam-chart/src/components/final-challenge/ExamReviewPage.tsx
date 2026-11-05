@@ -507,14 +507,15 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
                         const shortLabel = formatReviewSlotLabel(slot.label);
 
                         if (isOpen) {
-                          // 記述問題
+                          // 記述問題（A案: 1段目ヘッダー＋判定バッジ、2段目あなたの答え・せいかいを上下100%幅で統一、3段目ルーブリック）
                           return (
                             <div
                               key={slot.id}
                               className={styles.reviewRowOpen}
                               data-testid={`review-slot-${slot.id}`}
                             >
-                              <div className={styles.openTopColumns}>
+                              {/* 1段目: 設問ヘッダー（左）＋ 判定バッジ（右） */}
+                              <div className={styles.slotHeaderRow}>
                                 <div className={styles.colQuestionName}>
                                   <button
                                     type="button"
@@ -526,22 +527,6 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
                                     <span className={styles.questionShortLabel}>{shortLabel}</span>
                                     <span className={styles.pageJumpLink}>p.{slot.pageNumber}を見る</span>
                                   </button>
-                                </div>
-
-                                <div className={styles.readOnlyAnswerCell}>
-                                  <span className={styles.cellCaption}>あなたの答え</span>
-                                  <div className={styles.colAnswer}>
-                                    {userAns ? (
-                                      userAns
-                                    ) : (
-                                      <span className={styles.emptyAnswer}>(未入力)</span>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className={styles.readOnlyAnswerCell}>
-                                  <span className={styles.cellCaption}>せいかい</span>
-                                  <div className={styles.colCorrect}>{slot.correctAnswer}</div>
                                 </div>
 
                                 <div className={styles.colJudgment}>
@@ -562,7 +547,30 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
                                 </div>
                               </div>
 
-                              {/* ルーブリックチェックボックス */}
+                              {/* 2段目: あなたの答え（上）と せいかい（下）を同じ横幅100%・統一サイズで上下配置 */}
+                              <div className={styles.answerStack}>
+                                <div
+                                  className={`${styles.readOnlyAnswerCell} ${styles.readOnlyAnswerCellOpen}`}
+                                >
+                                  <span className={styles.cellCaption}>あなたの答え</span>
+                                  <div className={styles.colAnswer}>
+                                    {userAns ? (
+                                      userAns
+                                    ) : (
+                                      <span className={styles.emptyAnswer}>(未入力)</span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div
+                                  className={`${styles.readOnlyAnswerCell} ${styles.readOnlyAnswerCellCorrect} ${styles.readOnlyAnswerCellOpen}`}
+                                >
+                                  <span className={styles.cellCaption}>せいかい</span>
+                                  <div className={styles.colCorrect}>{slot.correctAnswer}</div>
+                                </div>
+                              </div>
+
+                              {/* 3段目: ルーブリックチェックボックス */}
                               <div className={styles.rubricBox}>
                                 <div className={styles.rubricInstruction}>
                                   書けていたらチェックしてね
@@ -618,55 +626,65 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
                           );
                         }
 
-                        // 選択肢・数値・語句問題（自動判定）
+                        // 選択肢・数値・語句問題（A案: 1段目ヘッダー＋判定バッジ、2段目あなたの答え・せいかいを1行スリムボックスで上下100%幅統一）
                         return (
                           <div
                             key={slot.id}
                             className={styles.reviewRow}
                             data-testid={`review-slot-${slot.id}`}
                           >
-                            <div className={styles.colQuestionName}>
-                              <button
-                                type="button"
-                                className={styles.questionJumpBtn}
-                                onClick={() => handleJumpToSlotPage(slot.pageNumber)}
-                                data-testid={`jump-page-btn-${slot.id}`}
-                                title={`問題用紙 p.${slot.pageNumber} を見る`}
-                              >
-                                <span className={styles.questionShortLabel}>{shortLabel}</span>
-                                <span className={styles.pageJumpLink}>p.{slot.pageNumber}を見る</span>
-                              </button>
-                            </div>
+                            {/* 1段目: 設問ヘッダー（左）＋ 判定バッジ（右） */}
+                            <div className={styles.slotHeaderRow}>
+                              <div className={styles.colQuestionName}>
+                                <button
+                                  type="button"
+                                  className={styles.questionJumpBtn}
+                                  onClick={() => handleJumpToSlotPage(slot.pageNumber)}
+                                  data-testid={`jump-page-btn-${slot.id}`}
+                                  title={`問題用紙 p.${slot.pageNumber} を見る`}
+                                >
+                                  <span className={styles.questionShortLabel}>{shortLabel}</span>
+                                  <span className={styles.pageJumpLink}>p.{slot.pageNumber}を見る</span>
+                                </button>
+                              </div>
 
-                            <div className={styles.readOnlyAnswerCell}>
-                              <span className={styles.cellCaption}>あなたの答え</span>
-                              <div className={styles.colAnswer}>
-                                {userAns ? (
-                                  userAns
+                              <div className={styles.colJudgment}>
+                                {judgment?.isCorrect ? (
+                                  <span className={styles.badgeCorrect}>✓ せいかい</span>
+                                ) : !judgment?.isAnswered ? (
+                                  <span
+                                    className={styles.badgeUnanswered}
+                                    data-testid={`status-unanswered-${slot.id}`}
+                                  >
+                                    — かいていない
+                                  </span>
                                 ) : (
-                                  <span className={styles.emptyAnswer}>(未入力)</span>
+                                  <span className={styles.badgeNeedsWork}>✎ もう少し</span>
                                 )}
                               </div>
                             </div>
 
-                            <div className={styles.readOnlyAnswerCell}>
-                              <span className={styles.cellCaption}>せいかい</span>
-                              <div className={styles.colCorrect}>{slot.correctAnswer}</div>
-                            </div>
+                            {/* 2段目: あなたの答え（上）と せいかい（下）を同じ横幅100%・同サイズのスリムボックスで上下配置 */}
+                            <div className={styles.answerStack}>
+                              <div
+                                className={`${styles.readOnlyAnswerCell} ${styles.readOnlyAnswerCellCompact}`}
+                              >
+                                <span className={styles.cellCaption}>あなたの答え</span>
+                                <div className={styles.colAnswer}>
+                                  {userAns ? (
+                                    userAns
+                                  ) : (
+                                    <span className={styles.emptyAnswer}>(未入力)</span>
+                                  )}
+                                </div>
+                              </div>
 
-                            <div className={styles.colJudgment}>
-                              {judgment?.isCorrect ? (
-                                <span className={styles.badgeCorrect}>✓ せいかい</span>
-                              ) : !judgment?.isAnswered ? (
-                                <span
-                                  className={styles.badgeUnanswered}
-                                  data-testid={`status-unanswered-${slot.id}`}
-                                >
-                                  — かいていない
-                                </span>
-                              ) : (
-                                <span className={styles.badgeNeedsWork}>✎ もう少し</span>
-                              )}
+                              <div
+                                className={`${styles.readOnlyAnswerCell} ${styles.readOnlyAnswerCellCorrect} ${styles.readOnlyAnswerCellCompact}`}
+                              >
+                                <span className={styles.cellCaption}>せいかい</span>
+                                <div className={styles.colCorrect}>{slot.correctAnswer}</div>
+                              </div>
                             </div>
                           </div>
                         );
