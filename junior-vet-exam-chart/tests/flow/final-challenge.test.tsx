@@ -54,23 +54,18 @@ describe('Final Challenge Page (Stage 1 & 2)', () => {
     expect(slot6Textarea.tagName).toBe('TEXTAREA');
     expect(slot6Textarea).toHaveAttribute('placeholder', '記述の答えを入力（提出時に自己採点要素を確認できます）');
 
-    // 4. 次のページへ進むと p.2 (大問1) が表示されること（初期表示は原本スキャン画像）
+    // 4. 次のページへ進むと p.2 (大問1) が表示されること（原本スキャン画像のみ）
     fireEvent.click(screen.getByTestId('next-page-btn'));
     expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 2 / 7');
     expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
-    // テキスト・図表タブに切り替えて問題文を検証
-    fireEvent.click(screen.getByText('📐 テキスト・図表'));
-    expect(screen.getByText('大問【1】 植物の根と茎・葉脈の観察')).toBeInTheDocument();
-    expect(screen.getByText('【問1】')).toBeInTheDocument();
-    expect(screen.getByText('【問2】')).toBeInTheDocument();
+    expect(screen.queryByText('📐 テキスト・図表')).toBeNull();
 
-    // 問題用紙（大問1）の問題文に答え（師管・道管など）がネタバレ漏洩していないこと
+    // 問題用紙エリアに答え（師管・道管など）がネタバレ漏洩していないこと
     const pdfArea = screen.getByTestId('challenge-pdf-area');
     expect(pdfArea).not.toHaveTextContent('(師管)');
     expect(pdfArea).not.toHaveTextContent('(道管)');
     expect(pdfArea).not.toHaveTextContent('組織㋒（師管）');
     expect(pdfArea).not.toHaveTextContent('組織㋓（道管）');
-    expect(pdfArea).toHaveTextContent('図2の㋒と㋓のはたらきを簡単に説明しなさい。');
 
     // 5. 提出ボタンを押すと提出確認ダイアログが表示されること
     fireEvent.click(screen.getByTestId('submit-exam-btn'));

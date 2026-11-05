@@ -434,4 +434,88 @@ describe('見直しページ（全画面）＆提出フロー', () => {
     expect(window.location.hash).not.toContain('caseStudySubject');
     unmountInvalid();
   });
+
+  it('16. テキスト・図表ボタン非表示＆古い viewMode:"text" データからの再開', async () => {
+    // 古いデータに viewMode: 'text' が入っていても破棄せず 'image' として再開できる
+    localStorage.setItem(
+      'jvet:final-challenge-answering:2024:rika',
+      JSON.stringify({
+        version: 1,
+        year: 2024,
+        subject: 'rika',
+        answers: { 'rika-2024-01-01-a': '主根' },
+        currentPage: 2,
+        remainingSeconds: 1500,
+        timestamp: Date.now(),
+        viewMode: 'text',
+      })
+    );
+
+    renderPage('rika');
+    expect(screen.queryByText('📐 テキスト・図表')).toBeNull();
+    expect(screen.queryByText('📸 原本スキャン')).toBeNull();
+    expect(screen.getByTestId('exam-page-image')).toBeInTheDocument();
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 2 / 7');
+    expect((screen.getByTestId('slot-rika-2024-01-01-a') as HTMLInputElement).value).toBe('主根');
+  });
+
+  it('17. 見直しページ2カラム構成: 答え合わせ入力不可・未入力「かいていない」・状態A点数非表示・大問注意書き1回・設問タップでページ連動', async () => {
+    renderPage('rika');
+    // 1問だけ正解を入力し、他は未入力のまま提出
+    fireEvent.change(screen.getByTestId('slot-rika-2024-01-01-a'), { target: { value: '主根' } });
+    fireEvent.change(screen.getByTestId('slot-rika-2024-01-01-b'), { target: { value: 'まちがい' } });
+    submit();
+
+    await waitFor(() => expect(screen.getByTestId('review-pending-area')).toBeInTheDocument());
+
+    // 状態Aで点数（0点など）が出ないこと
+    expect(screen.queryByTestId('pending-score-display')).toBeNull();
+    expect(screen.getByTestId('review-pending-area')).not.toHaveTextContent('いまの点数');
+
+    // 左に原本ビューア、右に答え合わせカラムが存在すること
+    expect(screen.getByTestId('review-left-problem-col')).toBeInTheDocument();
+    const rightCol = screen.getByTestId('review-answer-column');
+    expect(rightCol).toBeInTheDocument();
+
+    // 答え合わせ側にテキスト入力欄（input[type="text"], textarea）が存在しないこと
+    expect(rightCol.querySelectorAll('input[type="text"], textarea').length).toBe(0);
+
+    // 正解は「✓ せいかい」、誤答は「✎ もう少し」、未入力は「— かいていない」が表示されること
+    expect(screen.getByTestId('review-slot-rika-2024-01-01-a')).toHaveTextContent('✓ せいかい');
+    expect(screen.getByTestId('review-slot-rika-2024-01-01-b')).toHaveTextContent('✎ もう少し');
+    expect(screen.getByTestId('status-unanswered-rika-2024-01-01-c')).toHaveTextContent('— かいていない');
+
+    // 大問の注意書きが大問見出し下に1回だけ表示されること
+    expect(screen.getAllByTestId('review-section-notice-1').length).toBe(1);
+
+    // 設問ヘッダー（p.5を見る）をタップすると左のページが p.5 へ移動し、カード本体タップでは移動しないこと
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 7');
+    fireEvent.click(screen.getByTestId('review-slot-rika-2024-03-01'));
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 1 / 7');
+    fireEvent.click(screen.getByTestId('jump-page-btn-rika-2024-03-01'));
+    expect(screen.getByTestId('page-indicator')).toHaveTextContent('ページ: 5 / 7');
+  });
+
+  it('18. 狭い幅(767px以下)では原本が下部に折りたたまれ、初期状態で閉じていること', async () => {
+    const origWidth = window.innerWidth;
+    window.innerWidth = 375;
+    window.dispatchEvent(new Event('resize'));
+
+    try {
+      renderPage('rika');
+      submit();
+      await waitFor(() => expect(screen.getByTestId('exam-review-page')).toBeInTheDocument());
+
+      const toggleBtn = screen.getByTestId('mobile-problem-toggle');
+      expect(toggleBtn).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('mobile-problem-content')).toBeNull();
+
+      fireEvent.click(toggleBtn);
+      expect(toggleBtn).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('mobile-problem-content')).toBeInTheDocument();
+    } finally {
+      window.innerWidth = origWidth;
+      window.dispatchEvent(new Event('resize'));
+    }
+  });
 });

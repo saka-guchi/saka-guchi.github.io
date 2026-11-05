@@ -3,6 +3,19 @@ import type { Subject } from '../types';
 
 export const PENDING_REVIEW_VERSION = 1;
 
+/**
+ * 過去問モードで「テキスト・図表」表示を有効にするかどうかのフラグ。
+ * 現在は原本スキャンのみとし、将来 true に戻せば復活できる作りにする。
+ */
+export const ENABLE_TEXT_VIEW = false;
+
+export type ExamViewMode = 'text' | 'image';
+
+export function resolveExamViewMode(raw?: unknown): ExamViewMode {
+  if (!ENABLE_TEXT_VIEW) return 'image';
+  return raw === 'text' ? 'text' : 'image';
+}
+
 export interface PendingReviewData {
   version: typeof PENDING_REVIEW_VERSION;
   year: ExamYear;
@@ -12,6 +25,7 @@ export interface PendingReviewData {
   markedZeroSlots: Record<string, boolean>; // 「どれも書けなかった」を押した記述スロット
   isTimeUpSubmitted: boolean;
   timestamp: number;
+  viewMode?: ExamViewMode;
 }
 
 export interface FinalizedReviewData {
@@ -30,6 +44,7 @@ export interface FinalizedReviewData {
   };
   hasMasterBadge: boolean;
   timestamp: number;
+  viewMode?: ExamViewMode;
 }
 
 export interface PausedAnsweringData {
@@ -40,6 +55,7 @@ export interface PausedAnsweringData {
   currentPage: number;
   remainingSeconds: number;
   timestamp: number;
+  viewMode?: ExamViewMode;
 }
 
 export function getPendingReviewStorageKey(year: ExamYear, subject: Subject): string {
@@ -85,6 +101,7 @@ export function loadPendingReview(year: ExamYear, subject: Subject): PendingRevi
           : {},
       isTimeUpSubmitted: Boolean(parsed.isTimeUpSubmitted),
       timestamp: Number(parsed.timestamp) || Date.now(),
+      viewMode: resolveExamViewMode(parsed.viewMode),
     };
   } catch (err) {
     console.warn('[loadPendingReview] Failed to load pending review:', err);
@@ -146,6 +163,7 @@ export function loadFinalizedReview(year: ExamYear, subject: Subject): Finalized
       lastExamResult: parsed.lastExamResult,
       hasMasterBadge: Boolean(parsed.hasMasterBadge),
       timestamp: Number(parsed.timestamp) || Date.now(),
+      viewMode: resolveExamViewMode(parsed.viewMode),
     };
   } catch {
     return null;
@@ -197,6 +215,7 @@ export function loadPausedAnswering(year: ExamYear, subject: Subject): PausedAns
       currentPage: Number(parsed.currentPage) || 1,
       remainingSeconds: Number(parsed.remainingSeconds) || 0,
       timestamp: Number(parsed.timestamp) || Date.now(),
+      viewMode: resolveExamViewMode(parsed.viewMode),
     };
   } catch {
     return null;

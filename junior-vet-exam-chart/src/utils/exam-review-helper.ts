@@ -298,3 +298,48 @@ export function selectNextStepRecommendation(
     buttonText: `【${subLabel}】の症例スタディをひらく ❯`,
   };
 }
+
+/**
+ * 開発者向け注釈（「第13章仕様」「Stage 1」など）を取り除く内部ヘルパー
+ */
+function stripDevNotes(text: string): string {
+  return text
+    .replace(/（?第\d+章仕様）?/g, '')
+    .replace(/（?Stage\s*\d+.*?）?/gi, '')
+    .trim();
+}
+
+/**
+ * 大問見出しの重複表記を表示時に整形する純粋関数（元データは変更しない）
+ * 例: (1, "大問1: 計算・小問集合") / "大問1: 大問1: 計算・小問集合" -> "大問1 計算・小問集合"
+ */
+export function formatReviewSectionHeading(sectionNumberOrRaw: number | string, rawTitle?: string): string {
+  let secNum: number | string = sectionNumberOrRaw;
+  let body = rawTitle !== undefined ? rawTitle : String(sectionNumberOrRaw);
+
+  if (rawTitle === undefined && typeof sectionNumberOrRaw === 'string') {
+    const match = sectionNumberOrRaw.match(/^大問\s*(\d+|[一二三四五六七八九十]+)/);
+    secNum = match ? match[1] : 1;
+  }
+
+  body = stripDevNotes(body);
+  // 先頭に繰り返される「大問1:」「大問 1：」「大問一 」などをすべて除去
+  const prefixPattern = /^(\s*大問\s*(?:\d+|[一二三四五六七八九十]+)\s*[:：]?\s*)+/;
+  body = body.replace(prefixPattern, '').trim();
+
+  if (!body) {
+    return `大問${secNum}`;
+  }
+  return `大問${secNum} ${body}`;
+}
+
+/**
+ * 設問ラベルの重複した大問表記を表示時に整形する純粋関数（元データは変更しない）
+ * 例: "大問1 大問1(1)" -> "(1)"、"大問1 問1 [ア]" -> "問1 [ア]"
+ */
+export function formatReviewSlotLabel(rawLabel: string): string {
+  let cleaned = stripDevNotes(rawLabel);
+  // 先頭に繰り返される「大問1」「大問 1:」などを除去
+  cleaned = cleaned.replace(/^(\s*大問\s*(?:\d+|[一二三四五六七八九十]+)\s*[:：]?\s*)+/, '').trim();
+  return cleaned || rawLabel.trim();
+}
