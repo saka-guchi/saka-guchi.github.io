@@ -16,7 +16,7 @@ export const SCAN_PAGE_COUNTS: Record<number, Record<Subject, ScanPageInfo>> = {
   },
   2023: {
     rika: { totalProblemPages: 5, totalAnswerPages: 1 },
-    sansu: { totalProblemPages: 8, totalAnswerPages: 2 },
+    sansu: { totalProblemPages: 8, totalAnswerPages: 1 },
     shakai: { totalProblemPages: 6, totalAnswerPages: 1 },
     kokugo: { totalProblemPages: 10, totalAnswerPages: 2 },
   },

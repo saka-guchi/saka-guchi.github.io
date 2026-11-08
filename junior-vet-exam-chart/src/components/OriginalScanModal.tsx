@@ -109,7 +109,7 @@ export const OriginalScanModal: React.FC<OriginalScanModalProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '15px', fontWeight: 800 }}>
             {scanType === 'kaito'
-              ? `✅ 原本解答 (${year}年度)`
+              ? `✅ 模範解答原本 (${year}年度)`
               : (title || `📸 問題用紙原本 (${year}年度)`)}
           </span>
           {allowSwitchType && (
@@ -154,7 +154,7 @@ export const OriginalScanModal: React.FC<OriginalScanModalProps> = ({
                 }}
                 data-testid="switch-scan-kaito"
               >
-                ✅ 原本解答
+                ✅ 模範解答原本
               </button>
             </div>
           )}

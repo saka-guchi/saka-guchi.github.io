@@ -238,7 +238,7 @@ describe('ユーザー要望改善項目 統合テスト', () => {
       expect(kaitoBtn.className).toContain('activeTab');
     });
 
-    it('StudyPage で回答後に「原本解答を見る」ボタンが設置され、クリックすると原本解答画像が表示されること', () => {
+    it('StudyPage で回答後に「問題の出典：大問1 問...」形式で表示され、「模範解答原本を見る」ボタンから解答画像が表示されること', () => {
       const pastQ = ALL_PAST_EXAM_QUESTIONS.find(q => q.originalScan);
       expect(pastQ).toBeDefined();
 
@@ -270,22 +270,26 @@ describe('ユーザー要望改善項目 統合テスト', () => {
         if (ansBtn) fireEvent.click(ansBtn);
       }
 
-      // 「原本解答を見る」ボタンが設置されていること
+      // 出典クレジットに学校名ではなく「大問...」が表示されること
+      const credit = screen.getByTestId('study-source-credit');
+      expect(credit).toHaveTextContent(/問題の出典：大問/);
+
+      // 「模範解答原本を見る」ボタンが設置されていること
       const openAnswerScanBtn = screen.getByTestId('study-open-answer-scan-btn');
       expect(openAnswerScanBtn).toBeInTheDocument();
-      expect(openAnswerScanBtn).toHaveTextContent(/原本解答を見る/);
+      expect(openAnswerScanBtn).toHaveTextContent(/模範解答原本を見る/);
 
-      // クリックすると原本モーダルが開き、画像srcに kaito が含まれ、モーダルタイトルに原本解答が含まれること
+      // クリックすると原本モーダルが開き、画像srcに kaito が含まれ、モーダルタイトルに模範解答原本が含まれること
       fireEvent.click(openAnswerScanBtn);
       const modal = screen.getByTestId('original-scan-modal');
       expect(modal).toBeInTheDocument();
-      expect(modal).toHaveTextContent(/原本解答/);
+      expect(modal).toHaveTextContent(/模範解答原本/);
 
       const scanImg = screen.getByTestId('modal-scan-image');
       expect(scanImg).toHaveAttribute('src', expect.stringContaining('/kaito_p'));
     });
 
-    it('特訓問題（focus-...）でも原本解答ボタンが設置され、原本解答を表示できること', () => {
+    it('特訓問題（focus-...）でも「問題の出典：大問...」と「模範解答原本を見る」ボタンが設置されること', () => {
       // ユーザーの画像にあった社会の摂関政治問題
       const focusQ = {
         id: 'focus-shakai-sekkan-politics',
@@ -322,11 +326,14 @@ describe('ユーザー要望改善項目 統合テスト', () => {
         </MemoryRouter>
       );
 
-      // 「原本解答を見る」ボタンが「問題の出典」の代わりに設置されていること
+      // 「問題の出典：大問...」が表示されていること
+      const credit = screen.getByTestId('study-source-credit');
+      expect(credit).toHaveTextContent(/問題の出典：大問/);
+
+      // 「模範解答原本を見る」ボタンが設置されていること
       const openBtn = screen.getByTestId('study-open-answer-scan-btn');
       expect(openBtn).toBeInTheDocument();
-      expect(openBtn).toHaveTextContent(/原本解答を見る/);
-      expect(openBtn).toHaveTextContent(/2024年度 安田学園中学校 社会/);
+      expect(openBtn).toHaveTextContent(/模範解答原本を見る/);
 
       // クリックで原本解答モーダルが開くこと
       fireEvent.click(openBtn);
