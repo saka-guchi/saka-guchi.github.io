@@ -15,6 +15,7 @@ export interface ChallengeSlot {
   rubricItems?: string[]; // open 記述問題の自己採点要素
   stage2Prompt?: string;
   stage2CorrectAnswer?: string;
+  hints?: [{ level: 1; text: string }, { level: 2; text: string }];
 }
 
 export interface ChallengeSection {

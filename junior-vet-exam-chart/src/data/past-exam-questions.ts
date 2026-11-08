@@ -8,6 +8,8 @@ import {
   type ChallengeSection,
 } from './final-challenge-data';
 import { getSubjectJaName } from '../utils/source-helper';
+import { EXAM_SLOT_SKILL_MAP } from './exam-slot-skill-map';
+import { THEME_ENHANCEMENTS } from './vet-curriculum-enhancement';
 
 /**
  * Fisher-Yates アルゴリズムによる安全な配列シャッフル
@@ -96,17 +98,8 @@ export function convertSlotToSampleQuestion(
     }
   }
 
-  // ヒント2段階
-  const hints: [{ level: 1; text: string }, { level: 2; text: string }] = [
-    {
-      level: 1,
-      text: `${year}年度 安田学園中学校 入試過去問です。問題文の条件やキーワードをよく確認しましょう。`,
-    },
-    {
-      level: 2,
-      text: `重要単元「${section.title}」の解法とポイントを思い出して考えましょう。`,
-    },
-  ];
+  // ヒント2段階（問題・解答に即した具体解法ヒントを動的生成）
+  const hints = generateSlotHints(year, subject, section, slot);
 
   // 解説
   const explanation = {
@@ -123,11 +116,130 @@ export function convertSlotToSampleQuestion(
     category: section.title,
     skillTitle: section.title,
     source: `${year}年度 安田学園中学校 ${subjectJa}`,
+    originalScan: {
+      year,
+      subject,
+      pageNumber: slot.pageNumber,
+      slotId: slot.id,
+      sectionNumber: section.sectionNumber,
+      questionNumber: slot.questionNumber,
+      partNumber: slot.partNumber,
+    },
     choices,
     correctAnswer: finalCorrectAnswer,
     hints,
     explanation,
   };
+}
+
+/**
+ * 設問の特性・単元・ルーブリックに基づいて具体的で役立つ2段階ヒントを動的生成
+ */
+function generateSlotHints(
+  year: ExamYear,
+  subject: Subject,
+  section: ChallengeSection,
+  slot: ChallengeSlot
+): [{ level: 1; text: string }, { level: 2; text: string }] {
+  // 1. スロットに個別定義されたヒントがある場合
+  if (slot.hints && slot.hints.length >= 2) {
+    return [slot.hints[0], slot.hints[1]];
+  }
+
+  // 2. 単元マッピングから急所ヒントを取得
+  const skillId = EXAM_SLOT_SKILL_MAP[slot.id];
+  if (skillId && THEME_ENHANCEMENTS[skillId]) {
+    const enh = THEME_ENHANCEMENTS[skillId];
+    return [
+      { level: 1, text: `💡 解法のコツ: ${enh.flashCard.tip}` },
+      { level: 2, text: `🎯 入試の急所: ${enh.flashCard.examPoint}` },
+    ];
+  }
+
+  const promptText = (slot.stage2Prompt || slot.label || '').toLowerCase();
+  const labelText = slot.label || '';
+
+  // 3. 算数の計算・小問集合の具体解法ヒント
+  if (subject === 'sansu') {
+    if (section.title.includes('計算') || labelText.includes('計算') || promptText.includes('計算')) {
+      if (promptText.includes('□') || promptText.includes('しかく') || labelText.includes('逆算')) {
+        return [
+          { level: 1, text: '逆算（□を求める計算）は、計算の最後のまとまりから順にはがしていきましょう。' },
+          { level: 2, text: '「＋」は「−」に、「×」は「÷」に入れ替え、外側の数から順に右辺へ移項して整理しよう。' },
+        ];
+      }
+      if (promptText.includes('/') || promptText.includes('分') || promptText.includes('小数') || promptText.includes('.')) {
+        return [
+          { level: 1, text: '小数と分数が混ざっている場合は、すべて分数（または計算しやすい形）になおして整理しましょう。' },
+          { level: 2, text: 'かけ算・わり算を先にまとめて約分できるか探し、計算を簡単にしてからたし引きしよう。' },
+        ];
+      }
+      return [
+        { level: 1, text: '計算の順序（カッコの中 → かけ算・わり算 → たし算・ひき算）をまず確認しましょう。' },
+        { level: 2, text: '分配法則や工夫できる計算のまとまりがないか探してから筆算に入ろう。' },
+      ];
+    }
+    if (section.title.includes('旅人') || promptText.includes('出会') || promptText.includes('分速') || promptText.includes('池のまわり')) {
+      return [
+        { level: 1, text: '反対向きに出会うときは「速さの和」、同じ向きに追いつくときは「速さの差」に着目しよう。' },
+        { level: 2, text: '時間 ＝ 距離 ÷ (速さの和 または 差) の公式に当てはめて立式しよう。' },
+      ];
+    }
+    if (section.title.includes('つるかめ') || promptText.includes('ツル') || promptText.includes('カメ')) {
+      return [
+        { level: 1, text: '「すべてどちらか一方（例えばすべてツル）だった場合」を仮定して計算してみよう。' },
+        { level: 2, text: '実際の合計との差を求め、1つあたりの差で割るともう一方の個数が求まります。' },
+      ];
+    }
+    if (section.title.includes('図形') || section.title.includes('面積') || promptText.includes('面積')) {
+      return [
+        { level: 1, text: '補助線を引くか、全体から不要な部分を引く「引く作戦」が使えないか考えよう。' },
+        { level: 2, text: '合同な図形や等積変形、相似比・面積比の関係に着目して求めよう。' },
+      ];
+    }
+  }
+
+  // 4. 記述問題（open）
+  if (slot.answerType === 'open') {
+    if (slot.rubricItems && slot.rubricItems.length > 0) {
+      const rubricClues = slot.rubricItems
+        .map(r => r.replace(/と書けた.*$/, '').replace(/点.*$/, '').trim())
+        .filter(Boolean)
+        .slice(0, 2);
+      if (rubricClues.length >= 2) {
+        return [
+          { level: 1, text: `問題文の条件をよく読み、「なぜそうなるのか」の理由や仕組みを説明しよう。` },
+          { level: 2, text: `【着眼点】「${rubricClues[0]}」と「${rubricClues[1]}」の2つのポイントを含めてまとめよう。` },
+        ];
+      }
+    }
+    return [
+      { level: 1, text: '問題文の指示された条件やキーワードを正確に拾い出し、結論から先に書こう。' },
+      { level: 2, text: '「理由」を聞かれている場合は文末を「〜だから」「〜ため」で整えよう。' },
+    ];
+  }
+
+  // 5. 選択問題（choice / multi_choice）
+  if (slot.answerType === 'choice' || slot.answerType === 'multi_choice') {
+    return [
+      { level: 1, text: '問題文の問いかけ（正しいもの／誤っているもの／すべて選ぶ）の条件を再確認しよう。' },
+      { level: 2, text: '各選択肢のキーワードを比較し、時代や性質の矛盾する選択肢を消去法で絞り込もう。' },
+    ];
+  }
+
+  // 6. 語句問題（term）
+  if (slot.answerType === 'term') {
+    return [
+      { level: 1, text: `【${section.title}】に関する重要キーワード・基本用語を思い出そう。` },
+      { level: 2, text: '問題文の文脈や役割に合う語句を、漢字や送り仮名のミスがないよう正確に書こう。' },
+    ];
+  }
+
+  // 7. 数値問題（numeric）
+  return [
+    { level: 1, text: '問題文に出てくる数値の条件と、求められている単位（cm、g、人など）を整理しよう。' },
+    { level: 2, text: '公式に当てはめて計算し、概算（およその値）で見当をつけて検算しよう。' },
+  ];
 }
 
 /**

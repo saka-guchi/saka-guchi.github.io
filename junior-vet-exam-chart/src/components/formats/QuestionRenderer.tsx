@@ -460,7 +460,7 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
                   onClick={() => onAnswer('wrong', false)}
                   data-testid="recall-wrong-btn"
                 >
-                  思い出せなかった
+                  思い出せなかった／間違った
                 </button>
               </div>
             )}
@@ -1095,8 +1095,8 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
                   onClick={() => onAnswer('dont_know', false)}
                   data-testid="self-check-dont-know"
                 >
-                  <span style={{ fontWeight: 'bold' }}>❌ 解き方が分からなかった</span>
-                  <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>最初の方針や公式が思い浮かばなかった</div>
+                  <span style={{ fontWeight: 'bold' }}>❌ 解き方が分からなかった／思い出せなかった</span>
+                  <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '2px' }}>最初の方針や公式が思い浮かばなかった、または間違えた</div>
                 </button>
               </div>
             </div>

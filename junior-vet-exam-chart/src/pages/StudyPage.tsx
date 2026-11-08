@@ -7,6 +7,8 @@ import { QuestionPromptView, AnswerAreaView, ActionState } from '../components/f
 import { getQuestionSource } from '../utils/source-helper';
 import { sound } from '../utils/sound-effects';
 import { addQuestionReport } from '../utils/question-reports';
+import { ScratchPadCanvas } from '../components/ScratchPadCanvas';
+import { OriginalScanModal } from '../components/OriginalScanModal';
 import styles from './StudyPage.module.css';
 
 function getSubjectJaWithIcon(subject?: string): string {
@@ -39,6 +41,7 @@ export const StudyPage: React.FC = () => {
     revealChoices,
     showHint,
     recordAnswer,
+    skipCurrentQuestion,
     nextQuestion,
     resetSession,
   } = useAppStore();
@@ -47,6 +50,29 @@ export const StudyPage: React.FC = () => {
   const onSubmitActionRef = useRef<(() => void) | null>(null);
   const [actionState, setActionState] = useState<ActionState | null>(null);
   const [diagramSelectedRegion, setDiagramSelectedRegion] = useState<string | null>(null);
+
+  // 手書き計算スペースの開閉状態（算数・理科は初期展開、社会・国語は初期折りたたみ）
+  const [isScratchPadOpen, setIsScratchPadOpen] = useState(() => {
+    return currentQ?.subject === 'sansu' || currentQ?.subject === 'rika';
+  });
+
+  // 原本スキャン確認モーダル状態
+  const [showScanModal, setShowScanModal] = useState(false);
+  const [scanModalType, setScanModalType] = useState<'mondai' | 'kaito'>('mondai');
+
+  // 原本スキャンメタデータの取得
+  const scanMeta = currentQ?.originalScan || (() => {
+    if (!currentQ?.id) return null;
+    const match = currentQ.id.match(/^past-exam-(\d{4})-([a-z]+)-(.*)$/);
+    if (match) {
+      return {
+        year: parseInt(match[1], 10),
+        subject: match[2] as any,
+        pageNumber: 1,
+      };
+    }
+    return null;
+  })();
 
   // 選択肢形式（Delayed Choice / Multiple Choice / Why Choice）のみ Recall First のカウントダウンを表示
   // next_step は算数のステップ解法のためカウントダウンなしで即座に手順選択を開始
@@ -82,8 +108,13 @@ export const StudyPage: React.FC = () => {
     setDiagramSelectedRegion(null);
     setIsPaused(false);
     setShowReportModal(false);
+    setShowScanModal(false);
     setReportSuccess(false);
     setReportComment('');
+    // 教科が変わった際などの手書きエリア推奨開閉
+    if (currentQ.subject === 'sansu' || currentQ.subject === 'rika') {
+      setIsScratchPadOpen(true);
+    }
   }, [currentQ?.id, defaultWait]);
 
   const handleSendReport = () => {
@@ -110,12 +141,25 @@ export const StudyPage: React.FC = () => {
       });
     }
 
+    const wasUnanswered = !currentAnswered;
     setReportSuccess(true);
     setTimeout(() => {
       setShowReportModal(false);
       setReportSuccess(false);
       setReportComment('');
-    }, 1600);
+      // 未回答時に相談した場合は問題をスキップ（正誤判定から除外）して次へ進む
+      if (wasUnanswered) {
+        const hasMore = skipCurrentQuestion();
+        if (!hasMore) {
+          try {
+            localStorage.removeItem('jvet:daily-session-paused');
+          } catch {
+            // ignore
+          }
+          navigate('/result');
+        }
+      }
+    }, 1400);
   };
 
   useEffect(() => {
@@ -212,6 +256,30 @@ export const StudyPage: React.FC = () => {
       <main className={styles.mainArea}>
         {/* 左: 問題エリア（第22章仕様: 問題文と図） */}
         <section className={styles.questionArea} data-testid="question-area">
+          {scanMeta && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+              <button
+                type="button"
+                className={styles.subBtn}
+                style={{
+                  height: '32px',
+                  minWidth: 'auto',
+                  padding: '0 12px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  gap: '4px',
+                }}
+                onClick={() => {
+                  sound.playPop();
+                  setScanModalType('mondai');
+                  setShowScanModal(true);
+                }}
+                data-testid="study-open-problem-scan-btn"
+              >
+                <span>📸 問題用紙の原本を見る</span>
+              </button>
+            </div>
+          )}
 
           <QuestionPromptView
             key={`prompt-${currentQ.id}`}
@@ -220,6 +288,38 @@ export const StudyPage: React.FC = () => {
             onRegionSelect={setDiagramSelectedRegion}
             answered={currentAnswered}
           />
+
+          {/* 手書き計算・筆算エリア */}
+          <div style={{ marginTop: '16px' }} data-testid="scratch-pad-section">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <button
+                type="button"
+                onClick={() => setIsScratchPadOpen(prev => !prev)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: 'var(--primary)',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 0',
+                }}
+                data-testid="toggle-scratch-pad-btn"
+              >
+                <span>{isScratchPadOpen ? '▼ 手書き計算スペースをとじる' : '▶ ✏️ 手書き計算スペース・筆算を開く'}</span>
+              </button>
+            </div>
+            {isScratchPadOpen && (
+              <ScratchPadCanvas
+                key={`scratch-${currentQ.id}`}
+                initialHeight={200}
+                title="✏️ 計算スペース"
+              />
+            )}
+          </div>
         </section>
 
         {/* 右: 回答エリア（第22章仕様: 選択肢・並べ替えカード・キーパッド・解説） */}
@@ -285,30 +385,18 @@ export const StudyPage: React.FC = () => {
                 <div
                   style={{
                     display: 'flex',
-                    justifyContent: 'space-between',
                     alignItems: 'center',
                     marginBottom: '16px',
-                    gap: '12px',
-                    flexWrap: 'wrap',
                   }}
                 >
                   <div
                     className={`${styles.resultBanner} ${currentIsCorrect ? styles.correctBanner : styles.wrongBanner}`}
                     data-testid="result-banner"
-                    style={{ margin: 0, flex: 1, minWidth: '160px' }}
+                    style={{ margin: 0, width: '100%' }}
                   >
                     <span className={styles.resultIcon}>{currentIsCorrect ? '✓' : '✕'}</span>
                     <span className={styles.resultText}>{currentIsCorrect ? '正解！' : '不正解'}</span>
                   </div>
-                  <button
-                    className={styles.inlineNextBtn}
-                    onClick={handleNext}
-                    data-testid="inline-next-btn"
-                    title="次の問題へ進む"
-                  >
-                    <span>次へ進む</span>
-                    <span>❯</span>
-                  </button>
                 </div>
               ) : (
                 /* 回答前の形式見出し＆ヒント */
@@ -390,6 +478,38 @@ export const StudyPage: React.FC = () => {
                 onRegionSelect={setDiagramSelectedRegion}
               />
 
+              {/* 2.5 回答前の相談ボタン（不正な問題・不明瞭な問題時にスキップして相談可能） */}
+              {!currentAnswered && (
+                <div style={{ marginTop: '16px', textAlign: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sound.playPop();
+                      setShowReportModal(true);
+                    }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '8px 18px',
+                      background: 'var(--surface)',
+                      border: '1.5px solid var(--border)',
+                      borderRadius: 'var(--radius-pill)',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      color: 'var(--primary)',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
+                    }}
+                    data-testid="open-question-report-btn"
+                  >
+                    <span>🩺</span>
+                    <span>もんだいや答えをおうちの人に相談する（スキップ）</span>
+                    <span style={{ fontSize: '11px', color: 'var(--primary)' }}>❯</span>
+                  </button>
+                </div>
+              )}
+
               {/* 3. 回答後は選択肢のすぐ下に解説パネルを展開 */}
               {currentAnswered && (
                 <div className={styles.explanationPanel} data-testid="explanation-panel" style={{ marginTop: '20px' }}>
@@ -412,12 +532,40 @@ export const StudyPage: React.FC = () => {
                         color: 'var(--text-subtle)',
                         display: 'flex',
                         alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
                         gap: '6px',
                       }}
                       data-testid="study-source-credit"
                     >
-                      <span>🏫</span>
-                      <span>問題の出典：<strong>{getQuestionSource(currentQ)}</strong></span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>🏫</span>
+                        <span>問題の出典：<strong>{getQuestionSource(currentQ)}</strong></span>
+                      </div>
+                      {scanMeta && (
+                        <button
+                          type="button"
+                          className={styles.subBtn}
+                          style={{
+                            height: '28px',
+                            minWidth: 'auto',
+                            padding: '0 10px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            gap: '4px',
+                            color: 'var(--success, #16a34a)',
+                            borderColor: 'var(--success, #16a34a)',
+                          }}
+                          onClick={() => {
+                            sound.playPop();
+                            setScanModalType('kaito');
+                            setShowScanModal(true);
+                          }}
+                          data-testid="study-open-answer-scan-btn"
+                        >
+                          <span>✅ 模範解答原本を見る</span>
+                        </button>
+                      )}
                     </div>
 
                     {/* 回答後のヒント振り返りセクション（表記を「ヒントの振り返り」に統一） */}
@@ -631,8 +779,9 @@ export const StudyPage: React.FC = () => {
                   指導医ログに届けました！
                 </h3>
                 <p style={{ font: 'var(--font-body)', color: 'var(--text-subtle)', margin: 0, lineHeight: '1.6' }}>
-                  指導医の先生が確認できるようにメモを残したよ。<br />
-                  あとで一緒にチェックしよう！引き続きがんばろう🐾
+                  {!currentAnswered
+                    ? '問題をスキップして次へ進むよ。あとで指導医の先生と一緒にチェックしよう！'
+                    : '指導医の先生が確認できるようにメモを残したよ。あとで一緒にチェックしよう！引き続きがんばろう🐾'}
                 </p>
               </div>
             ) : (
@@ -644,8 +793,9 @@ export const StudyPage: React.FC = () => {
                   </h3>
                 </div>
                 <p style={{ fontSize: '13px', color: 'var(--text-subtle)', margin: '0 0 16px', lineHeight: '1.5' }}>
-                  問題や答え、図におかしいところがあれば教えてね。<br />
-                  トップページの「指導医ログ」にメモが届きます。
+                  {!currentAnswered
+                    ? '問題や答え、図におかしいところがあれば教えてね。送信するとこの問題をスキップ（正解・不正解から除外）して次に進みます。'
+                    : '問題や答え、図におかしいところがあれば教えてね。トップページの「指導医ログ」にメモが届きます。'}
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
@@ -747,13 +897,27 @@ export const StudyPage: React.FC = () => {
                     onClick={handleSendReport}
                     data-testid="send-report-btn"
                   >
-                    指導医ログに送る 📨
+                    {!currentAnswered ? '指導医ログに送ってスキップ 📨' : '指導医ログに送る 📨'}
                   </button>
                 </div>
               </>
             )}
           </div>
         </div>
+      )}
+
+      {/* 原本スキャン確認モーダル */}
+      {scanMeta && (
+        <OriginalScanModal
+          isOpen={showScanModal}
+          onClose={() => setShowScanModal(false)}
+          year={scanMeta.year}
+          subject={scanMeta.subject}
+          initialType={scanModalType}
+          initialPage={scanMeta.pageNumber || 1}
+          title={`${scanMeta.year}年度 ${getSubjectJaWithIcon(scanMeta.subject)} 原本スキャン`}
+          allowSwitchType={currentAnswered}
+        />
       )}
     </div>
   );
