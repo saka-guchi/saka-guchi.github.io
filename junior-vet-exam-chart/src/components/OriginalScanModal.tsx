@@ -109,8 +109,8 @@ export const OriginalScanModal: React.FC<OriginalScanModalProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '15px', fontWeight: 800 }}>
             {scanType === 'kaito'
-              ? `✅ 模範解答原本 (${year}年度)`
-              : (title || `📸 問題原本スキャン (${year}年度)`)}
+              ? `✅ 原本解答 (${year}年度)`
+              : (title || `📸 問題用紙原本 (${year}年度)`)}
           </span>
           {allowSwitchType && (
             <div
@@ -154,7 +154,7 @@ export const OriginalScanModal: React.FC<OriginalScanModalProps> = ({
                 }}
                 data-testid="switch-scan-kaito"
               >
-                ✅ 模範解答原本
+                ✅ 原本解答
               </button>
             </div>
           )}
@@ -289,7 +289,7 @@ export const OriginalScanModal: React.FC<OriginalScanModalProps> = ({
         >
           <img
             src={imageUrl}
-            alt={`${scanType === 'mondai' ? '問題' : '解答'}原本 p.${currentPage}`}
+            alt={`${scanType === 'mondai' ? '問題用紙' : '原本解答'} p.${currentPage}`}
             style={{
               maxWidth: zoom > 100 ? 'none' : '100%',
               maxHeight: zoom > 100 ? 'none' : 'calc(100vh - 120px)',

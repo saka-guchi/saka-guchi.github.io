@@ -111,10 +111,10 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                 onScanTypeChange('kaito');
               }}
               data-testid="viewer-scan-kaito-btn"
-              title="模範解答・配点の原本スキャンを表示"
+              title="原本解答・配点スキャンを表示"
               style={{ fontSize: '11px', padding: '3px 8px', background: scanType === 'kaito' ? '#DCFCE7' : 'transparent', color: scanType === 'kaito' ? '#15803d' : undefined }}
             >
-              ✅ 模範解答原本
+              ✅ 原本解答
             </button>
           </div>
         )}

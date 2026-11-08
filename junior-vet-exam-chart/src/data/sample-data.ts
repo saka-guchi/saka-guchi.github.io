@@ -4,7 +4,7 @@ export interface OriginalScanRef {
   year: number;
   subject: Subject;
   pageNumber: number;
-  slotId: string;
+  slotId?: string;
   sectionNumber?: number;
   questionNumber?: string;
   partNumber?: string;

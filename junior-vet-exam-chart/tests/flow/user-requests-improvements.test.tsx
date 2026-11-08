@@ -238,7 +238,7 @@ describe('ユーザー要望改善項目 統合テスト', () => {
       expect(kaitoBtn.className).toContain('activeTab');
     });
 
-    it('StudyPage で回答後に「模範解答原本を見る」をクリックすると kaito 画像が表示されること', () => {
+    it('StudyPage で回答後に「原本解答を見る」ボタンが設置され、クリックすると原本解答画像が表示されること', () => {
       const pastQ = ALL_PAST_EXAM_QUESTIONS.find(q => q.originalScan);
       expect(pastQ).toBeDefined();
 
@@ -270,17 +270,71 @@ describe('ユーザー要望改善項目 統合テスト', () => {
         if (ansBtn) fireEvent.click(ansBtn);
       }
 
-      // 「✅ 模範解答原本を見る」ボタンが表示される
+      // 「原本解答を見る」ボタンが設置されていること
       const openAnswerScanBtn = screen.getByTestId('study-open-answer-scan-btn');
       expect(openAnswerScanBtn).toBeInTheDocument();
+      expect(openAnswerScanBtn).toHaveTextContent(/原本解答を見る/);
 
-      // クリックすると原本モーダルが開き、画像srcに kaito が含まれること
+      // クリックすると原本モーダルが開き、画像srcに kaito が含まれ、モーダルタイトルに原本解答が含まれること
       fireEvent.click(openAnswerScanBtn);
       const modal = screen.getByTestId('original-scan-modal');
       expect(modal).toBeInTheDocument();
+      expect(modal).toHaveTextContent(/原本解答/);
 
       const scanImg = screen.getByTestId('modal-scan-image');
       expect(scanImg).toHaveAttribute('src', expect.stringContaining('/kaito_p'));
+    });
+
+    it('特訓問題（focus-...）でも原本解答ボタンが設置され、原本解答を表示できること', () => {
+      // ユーザーの画像にあった社会の摂関政治問題
+      const focusQ = {
+        id: 'focus-shakai-sekkan-politics',
+        subject: 'shakai' as const,
+        format: 'delayed_choice' as const,
+        prompt: '【平安時代】藤原氏が政治の実権を握った政治体制を何といいますか？',
+        category: '日本の歴史と社会',
+        skillTitle: '藤原氏の摂関政治',
+        choices: [
+          { id: 'a', label: 'ア', text: '摂関政治', isCorrect: true },
+          { id: 'b', label: 'イ', text: '院政', isCorrect: false },
+        ],
+        correctAnswer: 'a',
+        hints: [],
+        explanation: {
+          resultSummary: '正解！',
+          keyTakeaway: '摂関政治',
+          reasoning: '藤原頼通',
+        },
+      };
+
+      useAppStore.setState({
+        currentSessionQuestions: [focusQ],
+        currentIndex: 0,
+        currentAnswered: true,
+        currentUserAnswer: 'b',
+        currentIsCorrect: false,
+        recallPhase: false,
+      });
+
+      render(
+        <MemoryRouter>
+          <StudyPage />
+        </MemoryRouter>
+      );
+
+      // 「原本解答を見る」ボタンが「問題の出典」の代わりに設置されていること
+      const openBtn = screen.getByTestId('study-open-answer-scan-btn');
+      expect(openBtn).toBeInTheDocument();
+      expect(openBtn).toHaveTextContent(/原本解答を見る/);
+      expect(openBtn).toHaveTextContent(/2024年度 安田学園中学校 社会/);
+
+      // クリックで原本解答モーダルが開くこと
+      fireEvent.click(openBtn);
+      const modal = screen.getByTestId('original-scan-modal');
+      expect(modal).toBeInTheDocument();
+      expect(modal).toHaveTextContent(/2024年度/);
+      const scanImg = screen.getByTestId('modal-scan-image');
+      expect(scanImg).toHaveAttribute('src', expect.stringContaining('/pages/2024/shakai/kaito_p001.webp'));
     });
   });
 });
