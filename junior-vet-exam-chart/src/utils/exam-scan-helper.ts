@@ -6,31 +6,31 @@ export interface ScanPageInfo {
   totalAnswerPages: number;
 }
 
-// 各年度・教科ごとの問題および解答原本の総ページ数テーブル
+// 各年度・教科ごとの問題および解答原本の総ページ数テーブル（実体WebP画像数と100%同期）
 export const SCAN_PAGE_COUNTS: Record<number, Record<Subject, ScanPageInfo>> = {
   2022: {
     rika: { totalProblemPages: 4, totalAnswerPages: 2 },
-    sansu: { totalProblemPages: 3, totalAnswerPages: 3 },
+    sansu: { totalProblemPages: 2, totalAnswerPages: 3 },
     shakai: { totalProblemPages: 10, totalAnswerPages: 3 },
     kokugo: { totalProblemPages: 14, totalAnswerPages: 3 },
   },
   2023: {
     rika: { totalProblemPages: 5, totalAnswerPages: 1 },
     sansu: { totalProblemPages: 8, totalAnswerPages: 1 },
-    shakai: { totalProblemPages: 6, totalAnswerPages: 1 },
-    kokugo: { totalProblemPages: 10, totalAnswerPages: 2 },
+    shakai: { totalProblemPages: 10, totalAnswerPages: 1 },
+    kokugo: { totalProblemPages: 0, totalAnswerPages: 0 },
   },
   2024: {
-    rika: { totalProblemPages: 7, totalAnswerPages: 2 },
-    sansu: { totalProblemPages: 10, totalAnswerPages: 3 },
-    shakai: { totalProblemPages: 10, totalAnswerPages: 3 },
-    kokugo: { totalProblemPages: 14, totalAnswerPages: 2 },
+    rika: { totalProblemPages: 5, totalAnswerPages: 2 },
+    sansu: { totalProblemPages: 4, totalAnswerPages: 3 },
+    shakai: { totalProblemPages: 7, totalAnswerPages: 3 },
+    kokugo: { totalProblemPages: 13, totalAnswerPages: 2 },
   },
   2025: {
-    rika: { totalProblemPages: 8, totalAnswerPages: 2 },
-    sansu: { totalProblemPages: 8, totalAnswerPages: 3 },
-    shakai: { totalProblemPages: 10, totalAnswerPages: 3 },
-    kokugo: { totalProblemPages: 12, totalAnswerPages: 3 },
+    rika: { totalProblemPages: 7, totalAnswerPages: 2 },
+    sansu: { totalProblemPages: 4, totalAnswerPages: 3 },
+    shakai: { totalProblemPages: 9, totalAnswerPages: 3 },
+    kokugo: { totalProblemPages: 11, totalAnswerPages: 3 },
   },
   2026: {
     rika: { totalProblemPages: 6, totalAnswerPages: 2 },
