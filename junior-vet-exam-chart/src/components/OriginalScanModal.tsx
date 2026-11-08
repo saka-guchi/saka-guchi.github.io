@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Subject } from '../types';
 import { getExamScanImageUrl, getExamScanPageCount } from '../utils/exam-scan-helper';
 import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
@@ -29,10 +29,27 @@ export const OriginalScanModal: React.FC<OriginalScanModalProps> = ({
 
   const [scanType, setScanType] = useState<'mondai' | 'kaito'>(initialType);
   const totalPages = getExamScanPageCount(scanType, year, subject);
-  const [currentPage, setCurrentPage] = useState<number>(() =>
-    Math.max(1, Math.min(totalPages, initialPage))
-  );
+  const [currentPage, setCurrentPage] = useState<number>(() => {
+    const pages = getExamScanPageCount(initialType, year, subject);
+    if (initialType === 'kaito') {
+      return initialPage <= pages ? Math.max(1, initialPage) : 1;
+    }
+    return Math.max(1, Math.min(pages, initialPage));
+  });
   const [zoom, setZoom] = useState<number>(100);
+
+  // モーダルオープン時または初期タイプ変更時に正しく同期
+  useEffect(() => {
+    if (isOpen) {
+      setScanType(initialType);
+      const pages = getExamScanPageCount(initialType, year, subject);
+      const targetPage = initialType === 'kaito'
+        ? (initialPage <= pages ? Math.max(1, initialPage) : 1)
+        : Math.max(1, Math.min(pages, initialPage));
+      setCurrentPage(targetPage);
+      setZoom(100);
+    }
+  }, [isOpen, initialType, initialPage, year, subject]);
 
   if (!isOpen) return null;
 
@@ -51,7 +68,11 @@ export const OriginalScanModal: React.FC<OriginalScanModalProps> = ({
   const handleSwitchType = (type: 'mondai' | 'kaito') => {
     sound.playPop();
     setScanType(type);
-    setCurrentPage(1);
+    const pages = getExamScanPageCount(type, year, subject);
+    const targetPage = type === 'kaito'
+      ? 1
+      : Math.max(1, Math.min(pages, initialPage));
+    setCurrentPage(targetPage);
     setZoom(100);
   };
 
@@ -87,7 +108,9 @@ export const OriginalScanModal: React.FC<OriginalScanModalProps> = ({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '15px', fontWeight: 800 }}>
-            {title || `📸 原本スキャン確認 (${year}年度)`}
+            {scanType === 'kaito'
+              ? `✅ 模範解答原本 (${year}年度)`
+              : (title || `📸 問題原本スキャン (${year}年度)`)}
           </span>
           {allowSwitchType && (
             <div
