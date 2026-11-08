@@ -9,6 +9,7 @@ import { sound } from '../utils/sound-effects';
 import { addQuestionReport } from '../utils/question-reports';
 import { ScratchPadCanvas } from '../components/ScratchPadCanvas';
 import { OriginalScanModal } from '../components/OriginalScanModal';
+import { resolveQuestionScanMeta } from '../utils/exam-scan-helper';
 import styles from './StudyPage.module.css';
 
 function getSubjectJaWithIcon(subject?: string): string {
@@ -60,19 +61,8 @@ export const StudyPage: React.FC = () => {
   const [showScanModal, setShowScanModal] = useState(false);
   const [scanModalType, setScanModalType] = useState<'mondai' | 'kaito'>('mondai');
 
-  // 原本スキャンメタデータの取得
-  const scanMeta = currentQ?.originalScan || (() => {
-    if (!currentQ?.id) return null;
-    const match = currentQ.id.match(/^past-exam-(\d{4})-([a-z]+)-(.*)$/);
-    if (match) {
-      return {
-        year: parseInt(match[1], 10),
-        subject: match[2] as any,
-        pageNumber: 1,
-      };
-    }
-    return null;
-  })();
+  // 原本スキャンメタデータの取得（過去問・特訓カリキュラム問題ともに原本を解決）
+  const scanMeta = resolveQuestionScanMeta(currentQ);
 
   // 選択肢形式（Delayed Choice / Multiple Choice / Why Choice）のみ Recall First のカウントダウンを表示
   // next_step は算数のステップ解法のためカウントダウンなしで即座に手順選択を開始
@@ -526,35 +516,33 @@ export const StudyPage: React.FC = () => {
 
                     <div
                       style={{
-                        paddingTop: '8px',
+                        paddingTop: '10px',
+                        marginTop: '10px',
                         borderTop: '1px solid var(--border)',
-                        fontSize: '12px',
-                        color: 'var(--text-subtle)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        flexWrap: 'wrap',
-                        gap: '6px',
                       }}
                       data-testid="study-source-credit"
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span>🏫</span>
-                        <span>問題の出典：<strong>{getQuestionSource(currentQ)}</strong></span>
-                      </div>
                       {scanMeta && (
                         <button
                           type="button"
                           className={styles.subBtn}
                           style={{
-                            height: '28px',
+                            width: '100%',
                             minWidth: 'auto',
-                            padding: '0 10px',
-                            fontSize: '11px',
+                            height: 'auto',
+                            padding: '10px 14px',
+                            fontSize: '13px',
                             fontWeight: 700,
-                            gap: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '8px',
                             color: 'var(--success, #16a34a)',
                             borderColor: 'var(--success, #16a34a)',
+                            background: 'var(--surface)',
+                            borderRadius: '10px',
+                            boxSizing: 'border-box',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
                           }}
                           onClick={() => {
                             sound.playPop();
@@ -562,8 +550,13 @@ export const StudyPage: React.FC = () => {
                             setShowScanModal(true);
                           }}
                           data-testid="study-open-answer-scan-btn"
+                          title={`${scanMeta.year}年度 ${getSubjectJaWithIcon(scanMeta.subject)} の原本解答スキャンを表示`}
                         >
-                          <span>✅ 模範解答原本を見る</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '16px' }}>📖</span>
+                            <span>原本解答を見る（{getQuestionSource(currentQ)}）</span>
+                          </div>
+                          <span style={{ fontSize: '12px', fontWeight: 800 }}>❯</span>
                         </button>
                       )}
                     </div>
