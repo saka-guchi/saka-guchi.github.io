@@ -50,13 +50,23 @@ function formatAnswerDisplay(question: any, answer: any): string {
     return answer.map((id, idx) => `${idx + 1}. ${itemMap.get(id) || id}`).join(' → ');
   }
 
+  // 一問一答自己判定 (recall_card)
+  if (question.format === 'recall_card') {
+    switch (answer) {
+      case 'correct': return '正解した（思い出せた）';
+      case 'almost': return '惜しかった / 少し違った';
+      case 'wrong': return '思い出せなかった／間違った';
+      default: return String(answer);
+    }
+  }
+
   // 自己採点 (self_check)
   if (question.format === 'self_check') {
     switch (answer) {
       case 'correct': return '正解した';
       case 'method_correct_calc_miss': return '解き方は合っていたが計算ミス';
       case 'partial': return '途中まで分かった';
-      case 'dont_know': return '解き方が分からなかった';
+      case 'dont_know': return '思い出せなかった／間違った';
       default: return String(answer);
     }
   }
@@ -190,7 +200,7 @@ export const ResultPage: React.FC = () => {
 
     const total = currentSessionQuestions.length || 10;
     const effectiveResults = sessionResults.length > 0
-      ? sessionResults
+      ? sessionResults.filter(r => !r.isSkipped)
       : currentSessionQuestions.map((q, idx) => ({
           question: q,
           userAnswer: null,
@@ -232,13 +242,15 @@ export const ResultPage: React.FC = () => {
     recordDailyStudyCompleted().catch(() => {});
   }, [correctCount, currentSessionQuestions, sessionResults, directRecallCount]);
 
-  const total = currentSessionQuestions.length || 10;
+  const skippedCount = sessionResults.filter(r => r.isSkipped).length;
+  const rawTotal = currentSessionQuestions.length || 10;
+  const total = Math.max(1, rawTotal - skippedCount);
   const choiceCorrectCount = Math.max(0, correctCount - directRecallCount);
   const mistakeCount = Math.max(0, total - correctCount);
 
-  // 間違えた問題の抽出
+  // 間違えた問題の抽出（相談・スキップした問題は除外）
   const mistakeResults = sessionResults.length > 0
-    ? sessionResults.filter(r => !r.isCorrect)
+    ? sessionResults.filter(r => !r.isCorrect && !r.isSkipped)
     : [];
 
   const handleGoHome = () => {

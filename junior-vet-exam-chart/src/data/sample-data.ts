@@ -1,5 +1,15 @@
 import type { QuestionFormat, Subject } from '../types';
 
+export interface OriginalScanRef {
+  year: number;
+  subject: Subject;
+  pageNumber: number;
+  slotId: string;
+  sectionNumber?: number;
+  questionNumber?: string;
+  partNumber?: string;
+}
+
 export interface SampleQuestion {
   id: string;
   subject: Subject;
@@ -10,6 +20,7 @@ export interface SampleQuestion {
   skillId?: string;
   source?: string;
   figureUrl?: string;
+  originalScan?: OriginalScanRef;
   choices?: { id: string; label: string; text: string; isCorrect: boolean }[];
   correctAnswer: any;
   hints: [{ level: 1; text: string }, { level: 2; text: string }];

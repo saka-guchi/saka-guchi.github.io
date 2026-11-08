@@ -13,6 +13,7 @@ export interface SessionAnswerRecord {
   userAnswer: any;
   isCorrect: boolean;
   directRecall: boolean;
+  isSkipped?: boolean;
 }
 
 export interface PromotedSkillResult {
@@ -52,6 +53,7 @@ interface AppState {
   revealChoices: () => void;
   showHint: () => void;
   recordAnswer: (answer: any, isCorrect: boolean, directRecall: boolean) => void;
+  skipCurrentQuestion: () => boolean; // 現在の問題をスキップ（正誤判定から除外）して次へ進む
   nextQuestion: () => boolean; // 次の問題へ。最後の問題ならfalseを返す
   resetSession: () => void;
 }
@@ -277,6 +279,28 @@ export const useAppStore = create<AppState>((set, get) => ({
         promotedSkillInfo,
       };
     });
+  },
+
+  skipCurrentQuestion: () => {
+    const { currentIndex, currentSessionQuestions } = get();
+    const currentQ = currentSessionQuestions[currentIndex];
+    if (!currentQ) return false;
+
+    const newRecord: SessionAnswerRecord = {
+      question: currentQ,
+      userAnswer: '（相談・スキップ）',
+      isCorrect: false,
+      directRecall: false,
+      isSkipped: true,
+    };
+    const newResults = [...get().sessionResults];
+    newResults[currentIndex] = newRecord;
+
+    set({
+      sessionResults: newResults,
+    });
+
+    return get().nextQuestion();
   },
 
   nextQuestion: () => {

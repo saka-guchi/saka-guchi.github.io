@@ -34,17 +34,16 @@ describe('スマホ・タブレット向けスクロールレスUI/UX 結合テ�
       expect(choiceButtons.length).toBeGreaterThan(0);
       fireEvent.click(choiceButtons[0]);
 
-      // 結果ヘッダーにインラインの「次へ進む ❯」ボタンが出現すること
-      const inlineNextBtn = screen.getByTestId('inline-next-btn');
-      expect(inlineNextBtn).toBeInTheDocument();
-      expect(inlineNextBtn).toHaveTextContent(/次へ進む/);
+      // 重複ボタンとならず、下部ボトムバーの「次へ →」ボタンに一本化されていること
+      expect(screen.queryByTestId('inline-next-btn')).not.toBeInTheDocument();
 
-      // 固定ボトムバーにも「次へ ❯」が存在すること（スクロールゼロ・ハイブリッド配置）
+      // 固定ボトムバーの「次へ →」が存在すること
       const bottomNextBtn = screen.getByTestId('next-question-btn');
       expect(bottomNextBtn).toBeInTheDocument();
+      expect(bottomNextBtn).toHaveTextContent(/次へ/);
 
-      // インラインボタンを押して次へ進めること
-      fireEvent.click(inlineNextBtn);
+      // ボトムバーのボタンを押して次へ進めること
+      fireEvent.click(bottomNextBtn);
     });
   });
 

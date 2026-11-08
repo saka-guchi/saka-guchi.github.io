@@ -25,6 +25,9 @@ export interface ExamProblemViewerProps {
   currentPageContent?: PageContent;
   currentSections: ChallengeSection[];
   className?: string;
+  scanType?: 'mondai' | 'kaito';
+  onScanTypeChange?: (type: 'mondai' | 'kaito') => void;
+  isReviewMode?: boolean;
 }
 
 export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
@@ -46,6 +49,9 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
   currentPageContent,
   currentSections,
   className,
+  scanType = 'mondai',
+  onScanTypeChange,
+  isReviewMode = false,
 }) => {
   const viewMode: 'text' | 'image' = ENABLE_TEXT_VIEW ? rawViewMode : 'image';
 
@@ -80,6 +86,38 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
             次の{pageLayout === 'spread' ? '見開き' : 'ページ'} ▶
           </button>
         </div>
+
+        {/* 見直し時の問題原本／模範解答原本切り替え */}
+        {isReviewMode && onScanTypeChange && (
+          <div style={{ display: 'flex', gap: '2px', background: 'var(--surface-subtle)', padding: '2px', borderRadius: '6px' }}>
+            <button
+              type="button"
+              className={`${styles.pageBtn} ${scanType === 'mondai' ? styles.activeTab : ''}`}
+              onClick={() => {
+                sound.playPop();
+                onScanTypeChange('mondai');
+              }}
+              data-testid="viewer-scan-mondai-btn"
+              title="問題用紙の原本スキャンを表示"
+              style={{ fontSize: '11px', padding: '3px 8px', background: scanType === 'mondai' ? '#DBEAFE' : 'transparent' }}
+            >
+              📄 問題用紙原本
+            </button>
+            <button
+              type="button"
+              className={`${styles.pageBtn} ${scanType === 'kaito' ? styles.activeTab : ''}`}
+              onClick={() => {
+                sound.playPop();
+                onScanTypeChange('kaito');
+              }}
+              data-testid="viewer-scan-kaito-btn"
+              title="模範解答・配点の原本スキャンを表示"
+              style={{ fontSize: '11px', padding: '3px 8px', background: scanType === 'kaito' ? '#DCFCE7' : 'transparent', color: scanType === 'kaito' ? '#15803d' : undefined }}
+            >
+              ✅ 模範解答原本
+            </button>
+          </div>
+        )}
 
         {/* 単ページ / 見開き（2ページ）切り替えボタン */}
         {stage === 1 && viewMode === 'image' && pageImageData && (

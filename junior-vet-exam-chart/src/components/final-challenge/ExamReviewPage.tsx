@@ -22,6 +22,7 @@ import {
 import { APP_TERMS } from '../../constants/terms';
 import { sound } from '../../utils/sound-effects';
 import { ExamProblemViewer } from './ExamProblemViewer';
+import { getExamScanImageUrl, getExamScanPageCount } from '../../utils/exam-scan-helper';
 import styles from './ExamReviewPage.module.css';
 
 export interface ExamReviewPageProps {
@@ -95,6 +96,9 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
   const [internalZoom, setInternalZoom] = useState(100);
   const [internalViewMode, setInternalViewMode] = useState<'text' | 'image'>('image');
 
+  // 左側原本ビューアの表示種別（問題原本 vs 模範解答原本）
+  const [scanType, setScanType] = useState<'mondai' | 'kaito'>('mondai');
+
   const activePage = controlledPage ?? internalPage;
   const setActivePage = controlledOnPageChange ?? setInternalPage;
   const activeLayout = controlledPageLayout ?? internalLayout;
@@ -104,18 +108,26 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
   const activeViewMode = controlledViewMode ?? internalViewMode;
   const setActiveViewMode = controlledOnViewModeChange ?? setInternalViewMode;
 
+  const handleScanTypeChange = (newType: 'mondai' | 'kaito') => {
+    setScanType(newType);
+    setActivePage(1);
+  };
+
   const activeTotalPages = useMemo(() => {
+    if (scanType === 'kaito') {
+      return getExamScanPageCount('kaito', year, subject);
+    }
     if (controlledTotalPages && controlledTotalPages > 0) return controlledTotalPages;
     const subData = FINAL_CHALLENGE_DATA_BY_YEAR_AND_SUBJECT[year]?.[subject];
     return subData?.totalPages || 7;
-  }, [controlledTotalPages, year, subject]);
+  }, [scanType, year, subject, controlledTotalPages]);
 
   const resolvePageImageUrl = (pageNumber: number): string | null => {
+    if (scanType === 'kaito') {
+      return getExamScanImageUrl('kaito', year, subject, pageNumber);
+    }
     if (controlledGetPageImageUrl) return controlledGetPageImageUrl(pageNumber);
-    if (pageNumber < 1 || pageNumber > activeTotalPages) return null;
-    const pad = String(pageNumber).padStart(3, '0');
-    const baseUrl = typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : '/';
-    return `${baseUrl}pages/${year}/${subject}/mondai_p${pad}.webp`;
+    return getExamScanImageUrl('mondai', year, subject, pageNumber);
   };
 
   const activePageContents = useMemo(() => {
@@ -275,6 +287,9 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
       currentPageContent={currentPageContent}
       currentSections={sections}
       className={styles.problemViewerPane}
+      isReviewMode={true}
+      scanType={scanType}
+      onScanTypeChange={handleScanTypeChange}
     />
   );
 
