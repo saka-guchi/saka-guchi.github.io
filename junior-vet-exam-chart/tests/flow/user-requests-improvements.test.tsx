@@ -237,5 +237,50 @@ describe('ユーザー要望改善項目 統合テスト', () => {
       fireEvent.click(kaitoBtn);
       expect(kaitoBtn.className).toContain('activeTab');
     });
+
+    it('StudyPage で回答後に「模範解答原本を見る」をクリックすると kaito 画像が表示されること', () => {
+      const pastQ = ALL_PAST_EXAM_QUESTIONS.find(q => q.originalScan);
+      expect(pastQ).toBeDefined();
+
+      useAppStore.setState({
+        currentSessionQuestions: [pastQ!],
+        currentIndex: 0,
+        currentAnswered: false,
+        currentUserAnswer: null,
+        currentIsCorrect: null,
+        currentFocusSkillId: null,
+        recallPhase: false,
+      });
+
+      render(
+        <MemoryRouter>
+          <StudyPage />
+        </MemoryRouter>
+      );
+
+      // 選択肢をクリックして回答
+      const choiceButtons = screen.getAllByRole('button').filter(b => b.getAttribute('data-testid')?.startsWith('choice-btn-'));
+      if (choiceButtons.length > 0) {
+        fireEvent.click(choiceButtons[0]);
+      } else {
+        // self_check や recall_card の場合のフォールバック
+        const revealBtn = screen.queryByTestId('recall-reveal-btn') || screen.queryByTestId('self-check-reveal-btn');
+        if (revealBtn) fireEvent.click(revealBtn);
+        const ansBtn = screen.queryByTestId('recall-correct-btn') || screen.queryByTestId('self-check-correct');
+        if (ansBtn) fireEvent.click(ansBtn);
+      }
+
+      // 「✅ 模範解答原本を見る」ボタンが表示される
+      const openAnswerScanBtn = screen.getByTestId('study-open-answer-scan-btn');
+      expect(openAnswerScanBtn).toBeInTheDocument();
+
+      // クリックすると原本モーダルが開き、画像srcに kaito が含まれること
+      fireEvent.click(openAnswerScanBtn);
+      const modal = screen.getByTestId('original-scan-modal');
+      expect(modal).toBeInTheDocument();
+
+      const scanImg = screen.getByTestId('modal-scan-image');
+      expect(scanImg).toHaveAttribute('src', expect.stringContaining('/kaito_p'));
+    });
   });
 });

@@ -914,8 +914,7 @@ export const StudyPage: React.FC = () => {
           year={scanMeta.year}
           subject={scanMeta.subject}
           initialType={scanModalType}
-          initialPage={scanMeta.pageNumber || 1}
-          title={`${scanMeta.year}年度 ${getSubjectJaWithIcon(scanMeta.subject)} 原本スキャン`}
+          initialPage={scanModalType === 'kaito' ? 1 : (scanMeta.pageNumber || 1)}
           allowSwitchType={currentAnswered}
         />
       )}
