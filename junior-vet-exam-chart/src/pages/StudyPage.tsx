@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 import { QuestionPromptView, AnswerAreaView, ActionState } from '../components/formats/QuestionRenderer';
-import { getQuestionSource } from '../utils/source-helper';
+import { getQuestionSource, getQuestionSectionAndQuestionSource } from '../utils/source-helper';
 import { sound } from '../utils/sound-effects';
 import { addQuestionReport } from '../utils/question-reports';
 import { ScratchPadCanvas } from '../components/ScratchPadCanvas';
@@ -519,30 +519,38 @@ export const StudyPage: React.FC = () => {
                         paddingTop: '10px',
                         marginTop: '10px',
                         borderTop: '1px solid var(--border)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: '8px',
                       }}
                       data-testid="study-source-credit"
                     >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-subtle)' }}>
+                        <span>🏫</span>
+                        <span>問題の出典：<strong>{getQuestionSectionAndQuestionSource(currentQ)}</strong></span>
+                      </div>
+
                       {scanMeta && (
                         <button
                           type="button"
                           className={styles.subBtn}
                           style={{
-                            width: '100%',
+                            height: '32px',
                             minWidth: 'auto',
-                            height: 'auto',
-                            padding: '10px 14px',
-                            fontSize: '13px',
+                            padding: '0 12px',
+                            fontSize: '12px',
                             fontWeight: 700,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            gap: '8px',
+                            gap: '4px',
                             color: 'var(--success, #16a34a)',
                             borderColor: 'var(--success, #16a34a)',
                             background: 'var(--surface)',
-                            borderRadius: '10px',
-                            boxSizing: 'border-box',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                           }}
                           onClick={() => {
                             sound.playPop();
@@ -550,13 +558,9 @@ export const StudyPage: React.FC = () => {
                             setShowScanModal(true);
                           }}
                           data-testid="study-open-answer-scan-btn"
-                          title={`${scanMeta.year}年度 ${getSubjectJaWithIcon(scanMeta.subject)} の原本解答スキャンを表示`}
+                          title={`${scanMeta.year}年度 ${getSubjectJaWithIcon(scanMeta.subject)} の模範解答原本スキャンを表示`}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '16px' }}>📖</span>
-                            <span>原本解答を見る（{getQuestionSource(currentQ)}）</span>
-                          </div>
-                          <span style={{ fontSize: '12px', fontWeight: 800 }}>❯</span>
+                          <span>✅ 模範解答原本を見る</span>
                         </button>
                       )}
                     </div>
