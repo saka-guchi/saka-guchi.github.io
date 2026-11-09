@@ -1,5 +1,6 @@
 import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 import React, { useState, useEffect, useMemo } from 'react';
+import type { Subject } from '../types';
 import { THEME_ENHANCEMENTS, ThemeEnhancement } from '../data/vet-curriculum-enhancement';
 import { getMemoryRetention, boostMemoryRetention } from '../utils/memory-retention';
 import { sound } from '../utils/sound-effects';
@@ -8,6 +9,7 @@ import styles from './QuickFlashCardModal.module.css';
 
 interface QuickFlashCardModalProps {
   initialSkillId?: string;
+  targetSubject?: Subject;
   onClose: () => void;
   onRetentionUpdated?: () => void;
   onStartFocusSession?: (skillId: string) => void;
@@ -25,6 +27,7 @@ function shuffleArray<T>(array: T[]): T[] {
 
 export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
   initialSkillId,
+  targetSubject,
   onClose,
   onRetentionUpdated,
   onStartFocusSession,
@@ -40,14 +43,14 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
     }));
 
     const startItem = initialSkillId ? items.find(it => it.key === initialSkillId) : undefined;
-    const targetSubject = startItem?.subject;
+    const effectiveSubject = startItem?.subject || targetSubject;
 
     // 同一教科を優先グループにする
-    const primaryGroup = targetSubject
-      ? items.filter(it => it.subject === targetSubject)
+    const primaryGroup = effectiveSubject
+      ? items.filter(it => it.subject === effectiveSubject)
       : items;
-    const secondaryGroup = targetSubject
-      ? items.filter(it => it.subject !== targetSubject)
+    const secondaryGroup = effectiveSubject
+      ? items.filter(it => it.subject !== effectiveSubject)
       : [];
 
     const sortGroup = (group: typeof items, excludeKey?: string) => {
@@ -64,7 +67,7 @@ export const QuickFlashCardModal: React.FC<QuickFlashCardModalProps> = ({
     const sortedSecondary = sortGroup(secondaryGroup);
 
     return [...sortedPrimary, ...sortedSecondary];
-  }, [initialSkillId]);
+  }, [initialSkillId, targetSubject]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
