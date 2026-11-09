@@ -324,42 +324,13 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
       )}
 
       <main className={styles.mainContent}>
-        {/* 2. 点数エリア */}
-        <section
-          className={styles.scoreCard}
-          aria-live="polite"
-          data-testid={isFinalized ? 'review-result-area' : 'review-pending-area'}
-        >
-          {!isFinalized ? (
-            /* 状態A: 判定中（点数は出さず、残り記述チェック案内と枠・背景つき進捗バーのみ） */
-            <div>
-              <div className={styles.pendingInstruction}>
-                記述 あと{remainingOpenCount}問のチェックで、点数が決まるよ
-              </div>
-              <div
-                className={styles.progressBarContainer}
-                role="progressbar"
-                aria-valuenow={evaluatedOpenCount}
-                aria-valuemin={0}
-                aria-valuemax={openSlots.length}
-                aria-label="記述問題のチェック進捗"
-              >
-                <div
-                  className={styles.progressBarFill}
-                  style={{
-                    width:
-                      openSlots.length > 0
-                        ? `${Math.round((evaluatedOpenCount / openSlots.length) * 100)}%`
-                        : '100%',
-                  }}
-                />
-              </div>
-              <div className={styles.progressText}>
-                チェックずみ: {evaluatedOpenCount} / {openSlots.length} 問
-              </div>
-            </div>
-          ) : (
-            /* 状態B: 結果 */
+        {/* 2. 点数エリア（状態B: 確定後のみ上部に表示） */}
+        {isFinalized && (
+          <section
+            className={styles.scoreCard}
+            aria-live="polite"
+            data-testid="review-result-area"
+          >
             <div>
               {mikeFeedback.badgeTitle && (
                 <div className={styles.resultBadge} data-testid="result-badge-title">
@@ -406,8 +377,8 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
                 </div>
               )}
             </div>
-          )}
-        </section>
+          </section>
+        )}
 
         {/* 3. 状態Bかつ「もう少し」が1問以上あるときのみ: 「つぎの一歩」カード */}
         {isFinalized && nextStepRecommendation && (
@@ -744,12 +715,43 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
       {/* 5. 下部固定バー */}
       <footer className={styles.bottomBar}>
         {!isFinalized ? (
-          /* 状態A */
+          /* 状態A: 判定中（点数は出さず、残り記述チェック案内・進捗グラフバーをフッター内に配置） */
           <div className={styles.bottomBarInner}>
-            <div className={styles.remainingNotice} data-testid="remaining-notice">
-              {remainingOpenCount > 0
-                ? `記述 あと${remainingOpenCount}問チェックしてね`
-                : 'すべての記述をチェックしたよ！'}
+            <div className={styles.bottomProgressSection} data-testid="review-pending-area">
+              <div className={styles.bottomProgressHeader}>
+                <div
+                  className={`${styles.remainingNotice} ${
+                    isAllOpenEvaluated ? styles.remainingNoticeComplete : ''
+                  }`}
+                  data-testid="remaining-notice"
+                >
+                  {remainingOpenCount > 0
+                    ? `記述 あと${remainingOpenCount}問のチェックで、点数が決まるよ`
+                    : 'すべての記述をチェックしたよ！'}
+                </div>
+                {openSlots.length > 0 && (
+                  <div className={styles.bottomProgressText}>
+                    チェックずみ: {evaluatedOpenCount} / {openSlots.length} 問
+                  </div>
+                )}
+              </div>
+              {openSlots.length > 0 && (
+                <div
+                  className={styles.bottomProgressBarContainer}
+                  role="progressbar"
+                  aria-valuenow={evaluatedOpenCount}
+                  aria-valuemin={0}
+                  aria-valuemax={openSlots.length}
+                  aria-label="記述問題のチェック進捗"
+                >
+                  <div
+                    className={styles.progressBarFill}
+                    style={{
+                      width: `${Math.round((evaluatedOpenCount / openSlots.length) * 100)}%`,
+                    }}
+                  />
+                </div>
+              )}
             </div>
             <button
               type="button"

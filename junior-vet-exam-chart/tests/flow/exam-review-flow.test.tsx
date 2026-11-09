@@ -91,12 +91,17 @@ describe('見直しページ（全画面）＆提出フロー', () => {
     expect(await db.finalChallengeResults.count()).toBe(1);
   });
 
-  it('4. 未判定の記述が残っているあいだ「採点を決める」は無効', async () => {
+  it('4. 未判定の記述が残っているあいだ「採点を決める」は無効、ヘッダー下ではなくフッター内に進捗バーが表示されること', async () => {
     renderPage('rika');
     submit();
     await waitFor(() => expect(screen.getByTestId('review-pending-area')).toBeInTheDocument());
     expect(screen.getByTestId('finalize-review-btn')).toBeDisabled();
     expect(screen.getByTestId('remaining-notice')).toHaveTextContent(/記述 あと\d+問/);
+
+    // フッター（contentinfo）内に進捗エリアとプログレスバーが含まれること
+    const footer = screen.getByRole('contentinfo');
+    expect(footer).toContainElement(screen.getByTestId('review-pending-area'));
+    expect(footer).toContainElement(screen.getByRole('progressbar'));
   });
 
   it('5. 「どれも書けなかった」で判定ずみになる', async () => {
