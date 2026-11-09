@@ -3,6 +3,7 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { StudyPage } from '../../src/pages/StudyPage';
+import { HomePage } from '../../src/pages/HomePage';
 import { FinalChallengePage } from '../../src/pages/FinalChallengePage';
 import { ExamReviewPage } from '../../src/components/final-challenge/ExamReviewPage';
 import { useAppStore } from '../../src/store/appStore';
@@ -388,6 +389,11 @@ describe('ユーザー要望改善項目 統合テスト', () => {
       expect(answerCard).toHaveTextContent(/模範解答：/);
       expect(answerCard).toHaveTextContent(String(recallPastQ.correctAnswer));
 
+      // 自己判定カード内に「大問X 問Y」の情報タグが表示されていること
+      const sectionTag = screen.getByTestId('recall-section-source-tag');
+      expect(sectionTag).toBeInTheDocument();
+      expect(sectionTag).toHaveTextContent(/大問[0-9]+/);
+
       // 自己判定の模範解答カード内に「✅ 模範解答原本を見る」ボタンが表示されていること
       const cardAnswerScanBtn = screen.getByTestId('recall-open-answer-scan-btn');
       expect(cardAnswerScanBtn).toBeInTheDocument();
@@ -431,6 +437,33 @@ describe('ユーザー要望改善項目 統合テスト', () => {
       // 出典クレジットと原本ボタンが表示されていること
       expect(screen.getByTestId('study-source-credit')).toBeInTheDocument();
       expect(screen.getByTestId('study-open-answer-scan-btn')).toBeInTheDocument();
+    });
+
+    it('要点暗記カード（カードをめくる）が毎回同じ先頭問題ではなく、忘却曲線（定着度が低い単元優先）で切り替わること', () => {
+      localStorage.clear();
+
+      // 理科の全単元のうち、skill-01 の定着度を 100%（マスター済み）、skill-02 の定着度を 0% に設定
+      localStorage.setItem('junior_vet_memory_retention_skill-01', '100');
+      localStorage.setItem('junior_vet_memory_retention_skill-02', '0');
+
+      render(
+        <MemoryRouter>
+          <HomePage />
+        </MemoryRouter>
+      );
+
+      // 「カードをめくる」ボタンをクリック
+      const launchBtn = screen.getByTestId('launch-triage-card-btn');
+      fireEvent.click(launchBtn);
+
+      // 暗記カードモーダルが開くこと
+      const modal = screen.getByTestId('flashcard-modal');
+      expect(modal).toBeInTheDocument();
+
+      // 定着度100%の skill-01 ではなく、忘れかけ（定着度0%）の単元が優先して最初に表示されること
+      const retentionVal = screen.getByTestId('flashcard-retention-val');
+      expect(retentionVal).toHaveTextContent('0%');
+      expect(retentionVal).not.toHaveTextContent('100%');
     });
   });
 });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { SampleQuestion } from '../../data/sample-data';
-import { getQuestionSource } from '../../utils/source-helper';
+import { getQuestionSource, getQuestionSectionAndQuestionSource } from '../../utils/source-helper';
 import styles from './Formats.module.css';
 
 // --- 左側: 問題エリア（問題文、図表など） ---
@@ -209,6 +209,7 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
   onOpenScanAnswer,
 }) => {
   const isStandalone = !onSubmitActionRef && !onActionStateChange;
+  const sectionSource = getQuestionSectionAndQuestionSource(question);
 
   // 1. Recall Card
   const [recallRevealed, setRecallRevealed] = useState(false);
@@ -443,9 +444,28 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
               data-testid="recall-answer-card"
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--primary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  <span>📖</span>
-                  <span>模範解答：</span>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--primary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span>📖</span>
+                    <span>模範解答：</span>
+                  </div>
+                  {sectionSource && (
+                    <span
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 800,
+                        color: 'var(--primary)',
+                        background: '#ffffff',
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        border: '1.5px solid var(--primary-light, #bfdbfe)',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                      }}
+                      data-testid="recall-section-source-tag"
+                    >
+                      {sectionSource}
+                    </span>
+                  )}
                 </div>
                 {hasScanAnswer && onOpenScanAnswer && (
                   <button
@@ -467,6 +487,7 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
                       boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                     }}
                     data-testid="recall-open-answer-scan-btn"
+                    title={`原本の ${sectionSource} の模範解答スキャンを表示`}
                   >
                     <span>✅ 模範解答原本を見る</span>
                   </button>
@@ -1091,8 +1112,28 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
                 data-testid="self-check-answer-card"
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '4px' }}>
-                  <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary)' }}>
-                    📖 模範解答：
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <span>📖</span>
+                      <span>模範解答：</span>
+                    </div>
+                    {sectionSource && (
+                      <span
+                        style={{
+                          fontSize: '12px',
+                          fontWeight: 800,
+                          color: 'var(--primary)',
+                          background: '#ffffff',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          border: '1.5px solid var(--primary-light, #bfdbfe)',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                        }}
+                        data-testid="self-check-section-source-tag"
+                      >
+                        {sectionSource}
+                      </span>
+                    )}
                   </div>
                   {hasScanAnswer && onOpenScanAnswer && (
                     <button
@@ -1114,6 +1155,7 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
                         boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                       }}
                       data-testid="self-check-open-answer-scan-btn"
+                      title={`原本の ${sectionSource} の模範解答スキャンを表示`}
                     >
                       <span>✅ 模範解答原本を見る</span>
                     </button>

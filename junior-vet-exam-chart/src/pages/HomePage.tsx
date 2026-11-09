@@ -63,6 +63,7 @@ export const HomePage: React.FC = () => {
   );
   useBodyScrollLock(isAnyInlineModalOpen);
   const [flashCardSkillId, setFlashCardSkillId] = useState<string | null>(null);
+  const [isFlashCardModalOpen, setIsFlashCardModalOpen] = useState(false);
   const [activePatientSkillId, setActivePatientSkillId] = useState<string | null>(null);
   const [activeRefBookId, setActiveRefBookId] = useState<string | null>(null);
   const [refBookTick, setRefBookTick] = useState<number>(0);
@@ -835,8 +836,8 @@ export const HomePage: React.FC = () => {
                 className={styles.triageCardLaunchBtn}
                 onClick={() => {
                   sound.playPop();
-                  const firstSkillOfSubject = ALL_PROGRESS_SKILLS.find(s => s.subject === selectedSkillSubject);
-                  setFlashCardSkillId(firstSkillOfSubject?.id || ALL_PROGRESS_SKILLS[0].id);
+                  setFlashCardSkillId(null);
+                  setIsFlashCardModalOpen(true);
                 }}
                 title="全症例の急所・重症度をサクッと確認できるフラッシュカード"
                 data-testid="launch-triage-card-btn"
@@ -1756,6 +1757,7 @@ export const HomePage: React.FC = () => {
           onStartWeaknessQuiz={(skillId) => {
             // 保護者カルテは開いたまま維持し、前面に暗記カードを表示する（閉じたら保護者カルテに戻る）
             setFlashCardSkillId(skillId);
+            setIsFlashCardModalOpen(true);
           }}
           onInspectQuestion={(questionId) => {
             setShowParentModal(false);
@@ -1766,11 +1768,16 @@ export const HomePage: React.FC = () => {
       )}
 
       {/* サクッと暗記カードモーダル（最前面スタック） */}
-      {flashCardSkillId && (
+      {(isFlashCardModalOpen || flashCardSkillId) && (
         <QuickFlashCardModal
-          initialSkillId={flashCardSkillId}
-          onClose={() => setFlashCardSkillId(null)}
+          initialSkillId={flashCardSkillId || undefined}
+          targetSubject={selectedSkillSubject}
+          onClose={() => {
+            setIsFlashCardModalOpen(false);
+            setFlashCardSkillId(null);
+          }}
           onStartFocusSession={(skillId) => {
+            setIsFlashCardModalOpen(false);
             setFlashCardSkillId(null);
             setShowParentModal(false);
             startSkillFocusSession(skillId);
