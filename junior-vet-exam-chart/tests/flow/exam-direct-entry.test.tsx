@@ -117,7 +117,7 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
     expect(screen.queryByTestId('stage-2-tab')).toBeNull();
   });
 
-  it("2026年度理科大問1で空のブラケット「[]」が表示されず、問1 (トキ) のラベルが正常に表示されること", async () => {
+  it("2026年度理科大問1で空のブラケット「[]」が表示されず、答え漏洩のない「大問1 問1:」ラベルが正常に表示されること", async () => {
     render(
       <MemoryRouter initialEntries={["/final-challenge?year=2026&subject=rika"]}>
         <Routes>
@@ -134,8 +134,10 @@ describe('ドクター認定試験 年度別・科目別コンパクト入り口
     // 空のブラケット「[]」が表示されていないこと
     expect(screen.queryByText("[]")).toBeNull();
 
-    // 問1のラベル「大問1 問1 (トキ):」が表示されていること
-    expect(screen.getByText(/大問1 問1 \(トキ\):/)).toBeInTheDocument();
+    // 問1のラベルが答え（トキ）のカッコ書きなしで「大問1 問1:」とだけ表示されていること
+    expect(screen.getByText(/大問1 問1:/)).toBeInTheDocument();
+    const answerSheet = screen.getByTestId("challenge-answer-sheet");
+    expect(answerSheet).not.toHaveTextContent("トキ");
   });
 
   it("2024年度理科大問1では従来通り小問集合（[ア]〜[エ]）としてグリッド表示されること", async () => {

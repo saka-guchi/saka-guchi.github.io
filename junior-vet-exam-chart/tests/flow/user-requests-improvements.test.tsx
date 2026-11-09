@@ -141,8 +141,8 @@ describe('ユーザー要望改善項目 統合テスト', () => {
     });
   });
 
-  describe('5. 手書き計算メモ（ScratchPadCanvas）エリアの検証', () => {
-    it('StudyPage で手書き計算メモエリアがトグル開閉でき、Canvasがレンダリングされること', () => {
+  describe('5. 手書きメモ（ScratchPadCanvas）エリアの検証', () => {
+    it('StudyPage で手書きメモエリアがトグル開閉でき、Canvasがレンダリングされること', () => {
       useAppStore.getState().startDailySession('sansu');
 
       render(
@@ -151,10 +151,10 @@ describe('ユーザー要望改善項目 統合テスト', () => {
         </MemoryRouter>
       );
 
-      // 手書きスペースのトグルボタンが存在し、展開時は「手書きスペースを閉じる」と表示されること
+      // 手書きメモのトグルボタンが存在し、展開時は「手書きメモを閉じる」と表示されること
       const toggleBtn = screen.getByTestId('toggle-scratch-pad-btn');
       expect(toggleBtn).toBeInTheDocument();
-      expect(toggleBtn).toHaveTextContent(/手書きスペースを閉じる/);
+      expect(toggleBtn).toHaveTextContent(/手書きメモを閉じる/);
 
       // Canvasが存在し、ツールバー左端に「計算スペース」文字がなく左詰めになっていること
       const canvasCard = screen.getByTestId('scratch-pad-canvas');
@@ -163,10 +163,10 @@ describe('ユーザー要望改善項目 統合テスト', () => {
       expect(screen.getByTestId('scratch-pen-black')).toBeInTheDocument();
       expect(screen.getByTestId('scratch-canvas')).toBeInTheDocument();
 
-      // トグルで閉じると「手書きスペースを開く」になること
+      // トグルで閉じると「手書きメモを開く」になること
       fireEvent.click(toggleBtn);
       expect(screen.queryByTestId('scratch-pad-canvas')).not.toBeInTheDocument();
-      expect(toggleBtn).toHaveTextContent(/手書きスペースを開く/);
+      expect(toggleBtn).toHaveTextContent(/手書きメモを開く/);
     });
 
     it('FinalChallengePage（獣医師チャレンジ）で画面端のフローティングボタンから手書きメモを開閉できること', () => {
@@ -176,14 +176,18 @@ describe('ユーザー要望改善項目 統合テスト', () => {
         </MemoryRouter>
       );
 
-      // 右下にフローティングボタンが存在すること
+      // 左下にフローティングボタンが存在すること
       const openScratchBtn = screen.getByTestId('challenge-open-scratch-btn');
       expect(openScratchBtn).toBeInTheDocument();
-      expect(openScratchBtn).toHaveTextContent(/手書き計算メモ/);
+      expect(openScratchBtn).toHaveTextContent(/手書きメモ/);
 
-      // クリックすると手書きパネルがスライドイン表示されること
+      // クリックすると手書きパネルがスライドイン表示され、タイトル文字がなく左詰めになっていること
       fireEvent.click(openScratchBtn);
-      expect(screen.getByTestId('scratch-pad-canvas')).toBeInTheDocument();
+      const canvasCard = screen.getByTestId('scratch-pad-canvas');
+      expect(canvasCard).toBeInTheDocument();
+      expect(canvasCard).not.toHaveTextContent('✏️ 計算・下書きメモ');
+      expect(canvasCard).not.toHaveTextContent('✏️ 手書きメモ');
+      expect(screen.getByTestId('scratch-pen-black')).toBeInTheDocument();
 
       // 閉じるボタンでパネルが閉じること
       const closeBtn = screen.getByTestId('scratch-close-btn');

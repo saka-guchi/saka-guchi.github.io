@@ -302,7 +302,7 @@ export const StudyPage: React.FC = () => {
             answered={currentAnswered}
           />
 
-          {/* 手書き計算・筆算エリア */}
+          {/* 手書きメモ・筆算エリア */}
           <div style={{ marginTop: '16px' }} data-testid="scratch-pad-section">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <button
@@ -322,7 +322,7 @@ export const StudyPage: React.FC = () => {
                 }}
                 data-testid="toggle-scratch-pad-btn"
               >
-                <span>{isScratchPadOpen ? '▼ 手書きスペースを閉じる' : '▶ ✏️ 手書きスペースを開く'}</span>
+                <span>{isScratchPadOpen ? '▼ 手書きメモを閉じる' : '▶ ✏️ 手書きメモを開く'}</span>
               </button>
             </div>
             {isScratchPadOpen && (
