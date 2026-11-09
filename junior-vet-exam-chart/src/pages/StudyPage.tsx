@@ -268,29 +268,31 @@ export const StudyPage: React.FC = () => {
               >
                 <span>📸 問題用紙の原本を見る</span>
               </button>
-              <button
-                type="button"
-                className={styles.subBtn}
-                style={{
-                  height: '32px',
-                  minWidth: 'auto',
-                  padding: '0 12px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  gap: '4px',
-                  color: 'var(--success, #16a34a)',
-                  borderColor: 'var(--success, #16a34a)',
-                }}
-                onClick={() => {
-                  sound.playPop();
-                  setScanModalType('kaito');
-                  setShowScanModal(true);
-                }}
-                data-testid="study-open-answer-scan-header-btn"
-                title={`${scanMeta.year}年度 ${getSubjectJaWithIcon(scanMeta.subject)} の模範解答原本スキャンを表示`}
-              >
-                <span>✅ 模範解答原本を見る</span>
-              </button>
+              {currentAnswered && (
+                <button
+                  type="button"
+                  className={styles.subBtn}
+                  style={{
+                    height: '32px',
+                    minWidth: 'auto',
+                    padding: '0 12px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    gap: '4px',
+                    color: 'var(--success, #16a34a)',
+                    borderColor: 'var(--success, #16a34a)',
+                  }}
+                  onClick={() => {
+                    sound.playPop();
+                    setScanModalType('kaito');
+                    setShowScanModal(true);
+                  }}
+                  data-testid="study-open-answer-scan-header-btn"
+                  title={`${scanMeta.year}年度 ${getSubjectJaWithIcon(scanMeta.subject)} の模範解答原本スキャンを表示`}
+                >
+                  <span>✅ 模範解答原本を見る</span>
+                </button>
+              )}
             </div>
           )}
 

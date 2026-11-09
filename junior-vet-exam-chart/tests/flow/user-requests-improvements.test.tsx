@@ -375,9 +375,9 @@ describe('ユーザー要望改善項目 統合テスト', () => {
         </MemoryRouter>
       );
 
-      // 初期状態（問題表示中）でもヘッダーに模範解答原本ボタンがあること
-      const headerAnswerScanBtn = screen.getByTestId('study-open-answer-scan-header-btn');
-      expect(headerAnswerScanBtn).toBeInTheDocument();
+      // 初期状態（問題表示中・未めくり）ではネタバレ防止のため模範解答原本ボタンが非表示であること
+      expect(screen.queryByTestId('study-open-answer-scan-header-btn')).not.toBeInTheDocument();
+      expect(screen.getByTestId('study-open-problem-scan-btn')).toBeInTheDocument();
 
       // 「答えを確認する」を押して自己判定選択肢を展開
       const revealBtn = screen.getByTestId('recall-reveal-btn');
@@ -440,6 +440,52 @@ describe('ユーザー要望改善項目 統合テスト', () => {
 
       // 出典クレジットと原本ボタンが表示されていること
       expect(screen.getByTestId('study-source-credit')).toBeInTheDocument();
+      expect(screen.getByTestId('study-open-answer-scan-btn')).toBeInTheDocument();
+    });
+
+    it('選択問題（4択等）において、選択肢を選ぶ前は模範解答原本ボタンが非表示でネタバレせず、回答後に表示されること', () => {
+      // 過去問の4択問題
+      const choicePastQ = ALL_PAST_EXAM_QUESTIONS.find(
+        q => (q.format === 'multiple_choice' || q.format === 'why_choice') && q.originalScan
+      )!;
+      expect(choicePastQ).toBeDefined();
+
+      useAppStore.setState({
+        currentSessionQuestions: [choicePastQ],
+        currentIndex: 0,
+        currentAnswered: false,
+        currentUserAnswer: null,
+        currentIsCorrect: null,
+        currentFocusSkillId: null,
+        recallPhase: false,
+      });
+
+      const { rerender } = render(
+        <MemoryRouter>
+          <StudyPage />
+        </MemoryRouter>
+      );
+
+      // 選択肢を選ぶ前: 問題用紙の原本ボタンのみが表示され、模範解答原本ボタンは絶対に表示されないこと
+      expect(screen.getByTestId('study-open-problem-scan-btn')).toBeInTheDocument();
+      expect(screen.queryByTestId('study-open-answer-scan-header-btn')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('study-open-answer-scan-btn')).not.toBeInTheDocument();
+
+      // 回答後（currentAnswered = true）の状態に遷移
+      useAppStore.setState({
+        currentAnswered: true,
+        currentUserAnswer: choicePastQ.correctAnswer,
+        currentIsCorrect: true,
+      });
+
+      rerender(
+        <MemoryRouter>
+          <StudyPage />
+        </MemoryRouter>
+      );
+
+      // 回答後: ヘッダーおよび解説パネルに模範解答原本ボタンが表示されること
+      expect(screen.getByTestId('study-open-answer-scan-header-btn')).toBeInTheDocument();
       expect(screen.getByTestId('study-open-answer-scan-btn')).toBeInTheDocument();
     });
 
