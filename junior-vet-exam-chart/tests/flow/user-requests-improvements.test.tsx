@@ -150,17 +150,22 @@ describe('ユーザー要望改善項目 統合テスト', () => {
         </MemoryRouter>
       );
 
-      // 手書き計算スペースのトグルボタンが存在すること
+      // 手書きスペースのトグルボタンが存在し、展開時は「手書きスペースを閉じる」と表示されること
       const toggleBtn = screen.getByTestId('toggle-scratch-pad-btn');
       expect(toggleBtn).toBeInTheDocument();
+      expect(toggleBtn).toHaveTextContent(/手書きスペースを閉じる/);
 
-      // Canvasが存在すること
-      expect(screen.getByTestId('scratch-pad-canvas')).toBeInTheDocument();
+      // Canvasが存在し、ツールバー左端に「計算スペース」文字がなく左詰めになっていること
+      const canvasCard = screen.getByTestId('scratch-pad-canvas');
+      expect(canvasCard).toBeInTheDocument();
+      expect(canvasCard).not.toHaveTextContent('✏️ 計算スペース');
+      expect(screen.getByTestId('scratch-pen-black')).toBeInTheDocument();
       expect(screen.getByTestId('scratch-canvas')).toBeInTheDocument();
 
-      // トグルで閉じる
+      // トグルで閉じると「手書きスペースを開く」になること
       fireEvent.click(toggleBtn);
       expect(screen.queryByTestId('scratch-pad-canvas')).not.toBeInTheDocument();
+      expect(toggleBtn).toHaveTextContent(/手書きスペースを開く/);
     });
 
     it('FinalChallengePage（獣医師チャレンジ）で画面端のフローティングボタンから手書きメモを開閉できること', () => {
@@ -342,6 +347,90 @@ describe('ユーザー要望改善項目 統合テスト', () => {
       expect(modal).toHaveTextContent(/2024年度/);
       const scanImg = screen.getByTestId('modal-scan-image');
       expect(scanImg).toHaveAttribute('src', expect.stringContaining('/pages/2024/shakai/kaito_p001.webp'));
+    });
+
+    it('自己判定（recall_card）で「正解した」の選択肢が出るタイミングで、模範解答および模範解答原本ボタンが表示されること', () => {
+      // 過去問の記述/自己判定問題
+      const recallPastQ = ALL_PAST_EXAM_QUESTIONS.find(q => q.format === 'recall_card' && q.originalScan)!;
+      expect(recallPastQ).toBeDefined();
+
+      useAppStore.setState({
+        currentSessionQuestions: [recallPastQ],
+        currentIndex: 0,
+        currentAnswered: false,
+        currentUserAnswer: null,
+        currentIsCorrect: null,
+        currentFocusSkillId: null,
+        recallPhase: false,
+      });
+
+      render(
+        <MemoryRouter>
+          <StudyPage />
+        </MemoryRouter>
+      );
+
+      // 初期状態（問題表示中）でもヘッダーに模範解答原本ボタンがあること
+      const headerAnswerScanBtn = screen.getByTestId('study-open-answer-scan-header-btn');
+      expect(headerAnswerScanBtn).toBeInTheDocument();
+
+      // 「答えを確認する」を押して自己判定選択肢を展開
+      const revealBtn = screen.getByTestId('recall-reveal-btn');
+      fireEvent.click(revealBtn);
+
+      // 「正解した（思い出せた）」の選択肢が表示されていること
+      const correctBtn = screen.getByTestId('recall-correct-btn');
+      expect(correctBtn).toBeInTheDocument();
+
+      // この自己判定のタイミングで模範解答カードが表示されていること
+      const answerCard = screen.getByTestId('recall-answer-card');
+      expect(answerCard).toBeInTheDocument();
+      expect(answerCard).toHaveTextContent(/模範解答：/);
+      expect(answerCard).toHaveTextContent(String(recallPastQ.correctAnswer));
+
+      // 自己判定の模範解答カード内に「✅ 模範解答原本を見る」ボタンが表示されていること
+      const cardAnswerScanBtn = screen.getByTestId('recall-open-answer-scan-btn');
+      expect(cardAnswerScanBtn).toBeInTheDocument();
+
+      // ボタンを押すと模範解答原本スキャンモーダルが開くこと
+      fireEvent.click(cardAnswerScanBtn);
+      const modal = screen.getByTestId('original-scan-modal');
+      expect(modal).toBeInTheDocument();
+      expect(modal).toHaveTextContent(/模範解答原本/);
+      const scanImg = screen.getByTestId('modal-scan-image');
+      expect(scanImg).toHaveAttribute('src', expect.stringContaining('/kaito_p'));
+    });
+
+    it('回答後の解説パネルに「覚えること」「考え方」の定型文が表示されず、問題の出典と原本ボタン、ヒント振り返りのみが表示されること', () => {
+      const recallPastQ = ALL_PAST_EXAM_QUESTIONS.find(q => q.format === 'recall_card' && q.originalScan)!;
+      expect(recallPastQ).toBeDefined();
+
+      useAppStore.setState({
+        currentSessionQuestions: [recallPastQ],
+        currentIndex: 0,
+        currentAnswered: true,
+        currentUserAnswer: 'correct',
+        currentIsCorrect: true,
+        currentFocusSkillId: null,
+        recallPhase: false,
+      });
+
+      render(
+        <MemoryRouter>
+          <StudyPage />
+        </MemoryRouter>
+      );
+
+      const panel = screen.getByTestId('explanation-panel');
+      expect(panel).toBeInTheDocument();
+
+      // 「覚えること」「考え方」のセクションが存在しないこと
+      expect(panel).not.toHaveTextContent('覚えること');
+      expect(panel).not.toHaveTextContent('考え方');
+
+      // 出典クレジットと原本ボタンが表示されていること
+      expect(screen.getByTestId('study-source-credit')).toBeInTheDocument();
+      expect(screen.getByTestId('study-open-answer-scan-btn')).toBeInTheDocument();
     });
   });
 });

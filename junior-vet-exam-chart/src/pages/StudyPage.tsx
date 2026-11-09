@@ -247,7 +247,7 @@ export const StudyPage: React.FC = () => {
         {/* 左: 問題エリア（第22章仕様: 問題文と図） */}
         <section className={styles.questionArea} data-testid="question-area">
           {scanMeta && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 className={styles.subBtn}
@@ -267,6 +267,29 @@ export const StudyPage: React.FC = () => {
                 data-testid="study-open-problem-scan-btn"
               >
                 <span>📸 問題用紙の原本を見る</span>
+              </button>
+              <button
+                type="button"
+                className={styles.subBtn}
+                style={{
+                  height: '32px',
+                  minWidth: 'auto',
+                  padding: '0 12px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  gap: '4px',
+                  color: 'var(--success, #16a34a)',
+                  borderColor: 'var(--success, #16a34a)',
+                }}
+                onClick={() => {
+                  sound.playPop();
+                  setScanModalType('kaito');
+                  setShowScanModal(true);
+                }}
+                data-testid="study-open-answer-scan-header-btn"
+                title={`${scanMeta.year}年度 ${getSubjectJaWithIcon(scanMeta.subject)} の模範解答原本スキャンを表示`}
+              >
+                <span>✅ 模範解答原本を見る</span>
               </button>
             </div>
           )}
@@ -299,14 +322,13 @@ export const StudyPage: React.FC = () => {
                 }}
                 data-testid="toggle-scratch-pad-btn"
               >
-                <span>{isScratchPadOpen ? '▼ 手書き計算スペースをとじる' : '▶ ✏️ 手書き計算スペース・筆算を開く'}</span>
+                <span>{isScratchPadOpen ? '▼ 手書きスペースを閉じる' : '▶ ✏️ 手書きスペースを開く'}</span>
               </button>
             </div>
             {isScratchPadOpen && (
               <ScratchPadCanvas
                 key={`scratch-${currentQ.id}`}
                 initialHeight={200}
-                title="✏️ 計算スペース"
               />
             )}
           </div>
@@ -466,6 +488,12 @@ export const StudyPage: React.FC = () => {
                 onActionStateChange={setActionState}
                 selectedRegion={diagramSelectedRegion}
                 onRegionSelect={setDiagramSelectedRegion}
+                hasScanAnswer={Boolean(scanMeta)}
+                onOpenScanAnswer={() => {
+                  sound.playPop();
+                  setScanModalType('kaito');
+                  setShowScanModal(true);
+                }}
               />
 
               {/* 2.5 回答前の相談ボタン（不正な問題・不明瞭な問題時にスキップして相談可能） */}
@@ -504,21 +532,8 @@ export const StudyPage: React.FC = () => {
               {currentAnswered && (
                 <div className={styles.explanationPanel} data-testid="explanation-panel" style={{ marginTop: '20px' }}>
                   <div className={styles.explCard}>
-                    <div className={styles.explSection}>
-                      <div className={styles.explLabel}>覚えること</div>
-                      <div className={styles.takeawayText}>{currentQ.explanation.keyTakeaway}</div>
-                    </div>
-
-                    <div className={styles.explSection}>
-                      <div className={styles.explLabel}>考え方</div>
-                      <div className={styles.reasoningText}>{currentQ.explanation.reasoning}</div>
-                    </div>
-
                     <div
                       style={{
-                        paddingTop: '10px',
-                        marginTop: '10px',
-                        borderTop: '1px solid var(--border)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
