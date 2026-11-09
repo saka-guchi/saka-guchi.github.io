@@ -192,6 +192,8 @@ interface AnswerAreaViewProps {
   onActionStateChange?: (state: ActionState | null) => void;
   selectedRegion?: string | null;
   onRegionSelect?: (regionId: string) => void;
+  hasScanAnswer?: boolean;
+  onOpenScanAnswer?: () => void;
 }
 
 export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
@@ -203,6 +205,8 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
   onActionStateChange,
   selectedRegion,
   onRegionSelect,
+  hasScanAnswer,
+  onOpenScanAnswer,
 }) => {
   const isStandalone = !onSubmitActionRef && !onActionStateChange;
 
@@ -429,9 +433,46 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ padding: '16px', background: 'var(--primary-weak)', borderRadius: '12px' }}>
-              <div style={{ fontSize: '13px', color: 'var(--text-subtle)' }}>模範解答：</div>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--primary)', marginTop: '4px' }}>
+            <div
+              style={{
+                padding: '16px',
+                background: 'var(--primary-weak)',
+                borderRadius: '12px',
+                border: '1.5px solid var(--primary-light, #bfdbfe)',
+              }}
+              data-testid="recall-answer-card"
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--primary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <span>📖</span>
+                  <span>模範解答：</span>
+                </div>
+                {hasScanAnswer && onOpenScanAnswer && (
+                  <button
+                    type="button"
+                    onClick={onOpenScanAnswer}
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      color: 'var(--success, #16a34a)',
+                      borderColor: 'var(--success, #16a34a)',
+                      border: '1.5px solid var(--success, #16a34a)',
+                      background: 'var(--surface)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                    }}
+                    data-testid="recall-open-answer-scan-btn"
+                  >
+                    <span>✅ 模範解答原本を見る</span>
+                  </button>
+                )}
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--primary)', marginTop: '6px', wordBreak: 'break-word' }}>
                 {question.correctAnswer}
               </div>
             </div>
@@ -1049,8 +1090,34 @@ export const AnswerAreaView: React.FC<AnswerAreaViewProps> = ({
                 }}
                 data-testid="self-check-answer-card"
               >
-                <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary)', marginBottom: '4px' }}>
-                  📖 模範解答：
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary)' }}>
+                    📖 模範解答：
+                  </div>
+                  {hasScanAnswer && onOpenScanAnswer && (
+                    <button
+                      type="button"
+                      onClick={onOpenScanAnswer}
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        color: 'var(--success, #16a34a)',
+                        borderColor: 'var(--success, #16a34a)',
+                        border: '1.5px solid var(--success, #16a34a)',
+                        background: 'var(--surface)',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                      }}
+                      data-testid="self-check-open-answer-scan-btn"
+                    >
+                      <span>✅ 模範解答原本を見る</span>
+                    </button>
+                  )}
                 </div>
                 <div style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-heading)', marginBottom: reasoning ? '8px' : '0' }}>
                   {modelAnswer}

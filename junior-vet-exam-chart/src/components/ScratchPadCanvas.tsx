@@ -25,7 +25,7 @@ export interface ScratchPadCanvasProps {
 export const ScratchPadCanvas: React.FC<ScratchPadCanvasProps> = ({
   initialHeight = 220,
   className,
-  title = '✏️ 手書き計算メモ・筆算スペース',
+  title,
   onClose,
   showCloseButton = false,
 }) => {
@@ -207,9 +207,11 @@ export const ScratchPadCanvas: React.FC<ScratchPadCanvasProps> = ({
     >
       <div className={styles.toolbar}>
         <div className={styles.toolGroup}>
-          <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-subtle)', marginRight: '4px' }}>
-            {title}
-          </span>
+          {title ? (
+            <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-subtle)', marginRight: '4px' }}>
+              {title}
+            </span>
+          ) : null}
           <button
             type="button"
             className={`${styles.toolBtn} ${tool === 'pen' && color === '#1e293b' ? styles.toolBtnActive : ''}`}
