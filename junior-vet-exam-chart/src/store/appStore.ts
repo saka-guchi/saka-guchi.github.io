@@ -3,7 +3,7 @@ import type { Settings, Subject } from '../types';
 import { SAMPLE_QUESTIONS, type SampleQuestion } from '../data/sample-data';
 import { ALL_CURRICULUM_QUESTIONS } from '../data/curriculum';
 import { ALL_PROGRESS_SKILLS } from '../data/all-skills';
-import { THEME_ENHANCEMENTS } from '../data/vet-curriculum-enhancement';
+import { THEME_ENHANCEMENTS, resolveSkillId } from '../data/vet-curriculum-enhancement';
 import { promoteSkillStage } from '../utils/mastery-helper';
 import { boostMemoryRetention } from '../utils/memory-retention';
 import { selectBalancedDailyExamQuestions } from '../data/past-exam-questions';
@@ -133,7 +133,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
   },
 
-  startSkillFocusSession: (skillId) => {
+  startSkillFocusSession: (rawSkillId) => {
+    const skillId = resolveSkillId(rawSkillId);
     const skill = ALL_PROGRESS_SKILLS.find(s => s.id === skillId);
     const enhancement = THEME_ENHANCEMENTS[skillId];
 
@@ -146,21 +147,24 @@ export const useAppStore = create<AppState>((set, get) => ({
     let focusQuestions: SampleQuestion[] = [...matched].slice(0, 5);
 
     // もし問題プールに未登録の場合、単元データから特訓問題を安全に生成
-    if (focusQuestions.length === 0 && skill) {
+    if (focusQuestions.length === 0 && (skill || enhancement)) {
+      const subject = skill?.subject || enhancement?.subject || 'rika';
+      const title = skill?.title || enhancement?.topicCategory || '特訓単元';
+      const category = skill?.category || enhancement?.topicCategory || '症例特訓';
       const otherAnswers = Object.values(THEME_ENHANCEMENTS)
-        .filter(e => e.subject === skill.subject && e.skillId !== skillId)
+        .filter(e => e.subject === subject && e.skillId !== skillId)
         .map(e => e.flashCard.answer);
 
       focusQuestions = [{
         id: `focus-${skillId}-1`,
-        subject: skill.subject,
+        subject,
         format: 'multiple_choice',
-        prompt: enhancement?.flashCard.question || `【${skill.title}】の重要ポイントとして最も適切なものはどれですか？`,
-        category: skill.category,
-        skillTitle: skill.title,
-        skillId: skill.id,
+        prompt: enhancement?.flashCard.question || `【${title}】の重要ポイントとして最も適切なものはどれですか？`,
+        category,
+        skillTitle: title,
+        skillId: skill?.id || skillId,
         choices: [
-          { id: 'c1', label: 'ア', text: enhancement?.flashCard.answer || skill.title, isCorrect: true },
+          { id: 'c1', label: 'ア', text: enhancement?.flashCard.answer || title, isCorrect: true },
           { id: 'c2', label: 'イ', text: otherAnswers[0] || '誤った組み合わせ', isCorrect: false },
           { id: 'c3', label: 'ウ', text: otherAnswers[1] || '無関係な条件', isCorrect: false },
           { id: 'c4', label: 'エ', text: otherAnswers[2] || '反対の手順', isCorrect: false },
@@ -172,7 +176,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         ],
         explanation: {
           resultSummary: '正解です！',
-          keyTakeaway: skill.title,
+          keyTakeaway: title,
           reasoning: enhancement?.flashCard.examPoint || '急所を正確に押さえましょう。',
         },
       }];
