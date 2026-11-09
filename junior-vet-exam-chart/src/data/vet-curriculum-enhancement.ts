@@ -23,7 +23,16 @@ export interface ThemeEnhancement {
   };
 }
 
-export const THEME_ENHANCEMENTS: Record<string, ThemeEnhancement> = {
+export const SKILL_ID_ALIASES: Record<string, string> = {
+  'skill-rika-gas-properties-collecting': 'skill-rika-env-greenhouse',
+  'skill-rika-earth-carbon-cycle': 'skill-rika-env-ocean-acidification',
+};
+
+export function resolveSkillId(skillId: string): string {
+  return SKILL_ID_ALIASES[skillId] || skillId;
+}
+
+const RAW_THEME_ENHANCEMENTS: Record<string, ThemeEnhancement> = {
   // ==================== 理科（9テーマ） ====================
   'skill-rika-plant-dicot-monocot': {
     skillId: 'skill-rika-plant-dicot-monocot',
@@ -170,49 +179,6 @@ export const THEME_ENHANCEMENTS: Record<string, ThemeEnhancement> = {
       answer: '海水に二酸化炭素が溶け込んで「海洋酸性化」が進み、サンゴや貝の殻が作りにくくなる',
       tip: '排出された炭素のうち、約4分の1が海洋に吸収されているんだよ。',
       examPoint: '森林の光合成（陸上吸収）と海洋吸収のバランス計算問題も頻出です。',
-    },
-  },
-  // 旧キー互換用
-  'skill-rika-gas-properties-collecting': {
-    skillId: 'skill-rika-gas-properties-collecting',
-    subject: 'rika',
-    subjectLabel: '🧪 理科',
-    topicCategory: '気体の集め方',
-    fieldColor: '#8b5cf6',
-    fieldBg: '#f5f3ff',
-    patientAnimal: {
-      icon: '🐧',
-      name: 'ペンギンのペンペン',
-      role: 'シャボン玉ドクター',
-      symptom: '「酸素・水素・二酸化炭素！水に溶けるかどうかで集め方カルテを整理してね！」',
-    },
-    memoryRetention: 60,
-    flashCard: {
-      question: '酸素（O2）の発生方法と集め方は？',
-      answer: '二酸化マンガン ＋ うすい過酸化水素水（オキシドール） ／ 水上置換',
-      tip: '二酸化マンガンは触媒（反応を助けるだけ）で、自分自身は変化しないよ。',
-      examPoint: '火のついた線香を入れると「激しく燃え上がる（助燃性）」のが酸素の決定打！',
-    },
-  },
-  'skill-rika-earth-carbon-cycle': {
-    skillId: 'skill-rika-earth-carbon-cycle',
-    subject: 'rika',
-    subjectLabel: '🧪 理科',
-    topicCategory: '環境と炭素循環',
-    fieldColor: '#f59e0b',
-    fieldBg: '#fffbeb',
-    patientAnimal: {
-      icon: '🐢',
-      name: 'ウミガメのタメさん',
-      role: '青い海パトロール隊',
-      symptom: '「サンゴ礁が白くなっちゃった！地球の空気と海の二酸化炭素バランスをカルテで調べて！」',
-    },
-    memoryRetention: 55,
-    flashCard: {
-      question: '大気中のCO2が増えすぎると海にどんな影響が出る？',
-      answer: '海水に二酸化炭素が溶け込み、「海洋酸性化」が進んで貝やサンゴが弱る',
-      tip: '森林の光合成と海の吸収が、地球の炭素バランスを保っているんだ。',
-      examPoint: '温室効果ガス（CO2、メタンなど）と地球温暖化のメカニズムグラフ読取が出題されます。',
     },
   },
   'skill-rika-physics-galileo-thermometer': {
@@ -1258,3 +1224,24 @@ export const THEME_ENHANCEMENTS: Record<string, ThemeEnhancement> = {
     },
   },
 };
+
+/**
+ * THEME_ENHANCEMENTS
+ * 旧キー参照を新キーへ自動リダイレクトする安全なプロキシ。
+ * Object.keys() は新キーのみを返し、重複・旧キーのUI混入を防止する。
+ */
+export const THEME_ENHANCEMENTS: Record<string, ThemeEnhancement> = new Proxy(RAW_THEME_ENHANCEMENTS, {
+  get(target, prop: string | symbol) {
+    if (typeof prop === 'string' && prop in SKILL_ID_ALIASES) {
+      return target[SKILL_ID_ALIASES[prop]];
+    }
+    return (target as any)[prop];
+  },
+  has(target, prop: string | symbol) {
+    if (typeof prop === 'string' && prop in SKILL_ID_ALIASES) {
+      return SKILL_ID_ALIASES[prop] in target;
+    }
+    return prop in target;
+  },
+});
+

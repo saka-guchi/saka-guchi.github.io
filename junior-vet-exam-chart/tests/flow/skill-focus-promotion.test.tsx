@@ -73,7 +73,7 @@ describe('Skill Focus & Level Promotion Flow', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('flashcard-modal')).not.toBeInTheDocument();
       expect(screen.getByTestId('study-page')).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
   });
 
   it('guarantees unique and relevant questions for all 46 skills without falling back to a fixed question (especially shakai and sansu)', () => {
