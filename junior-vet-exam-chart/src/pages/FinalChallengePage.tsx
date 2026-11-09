@@ -881,34 +881,15 @@ export const FinalChallengePage: React.FC = () => {
         </section>
       </main>
 
-      {/* 画面端の手書き計算メモ・筆算パネル（試験に影響を与えないフローティング配置） */}
+      {/* 画面端の手書きメモ・筆算パネル（解答用紙や提出ボタンと干渉しない左下配置） */}
       <div
-        style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          zIndex: 900,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-          gap: '8px',
-        }}
+        className={styles.scratchFloatingContainer}
         data-testid="challenge-scratch-floating-container"
       >
         {isScratchPadOpen ? (
-          <div
-            style={{
-              width: '420px',
-              maxWidth: 'calc(100vw - 32px)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
-              borderRadius: '14px',
-              overflow: 'hidden',
-              background: '#ffffff',
-            }}
-          >
+          <div className={styles.scratchPadWrapper}>
             <ScratchPadCanvas
               initialHeight={240}
-              title="✏️ 計算・下書きメモ"
               showCloseButton={true}
               onClose={() => setIsScratchPadOpen(false)}
             />
@@ -920,26 +901,12 @@ export const FinalChallengePage: React.FC = () => {
               sound.playPop();
               setIsScratchPadOpen(true);
             }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '10px 18px',
-              background: '#1e293b',
-              color: '#ffffff',
-              border: '2px solid #ffffff',
-              borderRadius: '9999px',
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.25)',
-              fontSize: '13px',
-              fontWeight: 800,
-              cursor: 'pointer',
-              transition: 'transform 0.15s ease',
-            }}
+            className={styles.scratchFloatingBtn}
             data-testid="challenge-open-scratch-btn"
-            title="試験用の手書き計算メモを開く"
+            title="手書きメモを開く"
           >
             <span>✏️</span>
-            <span>手書き計算メモ</span>
+            <span>手書きメモ</span>
           </button>
         )}
       </div>
