@@ -13,7 +13,6 @@
     "test:ui": "vitest --ui",
     "layout-test": "vitest run tests/layout",
     "e2e": "playwright test",
-    "pack:pages": "tsx scripts/pack-pages.ts",
     "pack:inventory": "tsx scripts/pack-inventory.ts",
     "pack:review": "tsx scripts/pack-review.ts",
     "pack:crop": "tsx scripts/pack-crop.ts",

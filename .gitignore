@@ -6,6 +6,7 @@ content-private/
 **/content-private/
 docs/*.pdf
 **/docs/*.pdf
+**/docs/**/*.pdf
 
 # Node / ビルド成果物
 node_modules/
