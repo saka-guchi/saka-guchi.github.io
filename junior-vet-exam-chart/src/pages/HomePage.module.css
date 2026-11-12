@@ -314,42 +314,182 @@
   gap: 20px;
 }
 
-/* メンターナース案内バー */
+/* メンターナース案内バー（世界の名言＆小学生向け解説） */
 .mentorBar {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 12px 18px;
+  padding: 16px 20px;
   display: flex;
-  align-items: center;
-  gap: 14px;
+  align-items: flex-start;
+  gap: 16px;
   box-shadow: var(--shadow-sm);
   animation: popIn 0.3s ease;
 }
 
 .mentorAvatar {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: linear-gradient(135deg, #fed7aa 0%, #fbcfe8 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-display);
+  font-size: 26px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
   animation: softFloat 3s infinite ease-in-out;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease;
+}
+
+.mentorAvatar:hover {
+  transform: scale(1.08);
+}
+
+.mentorAvatar:active {
+  transform: scale(0.95);
 }
 
 .mentorSpeech {
-  font-size: var(--font-size-caption);
+  font-size: var(--font-size-body);
   color: var(--text);
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mentorSpeechHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mentorSpeechTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mentorSpeechTitle strong {
+  color: var(--primary);
+  font-size: var(--font-size-subheading);
+  font-weight: 800;
+}
+
+.quoteBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: #fef3c7;
+  color: #92400e;
+  font-size: var(--font-size-micro);
+  font-weight: 800;
+  border: 1px solid #fde68a;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nextQuoteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  color: var(--primary);
+  font-size: var(--font-size-caption);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nextQuoteBtn:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
+
+.nextQuoteBtn:active {
+  transform: translateY(1px);
+}
+
+.quoteBody {
+  background: var(--surface-subtle);
+  border-left: 4px solid var(--primary);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 10px 14px;
+  font-size: var(--font-size-body);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.quoteMark {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--primary);
+  margin: 0 2px;
+}
+
+.quoteText {
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+
+.quoteAuthor {
+  margin-top: 6px;
+  font-size: var(--font-size-caption);
+  color: var(--text-subtle);
+  font-weight: 700;
+  text-align: right;
+}
+
+.quoteRole {
+  font-size: var(--font-size-micro);
+  color: var(--text-subtle);
   font-weight: 600;
 }
 
-.mentorSpeech strong {
-  color: var(--primary);
+.quoteExplanation {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: var(--font-size-caption);
+  color: var(--text);
+  line-height: 1.6;
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+}
+
+.explanationTag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: var(--font-size-micro);
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.explanationText {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text);
 }
 
 /* ゾーン1: 上段2カラム（今日のカルテ学習 と 知識の処方箋） */

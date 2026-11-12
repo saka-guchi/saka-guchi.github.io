@@ -22,6 +22,7 @@ import { getAllExamScoreSummaries } from '../utils/exam-scores';
 import { getPointsSummary, type PointsSummary } from '../utils/points-manager';
 import { PointsNotebookModal } from '../components/PointsNotebookModal';
 import { hasInProgressExam } from '../utils/final-challenge-storage';
+import { getDailyQuote, getRandomQuote, type InspirationalQuote } from '../data/quotes';
 import styles from './HomePage.module.css';
 import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 
@@ -45,6 +46,12 @@ export const HomePage: React.FC = () => {
   const [showPointsNotebookModal, setShowPointsNotebookModal] = useState<boolean>(false);
   const [selectedExamYear, setSelectedExamYear] = useState<ExamYear>(2026);
   const [showAllExamYears, setShowAllExamYears] = useState(false);
+  const [currentQuote, setCurrentQuote] = useState<InspirationalQuote>(() => getDailyQuote());
+
+  const handleNextQuote = () => {
+    sound.playPop();
+    setCurrentQuote(prev => getRandomQuote(prev.id));
+  };
 
   useEffect(() => {
     db.finalChallengeResults.toArray().then(setExamHistory);
@@ -462,14 +469,57 @@ export const HomePage: React.FC = () => {
 
       {/* メインコンテンツ */}
       <main className={styles.mainContent}>
-        {/* ナース猫ミケちゃんのメンター応援バナー */}
-        <section className={styles.mentorBar}>
-          <div className={styles.mentorAvatar}>🐱</div>
+        {/* ナース猫ミケちゃんの世界の名言＆小学生向け解説バナー */}
+        <section className={styles.mentorBar} data-testid="mentor-quote-bar">
+          <div
+            className={styles.mentorAvatar}
+            onClick={handleNextQuote}
+            title="クリックすると別の名言が聞けるよ！🐾"
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleNextQuote();
+              }
+            }}
+            aria-label="ナース猫のミケちゃん（クリックで別の名言）"
+          >
+            🐱
+          </div>
           <div className={styles.mentorSpeech} style={{ flex: 1 }}>
-            <strong>ナース猫のミケちゃん:</strong>
-            {nextAnimalDetails
-              ? `「おかえりなさい、先生！今日の診察で【元気のもと】を集めよう！症例スタディで【${nextAnimalDetails.name}】たちを全快にしてあげてね！」`
-              : '「おかえりなさい、先生！すべての症例動物たちが元気に全快したよ！今日の診察で元気のもとをたくさん集めよう！」'}
+            <div className={styles.mentorSpeechHeader}>
+              <div className={styles.mentorSpeechTitle}>
+                <strong>ナース猫のミケちゃん:</strong>
+                <span className={styles.quoteBadge}>🌟 今日のやる気名言</span>
+              </div>
+              <button
+                type="button"
+                className={styles.nextQuoteBtn}
+                onClick={handleNextQuote}
+                title="別の名言を聞く"
+                aria-label="別の名言を聞く"
+              >
+                <span>🔄 別の名言を聞く</span>
+              </button>
+            </div>
+
+            {/* 名言本文 */}
+            <div className={styles.quoteBody}>
+              <span className={styles.quoteMark}>“</span>
+              <span className={styles.quoteText}>{currentQuote.quote}</span>
+              <span className={styles.quoteMark}>”</span>
+              <div className={styles.quoteAuthor}>
+                ── {currentQuote.author} <span className={styles.quoteRole}>({currentQuote.authorRole})</span>
+              </div>
+            </div>
+
+            {/* 小学生向け解説（ミケちゃんの言葉） */}
+            <div className={styles.quoteExplanation}>
+              <span className={styles.explanationTag}>🐾 ミケちゃんの解説</span>
+              <div className={styles.explanationText}>
+                「先生！ {currentQuote.kidsExplanation}」
+              </div>
+            </div>
           </div>
         </section>
 
