@@ -478,76 +478,78 @@ export const HomePage: React.FC = () => {
       <main className={styles.mainContent}>
         {/* ナース猫ミケちゃんの世界の名言＆小学生向け解説バナー */}
         <section className={styles.mentorBar} data-testid="mentor-quote-bar">
-          <div
-            className={styles.mentorAvatar}
-            onClick={() => handleNextQuote()}
-            title="クリックすると別の名言が聞けるよ！🐾"
-            role="button"
-            tabIndex={0}
-            onKeyDown={e => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                handleNextQuote();
-              }
-            }}
-            aria-label="ナース猫のミケちゃん（クリックで別の名言）"
-          >
-            🐱
-          </div>
-          <div className={styles.mentorSpeech} style={{ flex: 1 }}>
-            <div className={styles.mentorSpeechHeader}>
-              <div className={styles.mentorSpeechTitle}>
+          {/* ヘッダー行: アバター + タイトル + カテゴリ切替 + 別の名言ボタン */}
+          <div className={styles.mentorHeaderRow}>
+            <div className={styles.mentorProfileGroup}>
+              <div
+                className={styles.mentorAvatar}
+                onClick={() => handleNextQuote()}
+                title="クリックすると別の名言が聞けるよ！🐾"
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    handleNextQuote();
+                  }
+                }}
+                aria-label="ナース猫のミケちゃん（クリックで別の名言）"
+              >
+                🐱
+              </div>
+              <div className={styles.mentorTitleInfo}>
                 <strong>ナース猫のミケちゃん:</strong>
                 <span className={styles.quoteBadge}>{currentQuote.categoryLabel}</span>
               </div>
-              <div className={styles.quoteControls}>
-                <div className={styles.quoteCategoryPills} role="group" aria-label="名言テーマの選択">
-                  {(
-                    [
-                      { key: 'all', label: '🌟 すべて' },
-                      { key: 'grit', label: '🔥 渇！気合' },
-                      { key: 'empower', label: '🌸 心のお守り' },
-                      { key: 'exam_figure', label: '📚 入試頻出' },
-                    ] as const
-                  ).map(cat => (
-                    <button
-                      key={cat.key}
-                      type="button"
-                      className={`${styles.quoteFilterPill} ${quoteCategoryFilter === cat.key ? styles.quoteFilterPillActive : ''}`}
-                      onClick={() => handleSelectQuoteCategory(cat.key)}
-                      aria-pressed={quoteCategoryFilter === cat.key}
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  className={styles.nextQuoteBtn}
-                  onClick={() => handleNextQuote()}
-                  title="別の名言を聞く"
-                  aria-label="別の名言を聞く"
-                >
-                  <span>🔄 別の名言を聞く</span>
-                </button>
-              </div>
             </div>
 
-            {/* 名言本文 */}
-            <div className={styles.quoteBody}>
-              <span className={styles.quoteMark}>“</span>
-              <span className={styles.quoteText}>{currentQuote.quote}</span>
-              <span className={styles.quoteMark}>”</span>
-              <div className={styles.quoteAuthor}>
-                ── {currentQuote.author} <span className={styles.quoteRole}>({currentQuote.authorRole})</span>
+            <div className={styles.quoteControls}>
+              <div className={styles.quoteCategoryPills} role="group" aria-label="名言テーマの選択">
+                {(
+                  [
+                    { key: 'all', label: '🌟 すべて' },
+                    { key: 'grit', label: '🔥 渇！気合' },
+                    { key: 'empower', label: '🌸 心のお守り' },
+                    { key: 'exam_figure', label: '📚 入試頻出' },
+                  ] as const
+                ).map(cat => (
+                  <button
+                    key={cat.key}
+                    type="button"
+                    className={`${styles.quoteFilterPill} ${quoteCategoryFilter === cat.key ? styles.quoteFilterPillActive : ''}`}
+                    onClick={() => handleSelectQuoteCategory(cat.key)}
+                    aria-pressed={quoteCategoryFilter === cat.key}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
               </div>
+              <button
+                type="button"
+                className={styles.nextQuoteBtn}
+                onClick={() => handleNextQuote()}
+                title="別の名言を聞く"
+                aria-label="別の名言を聞く"
+              >
+                <span>🔄 別の名言を聞く</span>
+              </button>
             </div>
+          </div>
 
-            {/* 小学生向け解説（ミケちゃんの言葉） */}
-            <div className={styles.quoteExplanation}>
-              <span className={styles.explanationTag}>🐾 ミケちゃんの言葉</span>
-              <div className={styles.explanationText}>
-                「先生！ {currentQuote.kidsExplanation}」
-              </div>
+          {/* 名言本文（左に詰めて全幅表示） */}
+          <div className={styles.quoteBody}>
+            <span className={styles.quoteMark}>“</span>
+            <span className={styles.quoteText}>{currentQuote.quote}</span>
+            <span className={styles.quoteMark}>”</span>
+            <div className={styles.quoteAuthor}>
+              ── {currentQuote.author} <span className={styles.quoteRole}>({currentQuote.authorRole})</span>
+            </div>
+          </div>
+
+          {/* 小学生向け解説（ミケちゃんの言葉 - 左に詰めて全幅表示） */}
+          <div className={styles.quoteExplanation}>
+            <span className={styles.explanationTag}>🐾 ミケちゃんの言葉</span>
+            <div className={styles.explanationText}>
+              「先生！ {currentQuote.kidsExplanation}」
             </div>
           </div>
         </section>
