@@ -14,15 +14,40 @@ describe('HomePage - ミケちゃんの世界の名言バナー UI結合テス�
 
     // ナース猫のミケちゃんの見出しとバッジ
     expect(screen.getByText('ナース猫のミケちゃん:')).toBeInTheDocument();
-    expect(screen.getByText('🌟 今日のやる気名言')).toBeInTheDocument();
+
+    // カテゴリフィルターピルが表示されていること
+    expect(screen.getByRole('button', { name: '🌟 すべて' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '🔥 渇！気合' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '🌸 心のお守り' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '📚 入試頻出' })).toBeInTheDocument();
 
     // 別の名言を聞くボタン
     const nextBtn = screen.getByRole('button', { name: '別の名言を聞く' });
     expect(nextBtn).toBeInTheDocument();
 
     // 解説タグとミケちゃんの言葉
-    expect(screen.getByText('🐾 ミケちゃんの解説')).toBeInTheDocument();
+    expect(screen.getByText('🐾 ミケちゃんの言葉')).toBeInTheDocument();
     expect(screen.getByText(/先生！/)).toBeInTheDocument();
+  });
+
+  it('filters quotes by category pills', () => {
+    render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>
+    );
+
+    // 「🌸 心のお守り」をクリック
+    const empowerBtn = screen.getByRole('button', { name: '🌸 心のお守り' });
+    fireEvent.click(empowerBtn);
+
+    const banner = screen.getByTestId('mentor-quote-bar');
+    expect(banner.textContent).toContain('🌸 心のお守り');
+
+    // 「🔥 渇！気合」をクリック
+    const gritBtn = screen.getByRole('button', { name: '🔥 渇！気合' });
+    fireEvent.click(gritBtn);
+    expect(banner.textContent).toContain('🔥 渇！気合');
   });
 
   it('switches quote when clicking "別の名言を聞く" or avatar', () => {

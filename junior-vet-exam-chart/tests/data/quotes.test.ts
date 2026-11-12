@@ -7,16 +7,32 @@ import {
 
 describe('EXAM_INSPIRATIONAL_QUOTES & Helper functions', () => {
   it('contains valid quote items with required fields', () => {
-    expect(EXAM_INSPIRATIONAL_QUOTES.length).toBeGreaterThanOrEqual(10);
+    expect(EXAM_INSPIRATIONAL_QUOTES.length).toBeGreaterThanOrEqual(15);
     EXAM_INSPIRATIONAL_QUOTES.forEach(quote => {
       expect(quote.id).toBeTruthy();
       expect(quote.author).toBeTruthy();
       expect(quote.authorRole).toBeTruthy();
       expect(quote.quote).toBeTruthy();
       expect(quote.kidsExplanation).toBeTruthy();
+      expect(quote.category).toBeTruthy();
+      expect(quote.categoryLabel).toBeTruthy();
       // 小学生向けの平易な言葉・解説であること
-      expect(quote.kidsExplanation).toMatch(/よ[！!。]|ね[！!。]|んだ[！!。]/);
+      expect(quote.kidsExplanation).toMatch(/よ[！!。]|ね[！!。]|んだ[！!。]|ごらん[！!。]/);
     });
+
+    // 中学入試頻出の偉人が含まれていること
+    const authors = EXAM_INSPIRATIONAL_QUOTES.map(q => q.author);
+    expect(authors.some(a => a.includes('平塚らいてう'))).toBe(true);
+    expect(authors.some(a => a.includes('福沢諭吉'))).toBe(true);
+    expect(authors.some(a => a.includes('坂本龍馬'))).toBe(true);
+    expect(authors.some(a => a.includes('野口英世'))).toBe(true);
+    expect(authors.some(a => a.includes('勝海舟'))).toBe(true);
+    expect(authors.some(a => a.includes('吉田松陰'))).toBe(true);
+
+    // 渇を入れる名言と、心のお守り名言が含まれていること
+    const categories = EXAM_INSPIRATIONAL_QUOTES.map(q => q.category);
+    expect(categories).toContain('grit');
+    expect(categories).toContain('empower');
   });
 
   it('calculates daily quote deterministically based on JST date', () => {

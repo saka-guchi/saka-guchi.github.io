@@ -22,7 +22,7 @@ import { getAllExamScoreSummaries } from '../utils/exam-scores';
 import { getPointsSummary, type PointsSummary } from '../utils/points-manager';
 import { PointsNotebookModal } from '../components/PointsNotebookModal';
 import { hasInProgressExam } from '../utils/final-challenge-storage';
-import { getDailyQuote, getRandomQuote, type InspirationalQuote } from '../data/quotes';
+import { getDailyQuote, getRandomQuote, type InspirationalQuote, type QuoteCategory } from '../data/quotes';
 import styles from './HomePage.module.css';
 import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 
@@ -46,11 +46,18 @@ export const HomePage: React.FC = () => {
   const [showPointsNotebookModal, setShowPointsNotebookModal] = useState<boolean>(false);
   const [selectedExamYear, setSelectedExamYear] = useState<ExamYear>(2026);
   const [showAllExamYears, setShowAllExamYears] = useState(false);
+  const [quoteCategoryFilter, setQuoteCategoryFilter] = useState<QuoteCategory | 'all'>('all');
   const [currentQuote, setCurrentQuote] = useState<InspirationalQuote>(() => getDailyQuote());
 
-  const handleNextQuote = () => {
+  const handleNextQuote = (targetCategory: QuoteCategory | 'all' = quoteCategoryFilter) => {
     sound.playPop();
-    setCurrentQuote(prev => getRandomQuote(prev.id));
+    setCurrentQuote(prev => getRandomQuote(prev.id, targetCategory));
+  };
+
+  const handleSelectQuoteCategory = (cat: QuoteCategory | 'all') => {
+    sound.playPop();
+    setQuoteCategoryFilter(cat);
+    setCurrentQuote(prev => getRandomQuote(cat === quoteCategoryFilter ? prev.id : undefined, cat));
   };
 
   useEffect(() => {
@@ -473,7 +480,7 @@ export const HomePage: React.FC = () => {
         <section className={styles.mentorBar} data-testid="mentor-quote-bar">
           <div
             className={styles.mentorAvatar}
-            onClick={handleNextQuote}
+            onClick={() => handleNextQuote()}
             title="クリックすると別の名言が聞けるよ！🐾"
             role="button"
             tabIndex={0}
@@ -490,17 +497,39 @@ export const HomePage: React.FC = () => {
             <div className={styles.mentorSpeechHeader}>
               <div className={styles.mentorSpeechTitle}>
                 <strong>ナース猫のミケちゃん:</strong>
-                <span className={styles.quoteBadge}>🌟 今日のやる気名言</span>
+                <span className={styles.quoteBadge}>{currentQuote.categoryLabel}</span>
               </div>
-              <button
-                type="button"
-                className={styles.nextQuoteBtn}
-                onClick={handleNextQuote}
-                title="別の名言を聞く"
-                aria-label="別の名言を聞く"
-              >
-                <span>🔄 別の名言を聞く</span>
-              </button>
+              <div className={styles.quoteControls}>
+                <div className={styles.quoteCategoryPills} role="group" aria-label="名言テーマの選択">
+                  {(
+                    [
+                      { key: 'all', label: '🌟 すべて' },
+                      { key: 'grit', label: '🔥 渇！気合' },
+                      { key: 'empower', label: '🌸 心のお守り' },
+                      { key: 'exam_figure', label: '📚 入試頻出' },
+                    ] as const
+                  ).map(cat => (
+                    <button
+                      key={cat.key}
+                      type="button"
+                      className={`${styles.quoteFilterPill} ${quoteCategoryFilter === cat.key ? styles.quoteFilterPillActive : ''}`}
+                      onClick={() => handleSelectQuoteCategory(cat.key)}
+                      aria-pressed={quoteCategoryFilter === cat.key}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className={styles.nextQuoteBtn}
+                  onClick={() => handleNextQuote()}
+                  title="別の名言を聞く"
+                  aria-label="別の名言を聞く"
+                >
+                  <span>🔄 別の名言を聞く</span>
+                </button>
+              </div>
             </div>
 
             {/* 名言本文 */}
@@ -515,7 +544,7 @@ export const HomePage: React.FC = () => {
 
             {/* 小学生向け解説（ミケちゃんの言葉） */}
             <div className={styles.quoteExplanation}>
-              <span className={styles.explanationTag}>🐾 ミケちゃんの解説</span>
+              <span className={styles.explanationTag}>🐾 ミケちゃんの言葉</span>
               <div className={styles.explanationText}>
                 「先生！ {currentQuote.kidsExplanation}」
               </div>

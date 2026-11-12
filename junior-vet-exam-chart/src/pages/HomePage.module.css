@@ -397,6 +397,45 @@
   flex-shrink: 0;
 }
 
+.quoteControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quoteCategoryPills {
+  display: inline-flex;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 2px;
+  gap: 2px;
+}
+
+.quoteFilterPill {
+  border: none;
+  background: transparent;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-micro);
+  font-weight: 700;
+  color: var(--text-subtle);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.quoteFilterPill:hover {
+  color: var(--text);
+}
+
+.quoteFilterPillActive {
+  background: var(--primary);
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
 .nextQuoteBtn {
   display: inline-flex;
   align-items: center;
