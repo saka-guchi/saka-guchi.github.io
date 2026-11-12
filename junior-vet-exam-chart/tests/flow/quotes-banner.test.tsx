@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { HomePage } from '../../src/pages/HomePage';
@@ -12,22 +12,25 @@ describe('HomePage - ミケちゃんの世界の名言バナー UI結合テス�
       </MemoryRouter>
     );
 
+    const banner = screen.getByTestId('mentor-quote-bar');
+    const withinBanner = within(banner);
+
     // ナース猫のミケちゃんの見出しとバッジ
-    expect(screen.getByText('ナース猫のミケちゃん:')).toBeInTheDocument();
+    expect(withinBanner.getByText('ナース猫のミケちゃん:')).toBeInTheDocument();
 
     // カテゴリフィルターピルが表示されていること
-    expect(screen.getByRole('button', { name: '🌟 すべて' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '🔥 渇！気合' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '🌸 心のお守り' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '📚 入試頻出' })).toBeInTheDocument();
+    expect(withinBanner.getByRole('button', { name: '🌟 すべて' })).toBeInTheDocument();
+    expect(withinBanner.getByRole('button', { name: '🔥 渇！気合' })).toBeInTheDocument();
+    expect(withinBanner.getByRole('button', { name: '🌸 心のお守り' })).toBeInTheDocument();
+    expect(withinBanner.getByRole('button', { name: '📚 入試頻出' })).toBeInTheDocument();
 
     // 別の名言を聞くボタン
-    const nextBtn = screen.getByRole('button', { name: '別の名言を聞く' });
+    const nextBtn = withinBanner.getByRole('button', { name: '別の名言を聞く' });
     expect(nextBtn).toBeInTheDocument();
 
-    // 解説タグとミケちゃんの言葉
-    expect(screen.getByText('🐾 ミケちゃんの言葉')).toBeInTheDocument();
-    expect(screen.getByText(/先生！/)).toBeInTheDocument();
+    // 解説タグとミケちゃんの言葉（「先生！」プレフィックスは削除され、主語は「君」に統一）
+    expect(withinBanner.getByText('🐾 ミケちゃんの言葉')).toBeInTheDocument();
+    expect(withinBanner.queryByText(/「先生！/)).not.toBeInTheDocument();
   });
 
   it('filters quotes by category pills', () => {

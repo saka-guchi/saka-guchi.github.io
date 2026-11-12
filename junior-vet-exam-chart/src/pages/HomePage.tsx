@@ -549,7 +549,7 @@ export const HomePage: React.FC = () => {
           <div className={styles.quoteExplanation}>
             <span className={styles.explanationTag}>🐾 ミケちゃんの言葉</span>
             <div className={styles.explanationText}>
-              「先生！ {currentQuote.kidsExplanation}」
+              「{currentQuote.kidsExplanation}」
             </div>
           </div>
         </section>
