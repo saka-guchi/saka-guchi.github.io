@@ -4,6 +4,7 @@ import type { ChallengeSection } from '../../data/final-challenge-data';
 import type { PageContent } from '../../data/final-challenge-pages';
 import { ENABLE_TEXT_VIEW } from '../../utils/final-challenge-storage';
 import { sound } from '../../utils/sound-effects';
+import { usePinchToZoom } from '../../utils/use-pinch-to-zoom';
 import styles from '../../pages/FinalChallengePage.module.css';
 
 export interface ExamProblemViewerProps {
@@ -54,6 +55,14 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
   isReviewMode = false,
 }) => {
   const viewMode: 'text' | 'image' = ENABLE_TEXT_VIEW ? rawViewMode : 'image';
+  const isImageMode = stage === 1 && viewMode === 'image' && Boolean(pageImageData);
+
+  const { containerRef } = usePinchToZoom<HTMLDivElement>({
+    zoom: scanZoom,
+    onZoomChange: onScanZoomChange,
+    minZoom: 100,
+    maxZoom: 200,
+  });
 
   return (
     <section
@@ -226,7 +235,12 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
         )}
       </div>
 
-      <div className={styles.pageWrapper}>
+      <div
+        className={styles.pageWrapper}
+        ref={isImageMode ? containerRef : undefined}
+        data-testid={isImageMode ? 'exam-scan-container' : undefined}
+        style={isImageMode ? { touchAction: 'pan-x pan-y' } : undefined}
+      >
         {stage === 1 ? (
           viewMode === 'image' && pageImageData ? (
             pageLayout === 'spread' ? (() => {
