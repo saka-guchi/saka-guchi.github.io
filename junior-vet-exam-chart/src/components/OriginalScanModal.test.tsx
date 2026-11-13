@@ -65,4 +65,43 @@ describe('OriginalScanModal pinch-to-zoom integration', () => {
     const img = getByTestId('modal-scan-image');
     expect(img.style.width).toBe('150%');
   });
+
+  it('works when modal is initially mounted with isOpen=false and opened later', () => {
+    const onClose = vi.fn();
+    const { getByTestId, getByText, rerender } = render(
+      <OriginalScanModal
+        isOpen={false}
+        onClose={onClose}
+        year={2022}
+        subject="rika"
+        initialPage={1}
+      />
+    );
+
+    // 初期状態ではモーダルは非表示
+    expect(document.querySelector('[data-testid="original-scan-modal"]')).toBeNull();
+
+    // モーダルを開く (StudyPageでのクリックに相当)
+    rerender(
+      <OriginalScanModal
+        isOpen={true}
+        onClose={onClose}
+        year={2022}
+        subject="rika"
+        initialPage={1}
+      />
+    );
+
+    const container = getByTestId('scan-modal-image-container');
+    expect(container).toBeDefined();
+
+    // 2本指タッチ開始 (距離 100px)
+    fireTouchEvent(container, 'touchstart', [createTouch(1, 100, 100), createTouch(2, 200, 100)]);
+
+    // 2本指タッチ移動 (距離 160px -> 160%)
+    const moveEvent = fireTouchEvent(container, 'touchmove', [createTouch(1, 70, 100), createTouch(2, 230, 100)]);
+
+    expect(moveEvent.defaultPrevented).toBe(true);
+    expect(getByText('160%')).toBeDefined();
+  });
 });

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 export interface UsePinchToZoomOptions {
   /** 現在のズーム倍率（パーセント数値、例: 100） */
@@ -14,6 +14,7 @@ export interface UsePinchToZoomOptions {
 /**
  * 2本指ピンチ操作による原本領域の拡大縮小フック
  *
+ * - Callback Ref による DOM ノード検知（条件付きレンダリング・モーダル開閉にも完全追従）
  * - 2本指操作中のみブラウザ全体のviewportズームを抑止（preventDefault）
  * - 指の距離比率に応じてズーム倍率を更新
  * - 1本指操作時はネイティブスクロールを維持
@@ -24,9 +25,13 @@ export function usePinchToZoom<T extends HTMLElement = HTMLDivElement>({
   minZoom = 100,
   maxZoom = 200,
 }: UsePinchToZoomOptions): {
-  containerRef: React.RefObject<T | null>;
+  containerRef: React.RefCallback<T>;
 } {
-  const containerRef = useRef<T | null>(null);
+  const [containerNode, setContainerNode] = useState<T | null>(null);
+
+  const containerRef = useCallback((node: T | null) => {
+    setContainerNode(node);
+  }, []);
 
   // 常に最新の props/state を参照するための ref
   const zoomRef = useRef(zoom);
@@ -47,8 +52,8 @@ export function usePinchToZoom<T extends HTMLElement = HTMLDivElement>({
   const isPinchingRef = useRef<boolean>(false);
 
   useEffect(() => {
-    const element = containerRef.current;
-    if (!element) return;
+    if (!containerNode) return;
+    const element = containerNode;
 
     const getTouchDistance = (t1: Touch, t2: Touch): number => {
       const dx = t1.clientX - t2.clientX;
@@ -90,7 +95,12 @@ export function usePinchToZoom<T extends HTMLElement = HTMLDivElement>({
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
-      if (e.touches.length < 2) {
+      if (e.touches.length === 2) {
+        // 3本指等の介入から2本指に戻った場合の復帰（リベース）
+        isPinchingRef.current = true;
+        initialDistanceRef.current = getTouchDistance(e.touches[0], e.touches[1]);
+        initialZoomRef.current = zoomRef.current;
+      } else {
         isPinchingRef.current = false;
         initialDistanceRef.current = 0;
       }
@@ -108,7 +118,7 @@ export function usePinchToZoom<T extends HTMLElement = HTMLDivElement>({
       element.removeEventListener('touchend', handleTouchEnd);
       element.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, []);
+  }, [containerNode]);
 
   return { containerRef };
 }

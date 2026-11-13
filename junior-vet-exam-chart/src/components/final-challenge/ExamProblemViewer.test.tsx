@@ -108,4 +108,66 @@ describe('ExamProblemViewer pinch-to-zoom integration', () => {
     expect(moveEvent.defaultPrevented).toBe(true);
     expect(onScanZoomChange).toHaveBeenCalledWith(140);
   });
+
+  it('works when switching from stage 2 (no image) to stage 1 dynamically', () => {
+    const onScanZoomChange = vi.fn();
+    const onPageChange = vi.fn();
+    const onPageLayoutChange = vi.fn();
+
+    const { getByTestId, rerender } = render(
+      <ExamProblemViewer
+        stage={2}
+        currentYear={2022}
+        currentSubject="rika"
+        currentSubjectLabel="理科"
+        currentPage={1}
+        currentTotalPages={4}
+        onPageChange={onPageChange}
+        pageLayout="single"
+        onPageLayoutChange={onPageLayoutChange}
+        scanZoom={100}
+        onScanZoomChange={onScanZoomChange}
+        viewMode="image"
+        pageImageData="data:image/webp;base64,mock"
+        nextPageImageData={null}
+        currentSections={[]}
+      />
+    );
+
+    // stage 2時は原本スキャンコンテナは未接続
+    expect(document.querySelector('[data-testid="exam-scan-container"]')).toBeNull();
+
+    // stage 1に切り替え
+    rerender(
+      <ExamProblemViewer
+        stage={1}
+        currentYear={2022}
+        currentSubject="rika"
+        currentSubjectLabel="理科"
+        currentPage={1}
+        currentTotalPages={4}
+        onPageChange={onPageChange}
+        pageLayout="single"
+        onPageLayoutChange={onPageLayoutChange}
+        scanZoom={100}
+        onScanZoomChange={onScanZoomChange}
+        viewMode="image"
+        pageImageData="data:image/webp;base64,mock"
+        nextPageImageData={null}
+        currentSections={[]}
+      />
+    );
+
+    const container = getByTestId('exam-scan-container');
+    expect(container).toBeDefined();
+
+    // 2本指タッチ開始 (距離 100px)
+    fireTouchEvent(container, 'touchstart', [createTouch(1, 100, 100), createTouch(2, 200, 100)]);
+
+    // 2本指タッチ移動 (距離 150px -> 150%)
+    const moveEvent = fireTouchEvent(container, 'touchmove', [createTouch(1, 75, 100), createTouch(2, 225, 100)]);
+
+    expect(moveEvent.defaultPrevented).toBe(true);
+    expect(onScanZoomChange).toHaveBeenCalledWith(150);
+  });
 });
