@@ -57,7 +57,10 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
   const viewMode: 'text' | 'image' = ENABLE_TEXT_VIEW ? rawViewMode : 'image';
   const isImageMode = stage === 1 && viewMode === 'image' && Boolean(pageImageData);
 
-  const { containerRef, isPinching } = usePinchToZoom<HTMLDivElement>({
+  const { containerRef, contentRef, isPinching, transformStyle } = usePinchToZoom<
+    HTMLDivElement,
+    HTMLDivElement
+  >({
     zoom: scanZoom,
     onZoomChange: onScanZoomChange,
     minZoom: 100,
@@ -239,7 +242,7 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
         className={styles.pageWrapper}
         ref={isImageMode ? containerRef : undefined}
         data-testid={isImageMode ? 'exam-scan-container' : undefined}
-        style={isImageMode ? { touchAction: 'pan-x pan-y' } : undefined}
+        style={isImageMode ? { overflow: 'hidden', touchAction: 'none' } : undefined}
       >
         {stage === 1 ? (
           viewMode === 'image' && pageImageData ? (
@@ -255,11 +258,12 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
               return (
                 /* 左右見開き（2ページ並び）表示（ウィンドウ内に美しくフィット） */
                 <div
+                  ref={isImageMode ? contentRef : undefined}
                   className={styles.scanSpreadContainer}
-                  style={{
-                    alignItems: scanZoom > 100 ? 'flex-start' : 'center',
-                    justifyContent: scanZoom > 100 ? 'flex-start' : 'center',
-                  }}
+                  style={isImageMode ? {
+                    ...transformStyle,
+                    transition: isPinching ? 'none' : 'transform 150ms ease',
+                  } : undefined}
                   data-testid="scan-spread-container"
                 >
                   {/* 左ページ */}
@@ -270,13 +274,6 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                         src={leftPageData}
                         alt={`問題用紙 p.${leftPageNum}`}
                         className={styles.spreadPageImage}
-                        style={{
-                          transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
-                          transformOrigin: 'top left',
-                          maxWidth: scanZoom > 100 ? 'none' : '100%',
-                          maxHeight: scanZoom > 100 ? 'none' : 'calc(100% - 22px)',
-                          transition: isPinching ? 'none' : 'transform 150ms ease',
-                        }}
                         data-testid="exam-page-image-left"
                       />
                     </div>
@@ -290,13 +287,6 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                         src={rightPageData}
                         alt={`問題用紙 p.${rightPageNum}`}
                         className={styles.spreadPageImage}
-                        style={{
-                          transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
-                          transformOrigin: 'top left',
-                          maxWidth: scanZoom > 100 ? 'none' : '100%',
-                          maxHeight: scanZoom > 100 ? 'none' : 'calc(100% - 22px)',
-                          transition: isPinching ? 'none' : 'transform 150ms ease',
-                        }}
                         data-testid="exam-page-image-right"
                       />
                     </div>
@@ -306,24 +296,17 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
             })() : (
               /* 単一ページ表示（初期状態はウィンドウ内に収まる全体表示Fit、スクロールバーなし） */
               <div
+                ref={isImageMode ? contentRef : undefined}
                 className={styles.scanImageContainer}
-                style={{
-                  alignItems: scanZoom > 100 ? 'flex-start' : 'center',
-                  justifyContent: scanZoom > 100 ? 'flex-start' : 'center',
-                }}
+                style={isImageMode ? {
+                  ...transformStyle,
+                  transition: isPinching ? 'none' : 'transform 150ms ease',
+                } : undefined}
               >
                 <img
                   src={pageImageData}
                   alt={`問題用紙 p.${currentPage}`}
                   className={styles.pageImage}
-                  style={{
-                    transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
-                    transformOrigin: 'top left',
-                    maxWidth: scanZoom > 100 ? 'none' : '100%',
-                    maxHeight: scanZoom > 100 ? 'none' : '100%',
-                    width: scanZoom > 100 ? `${scanZoom}%` : 'auto',
-                    transition: isPinching ? 'none' : 'transform 150ms ease',
-                  }}
                   data-testid="exam-page-image"
                 />
               </div>

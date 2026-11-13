@@ -171,7 +171,7 @@ describe('ExamProblemViewer pinch-to-zoom integration', () => {
     expect(onScanZoomChange).toHaveBeenCalledWith(150);
   });
 
-  it('scrolls container centered on pinch midpoint in ExamProblemViewer', () => {
+  it('applies transform centered on pinch midpoint in ExamProblemViewer', () => {
     const onScanZoomChange = vi.fn();
     const onPageChange = vi.fn();
     const onPageLayoutChange = vi.fn();
@@ -197,6 +197,9 @@ describe('ExamProblemViewer pinch-to-zoom integration', () => {
     );
 
     const container = getByTestId('exam-scan-container');
+    const image = getByTestId('exam-page-image');
+    const content = image.parentElement!;
+
     vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
       left: 100,
       top: 50,
@@ -209,20 +212,16 @@ describe('ExamProblemViewer pinch-to-zoom integration', () => {
       toJSON: () => {},
     });
 
-    container.scrollLeft = 0;
-    container.scrollTop = 0;
-
     // 2本指タッチ開始: 指1 (250, 250), 指2 (350, 250) -> 中心 client (300, 250)
     // コンテナ内Focal Point: x = 300 - 100 = 200, y = 250 - 50 = 200
     fireTouchEvent(container, 'touchstart', [createTouch(1, 250, 250), createTouch(2, 350, 250)]);
 
     // 拡大: 距離 100px -> 160px (比率 1.6 -> 160%)
-    // 目標スクロール: targetScrollLeft = 200 * 1.6 - 200 = 320 - 200 = 120
-    // 目標スクロール: targetScrollTop  = 200 * 1.6 - 200 = 320 - 200 = 120
+    // newTx = 200 - 1.6 * 200 = 200 - 320 = -120
+    // newTy = 200 - 1.6 * 200 = 200 - 320 = -120
     fireTouchEvent(container, 'touchmove', [createTouch(1, 220, 250), createTouch(2, 380, 250)]);
 
     expect(onScanZoomChange).toHaveBeenCalledWith(160);
-    expect(container.scrollLeft).toBe(120);
-    expect(container.scrollTop).toBe(120);
+    expect(content.style.transform).toBe('translate(-120px, -120px) scale(1.6)');
   });
 });

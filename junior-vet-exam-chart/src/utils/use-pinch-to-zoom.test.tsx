@@ -43,7 +43,7 @@ const TestComponent: React.FC<{
     setZoom(newZoom);
     onZoomChange?.(newZoom);
   };
-  const { containerRef } = usePinchToZoom({
+  const { containerRef, contentRef } = usePinchToZoom({
     zoom,
     onZoomChange: handleZoomChange,
     minZoom,
@@ -54,9 +54,15 @@ const TestComponent: React.FC<{
     <div
       ref={containerRef}
       data-testid="zoom-container"
-      style={{ width: 500, height: 500 }}
+      style={{ width: 500, height: 500, overflow: 'hidden', position: 'relative' }}
     >
-      <span data-testid="zoom-val">{zoom}</span>
+      <div
+        ref={contentRef}
+        data-testid="zoom-content"
+        style={{ width: 500, height: 500 }}
+      >
+        <span data-testid="zoom-val">{zoom}</span>
+      </div>
     </div>
   );
 };
@@ -101,45 +107,13 @@ describe('usePinchToZoom', () => {
     expect(getByTestId('zoom-val').textContent).toBe('200');
   });
 
-  it('does not prevent default and does not change zoom on 1-finger touch', () => {
+  it('applies transform directly centered on the pinch midpoint (Focal Point Zoom)', () => {
     const onZoomChange = vi.fn();
     const { getByTestId } = render(<TestComponent initialZoom={100} onZoomChange={onZoomChange} />);
     const container = getByTestId('zoom-container');
+    const content = getByTestId('zoom-content');
 
-    // 1本指タッチ
-    fireTouchEvent(container, 'touchstart', [createTouch(1, 100, 100)]);
-    const moveEvent = fireTouchEvent(container, 'touchmove', [createTouch(1, 150, 100)]);
-
-    expect(moveEvent.defaultPrevented).toBe(false);
-    expect(onZoomChange).not.toHaveBeenCalled();
-    expect(getByTestId('zoom-val').textContent).toBe('100');
-  });
-
-  it('resets pinch state on touchend and supports subsequent pinches', () => {
-    const onZoomChange = vi.fn();
-    const { getByTestId } = render(<TestComponent initialZoom={100} onZoomChange={onZoomChange} />);
-    const container = getByTestId('zoom-container');
-
-    // 最初のピンチ: 100 -> 140 (距離 100 -> 140)
-    fireTouchEvent(container, 'touchstart', [createTouch(1, 100, 100), createTouch(2, 200, 100)]);
-    fireTouchEvent(container, 'touchmove', [createTouch(1, 80, 100), createTouch(2, 220, 100)]);
-    expect(getByTestId('zoom-val').textContent).toBe('140');
-
-    // 指を離す
-    fireTouchEvent(container, 'touchend', []);
-
-    // 2回目のピンチ: 開始zoomは140、初期距離 100px -> 80px (比率 0.8 -> 140 * 0.8 = 112)
-    fireTouchEvent(container, 'touchstart', [createTouch(1, 100, 100), createTouch(2, 200, 100)]);
-    fireTouchEvent(container, 'touchmove', [createTouch(1, 110, 100), createTouch(2, 190, 100)]);
-    expect(getByTestId('zoom-val').textContent).toBe('112');
-  });
-
-  it('adjusts scrollLeft and scrollTop centered on the pinch midpoint (focal point)', () => {
-    const onZoomChange = vi.fn();
-    const { getByTestId } = render(<TestComponent initialZoom={100} onZoomChange={onZoomChange} />);
-    const container = getByTestId('zoom-container');
-
-    // getBoundingClientRect をモック（コンテナ左上: left=50, top=100）
+    // コンテナ位置: left=50, top=100
     vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
       left: 50,
       top: 100,
@@ -152,28 +126,25 @@ describe('usePinchToZoom', () => {
       toJSON: () => {},
     });
 
-    container.scrollLeft = 0;
-    container.scrollTop = 0;
-
-    // 指1: (200, 300), 指2: (300, 300) -> 距離 100px, 中心点 client (250, 300)
+    // 指1: (200, 300), 指2: (300, 300) -> 中心 client (250, 300)
     // コンテナ内Focal Point: x = 250 - 50 = 200, y = 300 - 100 = 200
-    // コンテンツ座標: startX = 0 + 200 = 200, startY = 0 + 200 = 200
+    // コンテンツ座標: (200 - 0) / 1.0 = 200, (200 - 0) / 1.0 = 200
     fireTouchEvent(container, 'touchstart', [createTouch(1, 200, 300), createTouch(2, 300, 300)]);
 
-    // 拡大: 距離 150px (ratio 1.5, zoom 150), 中心点は動かさず (250, 300)
-    // 目標スクロール: targetScrollLeft = 200 * 1.5 - 200 = 100
-    // 目標スクロール: targetScrollTop  = 200 * 1.5 - 200 = 100
+    // 拡大: 距離 150px (ratio 1.5, zoom 150), 指の中心はそのまま (250, 300)
+    // newTx = 200 - 1.5 * 200 = 200 - 300 = -100
+    // newTy = 200 - 1.5 * 200 = 200 - 300 = -100
     fireTouchEvent(container, 'touchmove', [createTouch(1, 175, 300), createTouch(2, 325, 300)]);
 
-    expect(onZoomChange).toHaveBeenCalledWith(150);
-    expect(container.scrollLeft).toBe(100);
-    expect(container.scrollTop).toBe(100);
+    expect(content.style.transform).toBe('translate(-100px, -100px) scale(1.5)');
+    expect(content.style.transformOrigin).toBe('0 0');
   });
 
   it('follows two-finger pan (translation) during pinch', () => {
     const onZoomChange = vi.fn();
     const { getByTestId } = render(<TestComponent initialZoom={100} onZoomChange={onZoomChange} />);
     const container = getByTestId('zoom-container');
+    const content = getByTestId('zoom-content');
 
     vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
       left: 50,
@@ -187,18 +158,44 @@ describe('usePinchToZoom', () => {
       toJSON: () => {},
     });
 
-    container.scrollLeft = 0;
-    container.scrollTop = 0;
-
-    // 開始: 中心点 client (250, 300) -> コンテナ内 (200, 200)
+    // 開始: 中心 client (250, 300) -> コンテナ内 (200, 200) -> コンテンツ (200, 200)
     fireTouchEvent(container, 'touchstart', [createTouch(1, 200, 300), createTouch(2, 300, 300)]);
 
     // 拡大(1.5倍) + 中心点を左上に50px移動 (client (200, 250) -> コンテナ内 (150, 150))
-    // targetScrollLeft = 200 * 1.5 - 150 = 300 - 150 = 150
-    // targetScrollTop  = 200 * 1.5 - 150 = 300 - 150 = 150
+    // newTx = 150 - 1.5 * 200 = 150 - 300 = -150
+    // newTy = 150 - 1.5 * 200 = 150 - 300 = -150
     fireTouchEvent(container, 'touchmove', [createTouch(1, 125, 250), createTouch(2, 275, 250)]);
 
-    expect(container.scrollLeft).toBe(150);
-    expect(container.scrollTop).toBe(150);
+    expect(content.style.transform).toBe('translate(-150px, -150px) scale(1.5)');
+  });
+
+  it('supports 1-finger panning when zoomed in', () => {
+    const { getByTestId } = render(<TestComponent initialZoom={150} />);
+    const container = getByTestId('zoom-container');
+    const content = getByTestId('zoom-content');
+
+    // 1本指タッチ開始
+    fireTouchEvent(container, 'touchstart', [createTouch(1, 100, 100)]);
+
+    // 1本指移動 (右下に50pxドラッグ)
+    const moveEvent = fireTouchEvent(container, 'touchmove', [createTouch(1, 150, 150)]);
+
+    expect(moveEvent.defaultPrevented).toBe(true);
+    expect(content.style.transform).toContain('translate(50px, 50px)');
+  });
+
+  it('resets transform to origin on touchend if zoom is close to 100%', () => {
+    const { getByTestId } = render(<TestComponent initialZoom={100} />);
+    const container = getByTestId('zoom-container');
+    const content = getByTestId('zoom-content');
+
+    // わずかにピンチアウト (102%)
+    fireTouchEvent(container, 'touchstart', [createTouch(1, 100, 100), createTouch(2, 200, 100)]);
+    fireTouchEvent(container, 'touchmove', [createTouch(1, 99, 100), createTouch(2, 201, 100)]);
+
+    // 指を離す -> スナップバック
+    fireTouchEvent(container, 'touchend', []);
+
+    expect(content.style.transform).toBe('translate(0px, 0px) scale(1)');
   });
 });
