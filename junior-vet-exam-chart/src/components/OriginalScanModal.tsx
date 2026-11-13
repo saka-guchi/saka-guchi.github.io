@@ -3,6 +3,7 @@ import type { Subject } from '../types';
 import { getExamScanImageUrl, getExamScanPageCount } from '../utils/exam-scan-helper';
 import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 import { sound } from '../utils/sound-effects';
+import { usePinchToZoom } from '../utils/use-pinch-to-zoom';
 
 export interface OriginalScanModalProps {
   isOpen: boolean;
@@ -37,6 +38,13 @@ export const OriginalScanModal: React.FC<OriginalScanModalProps> = ({
     return Math.max(1, Math.min(pages, initialPage));
   });
   const [zoom, setZoom] = useState<number>(100);
+
+  const { containerRef } = usePinchToZoom<HTMLDivElement>({
+    zoom,
+    onZoomChange: setZoom,
+    minZoom: 100,
+    maxZoom: 220,
+  });
 
   // モーダルオープン時または初期タイプ変更時に正しく同期
   useEffect(() => {
@@ -265,6 +273,8 @@ export const OriginalScanModal: React.FC<OriginalScanModalProps> = ({
 
       {/* 原本画像エリア */}
       <div
+        ref={containerRef}
+        data-testid="scan-modal-image-container"
         style={{
           flex: 1,
           overflow: 'auto',
@@ -274,6 +284,7 @@ export const OriginalScanModal: React.FC<OriginalScanModalProps> = ({
           padding: '16px',
           boxSizing: 'border-box',
           minHeight: 0,
+          touchAction: 'pan-x pan-y',
         }}
         onClick={onClose}
       >
