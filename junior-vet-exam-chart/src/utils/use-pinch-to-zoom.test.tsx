@@ -133,4 +133,72 @@ describe('usePinchToZoom', () => {
     fireTouchEvent(container, 'touchmove', [createTouch(1, 110, 100), createTouch(2, 190, 100)]);
     expect(getByTestId('zoom-val').textContent).toBe('112');
   });
+
+  it('adjusts scrollLeft and scrollTop centered on the pinch midpoint (focal point)', () => {
+    const onZoomChange = vi.fn();
+    const { getByTestId } = render(<TestComponent initialZoom={100} onZoomChange={onZoomChange} />);
+    const container = getByTestId('zoom-container');
+
+    // getBoundingClientRect をモック（コンテナ左上: left=50, top=100）
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      left: 50,
+      top: 100,
+      right: 550,
+      bottom: 600,
+      width: 500,
+      height: 500,
+      x: 50,
+      y: 100,
+      toJSON: () => {},
+    });
+
+    container.scrollLeft = 0;
+    container.scrollTop = 0;
+
+    // 指1: (200, 300), 指2: (300, 300) -> 距離 100px, 中心点 client (250, 300)
+    // コンテナ内Focal Point: x = 250 - 50 = 200, y = 300 - 100 = 200
+    // コンテンツ座標: startX = 0 + 200 = 200, startY = 0 + 200 = 200
+    fireTouchEvent(container, 'touchstart', [createTouch(1, 200, 300), createTouch(2, 300, 300)]);
+
+    // 拡大: 距離 150px (ratio 1.5, zoom 150), 中心点は動かさず (250, 300)
+    // 目標スクロール: targetScrollLeft = 200 * 1.5 - 200 = 100
+    // 目標スクロール: targetScrollTop  = 200 * 1.5 - 200 = 100
+    fireTouchEvent(container, 'touchmove', [createTouch(1, 175, 300), createTouch(2, 325, 300)]);
+
+    expect(onZoomChange).toHaveBeenCalledWith(150);
+    expect(container.scrollLeft).toBe(100);
+    expect(container.scrollTop).toBe(100);
+  });
+
+  it('follows two-finger pan (translation) during pinch', () => {
+    const onZoomChange = vi.fn();
+    const { getByTestId } = render(<TestComponent initialZoom={100} onZoomChange={onZoomChange} />);
+    const container = getByTestId('zoom-container');
+
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      left: 50,
+      top: 100,
+      right: 550,
+      bottom: 600,
+      width: 500,
+      height: 500,
+      x: 50,
+      y: 100,
+      toJSON: () => {},
+    });
+
+    container.scrollLeft = 0;
+    container.scrollTop = 0;
+
+    // 開始: 中心点 client (250, 300) -> コンテナ内 (200, 200)
+    fireTouchEvent(container, 'touchstart', [createTouch(1, 200, 300), createTouch(2, 300, 300)]);
+
+    // 拡大(1.5倍) + 中心点を左上に50px移動 (client (200, 250) -> コンテナ内 (150, 150))
+    // targetScrollLeft = 200 * 1.5 - 150 = 300 - 150 = 150
+    // targetScrollTop  = 200 * 1.5 - 150 = 300 - 150 = 150
+    fireTouchEvent(container, 'touchmove', [createTouch(1, 125, 250), createTouch(2, 275, 250)]);
+
+    expect(container.scrollLeft).toBe(150);
+    expect(container.scrollTop).toBe(150);
+  });
 });

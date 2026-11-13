@@ -57,7 +57,7 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
   const viewMode: 'text' | 'image' = ENABLE_TEXT_VIEW ? rawViewMode : 'image';
   const isImageMode = stage === 1 && viewMode === 'image' && Boolean(pageImageData);
 
-  const { containerRef } = usePinchToZoom<HTMLDivElement>({
+  const { containerRef, isPinching } = usePinchToZoom<HTMLDivElement>({
     zoom: scanZoom,
     onZoomChange: onScanZoomChange,
     minZoom: 100,
@@ -258,6 +258,7 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                   className={styles.scanSpreadContainer}
                   style={{
                     alignItems: scanZoom > 100 ? 'flex-start' : 'center',
+                    justifyContent: scanZoom > 100 ? 'flex-start' : 'center',
                   }}
                   data-testid="scan-spread-container"
                 >
@@ -271,9 +272,10 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                         className={styles.spreadPageImage}
                         style={{
                           transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
-                          transformOrigin: 'top center',
+                          transformOrigin: 'top left',
                           maxWidth: scanZoom > 100 ? 'none' : '100%',
                           maxHeight: scanZoom > 100 ? 'none' : 'calc(100% - 22px)',
+                          transition: isPinching ? 'none' : 'transform 150ms ease',
                         }}
                         data-testid="exam-page-image-left"
                       />
@@ -290,9 +292,10 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                         className={styles.spreadPageImage}
                         style={{
                           transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
-                          transformOrigin: 'top center',
+                          transformOrigin: 'top left',
                           maxWidth: scanZoom > 100 ? 'none' : '100%',
                           maxHeight: scanZoom > 100 ? 'none' : 'calc(100% - 22px)',
+                          transition: isPinching ? 'none' : 'transform 150ms ease',
                         }}
                         data-testid="exam-page-image-right"
                       />
@@ -306,6 +309,7 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                 className={styles.scanImageContainer}
                 style={{
                   alignItems: scanZoom > 100 ? 'flex-start' : 'center',
+                  justifyContent: scanZoom > 100 ? 'flex-start' : 'center',
                 }}
               >
                 <img
@@ -314,10 +318,11 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                   className={styles.pageImage}
                   style={{
                     transform: scanZoom > 100 ? `scale(${scanZoom / 100})` : undefined,
-                    transformOrigin: 'top center',
+                    transformOrigin: 'top left',
                     maxWidth: scanZoom > 100 ? 'none' : '100%',
                     maxHeight: scanZoom > 100 ? 'none' : '100%',
                     width: scanZoom > 100 ? `${scanZoom}%` : 'auto',
+                    transition: isPinching ? 'none' : 'transform 150ms ease',
                   }}
                   data-testid="exam-page-image"
                 />

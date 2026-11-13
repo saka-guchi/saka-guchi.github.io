@@ -170,4 +170,59 @@ describe('ExamProblemViewer pinch-to-zoom integration', () => {
     expect(moveEvent.defaultPrevented).toBe(true);
     expect(onScanZoomChange).toHaveBeenCalledWith(150);
   });
+
+  it('scrolls container centered on pinch midpoint in ExamProblemViewer', () => {
+    const onScanZoomChange = vi.fn();
+    const onPageChange = vi.fn();
+    const onPageLayoutChange = vi.fn();
+
+    const { getByTestId } = render(
+      <ExamProblemViewer
+        stage={1}
+        currentYear={2022}
+        currentSubject="sansu"
+        currentSubjectLabel="算数"
+        currentPage={1}
+        currentTotalPages={4}
+        onPageChange={onPageChange}
+        pageLayout="single"
+        onPageLayoutChange={onPageLayoutChange}
+        scanZoom={100}
+        onScanZoomChange={onScanZoomChange}
+        viewMode="image"
+        pageImageData="data:image/webp;base64,mock"
+        nextPageImageData={null}
+        currentSections={[]}
+      />
+    );
+
+    const container = getByTestId('exam-scan-container');
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      left: 100,
+      top: 50,
+      right: 700,
+      bottom: 850,
+      width: 600,
+      height: 800,
+      x: 100,
+      y: 50,
+      toJSON: () => {},
+    });
+
+    container.scrollLeft = 0;
+    container.scrollTop = 0;
+
+    // 2本指タッチ開始: 指1 (250, 250), 指2 (350, 250) -> 中心 client (300, 250)
+    // コンテナ内Focal Point: x = 300 - 100 = 200, y = 250 - 50 = 200
+    fireTouchEvent(container, 'touchstart', [createTouch(1, 250, 250), createTouch(2, 350, 250)]);
+
+    // 拡大: 距離 100px -> 160px (比率 1.6 -> 160%)
+    // 目標スクロール: targetScrollLeft = 200 * 1.6 - 200 = 320 - 200 = 120
+    // 目標スクロール: targetScrollTop  = 200 * 1.6 - 200 = 320 - 200 = 120
+    fireTouchEvent(container, 'touchmove', [createTouch(1, 220, 250), createTouch(2, 380, 250)]);
+
+    expect(onScanZoomChange).toHaveBeenCalledWith(160);
+    expect(container.scrollLeft).toBe(120);
+    expect(container.scrollTop).toBe(120);
+  });
 });

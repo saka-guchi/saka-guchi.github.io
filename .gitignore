@@ -16,6 +16,11 @@ dist/
 *.log
 *.tsbuildinfo
 
+# Python 一時ファイル
+__pycache__/
+**/__pycache__/
+*.pyc
+
 # UIリファクタリング検証用スクリーンショット・差分ヒートマップ
 junior-vet-exam-chart/docs/baseline/
 junior-vet-exam-chart/docs/baseline_*/
