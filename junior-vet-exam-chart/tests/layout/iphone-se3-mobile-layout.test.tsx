@@ -5,6 +5,7 @@ import { FinalChallengePage } from '../../src/pages/FinalChallengePage';
 import { HomePage } from '../../src/pages/HomePage';
 import { MentalCarePage } from '../../src/pages/MentalCarePage';
 import { SchoolAdvicePage } from '../../src/pages/SchoolAdvicePage';
+import { ExamProblemViewer } from '../../src/components/final-challenge/ExamProblemViewer';
 
 describe('iPhone SE 3 (375px × 667px) Mobile Layout Tests', () => {
   it('FinalChallengePage provides mobile tab navigation and instant switching between problem and answer sheet', () => {
@@ -92,5 +93,32 @@ describe('iPhone SE 3 (375px × 667px) Mobile Layout Tests', () => {
     expect(screen.getByTestId('tab-chiyoda')).toBeInTheDocument();
     expect(screen.getByTestId('tab-meguro')).toBeInTheDocument();
     expect(screen.getByTestId('back-to-home-btn')).toBeInTheDocument();
+  });
+
+  it('ExamProblemViewer Stage 2 renders responsive question prompt cards with samplePdfContent class', () => {
+    render(
+      <ExamProblemViewer
+        stage={2}
+        currentYear={2024}
+        currentSubject="rika"
+        currentSubjectLabel="理科"
+        currentPage={1}
+        currentTotalPages={5}
+        onPageChange={() => {}}
+        pageLayout="single"
+        onPageLayoutChange={() => {}}
+        scanZoom={100}
+        onScanZoomChange={() => {}}
+        viewMode="text"
+        pageImageData={null}
+        nextPageImageData={null}
+        currentSections={[]}
+      />
+    );
+
+    // Stage 2 の問題用紙エリアが存在し、同等未見問題の案内が表示されること
+    expect(screen.getByTestId('challenge-pdf-area')).toBeInTheDocument();
+    expect(screen.getByText('Stage 2：同等未見問題（人による確認済み）')).toBeInTheDocument();
+    expect(screen.getByText('Stage 2 理科 試験表紙')).toBeInTheDocument();
   });
 });

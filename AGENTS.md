@@ -281,5 +281,9 @@
 - **高さ667px制約におけるモーダルの高さクランプと内部スクロール**:
   - iPhone SE 3 は高さが667pxしかないため、`min-height: 480px` 以上の固定要素があるモーダル（暗記カード、認定証等）は画面外へ溢れる。
   - モーダルカードの高さは `max-height: calc(100dvh - 24px); overflow-y: auto;` を徹底し、ボタン群は幅375pxで横並びから縦積みにスタックさせ、押しやすい親指タップ領域（高さ44px以上）を確保すること。
+- **スクロール可能コンテナにおける justify-content: center 併用の厳禁（Data Loss 防止原則）**:
+  - `overflow: auto` または `overflow-y: auto` を持つコンテナに無条件の `justify-content: center` を指定すると、子要素が親コンテナ幅を超えた際に左右両側へセンタリング配置され、左端が負の座標（`x < 0`）にはみ出す。ブラウザのスクロール仕様では負の座標へスクロールできないため、スクロールバーが表示されるにもかかわらず左端の文字が絶対に読めなくなる不具合（Data Loss）が発生する。
+  - スクロールコンテナでは必ず `justify-content: safe center` またはスマホ幅で `justify-content: flex-start` を適用し、`overflow-x: hidden`、子要素の `width: 100%`, `max-width: 100%`, `box-sizing: border-box`, `word-break: break-word` を徹底すること。
+
 
 

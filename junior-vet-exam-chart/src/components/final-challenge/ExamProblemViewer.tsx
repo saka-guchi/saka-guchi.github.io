@@ -318,26 +318,19 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
           ) : (
             /* テキスト・図表・設問表示（ズーム影響を受けず常に標準サイズで快適に閲覧可能） */
             <div className={styles.samplePdfMock}>
-              <div
-                style={{
-                  padding: '24px',
-                  background: '#ffffff',
-                  borderRadius: '8px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                  minHeight: '520px',
-                }}
-              >
+              <div className={styles.samplePdfContent}>
                 <h3
                   style={{
                     borderBottom: `2px solid ${currentSubject === 'kokugo' ? '#e11d48' : 'var(--primary)'}`,
                     paddingBottom: '8px',
                     color: 'var(--text)',
+                    wordBreak: 'break-word',
                   }}
                 >
                   {currentPageContent?.title || `問題用紙 (p.${currentPage})`}
                 </h3>
                 {currentPageContent?.subTitle && (
-                  <p style={{ color: 'var(--text-subtle)', marginTop: '4px' }}>
+                  <p style={{ color: 'var(--text-subtle)', marginTop: '4px', wordBreak: 'break-word' }}>
                     {currentPageContent.subTitle}
                   </p>
                 )}
@@ -345,7 +338,7 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                 {currentPageContent?.sections.map((sec, sIdx) => (
                   <div key={sIdx} style={{ marginTop: '18px' }}>
                     {sec.sectionTitle && (
-                      <h4 style={{ color: currentSubject === 'kokugo' ? '#be123c' : 'var(--primary)', marginBottom: '6px' }}>
+                      <h4 style={{ color: currentSubject === 'kokugo' ? '#be123c' : 'var(--primary)', marginBottom: '6px', wordBreak: 'break-word' }}>
                         {sec.sectionTitle}
                       </h4>
                     )}
@@ -357,10 +350,12 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                           lineHeight: '1.8',
                           color: 'var(--text)',
                           letterSpacing: '0.04em',
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word',
                         }}
                       />
                     ) : (
-                      <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8', color: 'var(--text)' }}>
+                      <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8', color: 'var(--text)', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                         {sec.bodyText}
                       </p>
                     )}
@@ -384,10 +379,11 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                               borderRadius: '12px',
                               padding: '14px',
                               background: 'var(--surface-subtle)',
-                              maxWidth: '340px',
+                              maxWidth: '100%',
                               width: '100%',
                               textAlign: 'center',
                               boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+                              boxSizing: 'border-box',
                             }}
                             data-testid={`exam-figure-${fig.id}`}
                           >
@@ -475,15 +471,7 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
         ) : (
           /* Stage 2 (同等未見問題) の表示 */
           <div className={styles.samplePdfMock}>
-            <div
-              style={{
-                padding: '24px',
-                background: '#ffffff',
-                borderRadius: '8px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                minHeight: '520px',
-              }}
-            >
+            <div className={styles.samplePdfContent}>
               <div
                 style={{
                   display: 'inline-block',
@@ -498,7 +486,7 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
               >
                 Stage 2：同等未見問題（人による確認済み）
               </div>
-              <h3 style={{ borderBottom: '2px solid var(--primary)', paddingBottom: '8px' }}>
+              <h3 style={{ borderBottom: '2px solid var(--primary)', paddingBottom: '8px', wordBreak: 'break-word' }}>
                 {currentPage === 1 && `Stage 2 ${currentSubjectLabel} 試験表紙`}
                 {currentPage > 1 && (currentPageContent?.title || `問題用紙 (p.${currentPage})`)}
               </h3>
@@ -531,8 +519,8 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                           }}
                           data-testid={`stage2-card-${slot.id}`}
                         >
-                          <strong style={{ color: 'var(--primary)' }}>【大問{slot.section} {slot.label}】</strong>
-                          <p style={{ marginTop: '6px', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
+                          <strong style={{ color: 'var(--primary)', wordBreak: 'break-word' }}>【大問{slot.section} {slot.label}】</strong>
+                          <p style={{ marginTop: '6px', lineHeight: '1.7', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                             {slot.stage2Prompt || '同等難易度で更新した未見問題です。'}
                           </p>
                           {activeOptions && activeOptions.length > 0 && (
@@ -540,7 +528,7 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
                               style={{
                                 marginTop: '10px',
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
                                 gap: '8px',
                               }}
                               data-testid={`stage2-options-${slot.id}`}
