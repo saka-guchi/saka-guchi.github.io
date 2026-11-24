@@ -1890,6 +1890,79 @@
   }
 }
 
+/* スマホ (iPhone SE 3: 375px) 最適化 */
+@media (max-width: 480px) {
+  .header {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .headerLeft {
+    gap: 6px;
+  }
+  .mainTitle {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .subTitle {
+    font-size: 10px;
+  }
+  .headerRight {
+    gap: 4px;
+  }
+  .headerStatusGroup {
+    gap: 4px;
+  }
+  .countdownBadge {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+  .countdownNumber {
+    font-size: 12px;
+  }
+  .streakBadge {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+  .parentBadgeBtn,
+  .mentalCareBadgeBtn {
+    height: 30px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+  .controlBtn {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  .quoteControls {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .quoteCategoryPills {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+  .quoteFilterPill {
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+  .nextQuoteBtn {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+  .mentorBanner {
+    padding: 12px 14px;
+  }
+  .topCardsGrid,
+  .topMentorGrid {
+    gap: 12px;
+  }
+}
+
 /* スタンプ帳モーダルのタブ */
 .stampModalTabs {
   display: flex;

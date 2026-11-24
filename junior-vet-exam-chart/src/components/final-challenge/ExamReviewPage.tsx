@@ -256,11 +256,14 @@ export const ExamReviewPage: React.FC<ExamReviewPageProps> = ({
     prevFinalizedRef.current = isFinalized;
   }, [isFinalized]);
 
-  // 設問ヘッダータップ時に左の問題ページを移動する
+  // 設問ヘッダータップ時に左の問題ページを移動する（スマホ画面では問題アコーディオンも自動展開）
   const handleJumpToSlotPage = (pageNumber: number) => {
     sound.playPop();
     const targetPage = Math.max(1, Math.min(activeTotalPages, pageNumber || 1));
     setActivePage(targetPage);
+    if (isNarrowScreen) {
+      setIsMobileProblemOpen(true);
+    }
   };
 
   const pageImageData = resolvePageImageUrl(activePage);

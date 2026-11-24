@@ -235,6 +235,48 @@
   opacity: 0.9;
 }
 
+/* モバイル (iPhone SE 3: 375px) 最適化 */
+@media (max-width: 600px) {
+  .overlay {
+    padding: 8px;
+  }
+  .certificateWrapper {
+    padding: 20px 14px;
+    border-width: 4px;
+    border-radius: 16px;
+  }
+  .certTitle {
+    font-size: 20px;
+  }
+  .certSubtitle {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .recipientName {
+    font-size: 18px;
+  }
+  .certBody {
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 0 4px;
+    margin: 14px 0;
+  }
+  .animalsCheerBox {
+    padding: 10px;
+    margin: 12px 0;
+  }
+  .actionsRow {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .printBtn,
+  .closeBtn {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+}
+
 @media print {
   .overlay {
     position: static;

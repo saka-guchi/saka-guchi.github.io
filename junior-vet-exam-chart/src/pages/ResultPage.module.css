@@ -497,3 +497,41 @@
   text-align: center;
   box-shadow: 0 4px 14px rgba(234, 179, 8, 0.25);
 }
+
+/* モバイル (iPhone SE 3: 375px) 最適化 */
+@media (max-width: 480px) {
+  .header {
+    height: 56px;
+    padding: 0 14px;
+  }
+  .headerTitle {
+    font-size: 18px;
+  }
+  .main {
+    padding: 12px 10px;
+  }
+  .card {
+    padding: 20px 14px;
+    gap: 14px;
+    border-radius: var(--radius-lg);
+  }
+  .title {
+    font-size: 20px;
+  }
+  .scoreNumber {
+    font-size: 48px;
+  }
+  .btnRow {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+  .primaryBtn,
+  .secondaryBtn {
+    width: 100%;
+    min-height: 48px;
+  }
+  .mistakeCard {
+    padding: 12px;
+  }
+}

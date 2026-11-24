@@ -447,6 +447,44 @@
 
 /* モバイル S1: 画面下に常時固定（スクロール不要で次へ進める） */
 @media (max-width: 768px) {
+  .header {
+    padding: 8px 12px;
+    gap: 6px;
+    min-height: 52px;
+  }
+  .headerLeft {
+    min-width: 0;
+    gap: 6px;
+    flex: 1;
+  }
+  .headerTitle {
+    max-width: 150px;
+    font-size: 13px;
+  }
+  .headerRight {
+    gap: 6px;
+  }
+  .progressContainer {
+    min-width: 80px;
+    gap: 2px;
+  }
+  .progressBarBg {
+    width: 80px;
+    height: 5px;
+  }
+  .progressLabel {
+    font-size: 11px;
+  }
+  .backBtn {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+  .modeBadge,
+  .modeBadgeCaseStudy,
+  .subjectBadge {
+    padding: 2px 6px;
+    font-size: 11px;
+  }
   .pageLayout {
     height: 100vh;
     height: 100dvh;
@@ -457,20 +495,21 @@
   .mainArea {
     grid-template-columns: 1fr;
     overflow-y: visible;
-    padding: 12px 14px;
-    padding-bottom: 100px; /* 固定ボトムバーと重ならない余白 */
+    padding: 10px 12px;
+    padding-bottom: 96px; /* 固定ボトムバーと重ならない余白 */
   }
   .questionArea, .answerArea {
     overflow-y: visible;
-    padding: 16px;
+    padding: 14px 12px;
+    border-radius: var(--radius-lg);
   }
   .bottomBar {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 72px;
-    padding: 0 16px;
+    height: 68px;
+    padding: 0 12px;
     padding-bottom: max(6px, env(safe-area-inset-bottom));
     background: var(--surface);
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
@@ -478,17 +517,17 @@
     z-index: 100;
   }
   .subBtn {
-    width: 120px;
-    min-width: 100px;
-    height: 48px;
+    width: 110px;
+    min-width: 90px;
+    height: 46px;
     font-size: var(--font-size-body);
   }
   .mainBtn {
     flex: 1;
-    min-width: 160px;
-    height: 48px;
-    font-size: var(--font-size-subheading);
-    padding: 0 16px;
+    min-width: 140px;
+    height: 46px;
+    font-size: 15px;
+    padding: 0 12px;
   }
 }
 

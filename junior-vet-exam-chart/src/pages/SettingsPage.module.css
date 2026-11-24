@@ -133,4 +133,34 @@
   font-weight: bold;
 }
 
+/* モバイル (iPhone SE 3: 375px) 最適化 */
+@media (max-width: 600px) {
+  .header {
+    height: 56px;
+    padding: 0 14px;
+  }
+  .content {
+    padding: 14px 12px;
+    gap: 16px;
+  }
+  .section {
+    padding: 16px 14px;
+    border-radius: var(--radius-lg);
+  }
+  .settingRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 0;
+  }
+  .uploadBtn,
+  .actionBtn,
+  .selectInput {
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+}
+
 

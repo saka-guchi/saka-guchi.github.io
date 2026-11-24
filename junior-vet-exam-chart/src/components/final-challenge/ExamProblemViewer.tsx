@@ -29,6 +29,8 @@ export interface ExamProblemViewerProps {
   scanType?: 'mondai' | 'kaito';
   onScanTypeChange?: (type: 'mondai' | 'kaito') => void;
   isReviewMode?: boolean;
+  onNavigateToSheet?: () => void;
+  unansweredCount?: number;
 }
 
 export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
@@ -53,6 +55,8 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
   scanType = 'mondai',
   onScanTypeChange,
   isReviewMode = false,
+  onNavigateToSheet,
+  unansweredCount,
 }) => {
   const viewMode: 'text' | 'image' = ENABLE_TEXT_VIEW ? rawViewMode : 'image';
   const isImageMode = stage === 1 && viewMode === 'image' && Boolean(pageImageData);
@@ -85,7 +89,7 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
             data-testid="prev-page-btn"
             title={pageLayout === 'spread' ? '前の見開きへ' : '前のページへ'}
           >
-            ◀ 前の{pageLayout === 'spread' ? '見開き' : 'ページ'}
+            ◀ <span className={styles.btnFullText}>前の{pageLayout === 'spread' ? '見開き' : 'ページ'}</span><span className={styles.btnShortText}>前へ</span>
           </button>
           <button
             type="button"
@@ -95,7 +99,7 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
             data-testid="next-page-btn"
             title={pageLayout === 'spread' ? '次の見開きへ' : '次のページへ'}
           >
-            次の{pageLayout === 'spread' ? '見開き' : 'ページ'} ▶
+            <span className={styles.btnFullText}>次の{pageLayout === 'spread' ? '見開き' : 'ページ'}</span><span className={styles.btnShortText}>次へ</span> ▶
           </button>
         </div>
 
@@ -568,6 +572,18 @@ export const ExamProblemViewer: React.FC<ExamProblemViewerProps> = ({
           </div>
         )}
       </div>
+
+      {/* スマホ画面で解答用紙へすぐ移れるフローティング導線 */}
+      {onNavigateToSheet && (
+        <button
+          type="button"
+          className={styles.mobileFloatingJumpBtn}
+          onClick={onNavigateToSheet}
+          data-testid="mobile-jump-to-sheet-btn"
+        >
+          ✍️ 解答用紙へ {typeof unansweredCount === 'number' && unansweredCount > 0 ? `(残り${unansweredCount}欄) ` : ''}❯
+        </button>
+      )}
     </section>
   );
 };

@@ -106,11 +106,11 @@ export const OriginalScanModal: React.FC<OriginalScanModalProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '10px 16px',
+          padding: '8px 10px',
           background: '#1e293b',
           color: '#ffffff',
           flexWrap: 'wrap',
-          gap: '8px',
+          gap: '6px',
           borderBottom: '1px solid #334155',
         }}
       >

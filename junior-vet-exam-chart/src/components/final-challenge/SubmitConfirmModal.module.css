@@ -115,3 +115,21 @@
   outline-offset: 2px;
 }
 
+/* モバイル (iPhone SE 3: 375px) 最適化 */
+@media (max-width: 480px) {
+  .modal {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+  .buttonGroup {
+    flex-direction: column-reverse;
+    gap: 10px;
+    width: 100%;
+  }
+  .confirmBtn,
+  .cancelBtn {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+

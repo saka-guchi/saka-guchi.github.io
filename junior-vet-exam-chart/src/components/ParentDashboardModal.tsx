@@ -583,7 +583,7 @@ export const ParentDashboardModal: React.FC<ParentDashboardModalProps> = ({
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--text)' }}>
                   指導医ログ
                 </h3>
-                <div style={{ fontSize: '12px', color: 'var(--text-subtle)' }}>
+                <div className={styles.modalHeaderSubtitle}>
                   見習い獣医さんの学習量・理解度の推移・ほめ言葉ヒント・A4弱点印刷
                 </div>
               </div>

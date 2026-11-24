@@ -7,13 +7,16 @@
 }
 
 .header {
-  height: 72px;
+  min-height: 56px;
+  height: auto;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 8px 16px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 
@@ -449,10 +452,162 @@
   50% { background: #f43f5e; color: white; }
 }
 
+/* モバイル対応 (iPhone SE 3: 375px) */
+.mobileTabNav {
+  display: none;
+}
+
+.mobileFloatingJumpBtn {
+  display: none;
+}
+
+.btnFullText {
+  display: inline;
+}
+
+.btnShortText {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  .header {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
   .main {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobileTabNav {
+    display: flex;
+    gap: 6px;
+    background: var(--surface-subtle);
+    padding: 4px;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--border);
+    margin-bottom: 2px;
+    flex-shrink: 0;
+  }
+
+  .mobileTabBtn {
+    flex: 1;
+    min-height: 42px;
+    padding: 8px 10px;
+    border-radius: var(--radius-pill);
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-subtle);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+
+  .mobileTabBtnActive {
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  }
+
+  .mobileHidden {
+    display: none !important;
+  }
+
+  .pdfArea {
+    padding: 10px 8px;
+    border-radius: var(--radius-lg);
+    min-height: 400px;
+    height: calc(100vh - 140px);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .pageWrapper {
+    padding: 4px;
+  }
+
+  .sheetArea {
+    padding: 12px 10px;
+    border-radius: var(--radius-lg);
+    min-height: 400px;
+    position: relative;
+  }
+
+  .mobileFloatingJumpBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    position: sticky;
+    bottom: 12px;
+    margin-top: 12px;
+    align-self: center;
+    background: var(--color-action, #2563eb);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+    z-index: 50;
+    transition: transform 0.15s ease;
+  }
+
+  .mobileFloatingJumpBtn:active {
+    transform: scale(0.96);
+  }
+
+  .btnFullText {
+    display: none;
+  }
+
+  .btnShortText {
+    display: inline;
+  }
+
+  .subSlotGrid {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 6px;
+  }
+
+  .kanjiGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .submitExamBtn {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+
+  .pdfControls {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .pageBtn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .timerBadge {
+    padding: 4px 10px;
+    font-size: 13px;
   }
 }
 

@@ -142,6 +142,8 @@ export const FinalChallengePage: React.FC = () => {
   const [viewModeState, setViewModeState] = useState<'answering' | 'reviewing'>(
     initialPending || initialFinalized ? 'reviewing' : 'answering'
   );
+  // スマホ画面用: 問題用紙('problem')と解答用紙('sheet')の切り替えタブ
+  const [mobileTab, setMobileTab] = useState<'problem' | 'sheet'>('problem');
   const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false);
   const [isTimeUpSubmitted, setIsTimeUpSubmitted] = useState(
     !!(initialPending?.isTimeUpSubmitted ?? initialFinalized?.isTimeUpSubmitted)
@@ -414,6 +416,7 @@ export const FinalChallengePage: React.FC = () => {
 
   const handleJumpToUnderline = (slotId: string) => {
     sound.playPop();
+    setMobileTab('problem');
     const target = kokugoUnderlinePages[slotId];
     if (!target) return;
 
@@ -502,6 +505,8 @@ export const FinalChallengePage: React.FC = () => {
       </>
     );
   }
+
+  const totalSlotCount = currentSections.flatMap(s => s.slots).length;
 
   return (
     <div className={styles.container} data-testid="final-challenge-page">
@@ -593,6 +598,36 @@ export const FinalChallengePage: React.FC = () => {
       </header>
 
       <main className={styles.main}>
+        {/* モバイル（スマホ）専用: 問題用紙と解答用紙のワンタップ切り替えタブ */}
+        <div className={styles.mobileTabNav} role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mobileTab === 'problem'}
+            className={`${styles.mobileTabBtn} ${mobileTab === 'problem' ? styles.mobileTabBtnActive : ''}`}
+            onClick={() => {
+              sound.playPop();
+              setMobileTab('problem');
+            }}
+            data-testid="mobile-tab-problem"
+          >
+            📄 問題用紙 ({currentPage}/{currentTotalPages})
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mobileTab === 'sheet'}
+            className={`${styles.mobileTabBtn} ${mobileTab === 'sheet' ? styles.mobileTabBtnActive : ''}`}
+            onClick={() => {
+              sound.playPop();
+              setMobileTab('sheet');
+            }}
+            data-testid="mobile-tab-sheet"
+          >
+            ✍️ 解答用紙 ({unansweredCount > 0 ? `残り${unansweredCount}欄` : '全問入力済'})
+          </button>
+        </div>
+
         {/* 左: 問題ページビューア（共通部品） */}
         <ExamProblemViewer
           stage={stage}
@@ -612,14 +647,37 @@ export const FinalChallengePage: React.FC = () => {
           nextPageImageData={nextPageImageData}
           currentPageContent={currentPageContent}
           currentSections={currentSections}
+          className={mobileTab === 'sheet' ? styles.mobileHidden : ''}
+          onNavigateToSheet={() => {
+            sound.playPop();
+            setMobileTab('sheet');
+          }}
+          unansweredCount={unansweredCount}
         />
 
         {/* 右: 解答用紙（設問番号順・大問ごとの構造化） */}
-        <section className={styles.sheetArea} data-testid="challenge-answer-sheet">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-            <h2 style={{ font: 'var(--font-heading)', margin: 0 }}>解答用紙</h2>
+        <section
+          className={`${styles.sheetArea} ${mobileTab === 'problem' ? styles.mobileHidden : ''}`}
+          data-testid="challenge-answer-sheet"
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h2 style={{ font: 'var(--font-heading)', margin: 0 }}>解答用紙</h2>
+              <button
+                type="button"
+                className={styles.mobileFloatingJumpBtn}
+                style={{ margin: 0, padding: '4px 10px', fontSize: '12px' }}
+                onClick={() => {
+                  sound.playPop();
+                  setMobileTab('problem');
+                }}
+                data-testid="jump-to-problem-btn"
+              >
+                📄 問題を見る ❮
+              </button>
+            </div>
             <span style={{ fontSize: '13px', color: 'var(--text-subtle)' }}>
-              全 {currentSections.flatMap(s => s.slots).length} 欄
+              全 {totalSlotCount} 欄{unansweredCount > 0 ? `（残り: ${unansweredCount} 欄）` : '（全欄入力済）'}
             </span>
           </div>
 

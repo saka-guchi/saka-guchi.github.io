@@ -170,3 +170,30 @@
   to { transform: scale(1) translateY(0); opacity: 1; }
 }
 
+/* モバイル (iPhone SE 3: 375px × 667px) 最適化 */
+@media (max-width: 600px) {
+  .modalOverlay {
+    padding: 8px;
+  }
+
+  .modalContent {
+    padding: 14px 12px;
+    gap: 10px;
+    max-height: calc(100dvh - 16px);
+    overflow-y: auto;
+  }
+
+  .cardPerspective,
+  .cardInner {
+    min-height: 380px;
+  }
+
+  .cardFace {
+    padding: 14px 10px;
+  }
+
+  .patientBar {
+    padding: 6px 10px;
+  }
+}
+

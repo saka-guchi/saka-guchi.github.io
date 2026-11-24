@@ -265,3 +265,14 @@
     gap: 6px;
   }
 }
+
+.modalHeaderSubtitle {
+  font-size: 12px;
+  color: var(--text-subtle);
+}
+
+@media (max-width: 600px) {
+  .modalHeaderSubtitle {
+    display: none;
+  }
+}

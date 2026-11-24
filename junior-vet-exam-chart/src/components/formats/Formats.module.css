@@ -365,4 +365,64 @@
   background: var(--success);
 }
 
+/* モバイル (iPhone SE 3: 375px) 最適化 */
+@media (max-width: 600px) {
+  .promptCard {
+    padding: 16px 14px;
+    border-radius: var(--radius-lg);
+  }
+
+  .promptText {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .choiceBtn {
+    padding: 10px 14px;
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  .matchingColumns {
+    gap: 8px;
+  }
+
+  .matchingItem {
+    padding: 8px 10px;
+    min-height: 48px;
+    font-size: 13px;
+  }
+
+  .matchingBadge {
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    margin-left: 4px;
+  }
+
+  .orderItem {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .numericDisplay {
+    font-size: 24px;
+    padding: 10px 14px;
+    min-height: 50px;
+  }
+
+  .keypadBtn {
+    min-height: 46px;
+    font-size: 20px;
+  }
+}
+
+.formatContainer svg,
+.formatContainer img {
+  max-width: 100%;
+  height: auto;
+  box-sizing: border-box;
+}
+
+
 
