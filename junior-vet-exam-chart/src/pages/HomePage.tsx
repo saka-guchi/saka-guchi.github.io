@@ -23,6 +23,12 @@ import { getPointsSummary, type PointsSummary } from '../utils/points-manager';
 import { PointsNotebookModal } from '../components/PointsNotebookModal';
 import { hasInProgressExam } from '../utils/final-challenge-storage';
 import { getDailyQuote, getRandomQuote, type InspirationalQuote, type QuoteCategory } from '../data/quotes';
+import {
+  getDailyPickupAdvice,
+  getSchoolCompletionStats,
+  type HighlightAdviceItem,
+} from '../utils/school-advice';
+import { type SchoolId } from '../data/school-advice-data';
 import styles from './HomePage.module.css';
 import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 
@@ -48,6 +54,47 @@ export const HomePage: React.FC = () => {
   const [showAllExamYears, setShowAllExamYears] = useState(false);
   const [quoteCategoryFilter, setQuoteCategoryFilter] = useState<QuoteCategory | 'all'>('all');
   const [currentQuote, setCurrentQuote] = useState<InspirationalQuote>(() => getDailyQuote());
+
+  // 志望校アドバイス用ステート
+  const [adviceSchoolFilter, setAdviceSchoolFilter] = useState<SchoolId | 'all'>('all');
+  const [adviceOffset, setAdviceOffset] = useState<number>(0);
+  const [currentAdvice, setCurrentAdvice] = useState<HighlightAdviceItem>(() => getDailyPickupAdvice());
+  const [adviceStats, setAdviceStats] = useState<{ chiyodaChecked: number; chiyodaTotal: number; meguroChecked: number; meguroTotal: number }>(() => {
+    const c = getSchoolCompletionStats('chiyoda');
+    const m = getSchoolCompletionStats('meguro');
+    return { chiyodaChecked: c.checked, chiyodaTotal: c.total, meguroChecked: m.checked, meguroTotal: m.total };
+  });
+
+  const handleNextAdvice = (targetSchool: SchoolId | 'all' = adviceSchoolFilter) => {
+    sound.playPop();
+    const nextOffset = adviceOffset + 1;
+    setAdviceOffset(nextOffset);
+    // targetSchoolが指定されている場合は該当するアイテムが出るまで探す
+    let found = getDailyPickupAdvice(undefined, nextOffset);
+    if (targetSchool !== 'all') {
+      for (let i = 0; i < 30; i++) {
+        if (found.schoolId === targetSchool) break;
+        found = getDailyPickupAdvice(undefined, nextOffset + i + 1);
+      }
+    }
+    setCurrentAdvice(found);
+  };
+
+  const handleSelectAdviceSchool = (school: SchoolId | 'all') => {
+    sound.playPop();
+    setAdviceSchoolFilter(school);
+    handleNextAdvice(school);
+  };
+
+  useEffect(() => {
+    const handleAdviceUpdate = () => {
+      const c = getSchoolCompletionStats('chiyoda');
+      const m = getSchoolCompletionStats('meguro');
+      setAdviceStats({ chiyodaChecked: c.checked, chiyodaTotal: c.total, meguroChecked: m.checked, meguroTotal: m.total });
+    };
+    window.addEventListener('school-advice-updated', handleAdviceUpdate);
+    return () => window.removeEventListener('school-advice-updated', handleAdviceUpdate);
+  }, []);
 
   const handleNextQuote = (targetCategory: QuoteCategory | 'all' = quoteCategoryFilter) => {
     sound.playPop();
@@ -476,83 +523,171 @@ export const HomePage: React.FC = () => {
 
       {/* メインコンテンツ */}
       <main className={styles.mainContent}>
-        {/* ナース猫ミケちゃんの世界の名言＆小学生向け解説バナー */}
-        <section className={styles.mentorBar} data-testid="mentor-quote-bar">
-          {/* ヘッダー行: アバター + タイトル + カテゴリ切替 + 別の名言ボタン */}
-          <div className={styles.mentorHeaderRow}>
-            <div className={styles.mentorProfileGroup}>
-              <div
-                className={styles.mentorAvatar}
-                onClick={() => handleNextQuote()}
-                title="クリックすると別の名言が聞けるよ！🐾"
-                role="button"
-                tabIndex={0}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    handleNextQuote();
-                  }
-                }}
-                aria-label="ナース猫のミケちゃん（クリックで別の名言）"
-              >
-                🐱
+        {/* 最上段 2カラムグリッド（左: ナース猫ミケちゃん / 右: 志望校アドバイス） */}
+        <div className={styles.topMentorGrid}>
+          {/* ナース猫ミケちゃんの世界の名言＆小学生向け解説バナー */}
+          <section className={styles.mentorBar} data-testid="mentor-quote-bar">
+            {/* ヘッダー行: アバター + タイトル + カテゴリ切替 + 別の名言ボタン */}
+            <div className={styles.mentorHeaderRow}>
+              <div className={styles.mentorProfileGroup}>
+                <div
+                  className={styles.mentorAvatar}
+                  onClick={() => handleNextQuote()}
+                  title="クリックすると別の名言が聞けるよ！🐾"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      handleNextQuote();
+                    }
+                  }}
+                  aria-label="ナース猫のミケちゃん（クリックで別の名言）"
+                >
+                  🐱
+                </div>
+                <div className={styles.mentorTitleInfo}>
+                  <strong>ナース猫のミケちゃん:</strong>
+                  <span className={styles.quoteBadge}>{currentQuote.categoryLabel}</span>
+                </div>
               </div>
-              <div className={styles.mentorTitleInfo}>
-                <strong>ナース猫のミケちゃん:</strong>
-                <span className={styles.quoteBadge}>{currentQuote.categoryLabel}</span>
+
+              <div className={styles.quoteControls}>
+                <div className={styles.quoteCategoryPills} role="group" aria-label="名言テーマの選択">
+                  {(
+                    [
+                      { key: 'all', label: '🌟 すべて' },
+                      { key: 'grit', label: '🔥 渇！気合' },
+                      { key: 'empower', label: '🌸 心のお守り' },
+                      { key: 'exam_figure', label: '📚 入試頻出' },
+                    ] as const
+                  ).map(cat => (
+                    <button
+                      key={cat.key}
+                      type="button"
+                      className={`${styles.quoteFilterPill} ${quoteCategoryFilter === cat.key ? styles.quoteFilterPillActive : ''}`}
+                      onClick={() => handleSelectQuoteCategory(cat.key)}
+                      aria-pressed={quoteCategoryFilter === cat.key}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className={styles.nextQuoteBtn}
+                  onClick={() => handleNextQuote()}
+                  title="別の名言を聞く"
+                  aria-label="別の名言を聞く"
+                >
+                  <span>🔄 別の名言</span>
+                </button>
               </div>
             </div>
 
-            <div className={styles.quoteControls}>
-              <div className={styles.quoteCategoryPills} role="group" aria-label="名言テーマの選択">
-                {(
-                  [
-                    { key: 'all', label: '🌟 すべて' },
-                    { key: 'grit', label: '🔥 渇！気合' },
-                    { key: 'empower', label: '🌸 心のお守り' },
-                    { key: 'exam_figure', label: '📚 入試頻出' },
-                  ] as const
-                ).map(cat => (
-                  <button
-                    key={cat.key}
-                    type="button"
-                    className={`${styles.quoteFilterPill} ${quoteCategoryFilter === cat.key ? styles.quoteFilterPillActive : ''}`}
-                    onClick={() => handleSelectQuoteCategory(cat.key)}
-                    aria-pressed={quoteCategoryFilter === cat.key}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
+            {/* 名言本文（左に詰めて全幅表示） */}
+            <div className={styles.quoteBody}>
+              <span className={styles.quoteMark}>“</span>
+              <span className={styles.quoteText}>{currentQuote.quote}</span>
+              <span className={styles.quoteMark}>”</span>
+              <div className={styles.quoteAuthor}>
+                ── {currentQuote.author} <span className={styles.quoteRole}>({currentQuote.authorRole})</span>
+              </div>
+            </div>
+
+            {/* 小学生向け解説（ミケちゃんの言葉 - 左に詰めて全幅表示） */}
+            <div className={styles.quoteExplanation}>
+              <span className={styles.explanationTag}>🐾 ミケちゃんの言葉</span>
+              <div className={styles.explanationText}>
+                「{currentQuote.kidsExplanation}」
+              </div>
+            </div>
+          </section>
+
+          {/* 志望校 指導医からの今日のアドバイス（右カラム） */}
+          <section className={styles.schoolAdviceBar} data-testid="school-advice-bar">
+            {/* ヘッダー行 */}
+            <div className={styles.schoolAdviceHeaderRow}>
+              <div className={styles.schoolAdviceTitleGroup}>
+                <div className={styles.schoolAdviceAvatar}>
+                  {currentAdvice.doctorAvatar}
+                </div>
+                <div className={styles.schoolAdviceTitleInfo}>
+                  <strong>{currentAdvice.hospitalName}</strong>
+                </div>
+              </div>
+
+              <div className={styles.schoolAdviceControls}>
+                <div className={styles.schoolSelectorPills} role="group" aria-label="学校フィルター">
+                  {(
+                    [
+                      { key: 'all', label: '🌟 2校' },
+                      { key: 'chiyoda', label: '千代田' },
+                      { key: 'meguro', label: '多摩目黒' },
+                    ] as const
+                  ).map(sch => (
+                    <button
+                      key={sch.key}
+                      type="button"
+                      className={`${styles.schoolSelectorBtn} ${adviceSchoolFilter === sch.key ? styles.schoolSelectorBtnActive : ''}`}
+                      onClick={() => handleSelectAdviceSchool(sch.key)}
+                      aria-pressed={adviceSchoolFilter === sch.key}
+                    >
+                      {sch.label}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className={styles.nextQuoteBtn}
+                  onClick={() => handleNextAdvice()}
+                  title="別のアドバイスを見る"
+                  aria-label="別のアドバイスを見る"
+                >
+                  <span>🔄 次の極意</span>
+                </button>
+              </div>
+            </div>
+
+            {/* アドバイス本文 */}
+            <div className={styles.schoolAdviceBody}>
+              <div className={styles.schoolAdviceTagRow}>
+                <span className={styles.schoolAdviceSectionBadge}>
+                  {currentAdvice.schoolName}・{currentAdvice.sectionTitle}
+                </span>
+                <span className={styles.schoolAdviceDoctorName}>
+                  👨‍⚕️ {currentAdvice.doctorTitle}
+                </span>
+              </div>
+              <p className={styles.schoolAdviceText}>
+                💡「{currentAdvice.item.text}」
+              </p>
+            </div>
+
+            {/* フッター行: 達成度バッジ ＆ フル画面CTA */}
+            <div className={styles.schoolAdviceFooter}>
+              <div className={styles.schoolAdviceStatsBadge} title="今日達成したチェック数">
+                <span>🌟 本日クリア:</span>
+                <span>
+                  千代田 {adviceStats.chiyodaChecked}/{adviceStats.chiyodaTotal}
+                  {' | '}
+                  目黒 {adviceStats.meguroChecked}/{adviceStats.meguroTotal}
+                </span>
               </div>
               <button
                 type="button"
-                className={styles.nextQuoteBtn}
-                onClick={() => handleNextQuote()}
-                title="別の名言を聞く"
-                aria-label="別の名言を聞く"
+                className={styles.schoolAdviceCtaBtn}
+                onClick={() => {
+                  sound.playPop();
+                  navigate(`/school-advice?school=${currentAdvice.schoolId}`);
+                }}
+                data-testid="open-school-advice-btn"
+                title="志望校の攻略リストをフル画面で見る"
               >
-                <span>🔄 別の名言を聞く</span>
+                <span>📋 攻略リストを開く ❯</span>
               </button>
             </div>
-          </div>
-
-          {/* 名言本文（左に詰めて全幅表示） */}
-          <div className={styles.quoteBody}>
-            <span className={styles.quoteMark}>“</span>
-            <span className={styles.quoteText}>{currentQuote.quote}</span>
-            <span className={styles.quoteMark}>”</span>
-            <div className={styles.quoteAuthor}>
-              ── {currentQuote.author} <span className={styles.quoteRole}>({currentQuote.authorRole})</span>
-            </div>
-          </div>
-
-          {/* 小学生向け解説（ミケちゃんの言葉 - 左に詰めて全幅表示） */}
-          <div className={styles.quoteExplanation}>
-            <span className={styles.explanationTag}>🐾 ミケちゃんの言葉</span>
-            <div className={styles.explanationText}>
-              「{currentQuote.kidsExplanation}」
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
         {/* ゾーン1: 上段2カラム（本日の診察 と 知識の処方箋） */}
         <div className={styles.topCardsGrid}>

@@ -6,6 +6,7 @@ import { ResultPage } from './pages/ResultPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { FinalChallengePage } from './pages/FinalChallengePage';
 import { MentalCarePage } from './pages/MentalCarePage';
+import { SchoolAdvicePage } from './pages/SchoolAdvicePage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AppUpdateBanner } from './components/AppUpdateBanner';
 import { ensureBuiltinPackLoaded } from './db';
@@ -30,6 +31,7 @@ export const App: React.FC = () => {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/final-challenge" element={<FinalChallengePage />} />
           <Route path="/mental-care" element={<MentalCarePage />} />
+          <Route path="/school-advice" element={<SchoolAdvicePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </HashRouter>
